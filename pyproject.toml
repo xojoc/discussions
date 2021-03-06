@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "discussions"
+version = "0.1.0"
+description = ""
+authors = ["Alexandru Cojocaru <hi@xojoc.pw>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Django = "^3.1.7"
+celery = "^5.0.5"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
