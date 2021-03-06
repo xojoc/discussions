@@ -7,3 +7,7 @@ deploy:
 
 run:
 	@poetry run python3 manage.py runserver&
+
+
+cp:
+	@git commit -a && git push

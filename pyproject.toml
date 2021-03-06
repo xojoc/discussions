@@ -8,6 +8,7 @@ authors = ["Alexandru Cojocaru <hi@xojoc.pw>"]
 python = "^3.9"
 Django = "^3.1.7"
 celery = "^5.0.5"
+psycopg2-binary = "^2.8.6"
 
 [tool.poetry.dev-dependencies]
 
