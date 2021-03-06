@@ -6,7 +6,8 @@ deploy:
 
 
 run:
-	@poetry run python3 manage.py runserver&
+	-kill $$(lsof -i:7777 -t)
+	@poetry run python3 manage.py runserver 7777&
 
 
 cp:
