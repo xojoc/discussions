@@ -16,13 +16,11 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
     r_skip_prefix = "discussions:hn:skip:"
     c = http.client(with_cache=False)
 
-    cache_timeout = 60 * 60
-    if fetching_all:
-        cache_timeout = 60 * 60
+    cache_timeout = 60 * 60 * 24
 
-    # If nothing changes since last fetch, then we skeep
+    # If nothing changes since last fetch, then we skip
     # this item for three days
-    nothing_changed_cache_timeout = 60 * 60 * 24 * 3
+    nothing_changed_cache_timeout = 60 * 60 * 24 * 7
 
     for id in range(from_id, to_id):
         if redis.get(r_skip_prefix + str(id)):
@@ -92,7 +90,7 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
             discussion = models.Discussion.objects.get(
                 pk=platform_id)
 
-            one_month_ago = timezone.now() - datetime.timedelta(days=30 * 1)
+            one_week_ago = timezone.now() - datetime.timedelta(days=7 * 1)
 
             if (discussion.comment_count == item.get('descendants') and
                 discussion.score == item.get('score') and
