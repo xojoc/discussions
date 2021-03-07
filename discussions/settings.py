@@ -165,8 +165,14 @@ LOGGING = {
     'root': {
         'handlers': ['console'],
         'level': 'INFO',
+        'formatter': 'simple'
     },
     'loggers': {
+        'discussions.web': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
         'web': {
             'handlers': ['console'],
             'level': 'INFO',
