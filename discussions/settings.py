@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'celerybeat_status'
 ]
 
 MIDDLEWARE = [
@@ -121,8 +122,37 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
+USERAGENT = 'Discussions bot/0.1'
+
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv("REDIS_URL"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        }
+    }
+}
+
+CELERY_BROKER_URL = os.getenv('REDIS_URL')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL')
+
+CELERY_BROKER_TRANSPORT_OPTIONS = {'fanout_patterns': True,
+                                   'fanout_prefix': True,
+                                   'visibility_timeout': 43200}
+
+CELERY_TASK_ACKS_LATE = True
+
+CELERY_BEAT_SCHEDULE = {
+    'fetch_all_hn_discussions': {
+        'task': 'web.tasks.fetch_all_hn_discussions',
+        'schedule': 60 + 30,
+    },
+}
+
+
+
 if os.environ.get('DJANGO_DEVELOPMENT'):
     from .settings_dev import *
-
-
-USERAGENT = 'Discussions bot/0.1'

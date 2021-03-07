@@ -176,6 +176,14 @@ argon2 = ["argon2-cffi (>=16.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-celerybeat-status"
+version = "0.0.10"
+description = "A simple django admin extension that shows when your periodic are going to run next"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "django-redis"
 version = "4.12.1"
 description = "Full featured redis cache backend for Django."
@@ -334,7 +342,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "1af4bf28db5341a4893cc155d7c0efb57f1eb2293921c67b80468ef187161bbd"
+content-hash = "588747fbb2a1dc306f251a8cde01f94f3060201d2ffa84e80defc801c7569e06"
 
 [metadata.files]
 amqp = [
@@ -383,6 +391,9 @@ click-repl = [
 django = [
     {file = "Django-3.1.7-py3-none-any.whl", hash = "sha256:baf099db36ad31f970775d0be5587cc58a6256a6771a44eb795b554d45f211b8"},
     {file = "Django-3.1.7.tar.gz", hash = "sha256:32ce792ee9b6a0cbbec340123e229ac9f765dff8c2a4ae9247a14b2ba3a365a7"},
+]
+django-celerybeat-status = [
+    {file = "django-celerybeat-status-0.0.10.tar.gz", hash = "sha256:2077aecc46997619a4d12aad0bcc53289cff2edced4c116f0c6b5593631ca707"},
 ]
 django-redis = [
     {file = "django-redis-4.12.1.tar.gz", hash = "sha256:306589c7021e6468b2656edc89f62b8ba67e8d5a1c8877e2688042263daa7a63"},
