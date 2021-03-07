@@ -13,6 +13,15 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 import os
 
+import logging
+
+import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -180,6 +189,20 @@ LOGGING = {
         },
     },
 }
+
+sentry_logging = LoggingIntegration(
+    level=logging.INFO,
+    event_level=logging.ERROR,
+)
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    integrations=[DjangoIntegration(),
+                  CeleryIntegration(),
+                  RedisIntegration(),
+                  sentry_logging]
+)
+
 
 if os.environ.get('DJANGO_DEVELOPMENT'):
     from .settings_dev import *

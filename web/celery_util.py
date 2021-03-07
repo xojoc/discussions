@@ -46,7 +46,6 @@ def singleton(timeout=60 * 5, blocking_timeout=None):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            print("test")
             r = get_redis_connection("default")
             lock_name = f"discussions:lock:{f.__name__}"
             try:
