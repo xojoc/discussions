@@ -90,7 +90,7 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
             discussion = models.Discussion.objects.get(
                 pk=platform_id)
 
-            one_week_ago = timezone.now() - datetime.timedelta(days=7 * 1)
+            one_week_ago = make_aware(timezone.now() - datetime.timedelta(days=7 * 1))
 
             if (discussion.comment_count == item.get('descendants') and
                 discussion.score == item.get('score') and
