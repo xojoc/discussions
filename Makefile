@@ -1,3 +1,8 @@
+SHELL = bash
+include .env
+export
+
+
 deploy:
 	@poetry export -f requirements.txt --output requirements.txt
 	@git add requirements.txt
@@ -12,3 +17,7 @@ run:
 
 cp:
 	@git commit -a && git push
+
+migrate:
+	@poetry run python manage.py makemigrations web
+	@poetry run python manage.py migrate
