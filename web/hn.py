@@ -26,10 +26,10 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
 
     for id in range(from_id, to_id):
         if redis.get(r_skip_prefix + str(id)):
-            if fetching_all:
-                redis.delete(r_skip_prefix + str(id))
-            else:
-                redis.set(r_skip_prefix + str(id), 1, ex=cache_timeout)
+            # if fetching_all:
+            #     redis.delete(r_skip_prefix + str(id))
+            # else:
+            #     redis.set(r_skip_prefix + str(id), 1, ex=cache_timeout)
             continue
 
         try:
