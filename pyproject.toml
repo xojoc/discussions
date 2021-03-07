@@ -9,6 +9,10 @@ python = "^3.9"
 Django = "^3.1.7"
 celery = "^5.0.5"
 psycopg2-binary = "^2.8.6"
+urllib3 = "^1.26.3"
+django-redis = "^4.12.1"
+requests = "^2.25.1"
+CacheControl = "^0.12.6"
 
 [tool.poetry.dev-dependencies]
 

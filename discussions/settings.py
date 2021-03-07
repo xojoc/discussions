@@ -123,3 +123,6 @@ STATIC_URL = '/static/'
 
 if os.environ.get('DJANGO_DEVELOPMENT'):
     from .settings_dev import *
+
+
+USERAGENT = 'Discussions bot/0.1'

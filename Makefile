@@ -6,7 +6,7 @@ deploy:
 
 
 run:
-	-kill $$(lsof -i:7777 -t)
+	-kill $$(lsof -i:7777 -t -sTCP:LISTEN)
 	@poetry run python3 manage.py runserver 7777&
 
 
