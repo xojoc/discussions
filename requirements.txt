@@ -30,6 +30,8 @@ click-repl==0.1.6; python_version >= "3.6" \
 click==7.1.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6" \
     --hash=sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc \
     --hash=sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a
+django-celerybeat-status==0.0.10 \
+    --hash=sha256:2077aecc46997619a4d12aad0bcc53289cff2edced4c116f0c6b5593631ca707
 django-redis==4.12.1; python_version >= "3.5" \
     --hash=sha256:306589c7021e6468b2656edc89f62b8ba67e8d5a1c8877e2688042263daa7a63 \
     --hash=sha256:1133b26b75baa3664164c3f44b9d5d133d1b8de45d94d79f38d1adc5b1d502e5
