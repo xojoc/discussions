@@ -196,6 +196,8 @@ def canonical_url(url, client=None, redis=None, follow_redirects=False, cache=Tr
 
 
 def split_scheme(url):
+    url = url.lower()
+
     if not url:
         return "", url
 

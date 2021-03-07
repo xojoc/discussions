@@ -19,10 +19,10 @@ class Discussion(models.Model):
 
     """Original URL of the story without the scheme"""
     schemeless_story_url = models.CharField(max_length=100_000)
-    canonical_story_url = models.CharField(max_length=2000,
+    canonical_story_url = models.CharField(max_length=100_000,
                                           blank=True,
                                           null=True)
-    canonical_redirect_url = models.CharField(max_length=2000,
+    canonical_redirect_url = models.CharField(max_length=100_000,
                                              blank=True,
                                              default=None,
                                              null=True)

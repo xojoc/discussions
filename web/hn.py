@@ -2,6 +2,8 @@ import logging
 import datetime
 
 from django.utils.timezone import make_aware
+from django.utils import timezone
+import datetime
 from django_redis import get_redis_connection
 
 from web import http, models, discussions
@@ -17,6 +19,10 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
     cache_timeout = 60 * 60
     if fetching_all:
         cache_timeout = 60 * 60
+
+    # If nothing changes since last fetch, then we skeep
+    # this item for three days
+    nothing_changed_cache_timeout = 60 * 60 * 24 * 3
 
     for id in range(from_id, to_id):
         if redis.get(r_skip_prefix + str(id)):
@@ -81,12 +87,20 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
             continue
 
         canonical_url = discussions.canonical_url(url)
-        if len(canonical_url) > 2000 or canonical_url == url:
-            canonical_url = None
 
         try:
             discussion = models.Discussion.objects.get(
                 pk=platform_id)
+
+            one_month_ago = timezone.now() - datetime.timedelta(days=30 * 1)
+
+            if (discussion.comment_count == item.get('descendants') and
+                discussion.score == item.get('score') and
+                created_at < one_month_ago):
+
+                # Comment count and score didn't change, skip this item for a while
+                redis.set(r_skip_prefix + str(id), 1, ex=nothing_changed_cache_timeout)
+
             discussion.comment_count = item.get('descendants') or 0
             discussion.score = item.get('score') or 0
             discussion.created_at = make_aware(created_at)
