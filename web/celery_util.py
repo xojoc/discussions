@@ -42,7 +42,7 @@ def split_task(redis_prefix, get_start_index, get_max, step, callback, infinite_
         r.set(redis_prefix + 'current_index', current_index + step)
 
 
-def singleton(timeout=60 * 60, blocking_timeout=None):
+def singleton(timeout=60 * 5, blocking_timeout=None):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
