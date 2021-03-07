@@ -94,7 +94,7 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
 
             if (discussion.comment_count == item.get('descendants') and
                 discussion.score == item.get('score') and
-                created_at < one_month_ago):
+                created_at < one_week_ago):
 
                 # Comment count and score didn't change, skip this item for a while
                 redis.set(r_skip_prefix + str(id), 1, ex=nothing_changed_cache_timeout)
