@@ -6,6 +6,6 @@ from django.utils.timezone import make_aware
 
 def index(request):
     now = datetime.datetime.now()
-    html = '<html><body>It is now %s.</body></html>' % now
+    html = '<html><body>Test fail</body></html>' % now
 
     return HttpResponse(html)
