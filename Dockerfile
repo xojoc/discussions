@@ -6,14 +6,14 @@ RUN apk update && apk upgrade && \
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-#COPY ./.env /usr/src/app/
-
 COPY ./requirements.txt /usr/src/app/
 RUN pip install --no-cache-dir -r requirements.txt
 COPY ./ /usr/src/app
+COPY ./docker-healthcheck.sh /usr/src/app
 
 EXPOSE 80
 
-#RUN python manage.py migrate
-#CMD ["python", "manage.py", "runserver", "0.0.0.0:80"]
+HEALTHCHECK --start-period=10s --interval=10s --timeout=10s --retries=3 CMD /usr/src/app/docker-healthcheck.sh
+
+
 CMD ["/usr/src/app/docker-entrypoint.sh"]

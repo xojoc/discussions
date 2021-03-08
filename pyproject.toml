@@ -15,6 +15,7 @@ requests = "^2.25.1"
 CacheControl = "^0.12.6"
 django-celerybeat-status = "^0.0.10"
 sentry-sdk = "^1.0.0"
+eventlet = "^0.30.2"
 
 [tool.poetry.dev-dependencies]
 

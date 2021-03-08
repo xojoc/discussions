@@ -19,7 +19,7 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
     cache_timeout = 60 * 60 * 24
 
     # If nothing changes since last fetch, then we skip
-    # this item for three days
+    # this item for a while
     nothing_changed_cache_timeout = 60 * 60 * 24 * 7
 
     for id in range(from_id, to_id):
