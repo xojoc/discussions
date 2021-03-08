@@ -13,7 +13,7 @@ COPY ./docker-healthcheck.sh /usr/src/app
 
 EXPOSE 80
 
-HEALTHCHECK --start-period=10s --interval=10s --timeout=10s --retries=3 CMD /usr/src/app/docker-healthcheck.sh
+HEALTHCHECK --start-period=30s --interval=10s --timeout=10s --retries=3 CMD /usr/src/app/docker-healthcheck.sh
 
 
 CMD ["/usr/src/app/docker-entrypoint.sh"]
