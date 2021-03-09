@@ -68,7 +68,9 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
             continue
 
         if not item.get('descendants'):
-            logger.info(f"HN no descendants: {item}")
+            continue
+
+        if item.get('score') < 0:
             continue
 
         created_at = datetime.datetime.fromtimestamp(item.get('time'))
