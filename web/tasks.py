@@ -15,7 +15,5 @@ def fetch_all_hn_discussions():
                            lambda _: 1,
                            lambda: int(http.client(with_cache=False) \
                                        .get("https://hacker-news.firebaseio.com/v0/maxitem.json").content) + 1,
-                           # Fetching 400 HN discussions takes more or less 1 minute
-                           # If you change this, please update the beat settings too
-                           400,
+                           10_000,
                            lambda f, t: hn.fetch_discussions(f, t, fetching_all=True))
