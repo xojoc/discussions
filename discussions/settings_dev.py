@@ -1,8 +1,7 @@
-
 from pathlib import Path
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 SECRET_KEY = 'fake dev'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,5 +16,3 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 #         'USER': os.environ.get('DATABASE_USER'),
 #     }
 # }
-
-ALLOWED_HOSTS = []

@@ -1,17 +1,28 @@
 #!/bin/bash
 
-echo "Collect static files"
-#python manage.py collectstatic --noinput
+cleanup() {
+  echo "Cleanup"
+}
 
+echo 'Set Trap'
+trap 'trap " " SIGTERM; kill 0; wait; cleanup' SIGINT SIGTERM
+
+echo "The script pid is $$"
+
+wait"Collect static files"
+#python manage.py collectstatic --noinput
 
 echo "Apply database migrations"
 python manage.py migrate --noinput
 
 echo "Run Celery"
-celery -A discussions worker -l info -P eventlet -c 500 -D
+celery -A discussions worker -l info -P eventlet -c 500 &
 
 echo "Run Celery Beat"
-celery -A discussions  beat -l info --detach
+celery -A discussions  beat -l info &
 
 echo "Starting server"
-python manage.py runserver 0.0.0.0:80
+python manage.py runserver 0.0.0.0:80 &
+
+
+wait
