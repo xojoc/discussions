@@ -16,7 +16,7 @@ echo "Apply database migrations"
 python manage.py migrate --noinput
 
 echo "Run Celery"
-celery -A discussions worker -l info -P eventlet -c 500 &
+celery -A discussions worker -l info -P gevent -c 500 &
 
 echo "Run Celery Beat"
 celery -A discussions  beat -l info &

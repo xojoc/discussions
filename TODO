@@ -1,2 +1,6 @@
 * Search by title
 * Search tweets
+
+
+# Dev
+* Find out CapRover's stop timeout and test it (Celery tasks may take minutes to stop)

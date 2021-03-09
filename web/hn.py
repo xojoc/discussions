@@ -1,5 +1,6 @@
 import logging
 import datetime
+import time
 
 from django.utils.timezone import make_aware
 from django.utils import timezone
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def fetch_discussions(from_id, to_id, fetching_all=False):
     redis = get_redis_connection("default")
-    r_skip_prefix = "discussions:hn:skip:"
+    r_skip_set = "discussions:hn:skip_set"
     c = http.client(with_cache=False)
 
     cache_timeout = 60 * 60 * 24
@@ -23,11 +24,7 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
     nothing_changed_cache_timeout = 60 * 60 * 24 * 7
 
     for id in range(from_id, to_id):
-        if redis.get(r_skip_prefix + str(id)):
-            # if fetching_all:
-            #     redis.delete(r_skip_prefix + str(id))
-            # else:
-            #     redis.set(r_skip_prefix + str(id), 1, ex=cache_timeout)
+        if redis.sismember(r_skip_set, id):
             continue
 
         try:
@@ -36,6 +33,7 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
                 timeout=3.05).json()
         except Exception as e:
             logger.error(f"fetch_hn_stories: {e}")
+            time.sleep(2)
             continue
 
         if not item:
@@ -45,25 +43,23 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
 
         if item.get('kids'):
             for kid in item.get('kids'):
-                redis.set(r_skip_prefix + str(kid), 1, ex=cache_timeout)
+                redis.sadd(r_skip_set, kid)
 
         if item.get('deleted'):
-            if not fetching_all:
-                redis.set(r_skip_prefix + str(id), 1, ex=cache_timeout)
+            redis.sadd(r_skip_set, id)
             models.Discussion.objects.filter(pk=platform_id).delete()
             continue
 
         if item.get('type') != 'story':
-            if not fetching_all:
-                redis.set(r_skip_prefix + str(id), 1, ex=cache_timeout)
+            redis.sadd(r_skip_set, id)
             continue
 
         if not item.get('url'):
-            if not fetching_all:
-                redis.set(r_skip_prefix + str(id), 1, ex=cache_timeout)
+            redis.sadd(r_skip_set, id)
             continue
 
         if item.get('dead'):
+            redis.sadd(r_skip_set, id)
             models.Discussion.objects.filter(pk=platform_id).delete()
             continue
 
@@ -92,12 +88,12 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
 
             one_week_ago = timezone.now() - datetime.timedelta(days=7 * 1)
 
-            if (discussion.comment_count == item.get('descendants') and
-                discussion.score == item.get('score') and
-                discussion.created_at < one_week_ago):
+            #if (discussion.comment_count == item.get('descendants') and
+            #    discussion.score == item.get('score') and
+            #    discussion.created_at < one_week_ago):
 
-                # Comment count and score didn't change, skip this item for a while
-                redis.set(r_skip_prefix + str(id), 1, ex=nothing_changed_cache_timeout)
+            #    # Comment count and score didn't change, skip this item for a while
+            #    ### redis.set(r_skip_prefix + str(id), 1, ex=nothing_changed_cache_timeout)
 
             discussion.comment_count = item.get('descendants') or 0
             discussion.score = item.get('score') or 0
