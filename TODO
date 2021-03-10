@@ -2,4 +2,5 @@
 * Search tweets
 
 # Dev
-* Find out CapRover's stop timeout and test it (Celery tasks may take minutes to stop)
+* Fetch recent discussions more often, since they are the most updated (in alternative skip for a long time old discussions, randomizing the skip time)
+* Find out CapRover/docker's stop timeout and test it (Celery tasks may take minutes to stop)
