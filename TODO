@@ -4,3 +4,4 @@
 # Dev
 * Fetch recent discussions more often, since they are the most updated (in alternative skip for a long time old discussions, randomizing the skip time)
 * Find out CapRover/docker's stop timeout and test it (Celery tasks may take minutes to stop)
+* Use DB for beat, not local file (it gets lost with deployment)

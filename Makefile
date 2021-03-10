@@ -28,3 +28,6 @@ d:
 	-docker stop $$(docker ps -a -q)
 	-kill $$(lsof -i:7777 -t -sTCP:LISTEN)
 	@docker run --env-file .env -dp 7777:80 discussions
+
+shell:
+	poetry run python manage.py shell

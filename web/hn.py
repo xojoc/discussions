@@ -1,67 +1,58 @@
 import logging
-import datetime
-import time
-
 from django.utils.timezone import make_aware
-from django.utils import timezone
 import datetime
 from django_redis import get_redis_connection
-
 from web import http, models, discussions
 
 logger = logging.getLogger(__name__)
 
-
 def fetch_discussions(from_id, to_id, fetching_all=False):
-    redis = get_redis_connection("default")
-    r_skip_set = "discussions:hn:skip_set"
     c = http.client(with_cache=False)
+    redis = get_redis_connection("default")
+    r_skip_prefix = "discussions:hn:skip:"
+    skip_timeout = 60*60
+    r_revisit_set = "discussions:hn:revisit_set"
+    r_revisit_max_id = "discussions:hn:revisit_max_id"
 
-    cache_timeout = 60 * 60 * 24
-
-    # If nothing changes since last fetch, then we skip
-    # this item for a while
-    nothing_changed_cache_timeout = 60 * 60 * 24 * 7
+    revisit_max_id = int(redis.get(r_revisit_max_id) or -1)
 
     for id in range(from_id, to_id):
-        if redis.sismember(r_skip_set, id):
+        if (id < revisit_max_id and
+            (not redis.sismember(r_revisit_set, id))):
             continue
 
-        try:
-            item = c.get(
-                f"https://hacker-news.firebaseio.com/v0/item/{id}.json",
-                timeout=3.05).json()
-        except Exception as e:
-            logger.error(f"fetch_hn_stories: {e}")
-            time.sleep(2)
+        if redis.exists(r_skip_prefix + str(id)):
             continue
+
+        # xojoc: if this fails, we let the whole task fail so it gets relaunched
+        #        with the same parameters
+        item = c.get(
+            f"https://hacker-news.firebaseio.com/v0/item/{id}.json",
+            timeout=3.05).json()
 
         if not item:
             continue
 
         platform_id = f"h{id}"
 
-        if item.get('kids'):
-            for kid in item.get('kids'):
-                redis.sadd(r_skip_set, kid)
+        for kid in item.get('kids', []):
+            redis.setex(r_skip_prefix + str(kid), skip_timeout, 1)
 
         if item.get('deleted'):
-            redis.sadd(r_skip_set, id)
             models.Discussion.objects.filter(pk=platform_id).delete()
             continue
 
         if item.get('type') != 'story':
-            redis.sadd(r_skip_set, id)
             continue
 
         if not item.get('url'):
-            redis.sadd(r_skip_set, id)
             continue
 
         if item.get('dead'):
-            redis.sadd(r_skip_set, id)
             models.Discussion.objects.filter(pk=platform_id).delete()
             continue
+
+        redis.sadd(r_revisit_set, id)
 
         if not item.get('time'):
             logger.info(f"HN no time: {item}")
@@ -87,16 +78,6 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
         try:
             discussion = models.Discussion.objects.get(
                 pk=platform_id)
-
-            one_week_ago = timezone.now() - datetime.timedelta(days=7 * 1)
-
-            #if (discussion.comment_count == item.get('descendants') and
-            #    discussion.score == item.get('score') and
-            #    discussion.created_at < one_week_ago):
-
-            #    # Comment count and score didn't change, skip this item for a while
-            #    ### redis.set(r_skip_prefix + str(id), 1, ex=nothing_changed_cache_timeout)
-
             discussion.comment_count = item.get('descendants') or 0
             discussion.score = item.get('score') or 0
             discussion.created_at = make_aware(created_at)
@@ -115,3 +96,5 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
                 schemeless_story_url=url,
                 canonical_story_url=canonical_url,
                 title=item.get('title')).save()
+
+    redis.set(r_revisit_max_id, to_id)
