@@ -35,8 +35,9 @@ def fetch_discussions(from_id, to_id, fetching_all=False):
 
         platform_id = f"h{id}"
 
-        for kid in item.get('kids', []):
-            redis.setex(r_skip_prefix + str(kid), skip_timeout, 1)
+        if id > revisit_max_id - 10_000:
+            for kid in item.get('kids', []):
+                redis.setex(r_skip_prefix + str(kid), skip_timeout, 1)
 
         if item.get('deleted'):
             models.Discussion.objects.filter(pk=platform_id).delete()
