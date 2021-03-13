@@ -1,4 +1,4 @@
-SHELL = bash
+SHELL = /bin/bash -o pipefail
 include .env
 export
 
@@ -15,7 +15,7 @@ run:
 	@poetry run python3 manage.py runserver 7777&
 
 
-cp:
+cp: lint test
 	@git commit -a && git push
 
 migrate:
@@ -31,3 +31,10 @@ d:
 
 shell:
 	poetry run python manage.py shell
+
+
+lint:
+	@poetry run flake8 --extend-ignore E501 | tac
+
+test:
+	@poetry run python -Wa manage.py test --noinput --keepdb

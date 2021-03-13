@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.postgres import fields as postgres_fields
 from . import discussions
+from django.utils import timezone
+import datetime
 
 
 class Discussion(models.Model):
@@ -20,12 +22,12 @@ class Discussion(models.Model):
     """Original URL of the story without the scheme"""
     schemeless_story_url = models.CharField(max_length=100_000)
     canonical_story_url = models.CharField(max_length=100_000,
-                                          blank=True,
-                                          null=True)
+                                           blank=True,
+                                           null=True)
     canonical_redirect_url = models.CharField(max_length=100_000,
-                                             blank=True,
-                                             default=None,
-                                             null=True)
+                                              blank=True,
+                                              default=None,
+                                              null=True)
 
     title = models.CharField(max_length=2048)
     comment_count = models.IntegerField(default=0)
@@ -135,7 +137,6 @@ class Discussion(models.Model):
             return "https://barnacl.es/t"
         elif platform == 'g':
             return "https://gambe.ro/t"
-
 
     def discussion_url(self, preferred_external_url=discussions.PreferredExternalURL.Standard):
         bu = self.platform_url(self.platform, preferred_external_url)

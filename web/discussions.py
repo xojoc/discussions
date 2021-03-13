@@ -1,4 +1,3 @@
-import itertools
 import random
 import re
 import urllib.parse as url_parse

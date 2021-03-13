@@ -1,8 +1,5 @@
 import functools
 import logging
-import time
-from contextlib import contextmanager
-
 from django_redis import get_redis_connection
 from redis.exceptions import LockError
 
