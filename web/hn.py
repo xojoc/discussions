@@ -144,7 +144,7 @@ def fetch_all_hn_discussions():
 
     try:
         current_index = fetch_discussions(current_index, max_index)
-    catch Exception as e:
+    except Exception as e:
         logger.error(e)
         return
     
