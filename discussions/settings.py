@@ -131,6 +131,8 @@ CACHES = {
     }
 }
 
+APP_CELERY_TASK_MAX_TIME = 60 # seconds
+
 CELERY_BROKER_URL = os.getenv('REDIS_URL')
 CELERY_RESULT_BACKEND = os.getenv('REDIS_URL')
 
