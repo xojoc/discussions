@@ -142,8 +142,11 @@ def fetch_all_hn_discussions():
         r.set(redis_prefix + 'max_index', max_index)
         current_index = 1
 
-
-    current_index = fetch_discussions(current_index, max_index)
+    try:
+        current_index = fetch_discussions(current_index, max_index)
+    catch Exception as e:
+        logger.error(e)
+        return
     
     r.set(redis_prefix + 'current_index', current_index)
 
