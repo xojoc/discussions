@@ -4,7 +4,7 @@ import datetime
 from django_redis import get_redis_connection
 from web import http, models, discussions
 from celery import shared_task
-from settings import APP_CELERY_TASK_MAX_TIME
+from discussions.settings import APP_CELERY_TASK_MAX_TIME
 import time
 from web import hn, celery_util
 from celery import shared_task
@@ -111,7 +111,7 @@ def fetch_item(id, revisit_max_id=None, c=None, redis=None):
         timeout=3.05).json()
 
 
-def fetch_discussions(from_id):
+def fetch_discussions(from_id, max_id):
     c = http.client(with_cache=False)
     redis = get_redis_connection("default")
     revisit_max_id = int(redis.get(r_revisit_max_id) or -1)
@@ -123,6 +123,8 @@ def fetch_discussions(from_id):
         item = fetch_item(id, revisit_max_id=revisit_max_id, c=c, redis=redis)
         process_item.delay(item, revisit_max_id=revisit_max_id)
         id += 1
+        if id > max_id:
+            break
 
     redis.set(r_revisit_max_id, id)
     return id
@@ -140,7 +142,7 @@ def fetch_all_hn_discussions():
         r.set(redis_prefix + 'max_index', max_index)
         current_index = 1
 
-    current_index = fetch_hn_discussions(current_index)
+    current_index = fetch_hn_discussions(current_index, max_index)
     
     r.set(redis_prefix + 'current_index', current_index)
 
