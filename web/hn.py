@@ -142,7 +142,7 @@ def fetch_all_hn_discussions():
         r.set(redis_prefix + 'max_index', max_index)
         current_index = 1
 
-    current_index = fetch_hn_discussions(current_index, max_index)
+    current_index = fetch_discussions(current_index, max_index)
     
     r.set(redis_prefix + 'current_index', current_index)
 
