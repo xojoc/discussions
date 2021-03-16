@@ -106,9 +106,13 @@ def fetch_item(id, revisit_max_id=None, c=None, redis=None):
 
     # xojoc: if this fails, we let the whole task fail so it gets relaunched
     #        with the same parameters
-    return c.get(
-        f"https://hacker-news.firebaseio.com/v0/item/{id}.json",
-        timeout=3.05).json()
+    try:
+        item = c.get(f"https://hacker-news.firebaseio.com/v0/item/{id}.json",
+            timeout=3.05).json()
+    except Exception as e:
+        time.sleep(7)
+        raise(e)
+    return item
 
 
 def fetch_discussions(from_id, max_id):
