@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_celery_beat',
+    #'django_celery_beat',
     'celerybeat_status',
     'web'
 ]
@@ -155,7 +155,7 @@ CELERY_TASK_ACKS_LATE = True
 #}
 
 # xojoc: find a way to create default schedules for freshly installed apps
-CELERY_BEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler'
+#CELERY_BEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler'
 
 
 LOGGING = {
