@@ -2,6 +2,7 @@ import functools
 import logging
 from django_redis import get_redis_connection
 from redis.exceptions import LockError
+from discussions.settings import APP_CELERY_TASK_MAX_TIME
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ def split_task(redis_prefix, get_start_index, get_max, step, callback, infinite_
         r.set(redis_prefix + 'current_index', current_index + step)
 
 
-def singleton(timeout=60 * 5, blocking_timeout=None):
+def singleton(timeout=APP_CELERY_TASK_MAX_TIME*2, blocking_timeout=None):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):

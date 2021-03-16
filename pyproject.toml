@@ -17,6 +17,8 @@ django-celerybeat-status = "^0.0.10"
 sentry-sdk = "^1.0.0"
 gevent = "^21.1.2"
 
+django-celery-beat = "^2.2"
+
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
 
