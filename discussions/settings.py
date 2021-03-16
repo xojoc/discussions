@@ -158,7 +158,6 @@ CELERY_TASK_ACKS_LATE = True
 CELERY_BEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler'
 
 
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
