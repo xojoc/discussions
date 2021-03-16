@@ -313,3 +313,10 @@ zope.interface==5.2.0; python_version >= "2.7" and python_full_version < "3.0.0"
 django-celery-beat==2.2.0; python_version >= "3.6" \
     --hash=sha256:b8a13afb15e7c53fc04f4f847ac71a6d32088959aba701eb7c4a59f0c28ba543 \
     --hash=sha256:c4c72a9579f20eff4c4ccf1b58ebdca5ef940f4210065057db1754ea5f8dffdc
+
+django-timezone-field==4.1.1 \
+    --hash=sha256:068dc2c9b11c2230e126f511a515609d46f8cc49278b293e7536be07997fe892 \
+    --hash=sha256:b5b587aabed8db66eb3453691522164915c1aa1b326d8ddeadc8832a8580faeb
+
+python-crontab==2.5.1 \
+    --hash=sha256:4bbe7e720753a132ca4ca9d4094915f40e9d9dc8a807a4564007651018ce8c31
