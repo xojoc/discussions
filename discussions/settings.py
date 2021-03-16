@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     #'django_celery_beat',
     'celerybeat_status',
     'web'
-]
+]  
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
