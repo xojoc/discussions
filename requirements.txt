@@ -309,3 +309,4 @@ zope.interface==5.2.0; python_version >= "2.7" and python_full_version < "3.0.0"
     --hash=sha256:27c267dc38a0f0079e96a2945ee65786d38ef111e413c702fbaaacbab6361d00 \
     --hash=sha256:a2b6d6eb693bc2fc6c484f2e5d93bd0b0da803fa77bf974f160533e555e4d095 \
     --hash=sha256:8251f06a77985a2729a8bdbefbae79ee78567dddc3acbd499b87e705ca59fe24
+django-celery-beat==2.2.0

@@ -19,7 +19,7 @@ echo "Run Celery"
 celery -A discussions worker -l warning -P gevent -c 500 &
 
 echo "Run Celery Beat"
-celery -A discussions  beat -l info &
+celery -A discussions  beat -l warning &
 
 echo "Starting server"
 python manage.py runserver 0.0.0.0:80 &
