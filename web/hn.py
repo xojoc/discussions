@@ -108,7 +108,7 @@ def fetch_item(id, revisit_max_id=None, c=None, redis=None):
     #        with the same parameters
     try:
         item = c.get(f"https://hacker-news.firebaseio.com/v0/item/{id}.json",
-            timeout=3.05).json()
+            timeout=7.05).json()
     except Exception as e:
         time.sleep(7)
         raise(e)
@@ -169,7 +169,7 @@ def fetch_update(id, redis=None, skip_timeout=60*5):
 def fetch_updates():
     c = http.client(with_cache=False)
     updates = c.get("https://hacker-news.firebaseio.com/v0/updates.json",
-                    timeout=3.05).json()
+                    timeout=7.05).json()
 
     for id in updates.get('items'):
         fetch_update.delay(id)
