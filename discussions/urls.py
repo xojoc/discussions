@@ -6,3 +6,4 @@ urlpatterns = [
     path('', include('web.urls')),
     path('admin/', admin.site.urls),
 ]
+
