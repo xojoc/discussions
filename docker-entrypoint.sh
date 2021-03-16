@@ -3,6 +3,7 @@
 cleanup() {
   echo "Cleanup"
   sleep 400 # Sleep longer than 5 minutes
+  
 }
 
 echo 'Set Trap'
