@@ -145,7 +145,7 @@ CELERY_TASK_ACKS_LATE = True
 CELERY_BEAT_SCHEDULE = {
     'fetch_all_hn_discussions': {
         'task': 'web.hn.fetch_all_hn_discussions',
-        'schedule': APP_CELERY_TASK_MAX_TIME * 1.1,
+        'schedule': APP_CELERY_TASK_MAX_TIME * 1.2,
     },
 #    'fetch_hn_updates': {
 #        'task': 'web.hn.fetch_updates',
