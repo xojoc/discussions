@@ -25,7 +25,6 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', os.environ.get('ALLOWED_HOST')]
 # Application definition
 
 INSTALLED_APPS = [
-    'web',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -33,7 +32,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_celery_beat',
-    'celerybeat_status'
+    'celerybeat_status',
+    'web'
 ]
 
 MIDDLEWARE = [
