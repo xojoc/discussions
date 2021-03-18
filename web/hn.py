@@ -6,7 +6,7 @@ from web import http, models, discussions
 from celery import shared_task
 from discussions.settings import APP_CELERY_TASK_MAX_TIME
 import time
-from web import hn, celery_util
+from web import celery_util
 from celery import shared_task
 
 logger = logging.getLogger(__name__)

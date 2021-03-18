@@ -5,8 +5,8 @@ import time
 from celery import shared_task
 from discussions.settings import APP_CELERY_TASK_MAX_TIME
 from django.utils import timezone
-
 from web import http, discussions, models
+from web import celery_util
 
 logger = logging.getLogger(__name__)
 
