@@ -7,6 +7,7 @@ from discussions.settings import APP_CELERY_TASK_MAX_TIME
 from django.utils import timezone
 from web import http, discussions, models
 from web import celery_util
+from django_redis import get_redis_connection
 
 logger = logging.getLogger(__name__)
 
