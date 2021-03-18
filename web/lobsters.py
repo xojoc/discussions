@@ -4,7 +4,6 @@ import time
 
 from celery import shared_task
 from discussions.settings import APP_CELERY_TASK_MAX_TIME
-from django.utils import timezone
 from web import http, discussions, models
 from web import celery_util
 from django_redis import get_redis_connection
@@ -19,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 class EndOfPages(Exception):
     pass
+
 
 @shared_task(ignore_result=True)
 def process_item(item, platform_prefix):
@@ -71,6 +71,7 @@ def process_item(item, platform_prefix):
             title=item.get('title'),
             tags=item.get('tags')).save()
 
+
 def fetch_discussions(current_page, platform_prefix, base_url):
     c = http.client(with_cache=False)
 
@@ -79,7 +80,7 @@ def fetch_discussions(current_page, platform_prefix, base_url):
     while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME:
         page_url = f"{base_url}/newest/page/{current_page}.json"
 
-        r = c.get(page_url, timeout=7.05)
+        r = c.get(page_url, timeout=11.05)
 
         if r.status_code == 404:
             raise EndOfPages
@@ -93,7 +94,7 @@ def fetch_discussions(current_page, platform_prefix, base_url):
 
         current_page += 1
 
-        time.sleep(2.1)
+        time.sleep(3.1)
 
     return current_page
 
@@ -111,10 +112,11 @@ def fetch_recent_discussions():
         current_index = 1
 
     try:
-        current_index = fetch_discussions(current_index, 'l', 'https://lobste.rs')
+        current_index = fetch_discussions(
+            current_index, 'l', 'https://lobste.rs')
     except EndOfPages:
         current_index = max_index + 1
-    
+
     r.set(redis_prefix + 'current_index', current_index)
 
 
@@ -131,9 +133,9 @@ def fetch_all_discussions():
         current_index = 1
 
     try:
-        current_index = fetch_discussions(current_index, 'l', 'https://lobste.rs')
+        current_index = fetch_discussions(
+            current_index, 'l', 'https://lobste.rs')
     except EndOfPages:
         current_index = max_index + 1
-    
-    r.set(redis_prefix + 'current_index', current_index)
 
+    r.set(redis_prefix + 'current_index', current_index)
