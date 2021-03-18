@@ -9,11 +9,9 @@ deploy:
 	-git commit -m "Update requirements.txt" -- requirements.txt
 	@caprover deploy --default
 
-
 run:
 	-kill $$(lsof -i:7777 -t -sTCP:LISTEN)
 	@poetry run python3 manage.py runserver 7777&
-
 
 cp: lint test
 	@git commit -a && git push
