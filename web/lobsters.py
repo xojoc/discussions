@@ -95,6 +95,8 @@ def fetch_discussions(current_page, platform_prefix, base_url):
 
         time.sleep(2.1)
 
+    return current_page
+
 
 @shared_task(ignore_result=True)
 @celery_util.singleton(blocking_timeout=3)
