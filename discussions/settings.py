@@ -169,25 +169,25 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'INFO',
+        'level': 'WARNING',
         'formatter': 'simple'
     },
     'loggers': {
         'discussions.web': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'WARNING',
             'propagate': True,
         },
         'web': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'WARNING',
             'propagate': True,
         },
     },
 }
 
 sentry_logging = LoggingIntegration(
-    level=logging.INFO,
+    level=logging.WARNING,
     event_level=logging.ERROR,
 )
 
