@@ -1,1 +1,1 @@
-javascript: (function () { const params = new URLSearchParams({ url: window.location.href }); var url = 'https://www.keepmeon.top/discussions?' + params.toString(); var win = window.open(url, '_blank'); win.focus(); })();
+javascript: (function () { const params = new URLSearchParams({ url: window.location.href }); var url = 'https://discussions.xojoc.pw/?' + params.toString(); var win = window.open(url, '_blank'); win.focus(); })();
