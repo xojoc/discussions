@@ -163,15 +163,17 @@ def fetch_update(id, redis=None, skip_timeout=60*5):
     if item.get("type") == "comment":
         redis.setex(r_skip_prefix + str(item.get("id")), skip_timeout, 1)
         if item.get("parent"):
-            fetch_update(item.get("parent"), redis=redis,
+            fetch_update(item.get("parent"),
+                         redis=redis,
                          skip_timeout=skip_timeout)
 
 
 @shared_task(ignore_result=True)
+@celery_util.singleton(blocking_timeout=3)
 def fetch_updates():
     c = http.client(with_cache=False)
     updates = c.get("https://hacker-news.firebaseio.com/v0/updates.json",
                     timeout=7.05).json()
 
     for id in updates.get('items'):
-        fetch_update.delay(id)
+        fetch_update(id)

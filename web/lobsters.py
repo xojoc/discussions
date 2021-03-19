@@ -112,8 +112,7 @@ def fetch_recent_discussions():
         current_index = 1
 
     try:
-        current_index = fetch_discussions(
-            current_index, 'l', 'https://lobste.rs')
+        current_index = fetch_discussions(current_index, 'l', 'https://lobste.rs')
     except EndOfPages:
         current_index = max_index + 1
 
