@@ -1,0 +1,67 @@
+{% extends "web/base.html" %}
+
+{% block main %}
+<div id=discussions>
+    <h1 id=title-discussions><a href="/" title="Permalink">Interesting discussions around the web</a></h1>
+    <form method="GET">
+        <div class="flex-container">
+            <label for=url>URL</label>
+            <input class="flex-fill-width" id="url" name="url" type="text" value="{{ctx.url}}"/>
+            <input type="submit" value="Find discussions"/>
+        </div>
+    </form>
+
+    {% if ctx.display_discussions %}
+    <br/>
+    <p>All the discussions we found for <a href="{{ctx.url}}">{{ctx.title}}</a>:</p>
+
+
+    {% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
+    <div id="platform_{{platform}}">
+        <h3><a href="{{ platform_url }}">{{ platform_name }}</a></h3>
+        <ul>
+            {% for d in discussions %}
+            <li><a href="{{d.discussion_url}}" rel="noreferrer noopener" target="_blank"><b>{{d.comment_count}}</b>
+                comment{{d.comment_count|pluralize:",s"}}</a>, <b>{{d.score}}</b> points [{{d.created_at | date}}]
+                {% if d.tags %}
+                {% if platform != 'r' %}
+                Tags:
+                {% endif %}
+                {% for tag in d.tags %}
+                <b><a href="{{platform_tag_url}}/{{tag}}">{{tag}}</a></b>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+
+    {% endif %}
+
+    {% if ctx.nothing_found %}
+    <h2>Discussions not found</h2>
+    <p>Sorry, we couldn't find nothing for <b>{{ctx.url}}</b></p>
+    <p>If you think we missed something, please write to: <a href="mailto:hi@xojoc.pw">hi@xojoc.pw</a>
+    </p>
+    {% endif %}
+
+
+    <br/>
+    <br/>
+    <h2>What is this?</h2>
+    <p>This form finds all the discussions on Hacker News, Lobsters and Reddit (other communities will be added in the
+        future).</p>
+
+    <h2>Bookmarklet</h2>
+    <p>Use the following bookmarklet to find discussions anywhere you go: <a href="{% include " web/discussions_bookmarklet.js" %}" 
+        title="Discussions Bookmarklet">Discussions around the web</a></p>
+    <p>Bookmark the above link and click on it on any page to be redirected here. For more information about
+        bookmarklets see <a href="https://support.mozilla.org/en-US/kb/bookmarklets-perform-common-web-page-tasks">Firefox's
+            help pages</a>.</p>
+
+    <h2>Notes</h2>
+    <p>The comments and points counters are approximative. Due to the vast amount of discussions saved in our DB it's
+        not possible to keep them all up to date.</p>
+</div>
+{% endblock main %}

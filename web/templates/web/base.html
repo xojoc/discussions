@@ -1,0 +1,46 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+	<meta charset=utf-8>
+	<meta name=viewport content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="{% static "style.css" %}" />
+	<link rel="icon" type="image/png" href="https://xojoc.pw/favicon.ico">
+
+	{% if request.path == "/" %}
+	<link rel="canonical" href="https://{{ request.get_host }}">
+	{% else %}
+	<link rel="canonical" href="https://{{ request.get_host }}{{ request.path }}">
+	{% endif %}
+
+    <title>{% block title %}Discussions - xojoc.pw{% endblock %}</title>
+	{% block extra_head %}{% endblock %}
+
+	<meta name="description" content="Find interesting discussions around the web">
+  </head>
+
+  <body>
+	<div id=wrapper>
+	  <header>
+		<div id=title>
+		  <h1 id=site_title><a href="/" title="Home">Discussions</a></h1>
+		</div>
+	  </header>
+
+	  {% block main_main %}
+
+	  <div id="content">
+		{% block main %}{% endblock %}
+	  </div>
+
+	  {% endblock main_main %}
+
+	  <footer>
+		<p>
+		  <a href="mailto:hi@xojoc.pw" title="Contact me">hi@xojoc.pw</a>
+		</p>
+	  </footer>
+	</div>
+  </body>
+</html>

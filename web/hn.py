@@ -7,7 +7,6 @@ from celery import shared_task
 from discussions.settings import APP_CELERY_TASK_MAX_TIME
 import time
 from web import celery_util
-from celery import shared_task
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +107,7 @@ def fetch_item(id, revisit_max_id=None, c=None, redis=None):
     #        with the same parameters
     try:
         item = c.get(f"https://hacker-news.firebaseio.com/v0/item/{id}.json",
-            timeout=7.05).json()
+                     timeout=11.05).json()
     except Exception as e:
         time.sleep(7)
         raise(e)
@@ -119,7 +118,7 @@ def fetch_discussions(from_id, max_id):
     c = http.client(with_cache=False)
     redis = get_redis_connection("default")
     revisit_max_id = int(redis.get(r_revisit_max_id) or -1)
-    
+
     start_time = time.monotonic()
     id = from_id
 
@@ -133,6 +132,7 @@ def fetch_discussions(from_id, max_id):
     redis.set(r_revisit_max_id, id)
     return id
 
+
 @shared_task(ignore_result=True)
 @celery_util.singleton(blocking_timeout=3)
 def fetch_all_hn_discussions():
@@ -142,13 +142,14 @@ def fetch_all_hn_discussions():
     max_index = int(r.get(redis_prefix + 'max_index') or 0)
     if not current_index or not max_index or (current_index > max_index):
         max_index = int(http.client(with_cache=False)
-                                       .get("https://hacker-news.firebaseio.com/v0/maxitem.json").content) + 1
+                        .get("https://hacker-news.firebaseio.com/v0/maxitem.json").content) + 1
         r.set(redis_prefix + 'max_index', max_index)
         current_index = 1
 
     current_index = fetch_discussions(current_index, max_index)
-    
+
     r.set(redis_prefix + 'current_index', current_index)
+
 
 @shared_task(ignore_result=True)
 def fetch_update(id, redis=None, skip_timeout=60*5):
@@ -162,7 +163,8 @@ def fetch_update(id, redis=None, skip_timeout=60*5):
     if item.get("type") == "comment":
         redis.setex(r_skip_prefix + str(item.get("id")), skip_timeout, 1)
         if item.get("parent"):
-            fetch_update(item.get("parent"), redis=redis, skip_timeout=skip_timeout)
+            fetch_update(item.get("parent"), redis=redis,
+                         skip_timeout=skip_timeout)
 
 
 @shared_task(ignore_result=True)
