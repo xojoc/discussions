@@ -158,10 +158,10 @@ def fetch_update(id, redis=None, skip_timeout=60*5):
     item = fetch_item(id, redis=redis)
     if not item:
         return
+    redis.setex(r_skip_prefix + str(id), skip_timeout, 1)
     if item.get("type") == "story":
         process_item.delay(item, skip_timeout=skip_timeout)
     if item.get("type") == "comment":
-        redis.setex(r_skip_prefix + str(item.get("id")), skip_timeout, 1)
         if item.get("parent"):
             fetch_update(item.get("parent"),
                          redis=redis,
