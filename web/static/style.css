@@ -796,7 +796,6 @@ tr td:first-child, tr th:first-child {
 
 	width: 100%;
 	background-color: black;
-    background-image: url(landing_page_image.jpg);
     background-size: cover;
     background-position: center bottom;
     background-repeat: no-repeat;
