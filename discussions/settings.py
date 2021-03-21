@@ -194,6 +194,7 @@ LOGGING = {
     },
 }
 
+
 sentry_logging = LoggingIntegration(
     level=logging.WARNING,
     event_level=logging.ERROR,
