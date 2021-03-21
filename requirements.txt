@@ -217,6 +217,16 @@ msgpack==1.0.2 ; python_version >= "2.7" and python_full_version < "3.0.0" or py
     # via
     #   -r requirements.txt
     #   cachecontrol
+praw==7.2.0 \
+    --hash=sha256:434600bb77264dc5f8f7635eb0541a6c992b87e1d9e9f6e3f40fe98e2c508152 \
+    --hash=sha256:f8e9f1854368a833d09208ca6f0318220d488a0c6660ff5c38391e55f50f0aa9
+    # via -r requirements.txt
+prawcore==2.0.0 \
+    --hash=sha256:2353c0de28a01ccd39615f3ba0975d0781e4b51d2913f0965903dd98ebdd9a75 \
+    --hash=sha256:b498d9b6f54991005e727d5235c8f49ea5ba0c9a6d793fb743b40fa089cd36d1
+    # via
+    #   -r requirements.txt
+    #   praw
 prompt-toolkit==3.0.16 ; python_full_version >= "3.6.1" and python_version >= "3.6" \
     --hash=sha256:0fa02fa80363844a4ab4b8d6891f62dd0645ba672723130423ca4037b80c1974 \
     --hash=sha256:62c811e46bd09130fb11ab759012a4ae385ce4fb2073442d1898867a824183bd
@@ -291,6 +301,8 @@ requests==2.25.1 ; (python_version >= "2.7" and python_full_version < "3.0.0") o
     # via
     #   -r requirements.txt
     #   cachecontrol
+    #   prawcore
+    #   update-checker
 sentry-sdk==1.0.0 \
     --hash=sha256:71de00c9711926816f750bc0f57ef2abbcb1bfbdf5378c601df7ec978f44857a \
     --hash=sha256:9221e985f425913204989d0e0e1cbb719e8b7fa10540f1bc509f660c06a34e66
@@ -302,12 +314,19 @@ six==1.15.0 ; python_version >= "3.6" and python_full_version < "3.0.0" or pytho
     #   -r requirements.txt
     #   click-repl
     #   python-dateutil
+    #   websocket-client
 sqlparse==0.4.1 ; python_version >= "3.6" \
     --hash=sha256:017cde379adbd6a1f15a61873f43e8274179378e95ef3fede90b5aa64d304ed0 \
     --hash=sha256:0f91fd2e829c44362cbcfab3e9ae12e22badaa8a29ad5ff599f9ec109f0454e8
     # via
     #   -r requirements.txt
     #   django
+update-checker==0.18.0 \
+    --hash=sha256:6a2d45bb4ac585884a6b03f9eade9161cedd9e8111545141e9aa9058932acb13 \
+    --hash=sha256:cbba64760a36fe2640d80d85306e8fe82b6816659190993b7bdabadee4d4bbfd
+    # via
+    #   -r requirements.txt
+    #   praw
 urllib3==1.26.3 ; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0" and python_version < "4") \
     --hash=sha256:1b465e494e3e0d8939b50680403e3aedaa2bc434b7d5af64dfd3c958d7f5ae80 \
     --hash=sha256:de3eedaad74a2683334e282005cd8d7f22f4d55fa690a2a1020a416cb0a47e73
@@ -328,6 +347,12 @@ wcwidth==0.2.5 ; python_full_version >= "3.6.1" and python_version >= "3.6" \
     # via
     #   -r requirements.txt
     #   prompt-toolkit
+websocket-client==0.58.0 \
+    --hash=sha256:44b5df8f08c74c3d82d28100fdc81f4536809ce98a17f0757557813275fbb663 \
+    --hash=sha256:63509b41d158ae5b7f67eb4ad20fecbb4eee99434e73e140354dc3ff8e09716f
+    # via
+    #   -r requirements.txt
+    #   praw
 whitenoise==5.2.0 \
     --hash=sha256:05ce0be39ad85740a78750c86a93485c40f08ad8c62a6006de0233765996e5c7 \
     --hash=sha256:05d00198c777028d72d8b0bbd234db605ef6d60e9410125124002518a48e515d

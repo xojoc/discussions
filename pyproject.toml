@@ -19,6 +19,8 @@ gevent = "^21.1.2"
 
 django-celery-beat = "^2.2"
 
+praw = "^7.2.0"
+
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
 
