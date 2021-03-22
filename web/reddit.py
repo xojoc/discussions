@@ -353,6 +353,8 @@ def fetch_discussions(index):
             redis.set(skip_sub_key_prefix + name, 1,
                       ex=60 * 60)
 
+    return index
+
 
 @shared_task(ignore_result=True)
 @celery_util.singleton(blocking_timeout=3)
