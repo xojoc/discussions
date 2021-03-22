@@ -1,12 +1,10 @@
 import bz2
 import datetime
 import io
-import itertools
-import orjson as json
+import json
 import logging
 import lzma
 import os
-import random
 import re
 import shutil
 import time
@@ -19,9 +17,10 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.timezone import make_aware
 from django_redis import get_redis_connection
+from discussions.settings import APP_CELERY_TASK_MAX_TIME
 
-from . import http, models, discussions, subreddits_to_ignore
-from . import redis
+from web import celery_util
+from . import http, models, discussions
 import pickle
 
 logger = logging.getLogger(__name__)
@@ -29,6 +28,10 @@ logger = logging.getLogger(__name__)
 # filled in apps.WebConfig.ready
 subreddit_blacklist = set()
 subreddit_whitelist = set()
+
+
+class EndOfSubreddits(Exception):
+    pass
 
 
 def client(with_cache=False, with_retries=True):
@@ -40,9 +43,9 @@ def client(with_cache=False, with_retries=True):
 
 
 def subreddit(subreddit, listing='new', listing_argument=''):
-    redis_client = redis.client()
+    redis_client = get_redis_connection("default")
     subreddit = subreddit.lower()
-    redis_key = f'kmt:subreddit_cache:{listing}:{listing_argument}:{subreddit}'
+    redis_key = f'discussions:subreddit_cache:{listing}:{listing_argument}:{subreddit}'
 
     stories = set()
     for story in redis_client.smembers(redis_key):
@@ -138,7 +141,8 @@ def process_archive_line(line):
     if len(url) > 2000:
         return
     if not scheme:
-        logging.warn(f"Reddit archive: no scheme for {platform_id}, url {p.get('url')}")
+        logging.warn(
+            f"Reddit archive: no scheme for {platform_id}, url {p.get('url')}")
         return
 
     canonical_url = discussions.canonical_url(url)
@@ -162,7 +166,7 @@ def process_archive_line(line):
             comment_count=p.get('num_comments') or 0,
             score=p.get('score') or 0,
             created_at=created_at,
-            story_url_scheme=scheme,
+            scheme_of_story_url=scheme,
             schemeless_story_url=url,
             canonical_story_url=canonical_url,
             title=p.get('title'),
@@ -175,13 +179,13 @@ def process_archive_line(line):
 def fetch_reddit_archive():
     client = http.client(with_cache=False)
     r = get_redis_connection("default")
-    redis_prefix = 'kmt:fetch_reddit_archive'
+    redis_prefix = 'discussions:fetch_reddit_archive'
 
     for file in get_reddit_archive_links(client):
         if r.get(f"{redis_prefix}:processed:{file}"):
             continue
 
-        file_name = '/tmp/kmt_reddit_archive_compressed'
+        file_name = '/tmp/discussions_reddit_archive_compressed'
 
         if not r.get(f"{redis_prefix}:downloaded:{file}"):
             with client.get(file, stream=True) as res:
@@ -190,7 +194,8 @@ def fetch_reddit_archive():
                 shutil.copyfileobj(res.raw, f)
                 f.close()
                 logger.info(f"End download {file}")
-                r.set(f"{redis_prefix}:downloaded:{file}", 1, ex=60 * 60 * 24 * 7)
+                r.set(f"{redis_prefix}:downloaded:{file}",
+                      1, ex=60 * 60 * 24 * 7)
 
         f = open(file_name, 'rb')
 
@@ -221,18 +226,21 @@ def fetch_reddit_archive():
 
         time.sleep(3)
 
-
-def fetch_recent_discussions(from_index, to_index):
+def fetch_discussions(index):
     reddit = client()
     redis = get_redis_connection("default")
-    skip_key_prefix = 'kmt:reddit:skip:'
-    temporary_skip_key_prefix = 'kmt:reddit:temporary_skip:'
-    skip_sub_key_prefix = 'kmt:reddit:subreddit:skip:'
-    max_created_at_key = 'kmt:reddit:max_created_at:'
+    skip_key_prefix = 'discussions:reddit:skip:'
+    temporary_skip_key_prefix = 'discussions:reddit:temporary_skip:'
+    skip_sub_key_prefix = 'discussions:reddit:subreddit:skip:'
+    max_created_at_key = 'discussions:reddit:max_created_at:'
     cache_timeout = 60 * 30
 
-    for subreddit in list(subreddit_whitelist)[from_index:to_index]:
+    start_time = time.monotonic()
+
+    while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME:
+        subreddit = list(subreddit_whitelist)[index]
         name = subreddit.lower()
+        index += 1
 
         if redis.get(skip_sub_key_prefix + name):
             continue
@@ -271,7 +279,8 @@ def fetch_recent_discussions(from_index, to_index):
                     continue
 
                 if p.hidden:
-                    redis.set(temporary_skip_key_prefix + p.id, 1, ex=cache_timeout)
+                    redis.set(temporary_skip_key_prefix +
+                              p.id, 1, ex=cache_timeout)
                     continue
 
                 if p.media:
@@ -307,7 +316,7 @@ def fetch_recent_discussions(from_index, to_index):
                     discussion.comment_count = p.num_comments or 0
                     discussion.score = p.score or 0
                     discussion.created_at = created_at
-                    discussion.story_url_scheme = scheme
+                    discussion.scheme_of_story_url = scheme
                     discussion.schemeless_story_url = url
                     discussion.canonical_story_url = canonical_url
                     discussion.title = p.title
@@ -320,7 +329,7 @@ def fetch_recent_discussions(from_index, to_index):
                         comment_count=p.num_comments or 0,
                         score=p.score or 0,
                         created_at=created_at,
-                        story_url_scheme=scheme,
+                        scheme_of_story_url=scheme,
                         schemeless_story_url=url,
                         canonical_story_url=canonical_url,
                         title=p.title,
@@ -331,7 +340,8 @@ def fetch_recent_discussions(from_index, to_index):
                 redis.set(temporary_skip_key_prefix + p.id, 1, ex=60*15)
 
         except (prawcore.exceptions.Forbidden,
-                prawcore.exceptions.NotFound):
+                prawcore.exceptions.NotFound) as e:
+            logger.warn(e)
             continue
 
         if not subreddit_max_created_at or max_created_at > float(subreddit_max_created_at):
@@ -341,6 +351,26 @@ def fetch_recent_discussions(from_index, to_index):
             # No new story. Skip this subreddit for a while
             redis.set(skip_sub_key_prefix + name, 1,
                       ex=60 * 60)
+
+
+@shared_task(ignore_result=True)
+@celery_util.singleton(blocking_timeout=3)
+def fetch_recent_discussions():
+    r = get_redis_connection("default")
+    redis_prefix = 'discussions:fetch_recent_reddit_discussions:'
+    current_index = int(r.get(redis_prefix + 'current_index') or 0)
+    max_index = int(r.get(redis_prefix + 'max_index') or 0)
+    if current_index is None or not max_index or (current_index > max_index):
+        max_index = len(subreddit_whitelist)
+        r.set(redis_prefix + 'max_index', max_index)
+        current_index = 0
+
+    try:
+        current_index = fetch_discussions(current_index)
+    except EndOfSubreddits:
+        current_index = max_index + 1
+
+    r.set(redis_prefix + 'current_index', current_index)
 
 
 def udpate_all_discussions_queryset():
@@ -383,7 +413,8 @@ def update_all_discussions(from_index, to_index):
         if len(url) > 2000:
             continue
         if not scheme:
-            logger.warn(f"update_all_stories: no scheme for {p.id}, url {p.url}")
+            logger.warn(
+                f"update_all_stories: no scheme for {p.id}, url {p.url}")
             d.delete()
             continue
 
@@ -405,7 +436,7 @@ def update_all_discussions(from_index, to_index):
         d.score = p.score or 0
         d.created_at = created_at
         d.story_url_scheme = scheme
-        d.schemeless_story_url = url
+        d.scheme_of_story_url = url
         d.canonical_story_url = canonical_url
         d.title = p.title
         d.tags = [(p.subreddit.display_name or '').lower()]

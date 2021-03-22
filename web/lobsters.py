@@ -26,11 +26,11 @@ def process_item(item, platform_prefix):
     if not story_url:
         return
 
-    if not item.get('comment_count'):
-        return
+    # if not item.get('comment_count'):
+    #    return
 
-    if item.get('score', 0) < 0:
-        return
+    # if item.get('score', 0) < 0:
+    #    return
 
     created_at = datetime.datetime.fromisoformat(item.get('created_at'))
 
@@ -112,7 +112,8 @@ def fetch_recent_discussions():
         current_index = 1
 
     try:
-        current_index = fetch_discussions(current_index, 'l', 'https://lobste.rs')
+        current_index = fetch_discussions(
+            current_index, 'l', 'https://lobste.rs')
     except EndOfPages:
         current_index = max_index + 1
 

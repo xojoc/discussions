@@ -12,8 +12,8 @@
 
     {% if ctx.display_discussions %}
     <br />
-    <p class="canonical-url">Canonical URL: <b>{{ctx.canonical_url}}</b>.</p>
-    <p>All the discussions we found for <a href="{{ctx.url}}">{{ctx.url}}</a>:</p>
+    <p class="canonical-url">Canonical URL: <b>{{ctx.canonical_url}}</b></p>
+    <p>All the discussions we found for <a href="{{ctx.url}}">{{ctx.url}}</a></p>
 
 
     {% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}

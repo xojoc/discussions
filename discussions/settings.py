@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
 
+from django.conf.locale.en import formats as en_formats
+
 import logging
 
 import sentry_sdk
@@ -207,6 +209,11 @@ sentry_sdk.init(
                   sentry_logging]
 )
 
+REDDIT_CLIENT_ID =  os.getenv('REDDIT_CLIENT_ID') 
+REDDIT_CLIENT_SECRET = os.getenv('REDDIT_CLIENT_SECRET')
+
+en_formats.DATE_FORMAT = 'j/n/Y'
+en_formats.DATETIME_FORMAT = 'H:i:s j/n/Y'
 
 if os.environ.get('DJANGO_DEVELOPMENT'):
     from .settings_dev import *  # noqa F401, F403
