@@ -239,6 +239,8 @@ def fetch_discussions(index):
     start_time = time.monotonic()
 
     while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME:
+        if index >= len(subreddit_whitelist):
+            raise EndOfSubreddits
         subreddit = list(subreddit_whitelist)[index]
         name = subreddit.lower()
         index += 1
