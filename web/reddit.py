@@ -226,6 +226,7 @@ def fetch_reddit_archive():
 
         time.sleep(3)
 
+
 def fetch_discussions(index):
     reddit = client()
     redis = get_redis_connection("default")
