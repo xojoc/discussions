@@ -2,7 +2,6 @@
 
 {% block main %}
 <div id=discussions>
-    <h1 id=title-discussions><a href="/" title="Permalink">Interesting discussions around the web</a></h1>
     <form method="GET">
         <div class="flex-container">
             <label for=url>URL</label>
@@ -13,7 +12,8 @@
 
     {% if ctx.display_discussions %}
     <br />
-    <p>All the discussions we found for <a href="{{ctx.url}}">{{ctx.title}}</a>:</p>
+    <p class="canonical-url">Canonical URL: <b>{{ctx.canonical_url}}</b>.</p>
+    <p>All the discussions we found for <a href="{{ctx.url}}">{{ctx.url}}</a>:</p>
 
 
     {% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
@@ -31,6 +31,8 @@
                 <b><a href="{{platform_tag_url}}/{{tag}}">{{tag}}</a></b>{% if not forloop.last %}, {% endif %}
                 {% endfor %}
                 {% endif %}
+                -
+                <b>{{d.title}}</b>
             </li>
             {% endfor %}
         </ul>
@@ -70,5 +72,17 @@
     <h2>Notes</h2>
     <p>The comments and points counters are approximative. Due to the vast amount of discussions saved in our DB it's
         not possible to keep them all up to date.</p>
+
+    <h2>Examples</h2>
+    <ul>
+        <li><a href="https://discussions.xojoc.pw/?url=https%3A%2F%2Fwww.gimp.org%2F"
+                title="Discussions of GIMP">GIMP</a></li>
+        <li><a href="https://discussions.xojoc.pw/?url=https%3A%2F%2Fxojoc.pw%2Fblog%2Ffocus"
+                title="Why I'm focusing only on some programming languages">Why I'm focusing only on some programming
+                languages</a></li>
+        <li><a
+                href="https://discussions.xojoc.pw/?url=https%3A%2F%2Fhacks.mozilla.org%2F2017%2F11%2Fentering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster%2F">How
+                Firefox got fast again and where it’s going to get faster</a></li>
+    </ul>
 </div>
 {% endblock main %}

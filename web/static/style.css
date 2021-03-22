@@ -166,10 +166,10 @@ header {
 }
 
 header h1 {
-	padding-top: 1.1em;
-	padding-bottom: 0.7em;
-	margin-left: 3.2em;
-	font-size: 30px;
+	padding-top: 0.1em;
+	padding-bottom: 0.1em;
+	margin-left: 0.3em;
+	font-size: 2em;
 }
 header h1 a {
 	color: black;
@@ -856,4 +856,8 @@ div {
 
 .flex-fill-width {
     flex: 1;
+}
+
+.canonical-url {
+    font-size: 0.7em;
 }
