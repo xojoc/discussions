@@ -1,18 +1,22 @@
 from django.db import models
 from django.contrib.postgres import fields as postgres_fields
+from django.contrib.postgres.indexes import GinIndex
 from . import discussions
 from django.utils import timezone
 import datetime
 
 
 class Discussion(models.Model):
-    # class Meta:
-    #     indexes = [
-    #         models.Index(fields=['platform', 'archived']),
-    #         models.Index(fields=['schemeless_story_url']),
-    #         models.Index(fields=['canonical_story_url']),
-    #         models.Index(fields=['canonical_redirect_url'])
-    #     ]
+    class Meta:
+        indexes = [
+            GinIndex(name='gin_discussion_title',
+                     fields=['title'],
+                     opclasses=['gin_trgm_ops'])
+            # models.Index(fields=['platform', 'archived']),
+            # models.Index(fields=['schemeless_story_url']),
+            # models.Index(fields=['canonical_story_url']),
+            # models.Index(fields=['canonical_redirect_url'])
+        ]
 
     platform_id = models.CharField(primary_key=True, max_length=50)
     platform = models.CharField(max_length=1, blank=False)
@@ -88,7 +92,8 @@ class Discussion(models.Model):
     def platforms(cls, preferred_external_url=discussions.PreferredExternalURL.Standard):
         ps = {}
         for p in sorted(['h', 'r', 'l', 'b', 'g'], key=lambda x: cls.platform_order(x)):
-            ps[p] = (cls.platform_name(p), cls.platform_url(p, preferred_external_url))
+            ps[p] = (cls.platform_name(p), cls.platform_url(
+                p, preferred_external_url))
         return ps
 
     @classmethod
@@ -157,7 +162,8 @@ class Discussion(models.Model):
     def of_url(cls, url, client=None):
         _, url = discussions.split_scheme(url)
         cu = discussions.canonical_url(url)
-        rcu = discussions.canonical_url(url, client=client, follow_redirects=True)
+        rcu = discussions.canonical_url(
+            url, client=client, follow_redirects=True)
 
         ds = (cls.objects.filter(schemeless_story_url=url) |
               cls.objects.filter(schemeless_story_url=cu) |
