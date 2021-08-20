@@ -21,6 +21,7 @@ migrate:
 	@poetry run python manage.py migrate
 
 d:
+	@poetry self update
 	@poetry export -f requirements.txt --output requirements.txt
 	@docker build -t discussions .
 	-docker stop $$(docker ps -a -q)
