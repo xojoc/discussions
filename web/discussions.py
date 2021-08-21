@@ -92,7 +92,7 @@ def _canonical_path(path):
     suffixes = ['/default', '/index',
                 '.htm', '.html', '.shtml',
                 '.php', '.jsp', '.aspx',
-                '.cms',
+                '.cms', '.md',
                 '/']
     found_suffix = True
     while found_suffix:
@@ -110,7 +110,8 @@ def _canonical_query(query):
 
     queries_to_skip = {'cd-origin',
                        'utm_term', 'utm_campaign', 'utm_content', 'utm_source', 'utm_medium',
-                       'gclid', 'gclsrc', 'dclid', 'fbclid', 'zanpid'}
+                       'gclid', 'gclsrc', 'dclid', 'fbclid', 'zanpid',
+                       'guccounter', 'tstart'}
 
     return sorted([q for q in pq if q[0] not in queries_to_skip])
 
@@ -141,7 +142,7 @@ def _fragment_to_path(host, path, fragment):
 
 
 def _canonical_youtube(host, path, parsed_query):
-    if host in ('youtube.com') and path == '/watch':
+    if host == 'youtube.com' and path == '/watch':
         for v in parsed_query:
             if v[0] == 'v':
                 host = 'youtu.be'
@@ -152,8 +153,26 @@ def _canonical_youtube(host, path, parsed_query):
     return host, path, parsed_query
 
 
+def _canonical_medium(host, path, parsed_query):
+    if host == 'medium.com':
+        path_parts = path.split('/')
+        if len(path_parts) >= 3:
+            path = '/p/' + path_parts[-1].split('-')[-1]
+
+    return host, path, parsed_query
+
+
+def _canonical_github(host, path, parsed_query):
+    if host == 'github.com':
+        path = path.removesuffix('/tree/master')
+
+    return host, path, parsed_query
+
+
 def _canonical_specific_websites(host, path, parsed_query):
-    for h in [_canonical_youtube]:
+    for h in [_canonical_youtube,
+              _canonical_medium,
+              _canonical_github]:
         host, path, parsed_query = h(host, path, parsed_query)
     return host, path, parsed_query
 

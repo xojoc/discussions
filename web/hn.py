@@ -50,10 +50,10 @@ def process_item(item, revisit_max_id=None, redis=None, skip_timeout=60*60):
         logger.info(f"HN no time: {item}")
         return
 
-    #if not item.get('descendants'):
+    # if not item.get('descendants'):
     #    return
 
-    #if item.get('score') < 0:
+    # if item.get('score') < 0:
     #    return
 
     created_at = datetime.datetime.fromtimestamp(item.get('time'))
