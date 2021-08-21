@@ -14,7 +14,7 @@ run:
 	@poetry run python3 manage.py runserver 7777&
 
 cp: lint test
-	@git commit -a && git push
+	@git commit -a && git push origin main
 
 migrate:
 	@poetry run python manage.py makemigrations web
