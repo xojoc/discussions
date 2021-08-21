@@ -14,7 +14,11 @@ run:
 	@poetry run python3 manage.py runserver 7777&
 
 cp: lint test
-	@git commit -a && git push origin main
+	@git commit -a
+	@poetry export -f requirements.txt --output requirements.txt
+	@git add requirements.txt
+	-git commit -m "Update requirements.txt" -- requirements.txt
+	@git push origin main
 
 migrate:
 	@poetry run python manage.py makemigrations web
