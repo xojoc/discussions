@@ -61,17 +61,6 @@ def _follow_redirects(url, client, redis, cache, timeout):
     return final_url
 
 
-def _canonical_url_special_cases(url):
-    web_archive_prefix = 'https://web.archive.org/web/'
-
-    if url.startswith(web_archive_prefix):
-        parts = url[len(web_archive_prefix):].split('/', 1)
-        if len(parts) == 2 and parts[1].startswith(('http://', 'https://')):
-            return parts[1]
-
-    return url
-
-
 def _canonical_host(host):
     if not host:
         return ''
@@ -111,7 +100,8 @@ def _canonical_query(query):
     queries_to_skip = {'cd-origin',
                        'utm_term', 'utm_campaign', 'utm_content', 'utm_source', 'utm_medium',
                        'gclid', 'gclsrc', 'dclid', 'fbclid', 'zanpid',
-                       'guccounter', 'tstart'}
+                       'guccounter', 'campaign_id',
+                       'tstart'}
 
     return sorted([q for q in pq if q[0] not in queries_to_skip])
 
@@ -141,14 +131,42 @@ def _fragment_to_path(host, path, fragment):
     return new_path
 
 
+def _canonical_webarchive(host, path, parsed_query):
+    web_archive_prefix = '/web/'
+    if host == 'web.archive.org':
+        if path.startswith(web_archive_prefix):
+            parts = path[len(web_archive_prefix):].split('/', 1)
+            if len(parts) == 2 and parts[1].startswith(('http:/', 'https:/')):
+                try:
+                    url = parts[1]
+                    url = url.replace("http:/", "http://", 1)
+                    url = url.replace("https:/", "https://", 1)
+                    u = urllib3.util.parse_url(canonical_url(url))
+                    host = u.host
+                    path = u.path
+                    parsed_query = u.query
+                except Exception:
+                    pass
+
+    return host, path, parsed_query
+
+
 def _canonical_youtube(host, path, parsed_query):
-    if host == 'youtube.com' and path == '/watch':
-        for v in parsed_query:
-            if v[0] == 'v':
+    if host == 'youtube.com':
+        if path == '/watch':
+            for v in parsed_query:
+                if v[0] == 'v':
+                    host = 'youtu.be'
+                    path = '/' + v[1]
+                    parsed_query = None
+                    break
+
+        if path.startswith("/embed/"):
+            path_parts = path.split('/')
+            if len(path_parts) >= 3 and path_parts[-1] != '':
                 host = 'youtu.be'
-                path = '/' + v[1]
+                path = '/' + path_parts[-1]
                 parsed_query = None
-                break
 
     return host, path, parsed_query
 
@@ -170,7 +188,8 @@ def _canonical_github(host, path, parsed_query):
 
 
 def _canonical_specific_websites(host, path, parsed_query):
-    for h in [_canonical_youtube,
+    for h in [_canonical_webarchive,
+              _canonical_youtube,
               _canonical_medium,
               _canonical_github]:
         host, path, parsed_query = h(host, path, parsed_query)
@@ -180,8 +199,6 @@ def _canonical_specific_websites(host, path, parsed_query):
 def canonical_url(url, client=None, redis=None, follow_redirects=False, cache=True, timeout=3.05):
     if not url:
         return url
-
-    url = _canonical_url_special_cases(url)
 
     if follow_redirects:
         if not client:
