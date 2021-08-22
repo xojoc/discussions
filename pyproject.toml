@@ -19,6 +19,7 @@ gevent = "^21.1"
 django-celery-beat = "^2.2"
 praw = "^7.2"
 zstandard = "0.14.1"
+whitenoise = "^5.3.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9"

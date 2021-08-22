@@ -4,7 +4,7 @@
 
 # Use
 
-You can find it at [https://discussions.xojoc.pw/](https://discussions.xojoc.pw/). The page contains instructions to create a bookmarklet to find discussions from any page you visit.
+You can find it at [https://discussions.xojoc.pw](https://discussions.xojoc.pw). The page contains instructions to create a bookmarklet to find discussions from any page you visit.
 
 # Who?
 
