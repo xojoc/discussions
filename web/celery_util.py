@@ -49,8 +49,11 @@ def singleton(timeout=APP_CELERY_TASK_MAX_TIME*2, blocking_timeout=None):
             try:
                 with r.lock(lock_name, timeout=timeout, blocking_timeout=blocking_timeout):
                     f(*args, **kwargs)
-            except LockError:
-                logger.warn(f"Lock expired {lock_name} blocking_timeout = {blocking_timeout}")
+            except LockError as e:
+                logger.warn(f"Lock expired {lock_name} blocking_timeout = {blocking_timeout}: {e}")
+                raise
+            except Exception as e:
+                logger.warn(f"Lock error: {e}")
                 raise
 
         return wrapper
