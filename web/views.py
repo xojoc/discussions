@@ -1,6 +1,25 @@
 from web import models, discussions
 from django.shortcuts import render
 import itertools
+from django.db.models import Sum, Count
+# from django.db.models.functions import Coalesce
+
+
+def discussions_platform_statistics(url):
+    stats = models.Discussion.objects.\
+        values('platform').\
+        annotate(discussion_count=Count('platform_id'),
+                 comment_count=Sum('comment_count')).\
+        order_by('-discussion_count')
+
+    for s in stats:
+        s['platform_name'] = \
+            models.Discussion.platform_name(s['platform'])
+        s['platform_url'] = \
+            models.Discussion.platform_url(s['platform'],
+                                           preferred_external_url=discussions.PreferredExternalURL.Standard)
+
+    return stats
 
 
 def discussions_context(url):
@@ -36,6 +55,8 @@ def discussions_context(url):
     else:
         ctx['display_discussions'] = False
         ctx['nothing_found'] = True
+
+    ctx['platform_statistics'] = discussions_platform_statistics(url)
 
     return ctx
 

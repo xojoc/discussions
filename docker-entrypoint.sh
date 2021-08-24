@@ -21,8 +21,13 @@ celery -A discussions worker -l warning -P gevent -c 500 &
 echo "Run Celery Beat"
 celery -A discussions beat -l warning &
 
+port=$1
+if [ -z "$port" ]
+then
+   port="80"
+fi
+
 echo "Starting server"
-python manage.py runserver 0.0.0.0:80 &
+python manage.py runserver 0.0.0.0:$port &
 
 wait
-

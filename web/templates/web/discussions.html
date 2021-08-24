@@ -81,8 +81,28 @@
                 title="Why I'm focusing only on some programming languages">Why I'm focusing only on some programming
                 languages</a></li>
         <li><a
-                href="https://discussions.xojoc.pw/?url=https%3A%2F%2Fhacks.mozilla.org%2F2017%2F11%2Fentering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster%2F">How
-                Firefox got fast again and where it’s going to get faster</a></li>
+                href="https://discussions.xojoc.pw/?url=https%3A%2F%2Fhacks.mozilla.org%2F2017%2F11%2Fentering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster%2F">How Firefox got fast again and where it’s going to get faster</a></li>
     </ul>
+
+	<h2>Statistics</h2>
+	<table>
+	  <thead>
+		<tr>
+		  <th>Platform</th>
+		  <th>Total discussions</th>
+		  <th>Total comments</th>
+		</tr>
+	  </thead>
+	  <tbody>
+		{% for platform in ctx.platform_statistics %}
+		<tr>
+		<td><a href="{{platform.platform_url}}" title="{{platform.platform_name}}">{{platform.platform_name}}</a></td>
+		<td>{{platform.discussion_count}}</td>
+		<td>{{platform.comment_count}}</td>
+		</tr>
+		{% endfor %}
+	  </tbody>
+
+	</table>
 </div>
 {% endblock main %}

@@ -107,7 +107,7 @@ def fetch_recent_discussions():
     current_index = int(r.get(redis_prefix + 'current_index') or 0)
     max_index = int(r.get(redis_prefix + 'max_index') or 0)
     if not current_index or not max_index or (current_index > max_index):
-        max_index = 30
+        max_index = 7
         r.set(redis_prefix + 'max_index', max_index)
         current_index = 1
 
@@ -149,7 +149,7 @@ def fetch_recent_barnacles_discussions():
     current_index = int(r.get(redis_prefix + 'current_index') or 0)
     max_index = int(r.get(redis_prefix + 'max_index') or 0)
     if not current_index or not max_index or (current_index > max_index):
-        max_index = 30
+        max_index = 5
         r.set(redis_prefix + 'max_index', max_index)
         current_index = 1
 
@@ -191,7 +191,7 @@ def fetch_recent_gambero_discussions():
     current_index = int(r.get(redis_prefix + 'current_index') or 0)
     max_index = int(r.get(redis_prefix + 'max_index') or 0)
     if not current_index or not max_index or (current_index > max_index):
-        max_index = 30
+        max_index = 5
         r.set(redis_prefix + 'max_index', max_index)
         current_index = 1
 
