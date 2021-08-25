@@ -27,7 +27,7 @@ then
    port="80"
 fi
 
-echo "Starting server"
+echo "Starting server on port $port"
 python manage.py runserver 0.0.0.0:$port &
 
 wait

@@ -40,7 +40,7 @@ def split_task(redis_prefix, get_start_index, get_max, step, callback, infinite_
         r.set(redis_prefix + 'current_index', current_index + step)
 
 
-def singleton(timeout=APP_CELERY_TASK_MAX_TIME*2, blocking_timeout=None):
+def singleton(timeout=APP_CELERY_TASK_MAX_TIME*1.5, blocking_timeout=None):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
@@ -51,10 +51,7 @@ def singleton(timeout=APP_CELERY_TASK_MAX_TIME*2, blocking_timeout=None):
                     f(*args, **kwargs)
             except LockError as e:
                 logger.warn(f"Lock expired {lock_name} blocking_timeout = {blocking_timeout}: {e}")
-                raise
-            except Exception as e:
-                logger.warn(f"Lock error: {e}")
-                raise
+                # raise
 
         return wrapper
 
