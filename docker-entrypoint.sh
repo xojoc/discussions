@@ -9,17 +9,21 @@ trap 'trap " " SIGTERM; kill 0; wait; cleanup' SIGINT SIGTERM
 
 echo "The script pid is $$"
 
+
+# python manage.py check --deploy
+
+
 echo "Collect static files"
 python manage.py collectstatic --noinput
 
 echo "Apply database migrations"
-python manage.py migrate --noinput
+#python manage.py migrate --noinput
 
 echo "Run Celery"
-celery -A discussions worker -l warning -P gevent -c 500 &
+celery -A discussions worker -l WARNING -P gevent -c 500 -D
 
 echo "Run Celery Beat"
-celery -A discussions beat -l warning &
+celery -A discussions beat -l WARNING --detach
 
 port=$1
 if [ -z "$port" ]
@@ -28,6 +32,9 @@ then
 fi
 
 echo "Starting server on port $port"
-python manage.py runserver 0.0.0.0:$port &
+#python manage.py runserver 0.0.0.0:$port &
+daphne -b 0.0.0.0 -p 80  discussions.asgi:application &
+
+echo "Now wait..."
 
 wait

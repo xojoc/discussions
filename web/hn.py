@@ -176,4 +176,4 @@ def fetch_updates():
                     timeout=7.05).json()
 
     for id in updates.get('items'):
-        fetch_update(id)
+        fetch_update.delay(id)
