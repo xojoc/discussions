@@ -10,20 +10,21 @@ trap 'trap " " SIGTERM; kill 0; wait; cleanup' SIGINT SIGTERM
 echo "The script pid is $$"
 
 
-# python manage.py check --deploy
+#echo "Check production settings"
+#python manage.py check --deploy
 
 
 echo "Collect static files"
 python manage.py collectstatic --noinput
 
 echo "Apply database migrations"
-#python manage.py migrate --noinput
+python manage.py migrate --noinput
 
 echo "Run Celery"
-celery -A discussions worker -l WARNING -P gevent -c 500 -D
+celery -A discussions worker -l WARNING -P gevent -c 500 &
 
 echo "Run Celery Beat"
-celery -A discussions beat -l WARNING --detach
+celery -A discussions beat -l WARNING &
 
 port=$1
 if [ -z "$port" ]
