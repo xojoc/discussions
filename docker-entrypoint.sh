@@ -32,6 +32,9 @@ then
    port="80"
 fi
 
+echo "Starting Flower"
+celery flower -A discussions&
+
 echo "Starting server on port $port"
 #python manage.py runserver 0.0.0.0:$port &
 daphne -b 0.0.0.0 -p 80  discussions.asgi:application &

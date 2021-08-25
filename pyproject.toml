@@ -21,6 +21,7 @@ praw = "^7.2"
 zstandard = "0.15.2"
 whitenoise = "^5.3.0"
 daphne = "^3.0.2"
+flower = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9"

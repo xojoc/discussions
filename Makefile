@@ -33,7 +33,7 @@ d: poetry_export
 	@docker build -t discussions .
 	-docker stop $$(docker ps -a -q)
 	-kill $$(lsof -i:7777 -t -sTCP:LISTEN)
-	@docker run --env-file .env -dp 7777:80 discussions
+	@docker run --env-file .env -dp 7777:80 -dp 5555:7778 discussions
 
 shell:
 	poetry run python manage.py shell

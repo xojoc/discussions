@@ -45,9 +45,13 @@ def singleton(timeout=APP_CELERY_TASK_MAX_TIME*1.5, blocking_timeout=None):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             r = get_redis_connection("default")
-            lock_name = f"discussions:lock:{f.__name__}"
+            f_path = f"{f.__module__}.{f.__name__}".replace('.', ':')
+            lock_name = "discussions:lock:" + f_path
             try:
-                with r.lock(lock_name, timeout=timeout, blocking_timeout=blocking_timeout):
+                with r.lock(lock_name,
+                            timeout=timeout,
+                            blocking_timeout=blocking_timeout):
+
                     f(*args, **kwargs)
             except LockError as e:
                 logger.warn(f"Lock expired {lock_name} blocking_timeout = {blocking_timeout}: {e}")
