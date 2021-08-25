@@ -249,7 +249,11 @@ def fetch_discussions(index):
             continue
 
         limit_new = 500
-        stories = reddit.subreddit(name).new(limit=limit_new)
+        try:
+            stories = reddit.subreddit(name).new(limit=limit_new)
+        except Exception as e:
+            logger.log(f"reddit.subreddit({name}): {e}")
+            continue
 
         subreddit_max_created_at = redis.get(max_created_at_key + name)
         max_created_at = 0
