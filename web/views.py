@@ -24,6 +24,9 @@ def discussions_platform_statistics(url):
 
 def discussions_context(url):
     ctx = {}
+
+    ctx['platform_statistics'] = discussions_platform_statistics(url)
+
     ctx['url'] = url or ''
     ctx['display_discussions'] = False
     ctx['nothing_found'] = False
@@ -55,8 +58,6 @@ def discussions_context(url):
     else:
         ctx['display_discussions'] = False
         ctx['nothing_found'] = True
-
-    ctx['platform_statistics'] = discussions_platform_statistics(url)
 
     return ctx
 

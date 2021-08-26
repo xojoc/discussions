@@ -347,7 +347,8 @@ def fetch_discussions(index):
                 redis.set(temporary_skip_key_prefix + p.id, 1, ex=60*15)
 
         except (prawcore.exceptions.Forbidden,
-                prawcore.exceptions.NotFound) as e:
+                prawcore.exceptions.NotFound,
+                prawcore.exceptions.PrawcoreException) as e:
             logger.warn(e)
             continue
 
