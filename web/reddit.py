@@ -248,7 +248,7 @@ def fetch_discussions(index):
         if redis.get(skip_sub_key_prefix + name):
             continue
 
-        limit_new = 500
+        limit_new = 50
         try:
             stories = reddit.subreddit(name).new(limit=limit_new)
         except Exception as e:
