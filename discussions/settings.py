@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_celery_beat',
+    'django.contrib.humanize',
     'web.apps.WebConfig',
 ]
 
@@ -189,8 +190,13 @@ LOGGING = {
             'propagate': True,
         },
         'django.server': {
-            'handlers': ['null'],
-            'level': 'INFO',
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'daphne': {
+            'handlers': ['console'],
+            'level': 'WARNING',
             'propagate': False,
         },
     },

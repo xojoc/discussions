@@ -1,5 +1,7 @@
 {% extends "web/base.html" %}
 
+{% load humanize %}
+
 {% block main %}
 <div id=discussions>
     <form method="GET">
@@ -55,8 +57,7 @@
     <p>This form finds all the discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker
             News</a>,
         <a href="https://lobste.rs/" title='Lobsters'>Lobsters</a>, <a href="https://www.reddit.com/"
-            title='Reddit'>Reddit</a>,
-        <a href="https://gambe.ro/">gambe.ro</a> and <a href="https://barnacl.es/" title="Barnacles">Barnacles</a>
+            title='Reddit'>Reddit</a> and <a href="https://barnacl.es/" title="Barnacles">Barnacles</a>
         (other communities will be added in the
         future).</p>
 
@@ -91,18 +92,29 @@
 		  <th>Platform</th>
 		  <th>Total discussions</th>
 		  <th>Total comments</th>
+		  <th>Oldest discussion</th>
+		  <th>Newest dicussion</th>
 		</tr>
 	  </thead>
 	  <tbody>
-		{% for platform in ctx.platform_statistics %}
+		{% for platform in ctx.statistics.platform %}
 		<tr>
 		<td><a href="{{platform.platform_url}}" title="{{platform.platform_name}}">{{platform.platform_name}}</a></td>
-		<td>{{platform.discussion_count}}</td>
-		<td>{{platform.comment_count}}</td>
+		<td>{{platform.discussion_count|intcomma}}</td>
+		<td>{{platform.comment_count|intcomma}}</td>
+		<td>{{platform.oldest_discussion|date}}</td>
+		<td>{{platform.newest_discussion|date}}</td>
 		</tr>
 		{% endfor %}
 	  </tbody>
-
 	</table>
+
+	<h3>Most discussed stories</h3>
+	<ol>
+	  {% for story in ctx.statistics.top_stories %}
+	  <li><a href="?url={{story.story_url}}" title="{{story.title}}">{{story.title}}</a> <b>{{story.comment_count}}</b> comments (last discussion {{story.last_discussion|date}})</li>
+	  {% endfor %}
+	</ol>
+
 </div>
 {% endblock main %}

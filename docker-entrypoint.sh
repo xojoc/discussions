@@ -36,9 +36,11 @@ echo "Starting Flower"
 celery flower -A discussions&
 
 echo "Starting server on port $port"
-#python manage.py runserver 0.0.0.0:$port &
-daphne -b 0.0.0.0 -p 80  discussions.asgi:application &
-
+if [ "$DJANGO_DEVELOPMENT" == "true" ]; then
+	python manage.py runserver 0.0.0.0:$port &
+else
+	daphne -v 0 -b 0.0.0.0 -p $port  discussions.asgi:application &
+fi
 echo "Now wait..."
 
 wait
