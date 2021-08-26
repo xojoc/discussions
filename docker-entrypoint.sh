@@ -33,7 +33,7 @@ then
 fi
 
 echo "Starting Flower"
-celery flower -A discussions&
+celery -A discussions flower&
 
 echo "Starting server on port $port"
 if [ "$DJANGO_DEVELOPMENT" == "true" ]; then

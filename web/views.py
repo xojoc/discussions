@@ -40,8 +40,8 @@ def discussions_top_stories(url):
 
 
 def discussions_statistics(url):
-    return {'platform': discussions_platform_statistics(url),
-            'top_stories': discussions_top_stories(url)}
+    return {'platform': discussions_platform_statistics(url)}
+# 'top_stories': discussions_top_stories(url)}
 
 
 def discussions_context(url):
