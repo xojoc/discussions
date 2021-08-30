@@ -308,6 +308,18 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "django-debug-toolbar"
+version = "3.2.2"
+description = "A configurable set of panels that display various debug information about the current request/response."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+Django = ">=2.2"
+sqlparse = ">=0.2.0"
+
+[[package]]
 name = "django-redis"
 version = "4.12.1"
 description = "Full featured redis cache backend for Django."
@@ -917,7 +929,7 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "f639b9b3737747988d9afbb0c7e51eb0631f9e25e53f72d65d6dac9ab7dd31a3"
+content-hash = "0373ca6877eb3b046e29bce214a0832f3d32e62110989d1e7e4ae7972f09c69d"
 
 [metadata.files]
 amqp = [
@@ -1059,6 +1071,10 @@ django-celery-beat = [
 ]
 django-celerybeat-status = [
     {file = "django-celerybeat-status-0.0.10.tar.gz", hash = "sha256:2077aecc46997619a4d12aad0bcc53289cff2edced4c116f0c6b5593631ca707"},
+]
+django-debug-toolbar = [
+    {file = "django-debug-toolbar-3.2.2.tar.gz", hash = "sha256:8c5b13795d4040008ee69ba82dcdd259c49db346cf7d0de6e561a49d191f0860"},
+    {file = "django_debug_toolbar-3.2.2-py3-none-any.whl", hash = "sha256:d7bab7573fab35b0fd029163371b7182f5826c13da69734beb675c761d06a4d3"},
 ]
 django-redis = [
     {file = "django-redis-4.12.1.tar.gz", hash = "sha256:306589c7021e6468b2656edc89f62b8ba67e8d5a1c8877e2688042263daa7a63"},

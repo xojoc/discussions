@@ -4,6 +4,9 @@ from django.contrib.postgres.indexes import GinIndex
 from . import discussions
 from django.utils import timezone
 import datetime
+from django.core import serializers
+import json
+from dateutil import parser as dateutil_parser
 
 
 class Discussion(models.Model):
@@ -11,11 +14,10 @@ class Discussion(models.Model):
         indexes = [
             GinIndex(name='gin_discussion_title',
                      fields=['title'],
-                     opclasses=['gin_trgm_ops'])
-            # models.Index(fields=['platform', 'archived']),
-            # models.Index(fields=['schemeless_story_url']),
-            # models.Index(fields=['canonical_story_url']),
-            # models.Index(fields=['canonical_redirect_url'])
+                     opclasses=['gin_trgm_ops']),
+            models.Index(fields=['schemeless_story_url']),
+            models.Index(fields=['canonical_story_url']),
+            models.Index(fields=['canonical_redirect_url'])
         ]
 
     platform_id = models.CharField(primary_key=True, max_length=50)
@@ -197,3 +199,52 @@ class Discussion(models.Model):
          .filter(comment_count=0)
          .filter(created_on__lte=three_months_ago)
          ).delete()
+
+
+class StatisticsDecoder(json.JSONDecoder):
+    def __init__(self):
+        json.JSONDecoder.__init__(
+            self,
+            object_hook=self.dict_to_object)
+
+    def dict_to_object(self, d):
+        for k in d:
+            if k.startswith("date__"):
+                d[k] = dateutil_parser.parse(d[k])
+
+        return d
+
+
+class Statistics(models.Model):
+    name = models.CharField(primary_key=True, max_length=100)
+    statistics = models.JSONField(encoder=serializers.json.DjangoJSONEncoder,
+                                  decoder=StatisticsDecoder)
+
+    @classmethod
+    def update_platform_statistics(cls, statistics):
+        cls.objects.update_or_create(name='platform',
+                                     statistics={'data': statistics})
+
+    @classmethod
+    def update_top_stories_statistics(cls, statistics):
+        cls.objects.update_or_create(name='top_stories',
+                                     statistics={'data': statistics})
+
+    @classmethod
+    def platform_statistics(cls):
+        try:
+            return cls.objects.get(name='platform').statistics['data']
+        except cls.DoesNotExist:
+            return []
+
+    @classmethod
+    def top_stories_statistics(cls):
+        try:
+            return cls.objects.get(name='top_stories').statistics['data']
+        except cls.DoesNotExist:
+            return []
+
+    @classmethod
+    def all_statistics(cls):
+        return {'platform': cls.platform_statistics(),
+                'top_stories': cls.top_stories_statistics()}

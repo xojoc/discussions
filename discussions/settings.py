@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'django.contrib.humanize',
     'web.apps.WebConfig',
+    'debug_toolbar'
 ]
 
 MIDDLEWARE = [
@@ -47,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'discussions.urls'
@@ -220,6 +222,10 @@ REDDIT_CLIENT_SECRET = os.getenv('REDDIT_CLIENT_SECRET')
 
 en_formats.DATE_FORMAT = 'j/n/Y'
 en_formats.DATETIME_FORMAT = 'H:i:s j/n/Y'
+
+INTERNAL_IPS = [
+    '127.0.0.1'
+]
 
 if os.environ.get('DJANGO_DEVELOPMENT'):
     from .settings_dev import *  # noqa F401, F403
