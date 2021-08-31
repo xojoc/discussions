@@ -1,6 +1,17 @@
 from web import models, discussions
 from django.shortcuts import render
 import itertools
+from django.core.cache import cache
+
+
+def discussions_context_cached(url):
+    key = 'discussions_context:' + url
+    ctx = cache.get(key)
+    if not ctx:
+        ctx = discussions_context(url)
+        cache.set(key, ctx)
+
+    return ctx
 
 
 def discussions_context(url):
@@ -8,7 +19,14 @@ def discussions_context(url):
 
     ctx['statistics'] = models.Statistics.all_statistics()
 
-    ctx['url'] = url or ''
+    if url and not (url.startswith('http://') or
+                    url.startswith('https://')):
+
+        ctx['absolute_url'] = 'https://' + url
+    else:
+        ctx['absolute_url'] = url
+
+    ctx['url'] = url
     ctx['url'] = ctx['url'].strip()
     ctx['display_discussions'] = False
     ctx['nothing_found'] = False
@@ -45,6 +63,8 @@ def discussions_context(url):
 
 
 def index(request):
-    ctx = discussions_context(request.GET.get('url'))
+    url = request.GET.get('url')
+    url = (url or '').lower()
+    ctx = discussions_context_cached(url)
 
     return render(request, "web/discussions.html", {'ctx': ctx})

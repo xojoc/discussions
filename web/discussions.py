@@ -128,6 +128,13 @@ def _fragment_to_path(host, path, fragment):
     ):
         new_path = fragment
 
+    if (
+            host == 'groups.google.com' and
+            path.startswith('/forum') and
+            fragment.startswith('!topic/')
+    ):
+        new_path = "/g/" + fragment[len('!topic/'):].replace("/", "/c/", 1)
+
     return new_path
 
 

@@ -12,7 +12,10 @@ class Discussions(unittest.TestCase):
                           c("https://www.xojoc.pw/blog/////focus.html"),
                           c("https://web.archive.org/web/20200103092739/https://www.xojoc.pw/blog/focus.html"),
                           c("https://twitter.com/#!wikileaks/status/1255304335887646721"),
-                          c("https://github.com/xojoc/discussions/tree/master")
+                          c("https://github.com/xojoc/discussions/tree/master"),
+                          c("https://groups.google.com/forum/#!topic/mozilla.dev.platform/1PHhxBxSehQ"),
+
+
                           ],
                          ['medium.com/p/dc80a54012',
                           'path-normalization.com/a',
@@ -21,4 +24,5 @@ class Discussions(unittest.TestCase):
                           'xojoc.pw/blog/focus',
                           'xojoc.pw/blog/focus',
                           'twitter.com/wikileaks/status/1255304335887646721',
-                          'github.com/xojoc/discussions'])
+                          'github.com/xojoc/discussions',
+                          'groups.google.com/g/mozilla.dev.platform/c/1PHhxBxSehQ'])
