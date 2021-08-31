@@ -223,12 +223,14 @@ class Statistics(models.Model):
     @classmethod
     def update_platform_statistics(cls, statistics):
         cls.objects.update_or_create(name='platform',
-                                     statistics={'data': statistics})
+                                     defaults={'statistics':
+                                               {'data': statistics}})
 
     @classmethod
     def update_top_stories_statistics(cls, statistics):
         cls.objects.update_or_create(name='top_stories',
-                                     statistics={'data': statistics})
+                                     defaults={'statistics':
+                                               {'data': statistics}})
 
     @classmethod
     def platform_statistics(cls):
