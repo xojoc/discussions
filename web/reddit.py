@@ -115,6 +115,7 @@ def url_blacklisted(url):
 def process_archive_line(line):
     p = json.loads(line)
     if p.get('subreddit') not in subreddit_whitelist:
+        print(f"subreddit skipped {p.get('subreddit')}")
         return
 
     if not p.get('url'):
@@ -182,6 +183,7 @@ def fetch_reddit_archive():
     redis_prefix = 'discussions:fetch_reddit_archive'
 
     for file in get_reddit_archive_links(client):
+        logger.warning(f"reddit archive: processing {file}")
         if r.get(f"{redis_prefix}:processed:{file}"):
             continue
 
@@ -189,18 +191,21 @@ def fetch_reddit_archive():
 
         if not r.get(f"{redis_prefix}:downloaded:{file}"):
             with client.get(file, stream=True) as res:
-                logger.info(f"Start download {file}")
+                logger.warning(f"reddit archive: start download {file}")
                 f = open(file_name, 'wb')
                 shutil.copyfileobj(res.raw, f)
                 f.close()
-                logger.info(f"End download {file}")
+                logger.warning(f"reddit archive: end download {file}")
                 r.set(f"{redis_prefix}:downloaded:{file}",
                       1, ex=60 * 60 * 24 * 7)
 
         f = open(file_name, 'rb')
 
         if file.endswith('.zst'):
-            stream = zstandard.ZstdDecompressor().stream_reader(f)
+            stream = zstandard.ZstdDecompressor(
+                max_window_size=2**31
+            ).\
+                stream_reader(f, read_across_frames=True)
         if file.endswith('.xz'):
             stream = lzma.open(f, mode="r")
         if file.endswith('.bz2'):
@@ -211,13 +216,13 @@ def fetch_reddit_archive():
         c = 0
         for line in text:
             if c % 1_000_000 == 0:
-                logger.info(f"Reddit archive: File {file}, line {c}")
+                logger.warning(f"reddit archive: File {file}, line {c}")
             c += 1
             try:
                 process_archive_line(line)
             except Exception as e:
-                logger.info(f"Reddit archive: line failed: {e}")
-                logger.info(line)
+                logger.warning(f"reddit archive: line failed: {e}")
+                logger.warning(line)
 
         f.close()
         os.remove(file_name)

@@ -4,6 +4,7 @@ angular
 angular2
 angularjs
 apljk
+archlinux
 arduino
 artificial
 askprogramming
@@ -44,6 +45,8 @@ docker
 dropship
 dylanlang
 ecommerce
+economics
+economy
 elixir
 elm
 emacs
@@ -56,17 +59,20 @@ financialindependence
 flask
 forth
 fortran
+freeculture
 freesoftware
 frontend
 fsharp
 gamedev
 gnu
+gnulinux
 golang
 gpgpu
 groovy
 growmybusiness
 haskell
 heroku
+history
 idris
 indepthstories
 internationalpolitics
@@ -83,6 +89,7 @@ ladybusiness
 laravel
 latex
 learnprogramming
+linux
 lisp
 logounderground
 lua
@@ -113,6 +120,7 @@ postscript
 ppc
 productivity
 programmertil
+programming
 prolog
 prowordpress
 python
@@ -120,6 +128,7 @@ racket
 rails
 realonlineincome
 rebol
+reddit.com
 retirement
 reverseengineering
 rstats
@@ -129,6 +138,7 @@ rust
 sales
 scala
 scheme
+science
 securityanalysis
 semanticweb
 shell
@@ -136,6 +146,7 @@ shopify
 smalltalk
 sml
 snobol4
+space
 sql
 stallmanwasright
 startups
@@ -146,6 +157,7 @@ technology
 techsupport
 truereddit
 typescript
+upliftingnews
 venturecapital
 verilog
 vhdl
@@ -154,3 +166,4 @@ web_design
 webdev
 wikileaks
 wordpress
+worldnews

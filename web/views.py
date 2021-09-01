@@ -6,10 +6,15 @@ from django.core.cache import cache
 
 def discussions_context_cached(url):
     key = 'discussions_context:' + url
+    touch_key = 'touch:' + key
     ctx = cache.get(key)
-    if not ctx:
+    if ctx:
+        if cache.get(touch_key):
+            cache.touch(key)
+    else:
         ctx = discussions_context(url)
         cache.set(key, ctx)
+        cache.set(touch_key, 1, timeout=60*15)
 
     return ctx
 

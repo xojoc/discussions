@@ -21,7 +21,7 @@ django-celerybeat-status==0.0.10
 django-debug-toolbar==3.2.2; python_version >= "3.6"
 django-redis==4.12.1; python_version >= "3.5"
 django-timezone-field==4.2.1; python_version >= "3.5"
-django==3.2.6; python_version >= "3.6"
+django==3.2.7; python_version >= "3.6"
 flower==1.0.0
 gevent==21.8.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_version > "3.5")
 greenlet==1.1.1; python_version >= "2.7" and python_full_version < "3.0.0" and platform_python_implementation == "CPython" or python_version > "3.5" and python_full_version < "3.0.0" and platform_python_implementation == "CPython" or python_version > "3.5" and platform_python_implementation == "CPython" and python_full_version >= "3.5.0"
@@ -53,7 +53,7 @@ tornado==6.1; python_version >= "3.5"
 twisted-iocpsupport==1.0.1; python_full_version >= "3.6.7" and python_version >= "3.6" and platform_system == "Windows"
 twisted==21.7.0; python_full_version >= "3.6.7" and python_version >= "3.6"
 txaio==21.2.1; python_version >= "3.7"
-typing-extensions==3.10.0.0; python_full_version >= "3.6.7" and python_version >= "3.6"
+typing-extensions==3.10.0.2; python_full_version >= "3.6.7" and python_version >= "3.6"
 update-checker==0.18.0; python_version >= "3.6" and python_version < "4.0"
 urllib3==1.26.6; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0" and python_version < "4")
 vine==5.0.0; python_version >= "3.6"
