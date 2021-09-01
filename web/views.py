@@ -5,6 +5,9 @@ from django.core.cache import cache
 
 
 def discussions_context_cached(url):
+    if not url:
+        return discussions_context(url)
+
     key = 'discussions_context:' + url
     touch_key = 'touch:' + key
     ctx = cache.get(key)
