@@ -115,7 +115,7 @@ def url_blacklisted(url):
 def process_archive_line(line):
     p = json.loads(line)
     if p.get('subreddit') not in subreddit_whitelist:
-        print(f"subreddit skipped {p.get('subreddit')}")
+        # print(f"subreddit skipped {p.get('subreddit')}")
         return
 
     if not p.get('url'):
@@ -130,7 +130,9 @@ def process_archive_line(line):
         return
     if p.get('media'):
         return
-    if p.get('score') < 0 and p.get('num_comments') == 0:
+    if p.get('score') < 1:
+        return
+    if p.get('num_comments') <= 2:
         return
 
     platform_id = 'r' + p.get('id')
