@@ -1,5 +1,5 @@
-from django.db.models import Sum, Count, Max, Min
-from django.db.models.functions import Coalesce
+from django.db.models import Sum, Count, Max, Min, Value
+from django.db.models.functions import Coalesce, Left, StrIndex, NullIf, Length
 from web import models, discussions
 from celery import shared_task
 from web import celery_util
@@ -39,6 +39,20 @@ def discussions_top_stories():
     return stats[:10]
 
 
+def discussions_top_domains():
+    stats = models.Discussion.objects.\
+        annotate(canonical_url=Coalesce('canonical_story_url',
+                                        'schemeless_story_url')).\
+        annotate(domain=Left('canonical_url',
+                             Coalesce(NullIf(StrIndex('canonical_url', Value('/')), 0) - 1, Length('canonical_url')))).\
+        values('domain').\
+        annotate(comment_count=Sum('comment_count'),
+                 discussion_count=Count('platform_id')).\
+        order_by('-discussion_count')
+
+    return stats[:10]
+
+
 @shared_task(ignore_result=True)
 @celery_util.singleton(blocking_timeout=3)
 def discussions_statistics():
@@ -46,3 +60,5 @@ def discussions_statistics():
         update_platform_statistics(list(discussions_platform_statistics()))
     models.Statistics.\
         update_top_stories_statistics(list(discussions_top_stories()))
+    models.Statistics.\
+        update_top_domains_statistics(list(discussions_top_domains()))

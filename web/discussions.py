@@ -1,4 +1,3 @@
-import random
 import re
 import urllib.parse as url_parse
 from enum import Enum
@@ -9,7 +8,7 @@ import urllib3
 from django_redis import get_redis_connection
 from urllib3.util import Url
 
-from web import http, models
+from web import models
 
 
 class PreferredExternalURL(Enum):
@@ -183,6 +182,10 @@ def _canonical_medium(host, path, parsed_query):
         path_parts = path.split('/')
         if len(path_parts) >= 3:
             path = '/p/' + path_parts[-1].split('-')[-1]
+    if host.endswith('.medium.com'):
+        path_parts = path.split('/')
+        if len(path_parts) >= 2:
+            path = '/' + path_parts[-1].split('-')[-1]
 
     return host, path, parsed_query
 
@@ -194,11 +197,24 @@ def _canonical_github(host, path, parsed_query):
     return host, path, parsed_query
 
 
+def _canonical_nytimes(host, path, parsed_query):
+    if host == 'nytimes.com':
+        parsed_query = None
+    if host == 'open.nytimes.com':
+        parsed_query = None
+        path_parts = path.split('/')
+        if len(path_parts) >= 2:
+            path = '/' + path_parts[-1].split('-')[-1]
+
+    return host, path, parsed_query
+
+
 def _canonical_specific_websites(host, path, parsed_query):
     for h in [_canonical_webarchive,
               _canonical_youtube,
               _canonical_medium,
-              _canonical_github]:
+              _canonical_github,
+              _canonical_nytimes]:
         host, path, parsed_query = h(host, path, parsed_query)
     return host, path, parsed_query
 
@@ -262,15 +278,15 @@ def split_scheme(url):
     return scheme, u.url
 
 
-def update_all_canonical_urls(from_index, to_index, manual_commit=True):
-    c = http.client(with_retries=False)
-    r = get_redis_connection("default")
+def update_all_canonical_urls(manual_commit=True):
+    # c = http.client(with_retries=False)
+    # r = get_redis_connection("default")
 
     if manual_commit:
         previous_autocommit = django.db.transaction.get_autocommit()
         django.db.transaction.set_autocommit(False)
 
-    stories = models.Discussion.objects.all().order_by('pk')[from_index:to_index].iterator()
+    stories = models.Discussion.objects.all()
     for story in stories:
         dirty = False
 
@@ -282,18 +298,19 @@ def update_all_canonical_urls(from_index, to_index, manual_commit=True):
             story.canonical_story_url = cu
             dirty = True
 
-        if random.random() <= 0.001:
-            rcu = canonical_url(story.story_url,
-                                follow_redirects=True,
-                                client=c,
-                                redis=r,
-                                cache=False)
-            if rcu == story.schemeless_story_url or rcu == story.canonical_story_url:
-                story.canonical_redirect_url = None
-                dirty = True
-            elif len(rcu) <= 2000:
-                story.canonical_redirect_url = rcu
-                dirty = True
+        print("a")
+        # if random.random() <= 0.001:
+        #     rcu = canonical_url(story.story_url,
+        #                         follow_redirects=True,
+        #                         client=c,
+        #                         redis=r,
+        #                         cache=False)
+        #     if rcu == story.schemeless_story_url or rcu == story.canonical_story_url:
+        #         story.canonical_redirect_url = None
+        #         dirty = True
+        #     elif len(rcu) <= 2000:
+        #         story.canonical_redirect_url = rcu
+        #         dirty = True
 
         if dirty:
             story.save()

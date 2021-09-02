@@ -233,6 +233,12 @@ class Statistics(models.Model):
                                                {'data': statistics}})
 
     @classmethod
+    def update_top_domains_statistics(cls, statistics):
+        cls.objects.update_or_create(name='top_domains',
+                                     defaults={'statistics':
+                                               {'data': statistics}})
+
+    @classmethod
     def platform_statistics(cls):
         try:
             return cls.objects.get(name='platform').statistics['data']
@@ -247,6 +253,14 @@ class Statistics(models.Model):
             return []
 
     @classmethod
+    def top_domains_statistics(cls):
+        try:
+            return cls.objects.get(name='top_domains').statistics['data']
+        except cls.DoesNotExist:
+            return []
+
+    @classmethod
     def all_statistics(cls):
         return {'platform': cls.platform_statistics(),
-                'top_stories': cls.top_stories_statistics()}
+                'top_stories': cls.top_stories_statistics(),
+                'top_domains': cls.top_domains_statistics()}

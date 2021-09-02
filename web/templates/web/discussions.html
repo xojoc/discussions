@@ -85,7 +85,16 @@
                 href="https://discussions.xojoc.pw/?url=https%3A%2F%2Fhacks.mozilla.org%2F2017%2F11%2Fentering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster%2F">How Firefox got fast again and where it’s going to get faster</a></li>
     </ul>
 
-	<h2>Statistics</h2>
+
+	<h2>Most discussed stories</h2>
+	<ol>
+	  {% for story in ctx.statistics.top_stories %}
+	  <li><a href="?url={{story.story_url}}" title="{{story.title}}">{{story.title}}</a> <b>{{story.comment_count}}</b> comments (last discussion {{story.date__last_discussion|date}})</li>
+	  {% endfor %}
+	</ol>
+
+
+	<h2>Platform statistics</h2>
 	<table>
 	  <thead>
 		<tr>
@@ -109,12 +118,26 @@
 	  </tbody>
 	</table>
 
-	<h3>Most discussed stories</h3>
-	<ol>
-	  {% for story in ctx.statistics.top_stories %}
-	  <li><a href="?url={{story.story_url}}" title="{{story.title}}">{{story.title}}</a> <b>{{story.comment_count}}</b> comments (last discussion {{story.date__last_discussion|date}})</li>
-	  {% endfor %}
-	</ol>
+	<h2>Most discussed domains</h2>
+
+	<table>
+	  <thead>
+		<tr>
+		  <th>Domain</th>
+		  <th>Total discussions</th>
+		  <th>Total comments</th>
+		</tr>
+	  </thead>
+	  <tbody>
+		{% for domain in ctx.statistics.top_domains %}
+		<tr>
+		<td>{{domain.domain}}</td>
+		<td>{{domain.discussion_count|intcomma}}</td>
+		<td>{{domain.comment_count|intcomma}}</td>
+		</tr>
+		{% endfor %}
+	  </tbody>
+	</table>
 
 </div>
 {% endblock main %}
