@@ -209,12 +209,20 @@ def _canonical_nytimes(host, path, parsed_query):
     return host, path, parsed_query
 
 
+def _canonical_techcrunch(host, path, parsed_query):
+    if host == 'techcrunch.com' or host.endswith('.techcrunch.com'):
+        parsed_query = None
+
+    return host, path, parsed_query
+
+
 def _canonical_specific_websites(host, path, parsed_query):
     for h in [_canonical_webarchive,
               _canonical_youtube,
               _canonical_medium,
               _canonical_github,
-              _canonical_nytimes]:
+              _canonical_nytimes,
+              _canonical_techcrunch]:
         host, path, parsed_query = h(host, path, parsed_query)
     return host, path, parsed_query
 
