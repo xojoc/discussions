@@ -54,7 +54,7 @@ def discussions_top_domains():
 
 
 @shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
+@celery_util.singleton(timeout=240, blocking_timeout=120)
 def discussions_statistics():
     models.Statistics.\
         update_platform_statistics(list(discussions_platform_statistics()))
