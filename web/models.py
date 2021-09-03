@@ -183,7 +183,7 @@ class Discussion(models.Model):
         rcu = discussions.canonical_url(
             url_or_title, client=client, follow_redirects=True)
 
-        uds = (cls.objects.filter(schemeless_story_url=url_or_title) |
+        uds = (cls.objects.filter(schemeless_story_url=url) |
                cls.objects.filter(schemeless_story_url=cu) |
                cls.objects.filter(schemeless_story_url=rcu) |
                cls.objects.filter(canonical_story_url=cu) |
