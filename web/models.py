@@ -194,7 +194,7 @@ class Discussion(models.Model):
             similarity=TrigramSimilarity('title', url_or_title)).\
             filter(similarity__gt=0.3).order_by('-similarity')
 
-        return uds, tds, cu, rcu
+        return uds, tds[:10], cu, rcu
 
     @classmethod
     def delete_useless_discussions(cls):
