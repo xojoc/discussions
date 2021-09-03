@@ -7,6 +7,7 @@ import datetime
 from django.core import serializers
 import json
 from dateutil import parser as dateutil_parser
+from django.contrib.postgres.search import TrigramSimilarity
 
 
 class Discussion(models.Model):
@@ -174,6 +175,26 @@ class Discussion(models.Model):
               cls.objects.filter(canonical_redirect_url=rcu)).order_by('platform', '-created_at', 'tags__0', '-platform_id')
 
         return ds, cu, rcu
+
+    @classmethod
+    def of_url_or_title(cls, url_or_title, client=None):
+        _, url = discussions.split_scheme(url_or_title)
+        cu = discussions.canonical_url(url_or_title)
+        rcu = discussions.canonical_url(
+            url_or_title, client=client, follow_redirects=True)
+
+        uds = (cls.objects.filter(schemeless_story_url=url_or_title) |
+               cls.objects.filter(schemeless_story_url=cu) |
+               cls.objects.filter(schemeless_story_url=rcu) |
+               cls.objects.filter(canonical_story_url=cu) |
+               cls.objects.filter(canonical_redirect_url=rcu)).\
+            order_by('platform', '-created_at', 'tags__0', '-platform_id')
+
+        tds = cls.objects.annotate(
+            similarity=TrigramSimilarity('title', url_or_title)).\
+            filter(similarity__gt=0.3).order_by('-similarity')
+
+        return uds, tds, cu, rcu
 
     @classmethod
     def delete_useless_discussions(cls):

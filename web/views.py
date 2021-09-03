@@ -51,11 +51,11 @@ def discussions_context(url):
     if not ctx['url']:
         return ctx
     ctx['display_discussions'] = True
-    ds, cu, rcu = models.Discussion.of_url(ctx['url'])
+    uds, tds, cu, rcu = models.Discussion.of_url_or_title(ctx['url'])
     ctx['canonical_url'] = cu
 
     # ds = sorted(ds, key=lambda x: x.platform_order)
-    ctx['discussions'] = ds
+    ctx['discussions'] = uds
 
     # We have to convert the iterator to a list, see: https://stackoverflow.com/a/16171518
     ctx['grouped_discussions'] = [(platform,
@@ -64,11 +64,21 @@ def discussions_context(url):
                                        platform, preferred_external_url=discussions.PreferredExternalURL.Standard),
                                    models.Discussion.platform_tag_url(
                                        platform, preferred_external_url=discussions.PreferredExternalURL.Standard),
-                                   list(ds))
-                                  for platform, ds in itertools.groupby(ds, lambda x: x.platform)]
+                                   list(uds))
+                                  for platform, uds in itertools.groupby(uds, lambda x: x.platform)]
 
-    if ds:
-        ctx['title'] = ds[0].title
+    # We have to convert the iterator to a list, see: https://stackoverflow.com/a/16171518
+    ctx['grouped_discussions_title'] = [(platform,
+                                         models.Discussion.platform_name(platform),
+                                         models.Discussion.platform_url(
+                                             platform, preferred_external_url=discussions.PreferredExternalURL.Standard),
+                                         models.Discussion.platform_tag_url(
+                                             platform, preferred_external_url=discussions.PreferredExternalURL.Standard),
+                                         list(tds))
+                                        for platform, uds in itertools.groupby(tds, lambda x: x.platform)]
+
+    if uds:
+        ctx['title'] = uds[0].title
     else:
         ctx['display_discussions'] = False
         ctx['nothing_found'] = True

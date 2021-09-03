@@ -41,7 +41,32 @@
     </div>
     {% endfor %}
 
+
     {% endif %}
+
+
+    {% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions_title %}
+    <div id="platform_{{platform}}">
+        <h3><a href="{{ platform_url }}">{{ platform_name }}</a></h3>
+        <ul>
+            {% for d in discussions %}
+            <li><a href="{{d.discussion_url}}" rel="noreferrer noopener" target="_blank"><b>{{d.comment_count}}</b>
+                    comment{{d.comment_count|pluralize:",s"}}</a>, <b>{{d.score}}</b> points [{{d.created_at | date}}]
+                {% if d.tags %}
+                {% if platform != 'r' %}
+                Tags:
+                {% endif %}
+                {% for tag in d.tags %}
+                <b><a href="{{platform_tag_url}}/{{tag}}">{{tag}}</a></b>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+                {% endif %}
+                -
+                <b>{{d.title}}</b>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
 
     {% if ctx.nothing_found %}
     <h2>Discussions not found</h2>
@@ -89,7 +114,7 @@
 	<h2>Most discussed stories</h2>
 	<ol>
 	  {% for story in ctx.statistics.top_stories %}
-	  <li><a href="?url={{story.story_url}}" title="{{story.title}}">{{story.title}}</a> <b>{{story.comment_count}}</b> comments (last discussion {{story.date__last_discussion|date}})</li>
+	  <li><a href="?url={{story.story_url|urlencode:""}}" title="{{story.title}}">{{story.title}}</a> <b>{{story.comment_count}}</b> comments (last discussion {{story.date__last_discussion|date}})</li>
 	  {% endfor %}
 	</ol>
 
