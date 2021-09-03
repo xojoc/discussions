@@ -2,7 +2,7 @@ from web import models, discussions
 from django.shortcuts import render
 import itertools
 from django.core.cache import cache
-from web import statistics
+# from web import statistics
 
 
 def discussions_context_cached(url):
@@ -27,9 +27,9 @@ def discussions_context_cached(url):
 def discussions_context(url):
     ctx = {}
 
-    _ = list(statistics.discussions_top_domains())
-    _ = list(statistics.discussions_top_stories())
-    _ = list(statistics.discussions_platform_statistics())
+    # _ = list(statistics.discussions_top_domains())
+    # _ = list(statistics.discussions_top_stories())
+    # _ = list(statistics.discussions_platform_statistics())
 
     ctx['statistics'] = models.Statistics.all_statistics()
 
