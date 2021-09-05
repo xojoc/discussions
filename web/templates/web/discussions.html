@@ -4,27 +4,31 @@
 
 {% block main %}
 <div id=discussions>
-    <form method="GET">
+    <form method="GET" class="discussions_form">
         <div class="flex-container">
             <label for=url>URL</label>
-            <input class="flex-fill-width" id="url" name="url" type="text" value="{{ctx.url}}" />
+            <input class="flex-fill-width" id="url" name="url" type="text" value="{{ctx.url}}" placeholder="URL or title"/>
             <input type="submit" value="Find discussions" />
         </div>
     </form>
 
     {% if ctx.display_discussions %}
-    <br />
+	<div class="results-pretext">
+
     <p class="canonical-url">Canonical URL: <b>{{ctx.canonical_url}}</b></p>
     <p>All the discussions we found for <a href="{{ctx.absolute_url}}">{{ctx.url}}</a></p>
-
+</div>
 
     {% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
-    <div id="platform_{{platform}}">
-        <h3><a href="{{ platform_url }}">{{ platform_name }}</a></h3>
+    <div id="platform_{{platform}}" class="platform_discussions">
+      <h3><a href="{{ platform_url }}">{{ platform_name }}</a></h3>
+	</div>
         <ul>
             {% for d in discussions %}
-            <li><a href="{{d.discussion_url}}" rel="noreferrer noopener" target="_blank"><b>{{d.comment_count}}</b>
-                    comment{{d.comment_count|pluralize:",s"}}</a>, <b>{{d.score}}</b> points [{{d.created_at | date}}]
+            <li>
+			  <b>{{d.title}}</b><br/>
+			  <a href="{{d.discussion_url}}" rel="noreferrer noopener" target="_blank"><b>{{d.comment_count}}</b>
+                    comment{{d.comment_count|pluralize:",s"}}</a>, <b>{{d.score}}</b> points [<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
                 {% if d.tags %}
                 {% if platform != 'r' %}
                 Tags:
@@ -33,8 +37,6 @@
                 <b><a href="{{platform_tag_url}}/{{tag}}">{{tag}}</a></b>{% if not forloop.last %}, {% endif %}
                 {% endfor %}
                 {% endif %}
-                -
-                <b>{{d.title}}</b>
             </li>
             {% endfor %}
         </ul>
@@ -43,30 +45,6 @@
 
 
     {% endif %}
-
-
-    {% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions_title %}
-    <div id="platform_{{platform}}">
-        <h3><a href="{{ platform_url }}">{{ platform_name }}</a></h3>
-        <ul>
-            {% for d in discussions %}
-            <li><a href="{{d.discussion_url}}" rel="noreferrer noopener" target="_blank"><b>{{d.comment_count}}</b>
-                    comment{{d.comment_count|pluralize:",s"}}</a>, <b>{{d.score}}</b> points [{{d.created_at | date}}]
-                {% if d.tags %}
-                {% if platform != 'r' %}
-                Tags:
-                {% endif %}
-                {% for tag in d.tags %}
-                <b><a href="{{platform_tag_url}}/{{tag}}">{{tag}}</a></b>{% if not forloop.last %}, {% endif %}
-                {% endfor %}
-                {% endif %}
-                -
-                <b>{{d.title}}</b>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endfor %}
 
     {% if ctx.nothing_found %}
     <h2>Discussions not found</h2>
@@ -76,7 +54,6 @@
     {% endif %}
 
 
-    <br />
     <br />
     <h2>What is this?</h2>
     <p>This form finds all the discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker
@@ -114,7 +91,8 @@
 	<h2>Most discussed stories</h2>
 	<ol>
 	  {% for story in ctx.statistics.top_stories %}
-	  <li><a href="?url={{story.story_url|urlencode:""}}" title="{{story.title}}">{{story.title}}</a> <b>{{story.comment_count}}</b> comments (last discussion {{story.date__last_discussion|date}})</li>
+	  <li><a href="?url={{story.story_url|urlencode:""}}" title="{{story.title}}">{{story.title}}</a><br/>
+		<b>{{story.comment_count}}</b> comments (last discussion <time datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></li>
 	  {% endfor %}
 	</ol>
 
