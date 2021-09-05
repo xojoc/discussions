@@ -172,7 +172,8 @@ class Discussion(models.Model):
               cls.objects.filter(schemeless_story_url=cu) |
               cls.objects.filter(schemeless_story_url=rcu) |
               cls.objects.filter(canonical_story_url=cu) |
-              cls.objects.filter(canonical_redirect_url=rcu)).order_by('platform', '-created_at', 'tags__0', '-platform_id')
+              cls.objects.filter(canonical_redirect_url=rcu)).\
+            order_by('platform', '-created_at', 'tags__0', '-platform_id')
 
         return ds, cu, rcu
 
@@ -191,10 +192,17 @@ class Discussion(models.Model):
             order_by('platform', '-created_at', 'tags__0', '-platform_id')
 
         # tds = cls.objects.annotate(
-        #    similarity=TrigramSimilarity('title', url_or_title)).\
-        #    filter(similarity__gt=0.3).order_by('-similarity')
+        # similarity=TrigramSimilarity('title', url_or_title)).\
+        # filter(similarity__gt=0.3).order_by('-similarity')
 
-        return uds, [], cu, rcu
+        # tds = cls.objects.annotate(
+        #     similarity=TrigramSimilarity('title', url_or_title)).\
+        #     filter(title__trigram_similar=url_or_title).\
+        #     order_by('-similarity')
+
+        tds = []
+
+        return uds, tds, cu, rcu
 
     @classmethod
     def delete_useless_discussions(cls):

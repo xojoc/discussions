@@ -81,6 +81,7 @@ def _canonical_path(path):
                 '.htm', '.html', '.shtml',
                 '.php', '.jsp', '.aspx',
                 '.cms', '.md',
+                '.pdf', '.stm',
                 '/']
     found_suffix = True
     while found_suffix:
@@ -216,13 +217,37 @@ def _canonical_techcrunch(host, path, parsed_query):
     return host, path, parsed_query
 
 
+def _canonical_wikipedia(host, path, parsed_query):
+    if host.endswith('.wikipedia.org'):
+        parsed_query = None
+
+    return host, path, parsed_query
+
+
+def _canonical_arstechnica(host, path, parsed_query):
+    if host == 'arstechnica' and 'viewtopic.php' not in path:
+        parsed_query = None
+
+    return host, path, parsed_query
+
+
+def _canonical_bbc(host, path, parsed_query):
+    if host == 'news.bbc.co.uk':
+        parsed_query = None
+
+    return host, path, parsed_query
+
+
 def _canonical_specific_websites(host, path, parsed_query):
     for h in [_canonical_webarchive,
               _canonical_youtube,
               _canonical_medium,
               _canonical_github,
               _canonical_nytimes,
-              _canonical_techcrunch]:
+              _canonical_techcrunch,
+              _canonical_wikipedia,
+              _canonical_arstechnica,
+              _canonical_bbc]:
         host, path, parsed_query = h(host, path, parsed_query)
     return host, path, parsed_query
 
