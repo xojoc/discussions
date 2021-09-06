@@ -10,6 +10,8 @@ from urllib3.util import Url
 
 from web import models
 
+from celery import shared_task
+
 
 class PreferredExternalURL(Enum):
     Standard = 1
@@ -351,3 +353,8 @@ def update_all_canonical_urls(manual_commit=True):
     if manual_commit:
         django.db.transaction.commit()
         django.db.transaction.set_autocommit(previous_autocommit)
+
+
+@shared_task(ignore_result=True)
+def delete_useless_discussions():
+    models.Discussion.delete_useless_discussions()

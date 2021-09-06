@@ -42,8 +42,11 @@ def client(with_cache=False, with_retries=True):
     return c
 
 
-def subreddit(subreddit, listing='new', listing_argument=''):
-    redis_client = get_redis_connection("default")
+def get_subreddit(subreddit, listing='new', listing_argument='',
+                  redis_client=None, reddit_client=None):
+
+    if not redis_client:
+        redis_client = get_redis_connection("default")
     subreddit = subreddit.lower()
     redis_key = f'discussions:subreddit_cache:{listing}:{listing_argument}:{subreddit}'
 
@@ -53,7 +56,8 @@ def subreddit(subreddit, listing='new', listing_argument=''):
     if stories:
         return stories
 
-    reddit_client = client()
+    if not reddit_client:
+        reddit_client = client()
     list = None
     if listing == 'new':
         list = reddit_client.subreddit(subreddit).new(limit=50)
@@ -66,7 +70,7 @@ def subreddit(subreddit, listing='new', listing_argument=''):
         redis_client.sadd(redis_key, pickle.dumps(story))
         stories.add(story)
 
-    redis_client.expire(redis_key, 60 * 9)
+    redis_client.expire(redis_key, 60 * 7)
 
     return stories
 
@@ -255,9 +259,10 @@ def fetch_discussions(index):
         if redis.get(skip_sub_key_prefix + name):
             continue
 
-        limit_new = 50
         try:
-            stories = reddit.subreddit(name).new(limit=limit_new)
+            stories = get_subreddit(name,
+                                    redis_client=redis,
+                                    reddit_client=reddit)
         except Exception as e:
             logger.log(f"reddit: subreddit({name}): {e}")
             continue
