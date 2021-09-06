@@ -206,28 +206,10 @@ class Discussion(models.Model):
 
     @classmethod
     def delete_useless_discussions(cls):
-        three_months_ago = timezone.now() - datetime.timedelta(days=30 * 3)
+        six_months_ago = timezone.now() - datetime.timedelta(days=30*6)
         (cls.objects
-         .filter(platform='r')
-         .filter(archived=True)
-         .filter(comment_count=0) |
-         cls.objects
-         .filter(platform='h')
          .filter(comment_count=0)
-         .filter(created_at__lte=three_months_ago) |
-         cls.objects
-         .filter(platform='l')
-         .filter(comment_count=0)
-         .filter(created_at__lte=three_months_ago) |
-         cls.objects
-         .filter(platform='b')
-         .filter(comment_count=0)
-         .filter(created_at__lte=three_months_ago) |
-         cls.objects
-         .filter(platform='g')
-         .filter(comment_count=0)
-         .filter(created_at__lte=three_months_ago)
-         ).delete()
+         .filter(created_at__lte=six_months_ago)).delete()
 
 
 class StatisticsDecoder(json.JSONDecoder):

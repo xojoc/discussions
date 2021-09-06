@@ -313,7 +313,7 @@ def split_scheme(url):
     return scheme, u.url
 
 
-def update_all_canonical_urls(manual_commit=True):
+def update_all_canonical_urls(from_index, to_index, manual_commit=True):
     # c = http.client(with_retries=False)
     # r = get_redis_connection("default")
 
@@ -321,19 +321,19 @@ def update_all_canonical_urls(manual_commit=True):
         previous_autocommit = django.db.transaction.get_autocommit()
         django.db.transaction.set_autocommit(False)
 
-    stories = models.Discussion.objects.all()
+    stories = models.Discussion.objects.all()[from_index:to_index]
     for story in stories:
         dirty = False
 
         cu = canonical_url(story.story_url)
         if cu == story.schemeless_story_url:
-            story.canonical_story_url = None
-            dirty = True
+            if story.canonical_story_url is not None:
+                story.canonical_story_url = None
+                dirty = True
         elif len(cu) <= 2000:
             story.canonical_story_url = cu
             dirty = True
 
-        print("a")
         # if random.random() <= 0.001:
         #     rcu = canonical_url(story.story_url,
         #                         follow_redirects=True,
