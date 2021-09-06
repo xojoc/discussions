@@ -264,7 +264,7 @@ def fetch_discussions(index):
                                     redis_client=redis,
                                     reddit_client=reddit)
         except Exception as e:
-            logger.log(f"reddit: subreddit({name}): {e}")
+            logger.log(f"reddit: subreddit {name}: {e}")
             continue
 
         subreddit_max_created_at = redis.get(max_created_at_key + name)
@@ -361,7 +361,7 @@ def fetch_discussions(index):
         except (prawcore.exceptions.Forbidden,
                 prawcore.exceptions.NotFound,
                 prawcore.exceptions.PrawcoreException) as e:
-            logger.warn(f"reddit: subreddit({name}): {e}")
+            logger.warn(f"reddit: subreddit {name}: {e}")
             continue
 
         if not subreddit_max_created_at or max_created_at > float(subreddit_max_created_at):
