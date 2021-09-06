@@ -214,19 +214,19 @@ class Discussion(models.Model):
          cls.objects
          .filter(platform='h')
          .filter(comment_count=0)
-         .filter(created_on__lte=three_months_ago) |
+         .filter(created_at__lte=three_months_ago) |
          cls.objects
          .filter(platform='l')
          .filter(comment_count=0)
-         .filter(created_on__lte=three_months_ago) |
+         .filter(created_at__lte=three_months_ago) |
          cls.objects
          .filter(platform='b')
          .filter(comment_count=0)
-         .filter(created_on__lte=three_months_ago) |
+         .filter(created_at__lte=three_months_ago) |
          cls.objects
          .filter(platform='g')
          .filter(comment_count=0)
-         .filter(created_on__lte=three_months_ago)
+         .filter(created_at__lte=three_months_ago)
          ).delete()
 
 
