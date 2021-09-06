@@ -50,7 +50,7 @@ def discussions_top_domains():
                  discussion_count=Count('platform_id')).\
         order_by('-discussion_count')
 
-    return stats[:17]
+    return stats[:18]
 
 
 @shared_task(ignore_result=True)
