@@ -195,18 +195,19 @@ LOGGING = {
     },
 }
 
-sentry_logging = LoggingIntegration(
-    level=logging.WARNING,
-    event_level=logging.ERROR,
-)
+if not os.environ.get('DJANGO_DEVELOPMENT'):
+    sentry_logging = LoggingIntegration(
+        level=logging.WARNING,
+        event_level=logging.ERROR,
+    )
 
-sentry_sdk.init(
-    dsn=os.getenv("SENTRY_DSN"),
-    integrations=[DjangoIntegration(),
-                  CeleryIntegration(),
-                  RedisIntegration(),
-                  sentry_logging]
-)
+    sentry_sdk.init(
+        dsn=os.getenv("SENTRY_DSN"),
+        integrations=[DjangoIntegration(),
+                      CeleryIntegration(),
+                      RedisIntegration(),
+                      sentry_logging]
+    )
 
 REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID')
 REDDIT_CLIENT_SECRET = os.getenv('REDDIT_CLIENT_SECRET')

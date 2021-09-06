@@ -175,7 +175,7 @@ def process_archive_line(line):
             title=p.get('title'),
             tags=[subreddit.lower()]).save()
     except Exception as e:
-        logger.warn(f"Reddit archive: {e}")
+        logger.warn(f"reddit archive: {e}")
         return
 
 
@@ -259,7 +259,7 @@ def fetch_discussions(index):
         try:
             stories = reddit.subreddit(name).new(limit=limit_new)
         except Exception as e:
-            logger.log(f"reddit.subreddit({name}): {e}")
+            logger.log(f"reddit: subreddit({name}): {e}")
             continue
 
         subreddit_max_created_at = redis.get(max_created_at_key + name)
@@ -356,7 +356,7 @@ def fetch_discussions(index):
         except (prawcore.exceptions.Forbidden,
                 prawcore.exceptions.NotFound,
                 prawcore.exceptions.PrawcoreException) as e:
-            logger.warn(e)
+            logger.warn(f"reddit: subreddit({name}): {e}")
             continue
 
         if not subreddit_max_created_at or max_created_at > float(subreddit_max_created_at):
@@ -431,7 +431,7 @@ def update_all_discussions(from_index, to_index):
             continue
         if not scheme:
             logger.warn(
-                f"update_all_stories: no scheme for {p.id}, url {p.url}")
+                f"reddit: update_all_stories: no scheme for {p.id}, url {p.url}")
             d.delete()
             continue
 
