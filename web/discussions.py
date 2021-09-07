@@ -8,9 +8,12 @@ import urllib3
 from django_redis import get_redis_connection
 from urllib3.util import Url
 
-from web import models
+from web import models, celery_util
 
 from celery import shared_task
+
+from discussions.settings import APP_CELERY_TASK_MAX_TIME
+import time
 
 
 class PreferredExternalURL(Enum):
@@ -313,7 +316,7 @@ def split_scheme(url):
     return scheme, u.url
 
 
-def update_all_canonical_urls(from_index, to_index, manual_commit=True):
+def update_canonical_urls(current_index, manual_commit=True):
     # c = http.client(with_retries=False)
     # r = get_redis_connection("default")
 
@@ -321,8 +324,14 @@ def update_all_canonical_urls(from_index, to_index, manual_commit=True):
         previous_autocommit = django.db.transaction.get_autocommit()
         django.db.transaction.set_autocommit(False)
 
-    stories = models.Discussion.objects.all()[from_index:to_index]
+    start_time = time.monotonic()
+
+    stories = models.Discussion.objects.all()[current_index:]
     for story in stories:
+        if time.monotonic() - start_time > APP_CELERY_TASK_MAX_TIME:
+            break
+
+        current_index += 1
         dirty = False
 
         cu = canonical_url(story.story_url)
@@ -353,6 +362,27 @@ def update_all_canonical_urls(from_index, to_index, manual_commit=True):
     if manual_commit:
         django.db.transaction.commit()
         django.db.transaction.set_autocommit(previous_autocommit)
+
+    return current_index
+
+
+@shared_task(ignore_result=True)
+@celery_util.singleton(blocking_timeout=3)
+def update_all_canonical_urls():
+    r = get_redis_connection("default")
+    redis_prefix = 'discussions:update_all_canonical_urls:'
+    current_index = r.get(redis_prefix + 'current_index')
+    if current_index is not None:
+        current_index = int(current_index)
+    max_index = int(r.get(redis_prefix + 'max_index') or 0)
+    if current_index is None or not max_index or (current_index > max_index):
+        max_index = models.Discussion.objects.all().count()
+        r.set(redis_prefix + 'max_index', max_index)
+        current_index = 0
+
+    current_index = update_canonical_urls(current_index)
+
+    r.set(redis_prefix + 'current_index', current_index)
 
 
 @shared_task(ignore_result=True)
