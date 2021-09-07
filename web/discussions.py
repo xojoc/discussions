@@ -331,7 +331,7 @@ def update_canonical_urls(current_index, manual_commit=True):
 
     count_dirty = 0
 
-    stories = models.Discussion.objects.all()[current_index:current_index+30_000]
+    stories = models.Discussion.objects.all().order_by('pk')[current_index:current_index+50_000]
     for story in stories:
         if time.monotonic() - start_time > APP_CELERY_TASK_MAX_TIME:
             break
