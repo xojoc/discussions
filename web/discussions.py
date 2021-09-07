@@ -114,6 +114,11 @@ def _canonical_query(query):
     return sorted([q for q in pq if q[0] not in queries_to_skip])
 
 
+def replace_last(s, old, new):
+    h, _s, t = s.rpartition(old)
+    return h + new + t
+
+
 def _fragment_to_path(host, path, fragment):
     if not fragment:
         return None
@@ -143,6 +148,14 @@ def _fragment_to_path(host, path, fragment):
     ):
         new_path = "/g/" + fragment[len('!topic/'):].replace("/", "/c/", 1)
 
+    if (
+            host == 'groups.google.com' and
+            path.startswith('/forum') and
+            fragment.startswith('!msg/')
+    ):
+        new_path = "/g/" + fragment[len('!msg/'):].replace("/", "/c/", 1)
+        new_path = replace_last(new_path, "/", "/m/")
+
     return new_path
 
 
@@ -169,20 +182,21 @@ def _canonical_webarchive(host, path, parsed_query):
 
 def _canonical_youtube(host, path, parsed_query):
     if host == 'youtube.com':
-        if path == '/watch':
-            for v in parsed_query:
-                if v[0] == 'v':
-                    host = 'youtu.be'
-                    path = '/' + v[1]
-                    parsed_query = None
-                    break
+        if path:
+            if path == '/watch':
+                for v in parsed_query:
+                    if v[0] == 'v':
+                        host = 'youtu.be'
+                        path = '/' + v[1]
+                        parsed_query = None
+                        break
 
-        if path.startswith("/embed/"):
-            path_parts = path.split('/')
-            if len(path_parts) >= 3 and path_parts[-1] != '':
-                host = 'youtu.be'
-                path = '/' + path_parts[-1]
-                parsed_query = None
+            if path.startswith("/embed/"):
+                path_parts = path.split('/')
+                if len(path_parts) >= 3 and path_parts[-1] != '':
+                    host = 'youtu.be'
+                    path = '/' + path_parts[-1]
+                    parsed_query = None
 
     return host, path, parsed_query
 

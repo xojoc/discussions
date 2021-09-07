@@ -15,6 +15,7 @@ class Discussions(unittest.TestCase):
                           c("https://twitter.com/#!wikileaks/status/1255304335887646721"),
                           c("https://github.com/xojoc/discussions/tree/master"),
                           c("https://groups.google.com/forum/#!topic/mozilla.dev.platform/1PHhxBxSehQ"),
+                          c("groups.google.com/forum/?utm_term=0_62dc6ea1a0-4367aed1fd-246207570#!msg/mi.jobs/poxlcw8udk4/_ghzqb9sg9gj"),
                           c("www.nytimes.com/2006/10/11/technology/11yahoo.html?ex=1318219200&en=538f73d9faa9d263&ei=5090&partner=rssuserland&emc=rss"),
                           c("https://open.nytimes.com/tracking-covid-19-from-hundreds-of-sources-one-extracted-record-at-a-time-dd8cbd31f9b4"),
                           c("www.techcrunch.com/2009/05/30/vidoop-is-dead-employees-getting-computers-in-lieu-of-wages/?awesm=tcrn.ch_2t3&utm_campaign=techcrunch&utm_content=techcrunch-autopost&utm_medium=tcrn.ch-twitter&utm_source=direct-tcrn.ch")
@@ -29,6 +30,7 @@ class Discussions(unittest.TestCase):
                           'twitter.com/wikileaks/status/1255304335887646721',
                           'github.com/xojoc/discussions',
                           'groups.google.com/g/mozilla.dev.platform/c/1PHhxBxSehQ',
+                          'groups.google.com/g/mi.jobs/c/poxlcw8udk4/m/_ghzqb9sg9gj',
                           'nytimes.com/2006/10/11/technology/11yahoo',
                           'open.nytimes.com/dd8cbd31f9b4',
                           'techcrunch.com/2009/05/30/vidoop-is-dead-employees-getting-computers-in-lieu-of-wages'])
