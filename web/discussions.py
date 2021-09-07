@@ -331,7 +331,7 @@ def update_canonical_urls(current_index, manual_commit=True):
 
     count_dirty = 0
 
-    stories = models.Discussion.objects.all()[current_index:]
+    stories = models.Discussion.objects.all()[current_index:current_index+10_000]
     for story in stories:
         if time.monotonic() - start_time > APP_CELERY_TASK_MAX_TIME:
             break
@@ -370,7 +370,7 @@ def update_canonical_urls(current_index, manual_commit=True):
             logger.warning(f"update_canonical_urls: current_index: {current_index}: dirty: {count_dirty} (sleeping)")
             time.sleep(3)
 
-        if count_dirty % 100 == 0:
+        if count_dirty > 0 and count_dirty % 100 == 0:
             logger.warning(f"update_canonical_urls: dirty: {count_dirty} (sleeping)")
             time.sleep(3)
 
