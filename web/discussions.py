@@ -366,6 +366,10 @@ def update_canonical_urls(current_index, manual_commit=True):
         if dirty:
             story.save()
 
+        if current_index % 5_000 == 0:
+            logger.warning(f"update_canonical_urls: current_index: {current_index}: dirty: {count_dirty} (sleeping)")
+            time.sleep(3)
+
         if count_dirty % 100 == 0:
             logger.warning(f"update_canonical_urls: dirty: {count_dirty} (sleeping)")
             time.sleep(3)
