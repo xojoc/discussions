@@ -152,6 +152,7 @@ CELERY_TASK_ACKS_LATE = True
 
 
 # xojoc: find a way to create default schedules for freshly installed apps
+
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 
