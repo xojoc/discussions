@@ -370,9 +370,10 @@ def update_canonical_urls(current_index, manual_commit=True):
             logger.warning(f"update_canonical_urls: current_index: {current_index}: dirty: {count_dirty} (sleeping)")
             time.sleep(3)
 
-        if count_dirty > 0 and count_dirty % 100 == 0:
-            logger.warning(f"update_canonical_urls: dirty: {count_dirty} (sleeping)")
-            time.sleep(3)
+        if dirty:
+            if count_dirty > 0 and count_dirty % 100 == 0:
+                logger.warning(f"update_canonical_urls: dirty: {count_dirty} (sleeping)")
+                time.sleep(3)
 
     if manual_commit:
         django.db.transaction.commit()
