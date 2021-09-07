@@ -149,19 +149,20 @@ def _fragment_to_path(host, path, fragment):
 def _canonical_webarchive(host, path, parsed_query):
     web_archive_prefix = '/web/'
     if host == 'web.archive.org':
-        if path.startswith(web_archive_prefix):
-            parts = path[len(web_archive_prefix):].split('/', 1)
-            if len(parts) == 2 and parts[1].startswith(('http:/', 'https:/')):
-                try:
-                    url = parts[1]
-                    url = url.replace("http:/", "http://", 1)
-                    url = url.replace("https:/", "https://", 1)
-                    u = urllib3.util.parse_url(canonical_url(url))
-                    host = u.host
-                    path = u.path
-                    parsed_query = u.query
-                except Exception:
-                    pass
+        if path:
+            if path.startswith(web_archive_prefix):
+                parts = path[len(web_archive_prefix):].split('/', 1)
+                if len(parts) == 2 and parts[1].startswith(('http:/', 'https:/')):
+                    try:
+                        url = parts[1]
+                        url = url.replace("http:/", "http://", 1)
+                        url = url.replace("https:/", "https://", 1)
+                        u = urllib3.util.parse_url(canonical_url(url))
+                        host = u.host
+                        path = u.path
+                        parsed_query = u.query
+                    except Exception:
+                        pass
 
     return host, path, parsed_query
 
@@ -188,20 +189,23 @@ def _canonical_youtube(host, path, parsed_query):
 
 def _canonical_medium(host, path, parsed_query):
     if host == 'medium.com':
-        path_parts = path.split('/')
-        if len(path_parts) >= 3:
-            path = '/p/' + path_parts[-1].split('-')[-1]
+        if path:
+            path_parts = path.split('/')
+            if len(path_parts) >= 3:
+                path = '/p/' + path_parts[-1].split('-')[-1]
     if host.endswith('.medium.com'):
-        path_parts = path.split('/')
-        if len(path_parts) >= 2:
-            path = '/' + path_parts[-1].split('-')[-1]
+        if path:
+            path_parts = path.split('/')
+            if len(path_parts) >= 2:
+                path = '/' + path_parts[-1].split('-')[-1]
 
     return host, path, parsed_query
 
 
 def _canonical_github(host, path, parsed_query):
     if host == 'github.com':
-        path = path.removesuffix('/tree/master')
+        if path:
+            path = path.removesuffix('/tree/master')
 
     return host, path, parsed_query
 
@@ -210,10 +214,11 @@ def _canonical_nytimes(host, path, parsed_query):
     if host == 'nytimes.com':
         parsed_query = None
     if host == 'open.nytimes.com':
-        parsed_query = None
-        path_parts = path.split('/')
-        if len(path_parts) >= 2:
-            path = '/' + path_parts[-1].split('-')[-1]
+        if path:
+            parsed_query = None
+            path_parts = path.split('/')
+            if len(path_parts) >= 2:
+                path = '/' + path_parts[-1].split('-')[-1]
 
     return host, path, parsed_query
 
