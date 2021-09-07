@@ -380,7 +380,7 @@ def update_all_canonical_urls():
         r.set(redis_prefix + 'max_index', max_index)
         current_index = 0
 
-    current_index = update_canonical_urls(current_index)
+    current_index = update_canonical_urls(current_index, manual_commit=False)
 
     r.set(redis_prefix + 'current_index', current_index)
 
