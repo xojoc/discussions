@@ -1,3 +1,4 @@
+import logging
 import re
 import urllib.parse as url_parse
 from enum import Enum
@@ -14,6 +15,8 @@ from celery import shared_task
 
 from discussions.settings import APP_CELERY_TASK_MAX_TIME
 import time
+
+logger = logging.getLogger(__name__)
 
 
 class PreferredExternalURL(Enum):
@@ -326,6 +329,8 @@ def update_canonical_urls(current_index, manual_commit=True):
 
     start_time = time.monotonic()
 
+    count_dirty = 0
+
     stories = models.Discussion.objects.all()[current_index:]
     for story in stories:
         if time.monotonic() - start_time > APP_CELERY_TASK_MAX_TIME:
@@ -339,9 +344,11 @@ def update_canonical_urls(current_index, manual_commit=True):
             if story.canonical_story_url is not None:
                 story.canonical_story_url = None
                 dirty = True
-        elif len(cu) <= 2000:
+                count_dirty += 1
+        elif len(cu) <= 2000 and cu != story.canonical_story_url:
             story.canonical_story_url = cu
             dirty = True
+            count_dirty += 1
 
         # if random.random() <= 0.001:
         #     rcu = canonical_url(story.story_url,
@@ -362,6 +369,8 @@ def update_canonical_urls(current_index, manual_commit=True):
     if manual_commit:
         django.db.transaction.commit()
         django.db.transaction.set_autocommit(previous_autocommit)
+
+    logger.warning(f"update_canonical_urls: dirty: {count_dirty}")
 
     return current_index
 
