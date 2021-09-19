@@ -212,6 +212,7 @@ class Discussion(models.Model):
                      title=Max('title'),
                      date__last_discussion=Max('created_at'),
                      story_url=Max('schemeless_story_url')).\
+            filter(comment_count__gt=3).\
             order_by('-comment_count')
 
         return tds
