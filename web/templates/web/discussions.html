@@ -7,8 +7,10 @@
   <form method="GET" class="discussions_form">
     <div class="flex-container">
       <label for=url>URL</label>
-      <input class="flex-fill-width" id="url" name="url" type="text" value="{{ctx.url}}" placeholder="URL or title"/>
-      <input type="submit" value="Find discussions" />
+      <div class="flex-container input-submit">
+		<input class="flex-fill-width" id="url" name="url" type="text" value="{{ctx.url}}" placeholder="URL or title"/>
+		<input type="submit" value="Find discussions" />
+      </div>
     </div>
   </form>
 
@@ -45,11 +47,28 @@
 
   {% endif %}
 
+
   {% if ctx.nothing_found %}
   <h2>Discussions not found</h2>
   <p>Sorry, we couldn't find nothing for <b>{{ctx.url}}</b></p>
+  <p>You may may need to retry with a "clean" URL. For example instead of <b>https://adomain.com/interesting-article<i>?tracking=id</i></b> try with <b>https://adomain.com/interesting-article</b></p>
   <p>If you think we missed something, please write to: <a href="mailto:hi@xojoc.pw">hi@xojoc.pw</a>
   </p>
+  {% endif %}
+
+
+  {% if ctx.title_discussions %}
+  <h2>Stories with similar title</h2>
+  <ul>
+	{% for story in ctx.title_discussions %}
+
+	<li><a href="?url={{story.story_url|urlencode:""}}" title="{{story.title}}">{{story.title}}</a><br/>
+	  <span class='comment-count-date'><b>{{story.comment_count}}</b> comments (last discussion <time datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></span></li>
+
+
+  {% endfor %}
+
+  </ul>
   {% endif %}
 
 
@@ -91,7 +110,7 @@
   <ol>
 	{% for story in ctx.statistics.top_stories %}
 	<li><a href="?url={{story.story_url|urlencode:""}}" title="{{story.title}}">{{story.title}}</a><br/>
-	  <b>{{story.comment_count}}</b> comments (last discussion <time datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></li>
+	 <span class='comment-count-date'><b>{{story.comment_count}}</b> comments (last discussion <time datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></span></li>
 	{% endfor %}
   </ol>
 

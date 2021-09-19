@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_celery_beat',
     'django.contrib.humanize',
+    'django.contrib.postgres',
     'web.apps.WebConfig',
     'debug_toolbar'
 ]

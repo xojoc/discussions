@@ -279,7 +279,9 @@ def _canonical_specific_websites(host, path, parsed_query):
     return host, path, parsed_query
 
 
-def canonical_url(url, client=None, redis=None, follow_redirects=False, cache=True, timeout=3.05):
+def canonical_url(url, client=None, redis=None,
+                  follow_redirects=False,
+                  cache=True, timeout=3.05):
     if not url:
         return url
 

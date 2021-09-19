@@ -27,10 +27,6 @@ def discussions_context_cached(url):
 def discussions_context(url):
     ctx = {}
 
-    # _ = list(statistics.discussions_top_domains())
-    # _ = list(statistics.discussions_top_stories())
-    # _ = list(statistics.discussions_platform_statistics())
-
     ctx['statistics'] = models.Statistics.all_statistics()
 
     if url and not (url.startswith('http://') or
@@ -52,10 +48,13 @@ def discussions_context(url):
         return ctx
     ctx['display_discussions'] = True
     uds, tds, cu, rcu = models.Discussion.of_url_or_title(ctx['url'])
+    tds = tds[:11]
+
     ctx['canonical_url'] = cu
 
     # ds = sorted(ds, key=lambda x: x.platform_order)
     ctx['discussions'] = uds
+    ctx['title_discussions'] = tds
 
     # We have to convert the iterator to a list, see: https://stackoverflow.com/a/16171518
     ctx['grouped_discussions'] = [(platform,
@@ -66,16 +65,6 @@ def discussions_context(url):
                                        platform, preferred_external_url=discussions.PreferredExternalURL.Standard),
                                    list(uds))
                                   for platform, uds in itertools.groupby(uds, lambda x: x.platform)]
-
-    # We have to convert the iterator to a list, see: https://stackoverflow.com/a/16171518
-    ctx['grouped_discussions_title'] = [(platform,
-                                         models.Discussion.platform_name(platform),
-                                         models.Discussion.platform_url(
-                                             platform, preferred_external_url=discussions.PreferredExternalURL.Standard),
-                                         models.Discussion.platform_tag_url(
-                                             platform, preferred_external_url=discussions.PreferredExternalURL.Standard),
-                                         list(tds))
-                                        for platform, uds in itertools.groupby(tds, lambda x: x.platform)]
 
     if uds:
         ctx['title'] = uds[0].title

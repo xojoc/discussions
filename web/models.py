@@ -7,7 +7,8 @@ import datetime
 from django.core import serializers
 import json
 from dateutil import parser as dateutil_parser
-# from django.contrib.postgres.search import TrigramSimilarity
+from django.db.models import Sum, Max
+from django.db.models.functions import Coalesce
 
 
 class Discussion(models.Model):
@@ -52,6 +53,17 @@ class Discussion(models.Model):
 
     def __str__(self):
         return f"{self.platform_id} - {self.story_url}"
+
+    @property
+    def domain(self):
+        url = self.canonical_story_url
+        if not url:
+            url = self.schemeless_story_url
+
+        if not url:
+            return None
+
+        return url.split('/')[0]
 
     def save(self, *args, **kwargs):
         if not self.platform:
@@ -179,30 +191,30 @@ class Discussion(models.Model):
 
     @classmethod
     def of_url_or_title(cls, url_or_title, client=None):
-        _, url = discussions.split_scheme(url_or_title)
-        cu = discussions.canonical_url(url_or_title)
-        rcu = discussions.canonical_url(
-            url_or_title, client=client, follow_redirects=True)
+        uds, cu, rcu = Discussion.of_url(url_or_title)
+        tds = Discussion.objects.none()
+        if len(url_or_title) > 3 and \
+           '/' not in url_or_title and \
+           not url_or_title.startswith('http:') and \
+           not url_or_title.startswith('https:'):
 
-        uds = (cls.objects.filter(schemeless_story_url=url) |
-               cls.objects.filter(schemeless_story_url=cu) |
-               cls.objects.filter(schemeless_story_url=rcu) |
-               cls.objects.filter(canonical_story_url=cu) |
-               cls.objects.filter(canonical_redirect_url=rcu)).\
-            order_by('platform', '-created_at', 'tags__0', '-platform_id')
-
-        # tds = cls.objects.annotate(
-        # similarity=TrigramSimilarity('title', url_or_title)).\
-        # filter(similarity__gt=0.3).order_by('-similarity')
-
-        # tds = cls.objects.annotate(
-        #     similarity=TrigramSimilarity('title', url_or_title)).\
-        #     filter(title__trigram_similar=url_or_title).\
-        #     order_by('-similarity')
-
-        tds = []
-
+            tds = Discussion.of_title(url_or_title)
         return uds, tds, cu, rcu
+
+    @classmethod
+    def of_title(cls, title, client=None):
+        tds = cls.objects.\
+            annotate(canonical_url=Coalesce('canonical_story_url',
+                                            'schemeless_story_url')).\
+            values('canonical_url').\
+            filter(title__trigram_similar=title).\
+            annotate(comment_count=Sum('comment_count'),
+                     title=Max('title'),
+                     date__last_discussion=Max('created_at'),
+                     story_url=Max('schemeless_story_url')).\
+            order_by('-comment_count')
+
+        return tds
 
     @classmethod
     def delete_useless_discussions(cls):
