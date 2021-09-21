@@ -203,7 +203,7 @@ def fetch_reddit_archive():
                 f.close()
                 logger.warning(f"reddit archive: end download {file}")
                 r.set(f"{redis_prefix}:downloaded:{file}",
-                      1, ex=60 * 60 * 24 * 7)
+                      1, ex=60 * 60 * 24 * 30)
 
         f = open(file_name, 'rb')
 
@@ -230,10 +230,11 @@ def fetch_reddit_archive():
                 logger.warning(f"reddit archive: line failed: {e}")
                 logger.warning(line)
 
+        stream.close()
         f.close()
         os.remove(file_name)
 
-        r.set(f"{redis_prefix}:processed:{file}", 1, ex=60 * 60 * 24 * 7)
+        r.set(f"{redis_prefix}:processed:{file}", 1, ex=60 * 60 * 24 * 30)
 
         time.sleep(3)
 

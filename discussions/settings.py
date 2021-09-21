@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django.contrib.postgres',
     'web.apps.WebConfig',
-    'debug_toolbar'
+    'debug_toolbar',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -219,6 +220,14 @@ en_formats.DATETIME_FORMAT = 'H:i:s j/n/Y'
 INTERNAL_IPS = [
     '127.0.0.1'
 ]
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 
 if os.environ.get('DJANGO_DEVELOPMENT'):
     from .settings_dev import *  # noqa F401, F403
