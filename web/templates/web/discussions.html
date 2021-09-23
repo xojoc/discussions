@@ -4,164 +4,164 @@
 
 {% block main %}
 <div id=discussions>
-  <form method="GET" class="discussions_form">
-    <div class="flex-container">
-      <label for=url>URL</label>
-      <div class="flex-container input-submit">
-		<input class="flex-fill-width" id="url" name="url" type="text" value="{{ctx.url}}" placeholder="URL or title"/>
-		<input type="submit" value="Find discussions" />
-      </div>
-    </div>
-  </form>
+	<form method="GET" class="discussions_form">
+		<div class="flex-container">
+			<label for=url>URL</label>
+			<div class="flex-container input-submit">
+				<input class="flex-fill-width" id="url" name="url" type="text" value="{{ctx.url}}" placeholder="URL or title"/>
+				<input type="submit" value="Find discussions" />
+			</div>
+		</div>
+	</form>
 
-  {% if ctx.display_discussions %}
-  <div class="results-pretext">
+	{% if ctx.display_discussions %}
+	<div class="results-pretext">
 
-    <p class="canonical-url">Canonical URL: <b>{{ctx.canonical_url}}</b></p>
-    <p>All the discussions we found for <a href="{{ctx.absolute_url}}">{{ctx.url}}</a></p>
-  </div>
+		<p class="canonical-url">Canonical URL: <b>{{ctx.canonical_url}}</b></p>
+		<p>All the discussions we found for <a href="{{ctx.absolute_url}}">{{ctx.url}}</a></p>
+	</div>
 
-  {% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
-  <div id="platform_{{platform}}" class="platform_discussions">
-    <h3><a href="{{ platform_url }}">{{ platform_name }}</a></h3>
-  </div>
-  <ul>
-    {% for d in discussions %}
-    <li>
-	  <b>{{d.title}}</b><br/>
-	  <a href="{{d.discussion_url}}" rel="noreferrer noopener" target="_blank"><b>{{d.comment_count}}</b>
-        comment{{d.comment_count|pluralize:",s"}}</a>, <b>{{d.score}}</b> points [<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
-      {% if d.tags %}
-      {% if platform != 'r' %}
-      Tags:
-      {% endif %}
-      {% for tag in d.tags %}
-      <b><a href="{{platform_tag_url}}/{{tag}}">{{tag}}</a></b>{% if not forloop.last %}, {% endif %}
-      {% endfor %}
-      {% endif %}
-    </li>
-    {% endfor %}
-  </ul>
-  {% endfor %}
-
-
-  {% endif %}
-
-
-  {% if ctx.nothing_found %}
-  <h2>Discussions not found</h2>
-  <p>Sorry, we couldn't find nothing for <b>{{ctx.url}}</b></p>
-  <p>You may may need to retry with a "clean" URL. For example instead of <b>https://adomain.com/interesting-article<i>?tracking=id</i></b> try with <b>https://adomain.com/interesting-article</b></p>
-  <p>If you think we missed something, please write to: <a href="mailto:hi@xojoc.pw">hi@xojoc.pw</a>
-  </p>
-  {% endif %}
-
-
-  {% if ctx.title_discussions %}
-  <h2>Stories with similar title</h2>
-  <ul>
-	{% for story in ctx.title_discussions %}
-
-	<li><a href="?url={{story.story_url|urlencode:""}}" title="{{story.title}}">{{story.title}}</a><br/>
-	  <span class='comment-count-date'><b>{{story.comment_count}}</b> comments (last discussion <time datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></span></li>
-
-
-  {% endfor %}
-
-  </ul>
-  {% endif %}
-
-
-  <br />
-  <h2>What is this?</h2>
-  <p>This form finds all the discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker
-      News</a>,
-    <a href="https://lobste.rs/" title='Lobsters'>Lobsters</a>, <a href="https://www.reddit.com/"
-																   title='Reddit'>Reddit</a> and <a href="https://barnacl.es/" title="Barnacles">Barnacles</a>
-    (other communities will be added in the
-    future).</p>
-
-  <h2>Bookmarklet</h2>
-  <p>Use the following bookmarklet to find discussions anywhere you go: <a
-																		  href="{% include "web/discussions_bookmarklet.js" %}" title="Discussions Bookmarklet">Discussions around the
-      web</a></p>
-  <p>Bookmark the above link and click on it on any page to be redirected here. For more information about
-    bookmarklets see <a
-					   href="https://support.mozilla.org/en-US/kb/bookmarklets-perform-common-web-page-tasks">Firefox's
-      help pages</a>.</p>
-
-  <h2>Notes</h2>
-  <p>The comments and points counters are approximative. Due to the vast amount of discussions saved in our DB it's
-    not possible to keep them all up to date.</p>
-
-  <h2>Examples</h2>
-  <ul>
-    <li><a href="https://discussions.xojoc.pw/?url=https%3A%2F%2Fwww.gimp.org%2F"
-           title="Discussions of GIMP">GIMP</a></li>
-    <li><a href="https://discussions.xojoc.pw/?url=https%3A%2F%2Fxojoc.pw%2Fblog%2Ffocus"
-           title="Why I'm focusing only on some programming languages">Why I'm focusing only on some programming
-        languages</a></li>
-    <li><a
-          href="https://discussions.xojoc.pw/?url=https%3A%2F%2Fhacks.mozilla.org%2F2017%2F11%2Fentering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster%2F">How Firefox got fast again and where it’s going to get faster</a></li>
-  </ul>
-
-
-  <h2>Most discussed stories</h2>
-  <ol>
-	{% for story in ctx.statistics.top_stories %}
-	<li><a href="?url={{story.story_url|urlencode:""}}" title="{{story.title}}">{{story.title}}</a><br/>
-	 <span class='comment-count-date'><b>{{story.comment_count}}</b> comments (last discussion <time datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></span></li>
+	{% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
+	<div id="platform_{{platform}}" class="platform_discussions">
+		<h3><a href="{{ platform_url }}">{{ platform_name }}</a></h3>
+	</div>
+	<ul>
+		{% for d in discussions %}
+		<li>
+			<b>{{d.title}}</b><br/>
+			<a href="{{d.discussion_url}}" rel="noreferrer noopener" target="_blank"><b>{{d.comment_count}}</b>
+				comment{{d.comment_count|pluralize:",s"}}</a>, <b>{{d.score}}</b> points [<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
+			{% if d.tags %}
+			{% if platform != 'r' %}
+			Tags:
+			{% endif %}
+			{% for tag in d.tags %}
+			<b><a href="{{platform_tag_url}}/{{tag}}">{{tag}}</a></b>{% if not forloop.last %}, {% endif %}
+			{% endfor %}
+			{% endif %}
+		</li>
+		{% endfor %}
+	</ul>
 	{% endfor %}
-  </ol>
 
 
-  <h2>Platform statistics</h2>
-  <table>
-	<thead>
-	  <tr>
-		<th>Platform</th>
-		<th>Total discussions</th>
-		<th>Total comments</th>
-		<th>Oldest discussion</th>
-		<th>Newest dicussion</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for platform in ctx.statistics.platform %}
-	  <tr>
-		<td><a href="{{platform.platform_url}}" title="{{platform.platform_name}}">{{platform.platform_name}}</a></td>
-		<td>{{platform.discussion_count|intcomma}}</td>
-		<td>{{platform.comment_count|intcomma}}</td>
-		<td>{{platform.date__oldest_discussion|date}}</td>
-		<td>{{platform.date__newest_discussion|date}}</td>
-	  </tr>
-	  {% endfor %}
-	</tbody>
-  </table>
+	{% endif %}
 
-  <h2>Most discussed domains</h2>
 
-  <table>
-	<thead>
-	  <tr>
-		<th>Domain</th>
-		<th>Total discussions</th>
-		<th>Total comments</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for domain in ctx.statistics.top_domains %}
-	  <tr>
-		<td>{{domain.domain}}</td>
-		<td>{{domain.discussion_count|intcomma}}</td>
-		<td>{{domain.comment_count|intcomma}}</td>
-	  </tr>
-	  {% endfor %}
-	</tbody>
-  </table>
+	{% if ctx.nothing_found %}
+	<h2>Discussions not found</h2>
+	<p>Sorry, we couldn't find nothing for <b>{{ctx.url}}</b></p>
+	<p>You may may need to retry with a "clean" URL. For example instead of <b>https://adomain.com/interesting-article<i>?tracking=id</i></b> try with <b>https://adomain.com/interesting-article</b></p>
+	<p>If you think we missed something, please write to: <a href="mailto:hi@xojoc.pw">hi@xojoc.pw</a>
+	</p>
+	{% endif %}
 
-  <h2>API</h2>
-  <p>I'm building an API. If you're interested please write to <a href="mailto:hi@xojoc.pw">hi@xojoc.pw</a>. Any feature suggestion is welcome!</p>
+
+	{% if ctx.title_discussions %}
+	<h2>Stories with similar title</h2>
+	<ul>
+		{% for story in ctx.title_discussions %}
+
+		<li><a href="?url={{story.story_url|urlencode:""}}" title="{{story.title}}">{{story.title}}</a><br/>
+			<span class='comment-count-date'><b>{{story.comment_count}}</b> comments (last discussion <time datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></span></li>
+
+
+		{% endfor %}
+
+	</ul>
+	{% endif %}
+
+
+	<br />
+	<h2>What is this?</h2>
+	<p>This form finds all the discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker
+		News</a>,
+		<a href="https://lobste.rs/" title='Lobsters'>Lobsters</a>, <a href="https://www.reddit.com/"
+																	   title='Reddit'>Reddit</a> and <a href="https://barnacl.es/" title="Barnacles">Barnacles</a>
+		(other communities will be added in the
+		future).</p>
+
+	<h2>Bookmarklet</h2>
+	<p>Use the following bookmarklet to find discussions anywhere you go: <a
+																			  href="{% include "web/discussions_bookmarklet.js" %}" title="Discussions Bookmarklet">Discussions around the
+		web</a></p>
+	<p>Bookmark the above link and click on it on any page to be redirected here. For more information about
+		bookmarklets see <a
+							 href="https://support.mozilla.org/en-US/kb/bookmarklets-perform-common-web-page-tasks">Firefox's
+		help pages</a>.</p>
+
+	<h2>Notes</h2>
+	<p>The comments and points counters are approximative. Due to the vast amount of discussions saved in our DB it's
+		not possible to keep them all up to date.</p>
+
+	<h2>Examples</h2>
+	<ul>
+		<li><a href="https://discussions.xojoc.pw/?url=https%3A%2F%2Fwww.gimp.org%2F"
+			   title="Discussions of GIMP">GIMP</a></li>
+		<li><a href="https://discussions.xojoc.pw/?url=https%3A%2F%2Fxojoc.pw%2Fblog%2Ffocus"
+			   title="Why I'm focusing only on some programming languages">Why I'm focusing only on some programming
+			languages</a></li>
+		<li><a
+				href="https://discussions.xojoc.pw/?url=https%3A%2F%2Fhacks.mozilla.org%2F2017%2F11%2Fentering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster%2F">How Firefox got fast again and where it’s going to get faster</a></li>
+	</ul>
+
+
+	<h2>Most discussed stories</h2>
+	<ol>
+		{% for story in ctx.statistics.top_stories %}
+		<li><a href="?url={{story.story_url|urlencode:""}}" title="{{story.title}}">{{story.title}}</a><br/>
+			<span class='comment-count-date'><b>{{story.comment_count}}</b> comments (last discussion <time datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></span></li>
+		{% endfor %}
+	</ol>
+
+
+	<h2>Platform statistics</h2>
+	<table>
+		<thead>
+			<tr>
+				<th>Platform</th>
+				<th>Total discussions</th>
+				<th>Total comments</th>
+				<th>Oldest discussion</th>
+				<th>Newest dicussion</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for platform in ctx.statistics.platform %}
+			<tr>
+				<td><a href="{{platform.platform_url}}" title="{{platform.platform_name}}">{{platform.platform_name}}</a></td>
+				<td>{{platform.discussion_count|intcomma}}</td>
+				<td>{{platform.comment_count|intcomma}}</td>
+				<td>{{platform.date__oldest_discussion|date}}</td>
+				<td>{{platform.date__newest_discussion|date}}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	<h2>Most discussed domains</h2>
+
+	<table>
+		<thead>
+			<tr>
+				<th>Domain</th>
+				<th>Total discussions</th>
+				<th>Total comments</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for domain in ctx.statistics.top_domains %}
+			<tr>
+				<td>{{domain.domain}}</td>
+				<td>{{domain.discussion_count|intcomma}}</td>
+				<td>{{domain.comment_count|intcomma}}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	<h2>API</h2>
+	<p>I'm building an API. If you're interested please write to <a href="mailto:hi@xojoc.pw">hi@xojoc.pw</a>. Any feature suggestion is welcome!</p>
 
 
 </div>

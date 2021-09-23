@@ -38,12 +38,19 @@ def client(with_cache=False, with_retries=True):
     c = praw.Reddit(client_id=settings.REDDIT_CLIENT_ID,
                     client_secret=settings.REDDIT_CLIENT_SECRET,
                     user_agent=settings.USERAGENT,
-                    requestor_kwargs={'session': http.client(with_cache=with_cache, with_retries=with_retries)})
+                    requestor_kwargs={
+                        'session':
+                        http.client(with_cache=with_cache,
+                                    with_retries=with_retries)
+                    })
     return c
 
 
-def get_subreddit(subreddit, listing='new', listing_argument='',
-                  redis_client=None, reddit_client=None):
+def get_subreddit(subreddit,
+                  listing='new',
+                  listing_argument='',
+                  redis_client=None,
+                  reddit_client=None):
 
     if not redis_client:
         redis_client = get_redis_connection("default")
@@ -62,8 +69,8 @@ def get_subreddit(subreddit, listing='new', listing_argument='',
     if listing == 'new':
         list = reddit_client.subreddit(subreddit).new(limit=50)
     if listing == 'top':
-        list = reddit_client.subreddit(subreddit).top(
-            listing_argument, limit=30)
+        list = reddit_client.subreddit(subreddit).top(listing_argument,
+                                                      limit=30)
 
     for story in list:
         _ = story.title  # force load
@@ -168,16 +175,15 @@ def process_archive_line(line):
     subreddit = p.get('subreddit') or ''
 
     try:
-        models.Discussion(
-            platform_id=platform_id,
-            comment_count=p.get('num_comments') or 0,
-            score=p.get('score') or 0,
-            created_at=created_at,
-            scheme_of_story_url=scheme,
-            schemeless_story_url=url,
-            canonical_story_url=canonical_url,
-            title=p.get('title'),
-            tags=[subreddit.lower()]).save()
+        models.Discussion(platform_id=platform_id,
+                          comment_count=p.get('num_comments') or 0,
+                          score=p.get('score') or 0,
+                          created_at=created_at,
+                          scheme_of_story_url=scheme,
+                          schemeless_story_url=url,
+                          canonical_story_url=canonical_url,
+                          title=p.get('title'),
+                          tags=[subreddit.lower()]).save()
     except Exception as e:
         logger.warning(f"reddit archive: {e}")
         return
@@ -203,7 +209,8 @@ def fetch_reddit_archive():
                 f.close()
                 logger.warning(f"reddit archive: end download {file}")
                 r.set(f"{redis_prefix}:downloaded:{file}",
-                      1, ex=60 * 60 * 24 * 30)
+                      1,
+                      ex=60 * 60 * 24 * 30)
 
         f = open(file_name, 'rb')
 
@@ -299,8 +306,9 @@ def fetch_discussions(index):
                     continue
 
                 if p.hidden:
-                    redis.set(temporary_skip_key_prefix +
-                              p.id, 1, ex=cache_timeout)
+                    redis.set(temporary_skip_key_prefix + p.id,
+                              1,
+                              ex=cache_timeout)
                     continue
 
                 if p.media:
@@ -331,8 +339,7 @@ def fetch_discussions(index):
                 max_created_at = max(p.created_utc, max_created_at)
 
                 try:
-                    discussion = models.Discussion.objects.get(
-                        pk=platform_id)
+                    discussion = models.Discussion.objects.get(pk=platform_id)
                     discussion.comment_count = p.num_comments or 0
                     discussion.score = p.score or 0
                     discussion.created_at = created_at
@@ -344,34 +351,33 @@ def fetch_discussions(index):
                     discussion.tags = [name]
                     discussion.save()
                 except models.Discussion.DoesNotExist:
-                    models.Discussion(
-                        platform_id=platform_id,
-                        comment_count=p.num_comments or 0,
-                        score=p.score or 0,
-                        created_at=created_at,
-                        scheme_of_story_url=scheme,
-                        schemeless_story_url=url,
-                        canonical_story_url=canonical_url,
-                        title=p.title,
-                        archived=p.archived,
-                        tags=[name]).save()
+                    models.Discussion(platform_id=platform_id,
+                                      comment_count=p.num_comments or 0,
+                                      score=p.score or 0,
+                                      created_at=created_at,
+                                      scheme_of_story_url=scheme,
+                                      schemeless_story_url=url,
+                                      canonical_story_url=canonical_url,
+                                      title=p.title,
+                                      archived=p.archived,
+                                      tags=[name]).save()
 
                 # To avoid to hit the Reddit API too often, skip this discussion for some time
-                redis.set(temporary_skip_key_prefix + p.id, 1, ex=60*15)
+                redis.set(temporary_skip_key_prefix + p.id, 1, ex=60 * 15)
 
-        except (prawcore.exceptions.Forbidden,
-                prawcore.exceptions.NotFound,
+        except (prawcore.exceptions.Forbidden, prawcore.exceptions.NotFound,
                 prawcore.exceptions.PrawcoreException) as e:
             logger.warning(f"reddit: subreddit {name}: {e}")
             continue
 
-        if not subreddit_max_created_at or max_created_at > float(subreddit_max_created_at):
+        if not subreddit_max_created_at or max_created_at > float(
+                subreddit_max_created_at):
             redis.set(max_created_at_key + name,
-                      max_created_at, ex=60 * 60 * 24 * 180)
+                      max_created_at,
+                      ex=60 * 60 * 24 * 180)
         else:
             # No new story. Skip this subreddit for a while
-            redis.set(skip_sub_key_prefix + name, 1,
-                      ex=60 * 60)
+            redis.set(skip_sub_key_prefix + name, 1, ex=60 * 60)
 
     return index
 
@@ -397,10 +403,8 @@ def fetch_recent_discussions():
 
 
 def udpate_all_discussions_queryset():
-    return (models.Discussion.objects
-            .filter(platform='r')
-            .filter(archived=False)
-            .order_by('pk'))
+    return (models.Discussion.objects.filter(platform='r').filter(
+        archived=False).order_by('pk'))
 
 
 @transaction.atomic
@@ -437,7 +441,8 @@ def update_all_discussions(from_index, to_index):
             continue
         if not scheme:
             logger.warning(
-                f"reddit: update_all_stories: no scheme for {p.id}, url {p.url}")
+                f"reddit: update_all_stories: no scheme for {p.id}, url {p.url}"
+            )
             d.delete()
             continue
 

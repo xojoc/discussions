@@ -31,6 +31,7 @@ class PreferredExternalURL(Enum):
 
 # fixme: non permanent redirects?
 
+
 def _follow_redirects(url, client, redis, cache, timeout):
     if cache:
         key_prefix = "discussions:comments:redirect:"
@@ -85,12 +86,10 @@ def _canonical_path(path):
 
     path = re.sub('/+', '/', path)
 
-    suffixes = ['/default', '/index',
-                '.htm', '.html', '.shtml',
-                '.php', '.jsp', '.aspx',
-                '.cms', '.md',
-                '.pdf', '.stm',
-                '/']
+    suffixes = [
+        '/default', '/index', '.htm', '.html', '.shtml', '.php', '.jsp',
+        '.aspx', '.cms', '.md', '.pdf', '.stm', '/'
+    ]
     found_suffix = True
     while found_suffix:
         found_suffix = False
@@ -105,11 +104,11 @@ def _canonical_path(path):
 def _canonical_query(query):
     pq = url_parse.parse_qsl(query, keep_blank_values=True)
 
-    queries_to_skip = {'cd-origin',
-                       'utm_term', 'utm_campaign', 'utm_content', 'utm_source', 'utm_medium',
-                       'gclid', 'gclsrc', 'dclid', 'fbclid', 'zanpid',
-                       'guccounter', 'campaign_id',
-                       'tstart'}
+    queries_to_skip = {
+        'cd-origin', 'utm_term', 'utm_campaign', 'utm_content', 'utm_source',
+        'utm_medium', 'gclid', 'gclsrc', 'dclid', 'fbclid', 'zanpid',
+        'guccounter', 'campaign_id', 'tstart'
+    }
 
     return sorted([q for q in pq if q[0] not in queries_to_skip])
 
@@ -125,34 +124,21 @@ def _fragment_to_path(host, path, fragment):
 
     new_path = None
 
-    if (
-            path == '' and
-            fragment.startswith('!')
-    ):
+    if (path == '' and fragment.startswith('!')):
 
         new_path = fragment[1:]
         if not new_path.startswith('/'):
             new_path = '/' + new_path
 
-    if (
-            host == 'cnn.com' and
-            path == '/video' and
-            fragment.startswith('/')
-    ):
+    if (host == 'cnn.com' and path == '/video' and fragment.startswith('/')):
         new_path = fragment
 
-    if (
-            host == 'groups.google.com' and
-            path.startswith('/forum') and
-            fragment.startswith('!topic/')
-    ):
+    if (host == 'groups.google.com' and path.startswith('/forum')
+            and fragment.startswith('!topic/')):
         new_path = "/g/" + fragment[len('!topic/'):].replace("/", "/c/", 1)
 
-    if (
-            host == 'groups.google.com' and
-            path.startswith('/forum') and
-            fragment.startswith('!msg/')
-    ):
+    if (host == 'groups.google.com' and path.startswith('/forum')
+            and fragment.startswith('!msg/')):
         new_path = "/g/" + fragment[len('!msg/'):].replace("/", "/c/", 1)
         new_path = replace_last(new_path, "/", "/m/")
 
@@ -165,7 +151,8 @@ def _canonical_webarchive(host, path, parsed_query):
         if path:
             if path.startswith(web_archive_prefix):
                 parts = path[len(web_archive_prefix):].split('/', 1)
-                if len(parts) == 2 and parts[1].startswith(('http:/', 'https:/')):
+                if len(parts) == 2 and \
+                   parts[1].startswith(('http:/', 'https:/')):
                     try:
                         url = parts[1]
                         url = url.replace("http:/", "http://", 1)
@@ -266,24 +253,25 @@ def _canonical_bbc(host, path, parsed_query):
 
 
 def _canonical_specific_websites(host, path, parsed_query):
-    for h in [_canonical_webarchive,
-              _canonical_youtube,
-              _canonical_medium,
-              _canonical_github,
-              _canonical_nytimes,
-              _canonical_techcrunch,
-              _canonical_wikipedia,
-              _canonical_arstechnica,
-              _canonical_bbc]:
+    for h in [
+            _canonical_webarchive, _canonical_youtube, _canonical_medium,
+            _canonical_github, _canonical_nytimes, _canonical_techcrunch,
+            _canonical_wikipedia, _canonical_arstechnica, _canonical_bbc
+    ]:
         host, path, parsed_query = h(host, path, parsed_query)
     return host, path, parsed_query
 
 
-def canonical_url(url, client=None, redis=None,
+def canonical_url(url,
+                  client=None,
+                  redis=None,
                   follow_redirects=False,
-                  cache=True, timeout=3.05):
+                  cache=True,
+                  timeout=3.05):
     if not url:
         return url
+
+    url = url.lower()
 
     if follow_redirects:
         if not client:
@@ -305,7 +293,8 @@ def canonical_url(url, client=None, redis=None,
     if new_path is not None:
         path = new_path
 
-    host, path, parsed_query = _canonical_specific_websites(host, path, parsed_query)
+    host, path, parsed_query = _canonical_specific_websites(
+        host, path, parsed_query)
 
     query = url_parse.urlencode(parsed_query or '')
 
@@ -328,14 +317,13 @@ def split_scheme(url):
 
     scheme = u.scheme
 
-    u = Url(
-        scheme=None,
-        auth=u.auth,
-        host=u.host,
-        port=u.port,
-        path=u.path,
-        query=u.query,
-        fragment=u.fragment)
+    u = Url(scheme=None,
+            auth=u.auth,
+            host=u.host,
+            port=u.port,
+            path=u.path,
+            query=u.query,
+            fragment=u.fragment)
 
     return scheme, u.url
 
@@ -352,7 +340,8 @@ def update_canonical_urls(current_index, manual_commit=True):
 
     count_dirty = 0
 
-    stories = models.Discussion.objects.all().order_by('pk')[current_index:current_index+50_000]
+    stories = models.Discussion.objects.all().order_by(
+        'pk')[current_index:current_index + 50_000]
     for story in stories:
         if time.monotonic() - start_time > APP_CELERY_TASK_MAX_TIME:
             break
