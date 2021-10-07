@@ -10,6 +10,17 @@ from dateutil import parser as dateutil_parser
 from django.db.models import Sum, Max
 from django.db.models.functions import Coalesce
 
+# class Tweets(models.Model):
+# tweet_id = models.IntegerField(null=False)
+# bot_name = models.CharField(max_length=255)
+
+# scheme_of_story_url = models.CharField(max_length=25)
+# """Original URL of the story without the scheme"""
+# schemeless_story_url = models.CharField(max_length=100_000)
+# canonical_story_url = models.CharField(max_length=100_000,
+#                                        blank=True,
+#                                        null=True)
+
 
 class Discussion(models.Model):
     class Meta:
@@ -26,7 +37,6 @@ class Discussion(models.Model):
     platform = models.CharField(max_length=1, blank=False)
     created_at = models.DateTimeField(null=True)
     scheme_of_story_url = models.CharField(max_length=25)
-
     """Original URL of the story without the scheme"""
     schemeless_story_url = models.CharField(max_length=100_000)
     canonical_story_url = models.CharField(max_length=100_000,
@@ -40,10 +50,11 @@ class Discussion(models.Model):
     title = models.CharField(max_length=2048)
     comment_count = models.IntegerField(default=0)
     score = models.IntegerField(default=0)
-
     """In case of Reddit tags will have only one entry which represents the subreddit"""
-    tags = postgres_fields.ArrayField(
-        models.CharField(max_length=255, blank=True), null=True, blank=True)
+    tags = postgres_fields.ArrayField(models.CharField(max_length=255,
+                                                       blank=True),
+                                      null=True,
+                                      blank=True)
 
     archived = models.BooleanField(default=False)
 
@@ -72,10 +83,8 @@ class Discussion(models.Model):
         if self.canonical_story_url == self.schemeless_story_url:
             self.canonical_story_url = None
 
-        if (
-                self.canonical_redirect_url == self.canonical_story_url or
-                self.canonical_redirect_url == self.schemeless_story_url
-        ):
+        if (self.canonical_redirect_url == self.canonical_story_url
+                or self.canonical_redirect_url == self.schemeless_story_url):
             self.canonical_redirect_url = None
 
         super(Discussion, self).save(*args, **kwargs)
@@ -104,11 +113,14 @@ class Discussion(models.Model):
             return 100
 
     @classmethod
-    def platforms(cls, preferred_external_url=discussions.PreferredExternalURL.Standard):
+    def platforms(
+            cls,
+            preferred_external_url=discussions.PreferredExternalURL.Standard):
         ps = {}
-        for p in sorted(['h', 'r', 'l', 'b', 'g'], key=lambda x: cls.platform_order(x)):
-            ps[p] = (cls.platform_name(p), cls.platform_url(
-                p, preferred_external_url))
+        for p in sorted(['h', 'r', 'l', 'b', 'g'],
+                        key=lambda x: cls.platform_order(x)):
+            ps[p] = (cls.platform_name(p),
+                     cls.platform_url(p, preferred_external_url))
         return ps
 
     @classmethod
@@ -158,7 +170,9 @@ class Discussion(models.Model):
         elif platform == 'g':
             return "https://gambe.ro/t"
 
-    def discussion_url(self, preferred_external_url=discussions.PreferredExternalURL.Standard):
+    def discussion_url(
+            self,
+            preferred_external_url=discussions.PreferredExternalURL.Standard):
         bu = self.platform_url(self.platform, preferred_external_url)
         if self.platform == 'r':
             return f"{bu}/r/{self.subreddit}/comments/{self.id}"
@@ -170,15 +184,18 @@ class Discussion(models.Model):
     def subreddit_name(self):
         return f"/r/{self.subreddit}"
 
-    def subreddit_url(self, preferred_external_url=discussions.PreferredExternalURL.Standard):
+    def subreddit_url(
+            self,
+            preferred_external_url=discussions.PreferredExternalURL.Standard):
         return f"{self.platform_url(self.platform, preferred_external_url)}/r/{self.subreddit}"
 
     @classmethod
     def of_url(cls, url, client=None):
         _, url = discussions.split_scheme(url)
         cu = discussions.canonical_url(url)
-        rcu = discussions.canonical_url(
-            url, client=client, follow_redirects=True)
+        rcu = discussions.canonical_url(url,
+                                        client=client,
+                                        follow_redirects=True)
 
         ds = (cls.objects.filter(schemeless_story_url=url) |
               cls.objects.filter(schemeless_story_url=cu) |
@@ -207,7 +224,7 @@ class Discussion(models.Model):
             annotate(canonical_url=Coalesce('canonical_story_url',
                                             'schemeless_story_url')).\
             values('canonical_url').\
-            filter(title__trigram_similar=title).\
+            filter(title__trigram_word_similar=title).\
             annotate(comment_count=Sum('comment_count'),
                      title=Max('title'),
                      date__last_discussion=Max('created_at'),
@@ -219,17 +236,14 @@ class Discussion(models.Model):
 
     @classmethod
     def delete_useless_discussions(cls):
-        six_months_ago = timezone.now() - datetime.timedelta(days=30*6)
-        (cls.objects
-         .filter(comment_count=0)
-         .filter(created_at__lte=six_months_ago)).delete()
+        six_months_ago = timezone.now() - datetime.timedelta(days=30 * 6)
+        (cls.objects.filter(comment_count=0).filter(
+            created_at__lte=six_months_ago)).delete()
 
 
 class StatisticsDecoder(json.JSONDecoder):
     def __init__(self):
-        json.JSONDecoder.__init__(
-            self,
-            object_hook=self.dict_to_object)
+        json.JSONDecoder.__init__(self, object_hook=self.dict_to_object)
 
     def dict_to_object(self, d):
         for k in d:
@@ -246,21 +260,24 @@ class Statistics(models.Model):
 
     @classmethod
     def update_platform_statistics(cls, statistics):
-        cls.objects.update_or_create(name='platform',
-                                     defaults={'statistics':
-                                               {'data': statistics}})
+        cls.objects.update_or_create(
+            name='platform', defaults={'statistics': {
+                'data': statistics
+            }})
 
     @classmethod
     def update_top_stories_statistics(cls, statistics):
-        cls.objects.update_or_create(name='top_stories',
-                                     defaults={'statistics':
-                                               {'data': statistics}})
+        cls.objects.update_or_create(
+            name='top_stories', defaults={'statistics': {
+                'data': statistics
+            }})
 
     @classmethod
     def update_top_domains_statistics(cls, statistics):
-        cls.objects.update_or_create(name='top_domains',
-                                     defaults={'statistics':
-                                               {'data': statistics}})
+        cls.objects.update_or_create(
+            name='top_domains', defaults={'statistics': {
+                'data': statistics
+            }})
 
     @classmethod
     def platform_statistics(cls):
@@ -285,6 +302,8 @@ class Statistics(models.Model):
 
     @classmethod
     def all_statistics(cls):
-        return {'platform': cls.platform_statistics(),
-                'top_stories': cls.top_stories_statistics(),
-                'top_domains': cls.top_domains_statistics()}
+        return {
+            'platform': cls.platform_statistics(),
+            'top_stories': cls.top_stories_statistics(),
+            'top_domains': cls.top_domains_statistics()
+        }

@@ -18,12 +18,12 @@ def discussions_context_cached(url):
     ctx = cache.get(key)
     if ctx:
         if cache.get(touch_key):
-            cache.touch(key)
+            cache.touch(key, 30)
     else:
         ctx = discussions_context(url)
         if ctx and ctx['grouped_discussions']:
-            cache.set(key, ctx)
-            cache.set(touch_key, 1, timeout=60*15)
+            cache.set(key, ctx, 60)
+            cache.set(touch_key, 1, timeout=60 * 3)
 
     return ctx
 
@@ -33,8 +33,7 @@ def discussions_context(url):
 
     ctx['statistics'] = models.Statistics.all_statistics()
 
-    if url and not (url.startswith('http://') or
-                    url.startswith('https://')):
+    if url and not (url.startswith('http://') or url.startswith('https://')):
 
         ctx['absolute_url'] = 'https://' + url
     else:
@@ -61,14 +60,17 @@ def discussions_context(url):
     ctx['title_discussions'] = tds
 
     # We have to convert the iterator to a list, see: https://stackoverflow.com/a/16171518
-    ctx['grouped_discussions'] = [(platform,
-                                   models.Discussion.platform_name(platform),
-                                   models.Discussion.platform_url(
-                                       platform, preferred_external_url=discussions.PreferredExternalURL.Standard),
-                                   models.Discussion.platform_tag_url(
-                                       platform, preferred_external_url=discussions.PreferredExternalURL.Standard),
-                                   list(uds))
-                                  for platform, uds in itertools.groupby(uds, lambda x: x.platform)]
+    ctx['grouped_discussions'] = [
+        (platform, models.Discussion.platform_name(platform),
+         models.Discussion.platform_url(
+             platform,
+             preferred_external_url=discussions.PreferredExternalURL.Standard),
+         models.Discussion.platform_tag_url(
+             platform,
+             preferred_external_url=discussions.PreferredExternalURL.Standard),
+         list(uds))
+        for platform, uds in itertools.groupby(uds, lambda x: x.platform)
+    ]
 
     if uds:
         ctx['title'] = uds[0].title
@@ -111,5 +113,6 @@ class APIDiscussionsOfURLView(rest_views.APIView):
         url = (url or '').lower()
         ctx = discussions_context_cached(url)
 
-        results = serializers.DiscussionsOfURLSerializer(ctx.get('discussions')).data
+        results = serializers.DiscussionsOfURLSerializer(
+            ctx.get('discussions')).data
         return RESTResponse(results)
