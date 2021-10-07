@@ -1005,7 +1005,7 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "b95d48b147e95e04a15f63e9e7201778db7906afa0c49b921a3f1e9845e2a4ba"
+content-hash = "a9bd5de8a41ced0dcf1c46071af378dc7eeb3c69be2e77e51ee2ac4d48519c9e"
 
 [metadata.files]
 amqp = [

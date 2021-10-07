@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes', 'django.contrib.sessions',
     'django.contrib.messages', 'django.contrib.staticfiles',
     'django_celery_beat', 'django.contrib.humanize', 'django.contrib.postgres',
-    'web.apps.WebConfig', 'debug_toolbar', 'rest_framework'
+    'web.apps.WebConfig', 'debug_toolbar'
 ]
 
 MIDDLEWARE = [
