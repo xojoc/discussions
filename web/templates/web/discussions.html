@@ -1,5 +1,7 @@
 {% extends "web/base.html" %}
 
+
+
 {% load humanize %}
 
 {% block main %}
@@ -8,7 +10,7 @@
 		<div class="flex-container">
 			<label for=url>URL</label>
 			<div class="flex-container input-submit">
-				<input class="flex-fill-width" id="url" name="url" type="text" value="{{ctx.url}}" placeholder="URL or title"/>
+				<input class="flex-fill-width" id="url" name="url" type="text" value="{{ctx.url}}" placeholder="URL or title" autofocus />
 				<input type="submit" value="Find discussions" />
 			</div>
 		</div>

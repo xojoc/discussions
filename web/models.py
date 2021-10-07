@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.postgres import fields as postgres_fields
 from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import TrigramWordSimilarity
 from . import discussions
 from django.utils import timezone
 import datetime
@@ -8,7 +9,7 @@ from django.core import serializers
 import json
 from dateutil import parser as dateutil_parser
 from django.db.models import Sum, Max
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Round
 
 # class Tweets(models.Model):
 # tweet_id = models.IntegerField(null=False)
@@ -222,15 +223,17 @@ class Discussion(models.Model):
     def of_title(cls, title, client=None):
         tds = cls.objects.\
             annotate(canonical_url=Coalesce('canonical_story_url',
-                                            'schemeless_story_url')).\
+                                            'schemeless_story_url'),
+                     word_similarity=Round(TrigramWordSimilarity(title, 'title'), 2)).\
             values('canonical_url').\
             filter(title__trigram_word_similar=title).\
             annotate(comment_count=Sum('comment_count'),
                      title=Max('title'),
                      date__last_discussion=Max('created_at'),
-                     story_url=Max('schemeless_story_url')).\
+                     story_url=Max('schemeless_story_url'),
+                     word_similarity=Max('word_similarity')).\
             filter(comment_count__gt=3).\
-            order_by('-comment_count')
+            order_by('-word_similarity', '-comment_count')
 
         return tds
 

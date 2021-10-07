@@ -21,7 +21,7 @@ def discussions_context_cached(url):
             cache.touch(key, 30)
     else:
         ctx = discussions_context(url)
-        if ctx and ctx['grouped_discussions']:
+        if ctx and ctx.get('grouped_discussions'):
             cache.set(key, ctx, 60)
             cache.set(touch_key, 1, timeout=60 * 3)
 
