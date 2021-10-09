@@ -121,7 +121,7 @@ def tweet_discussions():
 
     # print(stories)
 
-    print(stories.count())
+    # print(stories.count())
 
     for story in stories:
         related_discussions, _, _ = models.Discussion.of_url(story.story_url)
