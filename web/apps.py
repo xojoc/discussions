@@ -1,6 +1,5 @@
 from django.apps import AppConfig
 import logging
-from web import twitter
 import os
 from django.db.backends.signals import connection_created
 
@@ -10,7 +9,24 @@ logger = logging.getLogger(__name__)
 class WebConfig(AppConfig):
     name = 'web'
 
+    def __reddit_configuration(self):
+        from web import reddit
+
+        with open("web/reddit_subreddit_blacklist") as f:
+            reddit.subreddit_blacklist = {
+                x.lower().strip()
+                for x in f.read().splitlines()
+            }
+
+        with open("web/reddit_subreddit_whitelist") as f:
+            reddit.subreddit_whitelist = {
+                x.lower().strip()
+                for x in f.read().splitlines()
+            }
+
     def __twitter_configuration(self):
+        from web import twitter
+
         twitter.configuration['api_key'] = os.getenv('TWITTER_ACCESS_API_KEY')
         twitter.configuration['api_secret_key'] = os.getenv(
             'TWITTER_ACCESS_API_SECRET_KEY')
@@ -34,19 +50,6 @@ class WebConfig(AppConfig):
             WebConfig.__connection_created_signal_handler)
 
     def ready(self):
-        from web import reddit
-
-        with open("web/reddit_subreddit_blacklist") as f:
-            reddit.subreddit_blacklist = {
-                x.lower().strip()
-                for x in f.read().splitlines()
-            }
-
-        with open("web/reddit_subreddit_whitelist") as f:
-            reddit.subreddit_whitelist = {
-                x.lower().strip()
-                for x in f.read().splitlines()
-            }
-
+        self.__reddit_configuration()
         self.__twitter_configuration()
         self.__set_trigram_threshold()

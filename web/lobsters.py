@@ -47,8 +47,7 @@ def process_item(item, platform_prefix):
     platform_id = f"{platform_prefix}{item.get('short_id')}"
 
     try:
-        discussion = models.Discussion.objects.get(
-            pk=platform_id)
+        discussion = models.Discussion.objects.get(pk=platform_id)
 
         discussion.comment_count = item.get('comment_count') or 0
         discussion.score = item.get('score') or 0
@@ -60,16 +59,15 @@ def process_item(item, platform_prefix):
         discussion.tags = item.get('tags')
         discussion.save()
     except models.Discussion.DoesNotExist:
-        models.Discussion(
-            platform_id=platform_id,
-            comment_count=item.get('comment_count') or 0,
-            score=item.get('score') or 0,
-            created_at=created_at,
-            scheme_of_story_url=scheme,
-            schemeless_story_url=url,
-            canonical_story_url=canonical_url,
-            title=item.get('title'),
-            tags=item.get('tags')).save()
+        models.Discussion(platform_id=platform_id,
+                          comment_count=item.get('comment_count') or 0,
+                          score=item.get('score') or 0,
+                          created_at=created_at,
+                          scheme_of_story_url=scheme,
+                          schemeless_story_url=url,
+                          canonical_story_url=canonical_url,
+                          title=item.get('title'),
+                          tags=item.get('tags')).save()
 
 
 def fetch_discussions(current_page, platform_prefix, base_url):
@@ -94,7 +92,7 @@ def fetch_discussions(current_page, platform_prefix, base_url):
 
         current_page += 1
 
-        time.sleep(3.1)
+        time.sleep(2.1)
 
     return current_page
 
@@ -107,13 +105,13 @@ def fetch_recent_discussions():
     current_index = int(r.get(redis_prefix + 'current_index') or 0)
     max_index = int(r.get(redis_prefix + 'max_index') or 0)
     if not current_index or not max_index or (current_index > max_index):
-        max_index = 7
+        max_index = 3
         r.set(redis_prefix + 'max_index', max_index)
         current_index = 1
 
     try:
-        current_index = fetch_discussions(
-            current_index, 'l', 'https://lobste.rs')
+        current_index = fetch_discussions(current_index, 'l',
+                                          'https://lobste.rs')
     except EndOfPages:
         current_index = max_index + 1
 
@@ -133,8 +131,8 @@ def fetch_all_discussions():
         current_index = 1
 
     try:
-        current_index = fetch_discussions(
-            current_index, 'l', 'https://lobste.rs')
+        current_index = fetch_discussions(current_index, 'l',
+                                          'https://lobste.rs')
     except EndOfPages:
         current_index = max_index + 1
 
@@ -154,8 +152,8 @@ def fetch_recent_barnacles_discussions():
         current_index = 1
 
     try:
-        current_index = fetch_discussions(
-            current_index, 'b', 'https://barnacl.es')
+        current_index = fetch_discussions(current_index, 'b',
+                                          'https://barnacl.es')
     except EndOfPages:
         current_index = max_index + 1
 
@@ -175,8 +173,8 @@ def fetch_all_barnacles_discussions():
         current_index = 1
 
     try:
-        current_index = fetch_discussions(
-            current_index, 'b', 'https://barnacl.es')
+        current_index = fetch_discussions(current_index, 'b',
+                                          'https://barnacl.es')
     except EndOfPages:
         current_index = max_index + 1
 
@@ -196,8 +194,8 @@ def fetch_recent_gambero_discussions():
         current_index = 1
 
     try:
-        current_index = fetch_discussions(
-            current_index, 'g', 'https://gambe.ro')
+        current_index = fetch_discussions(current_index, 'g',
+                                          'https://gambe.ro')
     except EndOfPages:
         current_index = max_index + 1
 
@@ -217,8 +215,8 @@ def fetch_all_gambero_discussions():
         current_index = 1
 
     try:
-        current_index = fetch_discussions(
-            current_index, 'g', 'https://gambe.ro')
+        current_index = fetch_discussions(current_index, 'g',
+                                          'https://gambe.ro')
     except EndOfPages:
         current_index = max_index + 1
 

@@ -11,17 +11,6 @@ from dateutil import parser as dateutil_parser
 from django.db.models import Sum, Max
 from django.db.models.functions import Coalesce, Round
 
-# class Tweets(models.Model):
-# tweet_id = models.IntegerField(null=False)
-# bot_name = models.CharField(max_length=255)
-
-# scheme_of_story_url = models.CharField(max_length=25)
-# """Original URL of the story without the scheme"""
-# schemeless_story_url = models.CharField(max_length=100_000)
-# canonical_story_url = models.CharField(max_length=100_000,
-#                                        blank=True,
-#                                        null=True)
-
 
 class Discussion(models.Model):
     class Meta:
@@ -31,7 +20,8 @@ class Discussion(models.Model):
                      opclasses=['gin_trgm_ops']),
             models.Index(fields=['schemeless_story_url']),
             models.Index(fields=['canonical_story_url']),
-            models.Index(fields=['canonical_redirect_url'])
+            models.Index(fields=['canonical_redirect_url']),
+            models.Index(fields=['created_at'])
         ]
 
     platform_id = models.CharField(primary_key=True, max_length=50)
@@ -194,15 +184,17 @@ class Discussion(models.Model):
     def of_url(cls, url, client=None):
         _, url = discussions.split_scheme(url)
         cu = discussions.canonical_url(url)
-        rcu = discussions.canonical_url(url,
-                                        client=client,
-                                        follow_redirects=True)
+        rcu = cu
+        # rcu = discussions.canonical_url(url,
+        # client=client,
+        # follow_redirects=True)
 
         ds = (cls.objects.filter(schemeless_story_url=url) |
               cls.objects.filter(schemeless_story_url=cu) |
-              cls.objects.filter(schemeless_story_url=rcu) |
-              cls.objects.filter(canonical_story_url=cu) |
-              cls.objects.filter(canonical_redirect_url=rcu)).\
+              # cls.objects.filter(schemeless_story_url=rcu) |
+              cls.objects.filter(canonical_story_url=cu)
+              # cls.objects.filter(canonical_redirect_url=rcu)
+              ).\
             order_by('platform', '-created_at', 'tags__0', '-platform_id')
 
         return ds, cu, rcu
@@ -310,3 +302,13 @@ class Statistics(models.Model):
             'top_stories': cls.top_stories_statistics(),
             'top_domains': cls.top_domains_statistics()
         }
+
+
+class Tweet(models.Model):
+    tweet_id = models.IntegerField(primary_key=True, null=False)
+    bot_name = models.CharField(max_length=255)
+
+    discussions = models.ManyToManyField(Discussion)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

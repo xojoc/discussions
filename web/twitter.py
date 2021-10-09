@@ -1,7 +1,12 @@
 import tweepy
 import os
-from web import util
+from . import util
 import logging
+from celery import shared_task
+from . import models
+from django.utils import timezone
+import datetime
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -33,18 +38,20 @@ def tweet(status, username):
         return
 
     if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+        random.seed()
         print(username)
         print(status)
         print(api_key)
         print(api_secret_key)
         print(token)
         print(token_secret)
-        return
+        return random.randint(1, 1_000_000)
 
     auth = tweepy.OAuthHandler(api_key, api_secret_key)
     auth.set_access_token(token, token_secret)
     api = tweepy.API(auth)
-    api.update_status(tweet, wait_on_rate_limit=True)
+    status = api.update_status(tweet, wait_on_rate_limit=True)
+    return status.id
 
 
 def __augment_tags(title, tags, keyword, atleast_tags, new_tag=None):
@@ -95,6 +102,65 @@ Discussions: {discussions_url}
 
 {' '.join(hashtags)}"""
 
+    tweet_ids = set()
+
     for bot_name, cfg in configuration['bots'].items():
         if not cfg['tags'] or cfg['tags'] & tags:
-            tweet(status, bot_name)
+            tweet_id = tweet(status, bot_name)
+            tweet_ids.add((tweet_id, bot_name))
+
+    return tweet_ids
+
+
+@shared_task(ignore_result=True)
+def tweet_discussions():
+    three_days_ago = timezone.now() - datetime.timedelta(days=1)
+    stories = models.Discussion.objects.\
+        filter(created_at__gte=three_days_ago).\
+        filter(tweet=None)
+
+    # print(stories)
+
+    print(stories.count())
+
+    for story in stories:
+        related_discussions, _, _ = models.Discussion.of_url(story.story_url)
+
+        total_comment_count = 0
+        total_comment_count += story.comment_count
+        for rd in related_discussions:
+            total_comment_count += rd.comment_count
+
+        if total_comment_count < 10:
+            continue
+
+        already_tweeted = False
+
+        # see if this story was recently tweeted
+        for rd in related_discussions:
+            ts = models.Tweet.objects.\
+                filter(created_at__gte=three_days_ago).\
+                filter(discussions=rd)
+
+            for t in ts:
+                t.discussions.add(story, bulk=False)
+                already_tweeted = True
+
+        if already_tweeted:
+            continue
+
+        tags = set(story.tags or [])
+        for rd in related_discussions:
+            tags = tags | set(rd.tags or [])
+
+        tweet_ids = tweet_story(story.title, story.story_url, tags)
+
+        for tweet_id in tweet_ids:
+            t = models.Tweet(tweet_id=tweet_id[0], bot_name=tweet_id[1])
+            t.save()
+            t.discussions.add(story)
+            for rd in related_discussions:
+                t.discussions.add(rd)
+
+        # if tweet_ids:
+        #     return
