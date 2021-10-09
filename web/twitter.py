@@ -50,7 +50,7 @@ def tweet(status, username):
     auth = tweepy.OAuthHandler(api_key, api_secret_key)
     auth.set_access_token(token, token_secret)
     api = tweepy.API(auth)
-    status = api.update_status(tweet, wait_on_rate_limit=True)
+    status = api.update_status(status, wait_on_rate_limit=True)
     return status.id
 
 

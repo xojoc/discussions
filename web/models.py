@@ -305,7 +305,7 @@ class Statistics(models.Model):
 
 
 class Tweet(models.Model):
-    tweet_id = models.IntegerField(primary_key=True, null=False)
+    tweet_id = models.BigIntegerField(primary_key=True, null=False)
     bot_name = models.CharField(max_length=255)
 
     discussions = models.ManyToManyField(Discussion)
