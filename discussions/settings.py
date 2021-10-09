@@ -22,7 +22,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', os.environ.get('ALLOWED_HOST')]
 CSRF_COOKIE_DOMAIN = os.environ.get('ALLOWED_HOST')
-CSRF_TRUSTED_ORIGINS = [os.environ.get('ALLOWED_HOST') or 'https://*.xojoc.pw']
+CSRF_TRUSTED_ORIGINS = ['https://*.xojoc.pw']
 
 # Application definition
 
