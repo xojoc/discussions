@@ -143,7 +143,8 @@ def tweet_discussions():
                 filter(discussions=rd)
 
             for t in ts:
-                t.discussions.add(story, bulk=False)
+                t.discussions.add(story)
+                t.save()
                 already_tweeted = True
 
         if already_tweeted:
@@ -161,6 +162,4 @@ def tweet_discussions():
             t.discussions.add(story)
             for rd in related_discussions:
                 t.discussions.add(rd)
-
-        # if tweet_ids:
-        #     return
+            t.save()
