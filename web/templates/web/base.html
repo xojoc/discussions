@@ -18,9 +18,9 @@
 
 
     <title>{% block title %}
-	  {% if ctx.url %}
-	  Discussions for "{{ctx.url}}"
-	  {% else %}
+		{% if ctx.original_query %}
+		Discussions for «{{ctx.original_query}}»
+		{% else %}
 	  Discussions around the Web
 	  {% endif %}
 	  {% endblock %}</title>
