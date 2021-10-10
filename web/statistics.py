@@ -30,6 +30,7 @@ def discussions_top_stories():
         annotate(canonical_url=Coalesce('canonical_story_url',
                                         'schemeless_story_url')).\
         values('canonical_url').\
+        exclude(canonical_url__startswith='reddit.com/').\
         annotate(comment_count=Sum('comment_count'),
                  title=Max('title'),
                  date__last_discussion=Max('created_at'),

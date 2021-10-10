@@ -59,14 +59,18 @@ def __augment_tags(title, tags, keyword, atleast_tags, new_tag=None):
         if len(tags & atleast_tags) == 0:
             return tags
 
-    if not new_tag:
+    if not new_tag and keyword:
         new_tag = keyword.lower()
+
+    if not new_tag:
+        return tags
 
     if new_tag in tags:
         return tags
 
-    if keyword.lower() not in title.lower().split(' '):
-        return tags
+    if keyword:
+        if keyword.lower() not in title.lower().split(' '):
+            return tags
 
     return tags | {new_tag}
 
@@ -90,12 +94,18 @@ def tweet_story(title, url, tags):
                           {'python', 'web', 'webdev', 'programming'})
 
     tags = __replace_tag(tags, 'rust', 'rustlang')
+    tags = __replace_tag(tags, 'go', 'golang')
+
+    tags = __augment_tags(title, tags, None,
+                          {'python', 'rustlang', 'golang', 'haskell', 'cpp'},
+                          'programming')
 
     hashtags = sorted(['#' + t for t in tags])
 
     discussions_url = util.discussions_url(url)
 
     status = f"""{title}
+
 {url}
 
 Discussions: {discussions_url}
@@ -118,10 +128,6 @@ def tweet_discussions():
     stories = models.Discussion.objects.\
         filter(created_at__gte=three_days_ago).\
         filter(tweet=None)
-
-    # print(stories)
-
-    # print(stories.count())
 
     for story in stories:
         related_discussions, _, _ = models.Discussion.of_url(story.story_url)
@@ -163,3 +169,6 @@ def tweet_discussions():
             for rd in related_discussions:
                 t.discussions.add(rd)
             t.save()
+
+        if tweet_ids:
+            break

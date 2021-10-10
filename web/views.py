@@ -9,43 +9,47 @@ from rest_framework.response import Response as RESTResponse
 from django.contrib.auth.models import User, Group
 
 
-def discussions_context_cached(url):
-    if not url:
-        return discussions_context(url)
+def discussions_context_cached(q):
+    if not q:
+        return discussions_context(q)
 
-    key = 'discussions_context:' + url
+    suffix = (q or '').lower().strip()
+
+    key = 'discussions_context:' + suffix
     touch_key = 'touch:' + key
     ctx = cache.get(key)
+
     if ctx:
         if cache.get(touch_key):
             cache.touch(key, 30)
     else:
-        ctx = discussions_context(url)
-        if ctx and ctx.get('grouped_discussions'):
+        ctx = discussions_context(q)
+        if ctx and (ctx.get('grouped_discussions')
+                    or ctx.get('title_discussions')):
             cache.set(key, ctx, 60)
             cache.set(touch_key, 1, timeout=60 * 3)
 
     return ctx
 
 
-def discussions_context(url):
+def discussions_context(q):
     ctx = {}
+
+    q = (q or '').strip()
+
+    url = (q or '').lower().strip()
 
     ctx['statistics'] = models.Statistics.all_statistics()
 
     if url and not (url.startswith('http://') or url.startswith('https://')):
-
-        ctx['absolute_url'] = 'https://' + url
+        ctx['absolute_url'] = 'https://' + q
     else:
-        ctx['absolute_url'] = url
+        ctx['absolute_url'] = q
 
+    ctx['original_query'] = q
     ctx['url'] = url
-    ctx['url'] = ctx['url'].strip()
     ctx['display_discussions'] = False
     ctx['nothing_found'] = False
-    ctx['hn'] = None
-    ctx['lobsters'] = None
-    ctx['reddit'] = None
     ctx['title'] = ""
     if not ctx['url']:
         return ctx
@@ -76,15 +80,19 @@ def discussions_context(url):
         ctx['title'] = uds[0].title
     else:
         ctx['display_discussions'] = False
+
+    if not uds and not tds:
         ctx['nothing_found'] = True
 
     return ctx
 
 
 def index(request):
-    url = request.GET.get('url')
-    url = (url or '').lower()
-    ctx = discussions_context_cached(url)
+    q = request.GET.get('url')
+    if not q:
+        q = request.GET.get('q')
+
+    ctx = discussions_context_cached(q)
 
     return render(request, "web/discussions.html", {'ctx': ctx})
 

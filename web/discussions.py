@@ -246,7 +246,10 @@ def _canonical_arstechnica(host, path, parsed_query):
 
 
 def _canonical_bbc(host, path, parsed_query):
-    if host == 'news.bbc.co.uk':
+    if host and (host == 'bbc.co.uk' or host.endswith('.bbc.co.uk')):
+        host = host.replace('.co.uk', '.com')
+
+    if host == 'news.bbc.com':
         parsed_query = None
 
     return host, path, parsed_query
