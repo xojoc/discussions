@@ -2,7 +2,6 @@ from web import models, discussions, serializers
 from django.shortcuts import render
 import itertools
 from django.core.cache import cache
-# from web import statistics
 from rest_framework import viewsets, views as rest_views
 from rest_framework import permissions
 from rest_framework.response import Response as RESTResponse
@@ -54,8 +53,9 @@ def discussions_context(q):
     if not ctx['url']:
         return ctx
     ctx['display_discussions'] = True
-    uds, tds, cu, rcu = models.Discussion.of_url_or_title(ctx['url'])
-    tds = tds[:11]
+    uds, cu, rcu = models.Discussion.of_url_or_title(ctx['url'])
+    # tds = tds[:11]
+    tds = None
 
     ctx['canonical_url'] = cu
 

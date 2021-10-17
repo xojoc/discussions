@@ -9,14 +9,6 @@
 	<link rel="stylesheet" href="{% static "style.css" %}" />
 	<link rel="icon" type="image/png" href="https://xojoc.pw/favicon.ico">
 
-
-	<!-- {% if request.path == "/" %} -->
-	<!-- <link rel="canonical" href="https://{{ request.get_host }}"> -->
-	<!-- {% else %} -->
-	<!-- <link rel="canonical" href="https://{{ request.get_host }}{{ request.path }}"> -->
-	<!-- {% endif %} -->
-
-
     <title>{% block title %}
 		{% if ctx.original_query %}
 		Discussions for «{{ctx.original_query}}»
@@ -48,7 +40,7 @@
 
 	  <footer>
 		<p>
-          Made by <a href="https://xojoc.pw" title="Homepage">Alexandru Cojocaru</a> - <a class="u-email email"  href="mailto:hi@xojoc.pw" title="Contact me">hi@xojoc.pw</a>
+			Made by <a href="https://xojoc.pw" title="My home page">Alexandru Cojocaru</a> - <a href="/twitter" title="Twitter accounts">Twitter</a> - <a class="u-email email"  href="mailto:hi@xojoc.pw" title="Contact me">hi@xojoc.pw</a>
 		</p>
 	  </footer>
 	</div>

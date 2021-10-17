@@ -7,6 +7,7 @@ from cachecontrol.cache import BaseCache
 import datetime
 import time
 import urllib3
+from bs4 import BeautifulSoup
 
 
 class _CustomRedisCache(BaseCache):
@@ -16,11 +17,11 @@ class _CustomRedisCache(BaseCache):
 
     def set(self, key, value, expires=None):
         if not expires:
-            self.conn.setex(self.prefix + key, 60*60*24*5, value)
+            self.conn.setex(self.prefix + key, 60 * 60 * 24 * 5, value)
         else:
             expires = expires - datetime.utcnow()
-            self.conn.setex(self.prefix + key,
-                            int(expires.total_seconds()), value)
+            self.conn.setex(self.prefix + key, int(expires.total_seconds()),
+                            value)
 
     def get(self, key):
         return self.conn.get(self.prefix + key)
@@ -109,8 +110,20 @@ def fetch(url, force_cache=0, refresh_on_get=False, rate_limiting=True):
     if force_cache:
         serialized = adapter.controller.serializer.dumps(request, resp.raw)
         r.set('discussions:forced_cached:' + url, serialized, ex=force_cache)
-        return fetch(url,
-                     force_cache=force_cache,
-                     rate_limiting=rate_limiting)
+        return fetch(url, force_cache=force_cache, rate_limiting=rate_limiting)
 
     return resp
+
+
+def parse_html(res, safe_html=False):
+    h = BeautifulSoup(res.content, 'lxml')
+    if safe_html:
+        if h.script:
+            h.script.decompose()
+        if h.form:
+            h.form.decompose()
+        if h.iframe:
+            h.iframe.decompose()
+        if h.frameset:
+            h.frameset.decompose()
+    return h

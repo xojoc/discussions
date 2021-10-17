@@ -819,3 +819,14 @@ tbody td {
 .comment-count-date {
 	font-size: 0.9em;
 }
+
+.similar-search {
+	font-size: 0.6em;
+}
+
+.discussions_story_url {
+	font-size: 0.65em;
+}
+.discussions_story_url a {
+	color: black;
+}

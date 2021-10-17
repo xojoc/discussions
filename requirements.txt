@@ -3,7 +3,9 @@ asgiref==3.4.1; python_version >= "3.8"
 attrs==21.2.0; python_full_version >= "3.6.7" and python_version >= "3.6"
 autobahn==21.3.1; python_version >= "3.7"
 automat==20.2.0; python_full_version >= "3.6.7" and python_version >= "3.6"
+beautifulsoup4==4.10.0; python_full_version > "3.0.0"
 billiard==3.6.4.0; python_version >= "3.6"
+bs4==0.0.1
 cachecontrol==0.12.6; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.4.0")
 celery==5.1.2; python_version >= "3.6"
 certifi==2021.10.8; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0"
@@ -31,6 +33,7 @@ hyperlink==21.0.0; python_full_version >= "3.6.7" and python_version >= "3.7"
 idna==3.2; python_full_version >= "3.6.7" and python_version >= "3.6" and (python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.7")
 incremental==21.3.0; python_full_version >= "3.6.7" and python_version >= "3.6"
 kombu==5.1.0; python_version >= "3.6"
+lxml==4.6.3; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
 markdown==3.3.4; python_version >= "3.6"
 msgpack==1.0.2; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.4.0"
 oauthlib==3.1.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
@@ -52,6 +55,7 @@ requests==2.26.0; (python_version >= "2.7" and python_full_version < "3.0.0") or
 sentry-sdk==1.4.3
 service-identity==21.1.0; python_full_version >= "3.6.7" and python_version >= "3.6"
 six==1.16.0; python_full_version >= "3.6.7" and python_version >= "3.6"
+soupsieve==2.2.1; python_version >= "3.6" and python_full_version > "3.0.0"
 sqlparse==0.4.2; python_version >= "3.8"
 tornado==6.1; python_version >= "3.5"
 tweepy==4.1.0; python_version >= "3.6"

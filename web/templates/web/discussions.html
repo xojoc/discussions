@@ -17,28 +17,36 @@
 	</form>
 
 	{% if ctx.display_discussions %}
-	<div class="results-pretext">
+	<!-- <div class="results-pretext">
 
-		<p class="canonical-url">Canonical URL: <b>{{ctx.canonical_url}}</b></p>
-		<p>All the discussions we found for <a href="{{ctx.absolute_url}}">{{ctx.original_query}}</a></p>
-	</div>
+		 <p class="canonical-url">Canonical URL: <b>{{ctx.canonical_url}}</b></p>
+		 <p>All the discussions we found for <a href="{{ctx.absolute_url}}">{{ctx.original_query}}</a></p>
+		 </div> -->
 
 	{% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
 	<div id="platform_{{platform}}" class="platform_discussions">
-		<h3><a href="{{ platform_url }}">{{ platform_name }}</a></h3>
+		<h3>{{ platform_name }}</h3>
 	</div>
 	<ul>
 		{% for d in discussions %}
 		<li>
-			<b>{{d.title}}</b><br/>
+			<span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a></span>  <span class="similar-search">(<a href="/?q={{d.story_url}}" title="Find discussions for this URL">Search by URL</a>)</span>
+			<br/>
+			{{d.title}} <span class="similar-search">(<a href="/?q={{d.title}}" title="Search discussions with similar title">Search by title</a>)</span>
+			<br/>
+
 			<a href="{{d.discussion_url}}" rel="noreferrer noopener" target="_blank"><b>{{d.comment_count}}</b>
-				comment{{d.comment_count|pluralize:",s"}}</a>, <b>{{d.score}}</b> points [<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
+				comment{{d.comment_count|pluralize:",s"}}</a>, <b>{{d.score}}</b> {{d.score_label}} [<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
 			{% if d.tags %}
 			{% if platform != 'r' %}
 			Tags:
 			{% endif %}
 			{% for tag in d.tags %}
-			<b><a href="{{platform_tag_url}}/{{tag}}">{{tag}}</a></b>{% if not forloop.last %}, {% endif %}
+			{% if platform_tag_url %}
+			<a href="{{platform_tag_url}}/{{tag}}">{{tag}}</a>{% if not forloop.last %}, {% endif %}
+			{% else %}
+			{{tag}}{% if not forloop.last %}, {% endif %}
+			{% endif %}
 			{% endfor %}
 			{% endif %}
 		</li>
@@ -80,14 +88,14 @@
 	<p>This form finds all the discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker
 		News</a>,
 		<a href="https://lobste.rs/" title='Lobsters'>Lobsters</a>, <a href="https://www.reddit.com/"
-																	   title='Reddit'>Reddit</a> and <a href="https://barnacl.es/" title="Barnacles">Barnacles</a>
+																	   title='Reddit'>Reddit</a>, <a href="http://lambda-the-ultimate.org" title="Lambda the Ultimate">Lambda the Ultimate</a> and <a href="https://barnacl.es/" title="Barnacles">Barnacles</a>
 		for a given URL. You can also search for stories using a title or keyword.</p>
 
 
 	<h2>Examples</h2>
 	<ul>
 		<li>Get the discussions for a given URL: <a href="/?q=https%3A%2F%2Fxojoc.pw%2Fblog%2Ffocus"
-													title="Why I'm focusing only on some programming languages">https://xojoc.pw/blog/focus</a></li>
+														  title="Why I'm focusing only on some programming languages">https://xojoc.pw/blog/focus</a></li>
 		<li>another example: <a
 								 href="/?q=https%3A%2F%2Fhacks.mozilla.org%2F2017%2F11%2Fentering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster%2F">https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster/</a></li>
 		<li>Or search by title/keyword: <a href="/?q=Catala+programming+language">Catala programming language</a></li>
@@ -99,8 +107,8 @@
 	<p>Use the following bookmarklet to find discussions anywhere you go:</p>
 	<p>
 		<a
-																			  href="{% include "web/discussions_bookmarklet.js" %}" title="Discussions Bookmarklet">Discussions around the
-		web</a></p>
+			href="{% include "web/discussions_bookmarklet.js" %}" title="Discussions Bookmarklet">Discussions around the
+			web</a></p>
 	<p>Bookmark the above link and click on it on any page to be redirected here. For more information about
 		bookmarklets see <a
 							 href="https://support.mozilla.org/en-US/kb/bookmarklets-perform-common-web-page-tasks">Firefox's

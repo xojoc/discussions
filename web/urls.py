@@ -1,6 +1,7 @@
 from django.urls import include, path
 from . import views
 from rest_framework import routers
+from django.views.generic import TemplateView
 
 app_name = 'web'
 
@@ -19,5 +20,6 @@ urlpatterns = [
     path('api/discussions',
          views.APIDiscussionsOfURLView.as_view(),
          name='discussions'),
-    path('sentry-debug/', sentry_trigger_error)
+    path('sentry-debug/', sentry_trigger_error),
+    path('twitter/', TemplateView.as_view(template_name="web/twitter.html")),
 ]
