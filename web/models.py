@@ -243,7 +243,7 @@ class Discussion(models.Model):
                 Q(comment_count__gte=min_comments)
                 | Q(created_at__gt=seven_days_ago))
 
-            ts = ts[:15]
+            ts = ts[:20]
 
             ds = ds.union(ts)
 
