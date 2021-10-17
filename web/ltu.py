@@ -179,10 +179,13 @@ def fetch_all_ltu_discussions():
     redis_prefix = 'discussions:ltu:fetch_all_discussions:'
     current_index = r.get(redis_prefix + 'current_index')
     max_index = int(r.get(redis_prefix + 'max_index') or 0)
-    if current_index is None or not max_index or (current_index > max_index):
+    if current_index is None or not max_index or (int(current_index) >
+                                                  max_index):
         max_index = 1_000_000_000
         r.set(redis_prefix + 'max_index', max_index)
         current_index = 0
+
+    current_index = int(current_index)
 
     try:
         current_index = fetch_discussions(current_index, 'u',
