@@ -243,7 +243,8 @@ class Discussion(models.Model):
                 Q(comment_count__gte=min_comments)
                 | Q(created_at__gt=seven_days_ago))
 
-            ts = ts[:20]
+            # xojoc: disable for now since it messes with the PostgreSQL query planner
+            # ts = ts[:20]
 
             ds = ds.union(ts)
 
