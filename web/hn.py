@@ -10,6 +10,7 @@ from discussions.settings import APP_CELERY_TASK_MAX_TIME
 import time
 from web import celery_util
 from django.utils import timezone
+from django.db.models import Q
 
 logger = logging.getLogger(__name__)
 
@@ -211,7 +212,7 @@ def submit_story(title, url):
 
     submit_response = c.get('https://news.ycombinator.com/submit')
 
-    h = http.parse(submit_response)
+    h = http.parse_html(submit_response)
 
     csrf_token = h.select_one('input[name=fnid]')['value']
 
@@ -236,11 +237,28 @@ def submit_story(title, url):
 @celery_util.singleton()
 def submit_discussions():
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
+
+    subreddits = [
+        'programming', 'python', 'ada', 'angular', 'angular2', 'angularjs',
+        'archlinux', 'asm', 'awk', 'bsd', 'c_programming', 'ceylon', 'clojure',
+        'cobol', 'compsci', 'coq', 'cpp', 'csharp', 'css', 'd_language',
+        'dartlang', 'database', 'datalog', 'delphi', 'devops', 'django',
+        'docker', 'dylanlang', 'economy', 'elixir', 'elm', 'erlang', 'forth',
+        'fsharp', 'gamedev', 'geopolitics', 'golang', 'haskell', 'idris',
+        'iolanguage', 'java', 'javascript', 'julia', 'kotlin', 'laravel',
+        'rust', 'scheme', 'technology'
+    ]
+
     stories = models.Discussion.objects.\
         filter(created_at__gte=three_days_ago).\
-        exclude(platform='h').\
         filter(score__gte=5).\
         filter(comment_count__gte=5)
+
+    stories = stories.filter(
+        Q(platform='u') | Q(platform='l')
+        | (Q(platform='r') & Q(tags__contains=subreddits)))
+
+    print(stories.query)
 
     for story in stories:
         related_discussions, _, _ = models.Discussion.of_url(
@@ -252,7 +270,7 @@ def submit_discussions():
             total_comment_count += rd.comment_count
 
         if story.platform != 'u':
-            if total_comment_count < 100:
+            if total_comment_count < 50:
                 continue
 
         already_submitted = False
