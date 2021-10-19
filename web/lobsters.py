@@ -76,7 +76,6 @@ def fetch_discussions(current_page, platform_prefix, base_url):
     start_time = time.monotonic()
 
     while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME:
-        print(current_page)
         page_url = f"{base_url}/newest/page/{current_page}.json"
 
         r = c.get(page_url, timeout=11.05)

@@ -192,11 +192,10 @@ def submit_story(title, url):
     user = os.getenv('HN_USERNAME')
     password = os.getenv('HN_PASSWORD')
 
+    logger.info(f"HN: submit {user} {title} {url}")
+
     if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
         random.seed()
-        print(user)
-        print(title)
-        print(url)
         return str(random.randint(1, 1_000_000))
 
     c = http.client()
@@ -230,7 +229,9 @@ def submit_story(title, url):
         logger.error(
             f'HN: submission failed {title} {url}: {post_response.status}')
 
-    return post_response.url.split('=')[-1]
+    hn_id = post_response.url.split('=')[-1]
+    logger.info(f"HN submit: id {hn_id}")
+    return hn_id
 
 
 @shared_task(ignore_result=True)
@@ -258,8 +259,6 @@ def submit_discussions():
         Q(platform='u') | Q(platform='l')
         | (Q(platform='r') & Q(tags__contains=subreddits)))
 
-    print(stories.query)
-
     for story in stories:
         related_discussions, _, _ = models.Discussion.of_url(
             story.story_url, only_relevant_stories=False)
@@ -286,4 +285,5 @@ def submit_discussions():
         hn_id = submit_story(story.title, story.story_url)
         if hn_id:
             fetch_process_item.delay(hn_id)
-            break
+
+        break
