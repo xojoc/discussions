@@ -196,21 +196,27 @@ class Discussion(models.Model):
         return f"{self.platform_url(self.platform, preferred_external_url)}/r/{self.subreddit}"
 
     @classmethod
-    def of_url(cls, url, client=None):
-        _, url = discussions.split_scheme(url)
+    def of_url(cls, url, client=None, only_relevant_stories=True):
+        seven_days_ago = timezone.now() - datetime.timedelta(days=7)
+        min_comments = 1
+
+        scheme, url = discussions.split_scheme(url)
         cu = discussions.canonical_url(url)
         rcu = cu
-        # rcu = discussions.canonical_url(url,
-        # client=client,
-        # follow_redirects=True)
 
-        ds = (cls.objects.filter(schemeless_story_url=url) |
-              cls.objects.filter(schemeless_story_url=cu) |
-              # cls.objects.filter(schemeless_story_url=rcu) |
-              cls.objects.filter(canonical_story_url=cu)
-              # cls.objects.filter(canonical_redirect_url=rcu)
-              ).\
-            order_by('platform', '-created_at', 'tags__0', '-platform_id')
+        ds = (cls.objects.filter(schemeless_story_url=url)
+              | cls.objects.filter(schemeless_story_url=cu)
+              | cls.objects.filter(canonical_story_url=cu))
+
+        if only_relevant_stories:
+            ds = ds.filter(
+                Q(comment_count__gte=min_comments)
+                | Q(created_at__gt=seven_days_ago))
+
+        ds = ds.annotate(word_similarity=Value(99))
+
+        ds = ds.order_by('platform', '-word_similarity', '-created_at',
+                         '-platform_id')
 
         return ds, cu, rcu
 

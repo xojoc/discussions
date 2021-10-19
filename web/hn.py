@@ -1,3 +1,5 @@
+import random
+import os
 import logging
 from django.utils.timezone import make_aware
 import datetime
@@ -7,9 +9,9 @@ from celery import shared_task
 from discussions.settings import APP_CELERY_TASK_MAX_TIME
 import time
 from web import celery_util
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
-
 
 r_skip_prefix = "discussions:hn:skip:"
 r_revisit_set = "discussions:hn:revisit_set"
@@ -17,7 +19,7 @@ r_revisit_max_id = "discussions:hn:revisit_max_id"
 
 
 @shared_task(ignore_result=True)
-def process_item(item, revisit_max_id=None, redis=None, skip_timeout=60*60):
+def process_item(item, revisit_max_id=None, redis=None, skip_timeout=60 * 60):
     if not item:
         return
 
@@ -68,8 +70,7 @@ def process_item(item, revisit_max_id=None, redis=None, skip_timeout=60*60):
     canonical_url = discussions.canonical_url(url)
 
     try:
-        discussion = models.Discussion.objects.get(
-            pk=platform_id)
+        discussion = models.Discussion.objects.get(pk=platform_id)
         discussion.comment_count = item.get('descendants') or 0
         discussion.score = item.get('score') or 0
         discussion.created_at = make_aware(created_at)
@@ -79,15 +80,14 @@ def process_item(item, revisit_max_id=None, redis=None, skip_timeout=60*60):
         discussion.title = item.get('title')
         discussion.save()
     except models.Discussion.DoesNotExist:
-        models.Discussion(
-            platform_id=platform_id,
-            comment_count=item.get('descendants') or 0,
-            score=item.get('score') or 0,
-            created_at=make_aware(created_at),
-            scheme_of_story_url=scheme,
-            schemeless_story_url=url,
-            canonical_story_url=canonical_url,
-            title=item.get('title')).save()
+        models.Discussion(platform_id=platform_id,
+                          comment_count=item.get('descendants') or 0,
+                          score=item.get('score') or 0,
+                          created_at=make_aware(created_at),
+                          scheme_of_story_url=scheme,
+                          schemeless_story_url=url,
+                          canonical_story_url=canonical_url,
+                          title=item.get('title')).save()
 
 
 def fetch_item(id, revisit_max_id=None, c=None, redis=None):
@@ -110,8 +110,14 @@ def fetch_item(id, revisit_max_id=None, c=None, redis=None):
                      timeout=11.05).json()
     except Exception as e:
         time.sleep(7)
-        raise(e)
+        raise (e)
     return item
+
+
+@shared_task(ignore_result=True)
+def fetch_process_item(id):
+    item = fetch_item(id)
+    process_item(item)
 
 
 def fetch_discussions(from_id, max_id):
@@ -141,8 +147,10 @@ def fetch_all_hn_discussions():
     current_index = int(r.get(redis_prefix + 'current_index') or 0)
     max_index = int(r.get(redis_prefix + 'max_index') or 0)
     if not current_index or not max_index or (current_index > max_index):
-        max_index = int(http.client(with_cache=False)
-                        .get("https://hacker-news.firebaseio.com/v0/maxitem.json").content) + 1
+        max_index = int(
+            http.client(with_cache=False).get(
+                "https://hacker-news.firebaseio.com/v0/maxitem.json").content
+        ) + 1
         r.set(redis_prefix + 'max_index', max_index)
         current_index = 1
 
@@ -152,7 +160,7 @@ def fetch_all_hn_discussions():
 
 
 @shared_task(ignore_result=True)
-def fetch_update(id, redis=None, skip_timeout=60*5):
+def fetch_update(id, redis=None, skip_timeout=60 * 5):
     if redis is None:
         redis = get_redis_connection("default")
     item = fetch_item(id, redis=redis)
@@ -177,3 +185,88 @@ def fetch_updates():
 
     for id in updates.get('items'):
         fetch_update.delay(id)
+
+
+def submit_story(title, url):
+    user = os.getenv('HN_USERNAME')
+    password = os.getenv('HN_PASSWORD')
+
+    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+        random.seed()
+        print(user)
+        print(title)
+        print(url)
+        return str(random.randint(1, 1_000_000))
+
+    c = http.client()
+    c.post(
+        'https://news.ycombinator.com/login',
+        data={
+            'acct': user,
+            'pw': password,
+        },
+    )
+
+    time.sleep(1)
+
+    submit_response = c.get('https://news.ycombinator.com/submit')
+
+    h = http.parse(submit_response)
+
+    csrf_token = h.select_one('input[name=fnid]')['value']
+
+    time.sleep(2)
+    post_response = c.post(
+        'https://news.ycombinator.com/r',
+        data={
+            'title': title,
+            'url': url,
+            'fnid': csrf_token,
+        },
+    )
+
+    if post_response.status_code != 200:
+        logger.error(
+            f'HN: submission failed {title} {url}: {post_response.status}')
+
+    return post_response.url.split('=')[-1]
+
+
+@shared_task(ignore_result=True)
+@celery_util.singleton()
+def submit_discussions():
+    breakpoint()
+    three_days_ago = timezone.now() - datetime.timedelta(days=3)
+    stories = models.Discussion.objects.\
+        filter(created_at__gte=three_days_ago).\
+        exclude(platform='h').\
+        filter(score__gte=5).\
+        filter(comment_count__gte=5)
+
+    for story in stories:
+        related_discussions, _, _ = models.Discussion.of_url(
+            story.story_url, only_relevant_stories=False)
+
+        total_comment_count = 0
+        # total_comment_count += story.comment_count
+        for rd in related_discussions:
+            total_comment_count += rd.comment_count
+
+        if story.platform != 'u':
+            if total_comment_count < 100:
+                continue
+
+        already_submitted = False
+
+        # see if this story was recently submitted
+        for rd in related_discussions:
+            if rd.platform == 'h' and rd.created_at >= three_days_ago:
+                already_submitted = True
+
+        if already_submitted:
+            continue
+
+        hn_id = submit_story(story.title, story.story_url)
+        if hn_id:
+            fetch_process_item.delay(hn_id)
+            break

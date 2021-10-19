@@ -124,16 +124,17 @@ Discussions: {discussions_url}
 
 @shared_task(ignore_result=True)
 def tweet_discussions():
-    three_days_ago = timezone.now() - datetime.timedelta(days=1)
+    three_days_ago = timezone.now() - datetime.timedelta(days=3)
     stories = models.Discussion.objects.\
         filter(created_at__gte=three_days_ago).\
         filter(tweet=None)
 
     for story in stories:
-        related_discussions, _, _ = models.Discussion.of_url(story.story_url)
+        related_discussions, _, _ = models.Discussion.of_url(
+            story.story_url, only_relevant_stories=False)
 
         total_comment_count = 0
-        total_comment_count += story.comment_count
+        # total_comment_count += story.comment_count
         for rd in related_discussions:
             total_comment_count += rd.comment_count
 

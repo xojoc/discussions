@@ -14,6 +14,7 @@ deploy: poetry_export
 
 run:
 	-kill $$(lsof -i:7777 -t -sTCP:LISTEN)
+	-killall -KILL celery
 	#@poetry run python3 manage.py runserver 7777&
 	@poetry run ./docker-entrypoint.sh 7777
 

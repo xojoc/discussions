@@ -15,11 +15,17 @@ class RepeatCurrentIndex(Exception):
     pass
 
 
-def split_task(redis_prefix, get_start_index, get_max, step, callback, infinite_repeat=True):
+def split_task(redis_prefix,
+               get_start_index,
+               get_max,
+               step,
+               callback,
+               infinite_repeat=True):
     r = get_redis_connection("default")
     current_index = int(r.get(redis_prefix + 'current_index') or 0)
     max_index = int(r.get(redis_prefix + 'max_index') or 0)
-    if not current_index or not max_index or (current_index > max_index and infinite_repeat):
+    if not current_index or not max_index or (current_index > max_index
+                                              and infinite_repeat):
         max_index = get_max()
         r.set(redis_prefix + 'max_index', max_index)
         current_index = get_start_index(max_index)
@@ -40,7 +46,7 @@ def split_task(redis_prefix, get_start_index, get_max, step, callback, infinite_
         r.set(redis_prefix + 'current_index', current_index + step)
 
 
-def singleton(timeout=APP_CELERY_TASK_MAX_TIME*1.5, blocking_timeout=None):
+def singleton(timeout=APP_CELERY_TASK_MAX_TIME * 5, blocking_timeout=None):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
@@ -54,7 +60,9 @@ def singleton(timeout=APP_CELERY_TASK_MAX_TIME*1.5, blocking_timeout=None):
 
                     f(*args, **kwargs)
             except LockError as e:
-                logger.warn(f"Lock expired {lock_name} blocking_timeout = {blocking_timeout}: {e}")
+                logger.warn(
+                    f"Lock expired {lock_name} blocking_timeout = {blocking_timeout}: {e}"
+                )
                 # raise
 
         return wrapper
