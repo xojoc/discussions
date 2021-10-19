@@ -235,7 +235,6 @@ def submit_story(title, url):
 @shared_task(ignore_result=True)
 @celery_util.singleton()
 def submit_discussions():
-    breakpoint()
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
     stories = models.Discussion.objects.\
         filter(created_at__gte=three_days_ago).\
