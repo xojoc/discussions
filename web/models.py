@@ -224,7 +224,7 @@ class Discussion(models.Model):
     @classmethod
     def of_url_or_title(cls, url_or_title, client=None):
         seven_days_ago = timezone.now() - datetime.timedelta(days=7)
-        min_comments = 1
+        min_comments = 2
 
         scheme, url = discussions.split_scheme(url_or_title)
         cu = discussions.canonical_url(url)
@@ -252,7 +252,8 @@ class Discussion(models.Model):
 
             ts = ts.filter(
                 Q(comment_count__gte=min_comments)
-                | Q(created_at__gt=seven_days_ago))
+                | Q(created_at__gt=seven_days_ago)
+                | Q(platform='u'))
 
             # xojoc: disable for now since it messes with the PostgreSQL query planner
             # ts = ts[:20]
