@@ -269,7 +269,7 @@ def _submit_discussions():
         Q(platform='u') | Q(platform='l')
         | (Q(platform='r') & Q(tags__contains=subreddits)))
 
-    logger.info(f"hn submit: potential stories: {stories.count}")
+    logger.info(f"hn submit: potential stories: {stories.count()}")
 
     for story in stories:
         u = story.schemeless_story_url.lower()
@@ -284,8 +284,11 @@ def _submit_discussions():
         total_comment_count = 0
         total_score = 0
         for rd in related_discussions:
-            total_comment_count += rd.comment_count
-            total_score += rd.score
+            factor = 1
+            if rd.platform == 'l':
+                factor = 3
+            total_comment_count += rd.comment_count * factor
+            total_score += rd.score * factor
 
         if story.platform != 'u':
             if not (total_comment_count > 20 or total_score > 100):
