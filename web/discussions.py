@@ -274,7 +274,7 @@ def canonical_url(url,
     if not url:
         return url
 
-    url = url.lower()
+    url = url.strip().lower()
 
     if follow_redirects:
         if not client:
@@ -308,7 +308,7 @@ def canonical_url(url,
 
 
 def split_scheme(url):
-    url = url.lower()
+    url = url.strip()
 
     if not url:
         return "", url

@@ -1,4 +1,3 @@
-import random
 import os
 import logging
 from django.utils.timezone import make_aware
@@ -188,15 +187,15 @@ def fetch_updates():
         fetch_update.delay(id)
 
 
-def submit_story(title, url):
+def submit_story(title, url, submit_from_dev=False):
     user = os.getenv('HN_USERNAME')
     password = os.getenv('HN_PASSWORD')
 
     logger.info(f"HN: submit {user} {title} {url}")
 
     if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
-        random.seed()
-        return str(random.randint(1, 1_000_000))
+        if not submit_from_dev:
+            return True
 
     c = http.client()
     c.post(
@@ -216,11 +215,13 @@ def submit_story(title, url):
     csrf_token = h.select_one('input[name=fnid]')['value']
 
     time.sleep(2)
+    print(url)
     post_response = c.post(
         'https://news.ycombinator.com/r',
         data={
             'title': title,
             'url': url,
+            'fnop': 'submit-page',
             'fnid': csrf_token,
         },
     )
@@ -228,10 +229,9 @@ def submit_story(title, url):
     if post_response.status_code != 200:
         logger.error(
             f'HN: submission failed {title} {url}: {post_response.status}')
+        return False
 
-    hn_id = post_response.url.split('=')[-1]
-    logger.warn(f"HN submit: id {hn_id}")
-    return hn_id
+    return True
 
 
 @shared_task(ignore_result=True)
@@ -310,10 +310,8 @@ def _submit_discussions():
 
         logger.info(f"hn submit: submit {story}")
 
-        hn_id = submit_story(story.title, story.story_url)
-        if hn_id:
-            fetch_process_item.apply_async(args=[hn_id], countdown=30)
-
-        cache.set(cache_prefix + u, 1, timeout=60 * 60 * 24 * 7)
+        ok = submit_story(story.title, story.story_url)
+        if ok:
+            cache.set(cache_prefix + u, 1, timeout=60 * 60 * 24 * 7)
 
         break
