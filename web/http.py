@@ -40,7 +40,7 @@ def _default_headers():
     return headers
 
 
-def client(with_cache=True, with_retries=True):
+def client(with_cache=False, with_retries=True):
     r = get_redis_connection("default")
 
     retries = urllib3.Retry(total=4,
