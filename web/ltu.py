@@ -70,6 +70,13 @@ def process_item(item, platform_prefix):
     except Exception:
         score = 0
 
+    try:
+        tags = map(lambda x: x.get_text().strip(),
+                   item.select('.links a[href^="taxonomy/"]'))
+        tags = list(tags)
+    except Exception:
+        tags = []
+
     body_links = item.select('.content a')
 
     if not body_links or len(body_links) == 0:
@@ -78,7 +85,8 @@ def process_item(item, platform_prefix):
     body_links = list(filter(__exclude_story_url, body_links))
 
     if not body_links or len(body_links) == 0:
-        logger.warn(f"LTU: no links after filter {platform_id}")
+        if not any(t.lower() == 'admin' for t in tags):
+            logger.warn(f"LTU: no links after filter {platform_id}")
         return
 
     if len(body_links) == 1:
@@ -101,13 +109,6 @@ def process_item(item, platform_prefix):
         created_at = make_aware(created_at)
     except Exception:
         created_at = None
-
-    try:
-        tags = map(lambda x: x.get_text().strip(),
-                   item.select('.links a[href^="taxonomy/"]'))
-        tags = list(tags)
-    except Exception:
-        tags = []
 
     scheme, url = discussions.split_scheme(story_url)
     if len(url) > 2000:

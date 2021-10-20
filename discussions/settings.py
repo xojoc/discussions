@@ -192,8 +192,8 @@ LOGGING = {
 
 if not os.environ.get('DJANGO_DEVELOPMENT'):
     sentry_logging = LoggingIntegration(
-        level=logging.WARNING,
-        event_level=logging.ERROR,
+        level=logging.INFO,
+        event_level=logging.WARNING,
     )
 
     sentry_sdk.init(dsn=os.getenv("SENTRY_DSN"),
