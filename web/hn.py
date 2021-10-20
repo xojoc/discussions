@@ -11,6 +11,7 @@ import time
 from web import celery_util
 from django.utils import timezone
 from django.db.models import Q
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -240,8 +241,13 @@ def submit_discussions():
     _submit_discussions()
 
 
+# todo: post only stories in the third quantile
+
+
 def _submit_discussions():
+    cache_prefix = 'hn:submitted:'
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
+    seven_days_ago = timezone.now() - datetime.timedelta(days=7)
 
     subreddits = [
         'programming', 'python', 'ada', 'angular', 'angular2', 'angularjs',
@@ -264,6 +270,11 @@ def _submit_discussions():
         | (Q(platform='r') & Q(tags__contains=subreddits)))
 
     for story in stories:
+        u = story.schemeless_story_url.lower()
+        cu = discussions.canonical_url(u)
+        if cache.get(cache_prefix + u) or cache.get(cache_prefix + cu):
+            continue
+
         related_discussions, _, _ = models.Discussion.of_url(
             story.story_url, only_relevant_stories=False)
 
@@ -281,7 +292,7 @@ def _submit_discussions():
 
         # see if this story was recently submitted
         for rd in related_discussions:
-            if rd.platform == 'h' and rd.created_at >= three_days_ago:
+            if rd.platform == 'h' and rd.created_at >= seven_days_ago:
                 already_submitted = True
 
         if already_submitted:
@@ -289,6 +300,8 @@ def _submit_discussions():
 
         hn_id = submit_story(story.title, story.story_url)
         if hn_id:
-            fetch_process_item.delay(hn_id)
+            fetch_process_item.apply_async(args=[hn_id], countdown=30)
+
+        cache.set(cache_prefix + u, 1, timeout=60 * 60 * 24 * 7)
 
         break
