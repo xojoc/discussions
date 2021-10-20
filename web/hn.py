@@ -230,13 +230,17 @@ def submit_story(title, url):
             f'HN: submission failed {title} {url}: {post_response.status}')
 
     hn_id = post_response.url.split('=')[-1]
-    logger.info(f"HN submit: id {hn_id}")
+    logger.warn(f"HN submit: id {hn_id}")
     return hn_id
 
 
 @shared_task(ignore_result=True)
 @celery_util.singleton()
 def submit_discussions():
+    _submit_discussions()
+
+
+def _submit_discussions():
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
 
     subreddits = [
@@ -264,12 +268,13 @@ def submit_discussions():
             story.story_url, only_relevant_stories=False)
 
         total_comment_count = 0
-        # total_comment_count += story.comment_count
+        total_score = 0
         for rd in related_discussions:
             total_comment_count += rd.comment_count
+            total_score += rd.score
 
         if story.platform != 'u':
-            if total_comment_count < 50:
+            if not (total_comment_count > 20 or total_score > 100):
                 continue
 
         already_submitted = False
