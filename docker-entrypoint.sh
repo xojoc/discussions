@@ -32,6 +32,10 @@ then
    port="80"
 fi
 
+until timeout -t 10 celery -A discussions inspect ping; do
+    >&2 echo "Celery workers not available"
+done
+
 echo "Starting Flower"
 celery -A discussions flower&
 
