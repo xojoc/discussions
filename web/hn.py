@@ -242,6 +242,7 @@ def submit_discussions():
 
 
 # todo: post only stories in the third quantile
+#       https://stackoverflow.com/questions/59686945/django-postgres-percentile-median-and-group-by
 
 
 def _submit_discussions():

@@ -211,7 +211,8 @@ class Discussion(models.Model):
         if only_relevant_stories:
             ds = ds.filter(
                 Q(comment_count__gte=min_comments)
-                | Q(created_at__gt=seven_days_ago))
+                | Q(created_at__gt=seven_days_ago)
+                | Q(platform='u'))
 
         ds = ds.annotate(word_similarity=Value(99))
 
@@ -235,11 +236,15 @@ class Discussion(models.Model):
 
         ds = ds.filter(
             Q(comment_count__gte=min_comments)
-            | Q(created_at__gt=seven_days_ago))
+            | Q(created_at__gt=seven_days_ago)
+            | Q(platform='u'))
 
         ds = ds.annotate(word_similarity=Value(99))
 
-        if len(url_or_title) > 3 and not scheme:
+        if len(url_or_title) > 3 and not (
+                url_or_title.lower().startswith('http:')
+                or url_or_title.lower().startswith('https:')):
+
             ts = cls.objects.\
                 annotate(word_similarity=Round(TrigramWordSimilarity(url_or_title, 'title'), 2))
 
