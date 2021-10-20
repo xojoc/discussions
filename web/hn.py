@@ -66,7 +66,6 @@ def process_item(item, revisit_max_id=None, redis=None, skip_timeout=60 * 60):
     if len(url) > 2000:
         return
     if not scheme:
-        logger.warn(f"HN: no scheme for {platform_id}, url {item.get('url')}")
         return
 
     canonical_url = discussions.canonical_url(url)
@@ -270,10 +269,13 @@ def _submit_discussions():
         Q(platform='u') | Q(platform='l')
         | (Q(platform='r') & Q(tags__contains=subreddits)))
 
+    logger.info(f"hn submit: potential stories: {stories.count}")
+
     for story in stories:
         u = story.schemeless_story_url.lower()
         cu = discussions.canonical_url(u)
         if cache.get(cache_prefix + u) or cache.get(cache_prefix + cu):
+            logger.info(f"hn submit: story in cache {story}")
             continue
 
         related_discussions, _, _ = models.Discussion.of_url(
@@ -287,6 +289,9 @@ def _submit_discussions():
 
         if story.platform != 'u':
             if not (total_comment_count > 20 or total_score > 100):
+                logger.info(
+                    f"hn submit: story not relevant {story} {total_comment_count} {total_score}"
+                )
                 continue
 
         already_submitted = False
@@ -297,7 +302,10 @@ def _submit_discussions():
                 already_submitted = True
 
         if already_submitted:
+            logger.info(f"hn submit: already submitted {story}")
             continue
+
+        logger.info(f"hn submit: submit {story}")
 
         hn_id = submit_story(story.title, story.story_url)
         if hn_id:
