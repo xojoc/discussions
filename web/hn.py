@@ -366,7 +366,7 @@ def _submit_discussions():
 
 
 def previous_discussions_comment(story, previous_discussions):
-    comment = "Previous discussions:"
+    comment = "Other threads:"
 
     c = 0
     for pd in previous_discussions:
@@ -408,7 +408,8 @@ def _submit_previous_discussions():
         filter(created_at__gte=three_days_ago).\
         filter(score__gte=10).\
         filter(comment_count__gte=1).\
-        filter(platform='h')
+        filter(platform='h').\
+        order_by('-created_at')
 
     logger.info(f"hn prev submit: potential stories: {hn_stories.count()}")
 
@@ -432,11 +433,13 @@ def _submit_previous_discussions():
                 factor = 3
             if rd.platform == 'u':
                 factor = 4
+            if rd.platform == 'r':
+                factor = 0.5
             total_comment_count += rd.comment_count * factor
             if rd.platform != 'u':
                 total_score += rd.score * factor
 
-        if not (total_comment_count > 50 or total_score > 100):
+        if not (total_comment_count > 150):
             logger.info(
                 f"hn prev submit: story not relevant {story} {total_comment_count} {total_score}"
             )
