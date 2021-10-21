@@ -16,6 +16,7 @@ router.register(r'groups', views.APIGroupViewSet)
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('q/<path:path_q>', views.index, name='index'),
     path('api/', include((router.urls, 'web'), namespace='api')),
     path('api/discussions',
          views.APIDiscussionsOfURLView.as_view(),

@@ -10,6 +10,18 @@ python-versions = ">=3.6"
 vine = "5.0.0"
 
 [[package]]
+name = "archiveis"
+version = "0.0.9"
+description = "A simple Python wrapper for the archive.is capturing service"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+click = "*"
+requests = ">=2.22.0"
+
+[[package]]
 name = "asgiref"
 version = "3.4.1"
 description = "ASGI specs, helper code, and adapters"
@@ -1053,12 +1065,16 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "181cff28cd6f541f164d993ce1ffe4c9581859943106057770832f81f7abe83b"
+content-hash = "69b9dd1029a758680c0cdfd7d9d5057315be847ce0cc2f57d1925f991042204c"
 
 [metadata.files]
 amqp = [
     {file = "amqp-5.0.6-py3-none-any.whl", hash = "sha256:493a2ac6788ce270a2f6a765b017299f60c1998f5a8617908ee9be082f7300fb"},
     {file = "amqp-5.0.6.tar.gz", hash = "sha256:03e16e94f2b34c31f8bf1206d8ddd3ccaa4c315f7f6a1879b7b1210d229568c2"},
+]
+archiveis = [
+    {file = "archiveis-0.0.9-py2.py3-none-any.whl", hash = "sha256:52ba2273f3fa0b18a5654f18a428a6a2469bc2bf470629f6df0c8972fbf387a7"},
+    {file = "archiveis-0.0.9.tar.gz", hash = "sha256:3f4c2219e5bc1bc04adeffb754446f28b80847e9ff95020fff8e90fb298346cf"},
 ]
 asgiref = [
     {file = "asgiref-3.4.1-py3-none-any.whl", hash = "sha256:ffc141aa908e6f175673e7b1b3b7af4fdb0ecb738fc5c8b88f69f055c2415214"},

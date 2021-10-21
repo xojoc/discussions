@@ -87,10 +87,13 @@ def discussions_context(q):
     return ctx
 
 
-def index(request):
+def index(request, path_q=None):
     q = request.GET.get('url')
     if not q:
         q = request.GET.get('q')
+
+    if not q:
+        q = path_q
 
     ctx = discussions_context_cached(q)
 

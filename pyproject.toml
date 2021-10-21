@@ -29,6 +29,7 @@ Markdown = "^3.3.4"
 tweepy = "^4.1.0"
 bs4 = "^0.0.1"
 lxml = "^4.6.3"
+archiveis = "^0.0.9"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9"

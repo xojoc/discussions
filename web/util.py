@@ -1,9 +1,9 @@
-from urllib.parse import quote as quote_url
+from urllib.parse import quote
 from difflib import SequenceMatcher
 
 
-def discussions_url(story_url):
-    return 'https://discussions.xojoc.pw/?url=' + quote_url(story_url)
+def discussions_url(q):
+    return 'https://discussions.xojoc.pw/q/' + quote(q)
 
 
 def similarity(a, b):

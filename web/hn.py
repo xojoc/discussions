@@ -1,3 +1,4 @@
+from web import util, archiveis
 import os
 import logging
 from django.utils.timezone import make_aware
@@ -234,6 +235,53 @@ def submit_story(title, url, submit_from_dev=False):
     return True
 
 
+def submit_comment(post_id, comment, submit_from_dev=False):
+    user = os.getenv('HN_USERNAME')
+    password = os.getenv('HN_PASSWORD')
+
+    logger.info(f"HN: submit {user} {post_id} {comment}")
+
+    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+        if not submit_from_dev:
+            return True
+
+    c = http.client()
+    c.post(
+        'https://news.ycombinator.com/login',
+        data={
+            'acct': user,
+            'pw': password,
+        },
+    )
+
+    time.sleep(1)
+
+    comment_response = c.get(f'https://news.ycombinator.com/item?id={post_id}')
+
+    h = http.parse_html(comment_response)
+
+    hmac = h.select_one('input[name=hmac]')['value']
+
+    time.sleep(2)
+
+    post_response = c.post(
+        'https://news.ycombinator.com/comment',
+        data={
+            'parent': post_id,
+            'goto': f"item?id={post_id}",
+            'hmac': hmac,
+            'text': comment
+        },
+    )
+
+    if post_response.status_code != 200:
+        logger.error(
+            f'HN: comment failed {post_id} {comment}: {post_response.status}')
+        return False
+
+    return True
+
+
 @shared_task(ignore_result=True)
 @celery_util.singleton()
 def submit_discussions():
@@ -312,6 +360,108 @@ def _submit_discussions():
 
         ok = submit_story(story.title, story.story_url)
         if ok:
-            cache.set(cache_prefix + u, 1, timeout=60 * 60 * 24 * 7)
+            cache.set(cache_prefix + u, 1, timeout=60 * 60 * 24 * 14)
+
+        break
+
+
+def previous_discussions_comment(story, previous_discussions):
+    comment = "Previous discussions:"
+
+    c = 0
+    for pd in previous_discussions:
+        if pd.comment_count > 30 or os.getenv('DJANGO_DEVELOPMENT',
+                                              '').lower() == "true":
+            comment += f"""
+
+{pd.discussion_url()} [{pd.created_at.date().isoformat()}] ({pd.comment_count} comments)"""
+            c += 1
+
+    if c == 0:
+        return None
+
+    comment += f"""
+
+All discussions: {util.discussions_url(story.schemeless_story_url)}"""
+    comment += f"""
+
+Discussions with similar title: {util.discussions_url(story.title)}"""
+
+    comment += f"""
+
+Archive: {archiveis.archive_url(story.story_url)}"""
+
+    return comment
+
+
+@shared_task(ignore_result=True)
+@celery_util.singleton()
+def submit_previous_discussions():
+    _submit_previous_discussions()
+
+
+def _submit_previous_discussions():
+    cache_prefix = 'hn:submitted_previous_discussions:'
+    three_days_ago = timezone.now() - datetime.timedelta(days=3)
+
+    hn_stories = models.Discussion.objects.\
+        filter(created_at__gte=three_days_ago).\
+        filter(score__gte=10).\
+        filter(comment_count__gte=1).\
+        filter(platform='h')
+
+    logger.info(f"hn prev submit: potential stories: {hn_stories.count()}")
+
+    for story in hn_stories:
+        key = cache_prefix + story.id
+        if cache.get(key):
+            logger.info(f"hn prev submit: story in cache {story}")
+            continue
+
+        related_discussions, _, _ = models.Discussion.of_url(
+            story.story_url, only_relevant_stories=False)
+
+        related_discussions = related_discussions.exclude(
+            platform_id=story.platform_id)
+
+        total_comment_count = 0
+        total_score = 0
+        for rd in related_discussions:
+            factor = 1
+            if rd.platform == 'l':
+                factor = 3
+            if rd.platform == 'u':
+                factor = 4
+            total_comment_count += rd.comment_count * factor
+            if rd.platform != 'u':
+                total_score += rd.score * factor
+
+        if not (total_comment_count > 50 or total_score > 100):
+            logger.info(
+                f"hn prev submit: story not relevant {story} {total_comment_count} {total_score}"
+            )
+            if not os.getenv('DJANGO_DEVELOPMENT', ''):
+                continue
+
+        if not len(related_discussions) > 2:
+            logger.info(
+                f"hn prev submit: story not relevant {len(related_discussions)}"
+            )
+            if not os.getenv('DJANGO_DEVELOPMENT', ''):
+                continue
+
+        comment = previous_discussions_comment(story, related_discussions)
+        if not comment:
+            logger.info(
+                f"hn prev submit: not enough interesting discussions {story}")
+            continue
+
+        logger.info(f"hn prev submit: submit {story}")
+
+        archiveis.capture.delay(story.story_url)
+
+        ok = submit_comment(story.id, comment)
+        if ok:
+            cache.set(key, 1, timeout=60 * 60 * 24 * 14)
 
         break

@@ -3,3 +3,4 @@ __pycache__/
 .env
 celerybeat-schedule.db
 staticfiles/
+.pdb-pyhist
