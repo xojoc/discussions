@@ -267,7 +267,7 @@ def _submit_discussions():
 
     stories = stories.filter(
         Q(platform='u') | Q(platform='l')
-        | (Q(platform='r') & Q(tags__contains=subreddits)))
+        | (Q(platform='r') & Q(tags__overlap=subreddits)))
 
     logger.info(f"hn submit: potential stories: {stories.count()}")
 
