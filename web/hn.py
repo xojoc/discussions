@@ -382,7 +382,7 @@ def previous_discussions_comment(story, previous_discussions):
 
     comment += f"""
 
-All discussions: {util.discussions_url(story.schemeless_story_url)}"""
+All discussions: {util.discussions_url(story.story_url)}"""
     comment += f"""
 
 Discussions with similar title: {util.discussions_url(story.title)}"""
@@ -424,6 +424,8 @@ def _submit_previous_discussions():
 
         related_discussions = related_discussions.exclude(
             platform_id=story.platform_id)
+
+        related_discussions.order_by('-created_at', '-comment_count')
 
         total_comment_count = 0
         total_score = 0
