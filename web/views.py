@@ -8,7 +8,7 @@ from rest_framework.response import Response as RESTResponse
 from django.contrib.auth.models import User, Group
 from django.http import HttpResponsePermanentRedirect
 from discussions import settings
-from urllib.parse import urlencode
+from urllib.parse import quote as url_quote
 
 
 def discussions_context_cached(q):
@@ -100,7 +100,7 @@ def index(request, path_q=None):
         if host != 'localhost' and host != '127.0.0.1' and host != settings.APP_DOMAIN:
             r = 'https://' + settings.APP_DOMAIN + request.path
             if q:
-                r = r + "?url=" + urlencode(q)
+                r = r + "?url=" + url_quote(q, safe='')
             return HttpResponsePermanentRedirect(r)
 
     if not q:
