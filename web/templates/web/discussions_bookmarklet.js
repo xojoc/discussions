@@ -1,1 +1,1 @@
-javascript: (function () { const params = new URLSearchParams({ url: window.location.href }); var url = 'https://discussions.xojoc.pw/?' + params.toString(); var win = window.open(url, '_blank'); win.focus(); })();
+javascript: (function () { var url = 'https://discu.eu/q/' + encodeURI(window.location.href); var win = window.open(url, '_blank'); win.focus(); })();

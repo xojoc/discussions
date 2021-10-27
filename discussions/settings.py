@@ -20,7 +20,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', os.environ.get('ALLOWED_HOST')]
+APP_DOMAIN = os.getenv('DISCUSSIONS_DOMAIN', 'discu.eu')
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1',
+                 os.environ.get('ALLOWED_HOST'), APP_DOMAIN]
 CSRF_COOKIE_DOMAIN = os.environ.get('ALLOWED_HOST')
 CSRF_TRUSTED_ORIGINS = ['https://*.xojoc.pw']
 
@@ -189,6 +192,7 @@ LOGGING = {
         },
     },
 }
+
 
 if not os.environ.get('DJANGO_DEVELOPMENT'):
     sentry_logging = LoggingIntegration(
