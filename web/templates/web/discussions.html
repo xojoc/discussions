@@ -1,8 +1,8 @@
 {% extends "web/base.html" %}
 
 
-
 {% load humanize %}
+{% load util %}
 
 {% block main %}
 <div id=discussions>
@@ -30,9 +30,9 @@
 	<ul>
 		{% for d in discussions %}
 		<li>
-			<span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a></span>  <span class="similar-search">(<a href="/q/{{d.story_url}}" title="Find discussions for this URL">Search by URL</a>)</span>
+			<span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a></span>  <span class="similar-search">(<a href="{{d.story_url|discussions_url}}" title="Find discussions for this URL">Search by URL</a>)</span>
 			<br/>
-			{{d.title}} <span class="similar-search">(<a href="/q/{{d.title}}" title="Search discussions with similar title">Search by title</a>)</span>
+			{{d.title}} <span class="similar-search">(<a href="{{d.title|discussions_url}}" title="Search discussions with similar title">Search by title</a>)</span>
 			<br/>
 
 			<a href="{{d.discussion_url}}" rel="noreferrer noopener" target="_blank"><b>{{d.comment_count}}</b>
@@ -72,7 +72,7 @@
 	<ul>
 		{% for story in ctx.title_discussions %}
 
-		<li><a href="?url={{story.story_url|urlencode:""}}" title="{{story.title}}">{{story.title}}</a><br/>
+		<li><a href="{{story.story_url|discussions_url}}" title="{{story.title}}">{{story.title}}</a><br/>
 			<span class='comment-count-date'><b>{{story.comment_count}}</b> comments (last discussion <time datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></span></li>
 
 
@@ -117,7 +117,7 @@
 	<h2>Most discussed stories</h2>
 	<ol>
 		{% for story in ctx.statistics.top_stories %}
-		<li><a href="?url={{story.story_url|urlencode:""}}" title="{{story.title}}">{{story.title}}</a><br/>
+		<li><a href="{{story.story_url|discussions_url}}" title="{{story.title}}">{{story.title}}</a><br/>
 			<span class='comment-count-date'><b>{{story.comment_count}}</b> comments (last discussion <time datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></span></li>
 		{% endfor %}
 	</ol>
