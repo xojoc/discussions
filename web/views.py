@@ -101,7 +101,7 @@ def index(request, path_q=None):
             r = 'https://' + settings.APP_DOMAIN + request.path
             if q:
                 r = r + "?url=" + urlencode(q)
-            return HttpResponsePermanentRedirect()
+            return HttpResponsePermanentRedirect(r)
 
     if not q:
         q = path_q
