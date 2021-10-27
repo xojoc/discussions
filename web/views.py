@@ -93,7 +93,8 @@ def index(request, path_q=None):
     host = request.get_host().partition(":")[0]
     if not request.path.startswith('/.well-known/'):
         if host != 'localhost' and host != '127.0.0.1' and host != settings.APP_DOMAIN:
-            return HttpResponsePermanentRedirect(settings.APP_DOMAIN +
+            return HttpResponsePermanentRedirect('https://' +
+                                                 settings.APP_DOMAIN +
                                                  request.path)
 
     q = request.GET.get('url')
