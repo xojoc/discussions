@@ -8,6 +8,7 @@ from rest_framework.response import Response as RESTResponse
 from django.contrib.auth.models import User, Group
 from django.http import HttpResponsePermanentRedirect
 from discussions import settings
+from urllib.parse import unquote as url_unquote
 
 
 def discussions_context_cached(q):
@@ -97,7 +98,7 @@ def index(request, path_q=None):
             return HttpResponsePermanentRedirect(r)
 
     if path_q:
-        q = request.get_full_path()[len('/q/'):]
+        q = url_unquote(request.get_full_path()[len('/q/'):])
     else:
         q = request.GET.get('url')
         if not q:
