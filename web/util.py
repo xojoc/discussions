@@ -4,7 +4,7 @@ from discussions import settings
 
 
 def discussions_url(q):
-    return f'https://{settings.APP_DOMAIN}/q/' + quote(q, safe='/:')
+    return f'https://{settings.APP_DOMAIN}/q/' + quote(q, safe='/:?&=')
 
 
 def similarity(a, b):
