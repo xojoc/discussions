@@ -24,8 +24,8 @@ APP_DOMAIN = os.getenv('DISCUSSIONS_DOMAIN', 'discu.eu')
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1',
                  os.environ.get('ALLOWED_HOST'), APP_DOMAIN]
-CSRF_COOKIE_DOMAIN = os.environ.get('ALLOWED_HOST')
-CSRF_TRUSTED_ORIGINS = ['https://*.xojoc.pw']
+CSRF_COOKIE_DOMAIN = APP_DOMAIN
+CSRF_TRUSTED_ORIGINS = ['https://*.xojoc.pw', f'https://{APP_DOMAIN}']
 
 # Application definition
 
