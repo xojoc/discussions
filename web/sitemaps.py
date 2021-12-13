@@ -9,7 +9,7 @@ class DiscussionsSitemap(Sitemap):
     limit = 10_000
 
     def items(self):
-        return Discussion.objects.\
+        q = Discussion.objects.\
             exclude(canonical_story_url__isnull=True).\
             values('canonical_story_url').\
             annotate(comment_count=Sum('comment_count'),
@@ -18,6 +18,8 @@ class DiscussionsSitemap(Sitemap):
                      scheme_of_story_url=Max('scheme_of_story_url')).\
             filter(comment_count__gte=5).\
             order_by('canonical_story_url')
+        # qstr = str(q.query)
+        return q[:30_000]
 
     def lastmod(self, obj):
         return obj['entry_updated_at']
