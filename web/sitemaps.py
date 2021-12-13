@@ -15,7 +15,8 @@ class DiscussionsSitemap(Sitemap):
             annotate(comment_count=Sum('comment_count'),
                      discussion_count=Count('platform_id'),
                      entry_updated_at=Max('entry_updated_at'),
-                     scheme_of_story_url=Max('scheme_of_story_url')). \
+                     scheme_of_story_url=Max('scheme_of_story_url')).\
+            filter(comment_count__gte=5).\
             order_by('canonical_story_url')
 
     def lastmod(self, obj):
