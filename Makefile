@@ -19,6 +19,7 @@ run:
 	@poetry run ./docker-entrypoint.sh 7777
 
 cp: lint test poetry_export
+	@git add web/migrations
 	@git commit -a
 #@poetry export -f requirements.txt --output requirements.txt
 #@git add requirements.txt

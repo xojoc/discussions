@@ -49,6 +49,9 @@ class Discussion(models.Model):
 
     archived = models.BooleanField(default=False)
 
+    entry_created_at = models.DateTimeField(auto_now_add=True)
+    entry_updated_at = models.DateTimeField(auto_now=True)
+
     @property
     def story_url(self):
         return f"{self.scheme_of_story_url}://{self.schemeless_story_url}"
@@ -71,8 +74,8 @@ class Discussion(models.Model):
         if not self.platform:
             self.platform = self.platform_id[0]
 
-        if self.canonical_story_url == self.schemeless_story_url:
-            self.canonical_story_url = None
+        if not self.canonical_story_url:
+            self.canonical_story_url = self.schemeless_story_url
 
         if (self.canonical_redirect_url == self.canonical_story_url
                 or self.canonical_redirect_url == self.schemeless_story_url):

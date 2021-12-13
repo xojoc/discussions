@@ -25,16 +25,24 @@ APP_DOMAIN = os.getenv('DISCUSSIONS_DOMAIN', 'discu.eu')
 ALLOWED_HOSTS = ['localhost', '127.0.0.1',
                  os.environ.get('ALLOWED_HOST'), APP_DOMAIN]
 CSRF_COOKIE_DOMAIN = APP_DOMAIN
-CSRF_TRUSTED_ORIGINS = ['https://*.xojoc.pw', f'https://{APP_DOMAIN}']
+CSRF_TRUSTED_ORIGINS = ['https://*.xojoc.pw',
+                        f'https://{APP_DOMAIN}', 'http://localhost:7777']
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin', 'django.contrib.auth',
-    'django.contrib.contenttypes', 'django.contrib.sessions',
-    'django.contrib.messages', 'django.contrib.staticfiles',
-    'django_celery_beat', 'django.contrib.humanize', 'django.contrib.postgres',
-    'web.apps.WebConfig', 'debug_toolbar'
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django_celery_beat',
+    'django.contrib.humanize',
+    'django.contrib.postgres',
+    'web.apps.WebConfig',
+    'debug_toolbar',
+    'django.contrib.sitemaps'
 ]
 
 MIDDLEWARE = [
@@ -205,7 +213,7 @@ if not os.environ.get('DJANGO_DEVELOPMENT'):
                         DjangoIntegration(),
                         CeleryIntegration(),
                         RedisIntegration(), sentry_logging
-                    ])
+    ])
 
 REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID')
 REDDIT_CLIENT_SECRET = os.getenv('REDDIT_CLIENT_SECRET')

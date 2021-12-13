@@ -4,3 +4,4 @@ __pycache__/
 celerybeat-schedule.db
 staticfiles/
 .pdb-pyhist
+.vscode/

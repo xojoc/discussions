@@ -353,12 +353,7 @@ def update_canonical_urls(current_index, manual_commit=True):
         dirty = False
 
         cu = canonical_url(story.story_url)
-        if cu == story.schemeless_story_url:
-            if story.canonical_story_url is not None:
-                story.canonical_story_url = None
-                dirty = True
-                count_dirty += 1
-        elif len(cu) <= 2000 and cu != story.canonical_story_url:
+        if len(cu) <= 2000 and cu != story.canonical_story_url:
             story.canonical_story_url = cu
             dirty = True
             count_dirty += 1

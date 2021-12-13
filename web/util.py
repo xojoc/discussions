@@ -3,8 +3,20 @@ from difflib import SequenceMatcher
 from discussions import settings
 
 
-def discussions_url(q):
-    return f'https://{settings.APP_DOMAIN}/q/' + quote(q, safe='/:?&=')
+def discussions_url(q, with_domain=True):
+    path = '/q/' + quote(q, safe='/:?&=')
+    if with_domain:
+        return f'https://{settings.APP_DOMAIN}{path}'
+    else:
+        return path
+
+
+def discussions_canonical_url(q, with_domain=True):
+    path = '/?q=' + quote(q)
+    if with_domain:
+        return f'https://{settings.APP_DOMAIN}{path}'
+    else:
+        return path
 
 
 def similarity(a, b):
