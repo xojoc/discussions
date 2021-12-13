@@ -19,7 +19,7 @@ class DiscussionsSitemap(Sitemap):
             filter(comment_count__gte=5).\
             order_by('canonical_story_url')
         # qstr = str(q.query)
-        return q[:30_000]
+        return q[:3_000]
 
     def lastmod(self, obj):
         return obj['entry_updated_at']
