@@ -11,7 +11,7 @@ class DiscussionsSitemap(Sitemap):
     def items(self):
         q = Discussion.objects.\
             filter(comment_count__gte=5).\
-            order_by('canonical_story_url')
+            order_by('pk')
 
         # xojoc: Group By is too slow. Disable it for now.
         #        fix extraction when the single page model will be introduced
