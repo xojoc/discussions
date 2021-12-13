@@ -5,6 +5,7 @@ from django.contrib.sitemaps.views import sitemap, index as sitemap_index
 from web import sitemaps
 from django.views.generic.base import TemplateView
 from . import settings
+from django.views.decorators.cache import cache_page
 
 sitemaps_dict = {'discussions': sitemaps.DiscussionsSitemap}
 
@@ -16,10 +17,13 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
 
 
-    path('sitemap.xml', sitemap_index, {'sitemaps': sitemaps_dict}),
+    path('sitemap.xml',
+         cache_page(60 * 60 * 24 * 7)(sitemap_index), {
+             'sitemaps': sitemaps_dict, 'sitemap_url_name': 'sitemaps'}),
 
-    path('sitemap-<str:section>.xml', sitemap, {'sitemaps': sitemaps_dict},
-         name='django.contrib.sitemaps.views.sitemap'),
+    path('sitemap-<str:section>.xml',
+         cache_page(60 * 60 * 24 * 7)(sitemap), {'sitemaps': sitemaps_dict},
+         name='sitemaps'),
 
     path("robots.txt", TemplateView.as_view(
         template_name="robots.txt",
