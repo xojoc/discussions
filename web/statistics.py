@@ -35,7 +35,7 @@ def discussions_top_stories():
                  story_url=Concat(Max('scheme_of_story_url'), Value('://'), Max('schemeless_story_url'))).\
         order_by('-comment_count')
 
-    return stats[:10]
+    return stats[:17]
 
 
 def discussions_top_domains():
@@ -47,7 +47,7 @@ def discussions_top_domains():
                  discussion_count=Count('platform_id')).\
         order_by('-discussion_count')
 
-    return stats[:18]
+    return stats[:23]
 
 
 @shared_task(ignore_result=True)

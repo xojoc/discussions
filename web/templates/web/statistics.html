@@ -5,18 +5,6 @@
 
 {% block main %}
 <div id='statistics'>
-
-    <h2>Most discussed stories</h2>
-    <ol>
-        {% for story in ctx.statistics.top_stories %}
-        <li><a href="{{story.story_url|discussions_url}}" title="{{story.title}}">{{story.title}}</a><br />
-            <span class='comment-count-date'><b>{{story.comment_count}}</b> comments (last discussion <time
-                    datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></span>
-        </li>
-        {% endfor %}
-    </ol>
-
-
     <h2>Platform statistics</h2>
     <table>
         <thead>
@@ -44,7 +32,6 @@
     </table>
 
     <h2>Most discussed domains</h2>
-
     <table>
         <thead>
             <tr>
@@ -64,6 +51,15 @@
         </tbody>
     </table>
 
+    <h2>Most discussed stories</h2>
+    <ol>
+        {% for story in ctx.statistics.top_stories %}
+        <li><a href="{{story.story_url|discussions_url}}" title="{{story.title}}">{{story.title}}</a><br />
+            <span class='comment-count-date'><b>{{story.comment_count}}</b> comments (last discussion <time
+                    datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></span>
+        </li>
+        {% endfor %}
+    </ol>
 </div>
 
 {% endblock main %}
