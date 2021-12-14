@@ -3,6 +3,12 @@
 {% load humanize %}
 {% load util %}
 
+{% block extra_head %}
+{% if ctx.link_canonical_url %}
+<link rel="canonical" href="{{ctx.link_canonical_url}}" />
+{% endif %}
+{% endblock extra_head %}
+
 {% block main %}
 <div id=discussions>
 	<form method="GET" class="discussions_form" action="/">
@@ -67,10 +73,6 @@
 
 	{% else %}
 
-
-
-
-	<br />
 	<br />
 	<h2>What is this?</h2>
 	<p>This form finds all the discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker

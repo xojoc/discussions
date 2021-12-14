@@ -1,4 +1,4 @@
-from web import models, discussions, serializers
+from web import models, discussions, serializers, util
 from django.shortcuts import render
 import itertools
 from django.core.cache import cache
@@ -46,6 +46,9 @@ def discussions_context(q):
         ctx['absolute_url'] = 'https://' + q
     else:
         ctx['absolute_url'] = q
+
+    if q:
+        ctx['link_canonical_url'] = util.discussions_canonical_url(q)
 
     ctx['original_query'] = q
     ctx['url'] = url

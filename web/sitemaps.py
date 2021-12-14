@@ -27,8 +27,8 @@ class DiscussionsSitemap(Sitemap):
 
         return q
 
-    def lastmod(self, obj):
-        return obj.entry_updated_at
+    # def lastmod(self, obj):
+    #     return obj.entry_updated_at
 
     def location(self, obj):
         url = obj.scheme_of_story_url + '://' + obj.canonical_story_url

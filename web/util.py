@@ -1,6 +1,7 @@
 from urllib.parse import quote
 from difflib import SequenceMatcher
 from discussions import settings
+from . import discussions
 
 
 def discussions_url(q, with_domain=True):
@@ -12,11 +13,13 @@ def discussions_url(q, with_domain=True):
 
 
 def discussions_canonical_url(q, with_domain=True):
-    path = '/?q=' + quote(q)
-    if with_domain:
-        return f'https://{settings.APP_DOMAIN}{path}'
-    else:
-        return path
+    q = q.lower()
+    scheme, url = discussions.split_scheme(q)
+    if scheme in ('http', 'https'):
+        cu = discussions.canonical_url(url)
+        q = f"{scheme}://{cu}"
+
+    return discussions_url(q, with_domain)
 
 
 def similarity(a, b):
