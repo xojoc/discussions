@@ -2,47 +2,53 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-	<meta charset=utf-8>
-	<meta name=viewport content="width=device-width, initial-scale=1">
-	<link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="{% static "style.css" %}" />
-	<link rel="icon" type="image/png" href="{% static "favicon-32x32.png" %}">
 
-    <title>{% block title %}
-		{% if ctx.original_query %}
-		Discussions for «{{ctx.original_query}}»
-		{% else %}
-	  Discussions around the Web
-	  {% endif %}
-	  {% endblock %}</title>
+	<head>
+		<meta charset=utf-8>
+		<meta name=viewport content="width=device-width, initial-scale=1">
+		<link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="{% static "style.css" %}" />
+		<link rel="icon" type="image/png" href="{% static "favicon-32x32.png" %}">
 
-	{% block extra_head %}{% endblock %}
+		<title>{% block title %}
+			{% if ctx.original_query %}
+			Discussions for «{{ctx.original_query}}»
+			{% else %}
+			Discussions around the Web
+			{% endif %}
+			{% endblock %}</title>
 
-	<meta name="description" content="Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL or story title">
-  </head>
+		{% block extra_head %}{% endblock %}
 
-  <body>
-	<div id=wrapper>
-	  <header>
-		<div id=title>
-		  <h1 id=site_title><a href="/" title="Home">Discussions</a></h1>
+		<meta name="description"
+			content="Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL or story title">
+	</head>
+
+	<body>
+		<div id=wrapper>
+			<header>
+				<div id=title>
+					<h1 id=site_title><a href="/" title="Home">Discussions</a></h1>
+				</div>
+			</header>
+
+			{% block main_main %}
+
+			<div id="content">
+				{% block main %}{% endblock %}
+			</div>
+
+			{% endblock main_main %}
+
+			<footer>
+				<p>
+					<a href="/twitter" title="Twitter accounts">Twitter</a> — <a href="/statistics"
+						title="Discussions statistics">Statistics</a> — Made by <a href="https://xojoc.pw"
+						title="My home page">Alexandru Cojocaru</a> (<a class="u-email email" href="mailto:hi@xojoc.pw"
+						title="Contact me">hi@xojoc.pw</a>)
+				</p>
+			</footer>
 		</div>
-	  </header>
+	</body>
 
-	  {% block main_main %}
-
-	  <div id="content">
-		{% block main %}{% endblock %}
-	  </div>
-
-	  {% endblock main_main %}
-
-	  <footer>
-		<p>
-			Made by <a href="https://xojoc.pw" title="My home page">Alexandru Cojocaru</a> - <a href="/twitter" title="Twitter accounts">Twitter</a> - <a class="u-email email"  href="mailto:hi@xojoc.pw" title="Contact me">hi@xojoc.pw</a>
-		</p>
-	  </footer>
-	</div>
-  </body>
 </html>

@@ -23,5 +23,6 @@ urlpatterns = [
          views.APIDiscussionsOfURLView.as_view(),
          name='discussions'),
     path('sentry-debug/', sentry_trigger_error),
-    path('twitter/', TemplateView.as_view(template_name="web/twitter.html"))
+    path('twitter/', TemplateView.as_view(template_name="web/twitter.html")),
+    path('statistics/', views.statistics)
 ]

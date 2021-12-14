@@ -1,13 +1,13 @@
 from django.db.models import Sum, Count, Max, Min, Value
-from django.db.models.functions import Coalesce, Left, StrIndex, NullIf, Length
+from django.db.models.functions import Concat, Coalesce, Left, StrIndex, NullIf, Length
 from web import models, discussions
 from celery import shared_task
 from web import celery_util
 
 
 def discussions_platform_statistics():
-    # todo: exclude discussions with 0 comments
     stats = models.Discussion.objects.\
+        filter(comment_count__gte=2).\
         values('platform').\
         annotate(discussion_count=Count('platform_id'),
                  comment_count=Sum('comment_count'),
@@ -27,14 +27,12 @@ def discussions_platform_statistics():
 
 def discussions_top_stories():
     stats = models.Discussion.objects.\
-        annotate(canonical_url=Coalesce('canonical_story_url',
-                                        'schemeless_story_url')).\
-        values('canonical_url').\
-        exclude(canonical_url__startswith='reddit.com/').\
+        values('canonical_story_url').\
+        exclude(canonical_story_url__startswith='reddit.com/').\
         annotate(comment_count=Sum('comment_count'),
                  title=Max('title'),
                  date__last_discussion=Max('created_at'),
-                 story_url=Max('schemeless_story_url')).\
+                 story_url=Concat(Max('scheme_of_story_url'), Value('://'), Max('schemeless_story_url'))).\
         order_by('-comment_count')
 
     return stats[:10]
@@ -42,10 +40,8 @@ def discussions_top_stories():
 
 def discussions_top_domains():
     stats = models.Discussion.objects.\
-        annotate(canonical_url=Coalesce('canonical_story_url',
-                                        'schemeless_story_url')).\
-        annotate(domain=Left('canonical_url',
-                             Coalesce(NullIf(StrIndex('canonical_url', Value('/')), 0) - 1, Length('canonical_url')))).\
+        annotate(domain=Left('canonical_story_url',
+                             Coalesce(NullIf(StrIndex('canonical_story_url', Value('/')), 0) - 1, Length('canonical_story_url')))).\
         values('domain').\
         annotate(comment_count=Sum('comment_count'),
                  discussion_count=Count('platform_id')).\

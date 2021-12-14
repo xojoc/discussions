@@ -26,8 +26,7 @@ def discussions_context_cached(q):
             cache.touch(key, 30)
     else:
         ctx = discussions_context(q)
-        if ctx and (ctx.get('grouped_discussions')
-                    or ctx.get('title_discussions')):
+        if ctx and ctx['nothing_found'] is False:
             cache.set(key, ctx, 60)
             cache.set(touch_key, 1, timeout=60 * 3)
 
@@ -41,7 +40,7 @@ def discussions_context(q):
 
     url = (q or '').lower().strip()
 
-    ctx['statistics'] = models.Statistics.all_statistics()
+    # ctx['statistics'] = models.Statistics.all_statistics()
 
     if url and not (url.startswith('http://') or url.startswith('https://')):
         ctx['absolute_url'] = 'https://' + q
@@ -108,7 +107,17 @@ def index(request, path_q=None):
 
     ctx = discussions_context_cached(q)
 
-    return render(request, "web/discussions.html", {'ctx': ctx})
+    response = render(request, "web/discussions.html", {'ctx': ctx})
+
+    if ctx['nothing_found']:
+        response.status_code = 404
+
+    return response
+
+
+def statistics(request):
+    ctx = {'statistics': models.Statistics.all_statistics()}
+    return render(request, "web/statistics.html", {'ctx': ctx})
 
 
 class APIUserViewSet(viewsets.ModelViewSet):

@@ -13,7 +13,7 @@ class DiscussionsSitemap(Sitemap):
             filter(comment_count__gte=5).\
             order_by('pk')
 
-        # xojoc: Group By is too slow. Disable it for now.
+        # xojoc: fixme: Group By is too slow. Disabled for now.
         #        fix extraction when the single page model will be introduced
 
         # exclude(canonical_story_url__isnull=True).\
