@@ -9,6 +9,7 @@ from django.contrib.auth.models import User, Group
 from django.http import HttpResponsePermanentRedirect
 from discussions import settings
 from urllib.parse import unquote as url_unquote
+from urllib.parse import quote
 
 
 def discussions_context_cached(q):
@@ -92,6 +93,30 @@ def discussions_context(q):
     return ctx
 
 
+def get_submit_links(request, ctx):
+    q = ctx['original_query']
+    if not (q.lower().startswith('http://') or q.lower().startswith('https://')):
+        return
+
+    url = quote(q)
+
+    ctx['submit_title'] = request.GET.get('submit_title') or ctx['title'] or ''
+    t = quote(ctx.get('submit_title'))
+
+    submit_links = {'Hacker News': f'https://news.ycombinator.com/submitlink?u={url}&t={t}',
+                    'Reddit': f'https://www.reddit.com/submit?url={url}&title={t}',
+                    'Lobsters': f'https://lobste.rs/stories/new?url={url}&title={t}',
+                    'Barnacles': f'https://barnacl.es/stories/new?url={url}&title={t}',
+                    'Gambero': f'https://gambe.ro/stories/new?url={url}&title={t}'
+                    }
+
+    ctx['submit_links'] = submit_links
+
+    ctx['submit_links_visible'] = False
+    if ctx['nothing_found']:
+        ctx['submit_links_visible'] = True
+
+
 def index(request, path_q=None):
     host = request.get_host().partition(":")[0]
     if not request.path.startswith('/.well-known/'):
@@ -109,6 +134,8 @@ def index(request, path_q=None):
     q = q or ''
 
     ctx = discussions_context_cached(q)
+
+    get_submit_links(request, ctx)
 
     response = render(request, "web/discussions.html", {'ctx': ctx})
 

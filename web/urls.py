@@ -24,5 +24,7 @@ urlpatterns = [
          name='discussions'),
     path('sentry-debug/', sentry_trigger_error),
     path('twitter/', TemplateView.as_view(template_name="web/twitter.html")),
-    path('statistics/', views.statistics)
+    path('statistics/', views.statistics),
+    path('opensearch.xml', TemplateView.as_view(template_name='web/opensearch.xml',
+         content_type='application/opensearchdescription+xml'))
 ]

@@ -1,0 +1,11 @@
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <ShortName>Discussions</ShortName>
+  <Description>Discussions around the web</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image width="32" height="32" type="image/png">https://discu.eu/static/favicon-32x32.a794ff10e85b.png</Image>
+  <Url type="text/html" template="https://discu.eu">
+    <Param name="q" value="{searchTerms}"/>
+  </Url>
+  <moz:SearchForm>https://discu.eu</moz:SearchForm>
+</OpenSearchDescription>

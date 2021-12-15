@@ -110,11 +110,29 @@
 
 	{% endif %}
 
-
-	<br />
-
-	<h2><a href="https://xojoc.pw/donate">Donate</a></h2>
-
 	{% endif %}
+
+	{% if ctx.submit_links %}
+	<div class='submit_links'>
+		<br />
+		<details {% if ctx.submit_links_visible %}open{% endif %}>
+			<summary>Submit link to:</summary>
+			<ul>
+				{% for submit_platform, submit_link in ctx.submit_links.items %}
+				<li>
+					<a href="{{submit_link}}" title="Submit to {{submit_platform}}" rel="noreferrer noopener"
+						target="_blank">{{submit_platform}}</a>
+				</li>
+				{% endfor %}
+			</ul>
+		</details>
+	</div>
+	{% endif %}
+
+	{% if not ctx.nothing_found %}
+	<br />
+	<h2><a href="https://xojoc.pw/donate">Donate</a></h2>
+	{% endif %}
+
 </div>
 {% endblock main %}

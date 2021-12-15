@@ -127,6 +127,7 @@ def tweet_discussions():
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
     stories = models.Discussion.objects.\
         filter(created_at__gte=three_days_ago).\
+        filter(score__gte=2).\
         filter(tweet=None)
 
     for story in stories:

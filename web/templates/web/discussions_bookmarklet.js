@@ -1,1 +1,1 @@
-javascript: (function () { var url = 'https://discu.eu/q/' + window.location.href; var win = window.open(url, '_blank'); win.focus(); })();
+javascript: (function () { var url = 'https://discu.eu/?q=' + encodeURIComponent(window.location.href) + '&submit_title=' + encodeURIComponent(document.title); var win = window.open(url, '_blank'); win.focus(); })();
