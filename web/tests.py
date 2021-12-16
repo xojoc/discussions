@@ -16,6 +16,8 @@ class Discussions(unittest.TestCase):
             c("https://web.archive.org/web/20200103092739/https://www.xojoc.pw/blog/focus.html"
               ),
             c("https://twitter.com/#!wikileaks/status/1255304335887646721"),
+            c("https://threadreaderapp.com/thread/1453753924960219145"),
+            c("https://twitter.com/RustDiscussions/status/1448994137504686086"),
             c("https://github.com/xojoc/discussions/tree/master"),
             c("https://groups.google.com/forum/#!topic/mozilla.dev.platform/1PHhxBxSehQ"
               ),
@@ -26,17 +28,23 @@ class Discussions(unittest.TestCase):
             c("https://open.nytimes.com/tracking-covid-19-from-hundreds-of-sources-one-extracted-record-at-a-time-dd8cbd31f9b4"
               ),
             c("www.techcrunch.com/2009/05/30/vidoop-is-dead-employees-getting-computers-in-lieu-of-wages/?awesm=tcrn.ch_2t3&utm_campaign=techcrunch&utm_content=techcrunch-autopost&utm_medium=tcrn.ch-twitter&utm_source=direct-tcrn.ch"
-              )
+              ),
+            c("https://dev.tube/video/EZ05e7EMOLM"),
+            c("https://edition.cnn.com/2021/09/29/business/supply-chain-workers/index.html")
         ], [
             'medium.com/p/dc80a54012', 'bgolus.medium.com/ba82ed442cd9',
             'path-normalization.com/a', 'youtu.be/71ssvumt1ys',
             'youtu.be/71ssvumt1ys', 'xojoc.pw/blog/focus',
             'xojoc.pw/blog/focus',
-            'twitter.com/wikileaks/status/1255304335887646721',
+            'twitter.com/x/status/1255304335887646721',
+            'twitter.com/x/status/1453753924960219145',
+            'twitter.com/x/status/1448994137504686086',
             'github.com/xojoc/discussions',
             'groups.google.com/g/mozilla.dev.platform/c/1phhxbxsehq',
             'groups.google.com/g/mi.jobs/c/poxlcw8udk4/m/_ghzqb9sg9gj',
             'nytimes.com/2006/10/11/technology/11yahoo',
             'open.nytimes.com/dd8cbd31f9b4',
-            'techcrunch.com/2009/05/30/vidoop-is-dead-employees-getting-computers-in-lieu-of-wages'
+            'techcrunch.com/2009/05/30/vidoop-is-dead-employees-getting-computers-in-lieu-of-wages',
+            'youtu.be/ez05e7emolm',
+            'cnn.com/2021/09/29/business/supply-chain-workers'
         ])

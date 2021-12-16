@@ -185,6 +185,11 @@ def _canonical_youtube(host, path, parsed_query):
                     path = '/' + path_parts[-1]
                     parsed_query = None
 
+    if host == 'dev.tube' and path.startswith('/video/'):
+        path = path[len('/video'):]
+        host = 'youtu.be'
+        parsed_query = None
+
     return host, path, parsed_query
 
 
@@ -255,14 +260,38 @@ def _canonical_bbc(host, path, parsed_query):
     return host, path, parsed_query
 
 
+def _canonical_twitter(host, path, parsed_query):
+    if host == 'twitter.com':
+        path_parts = path.split('/')
+        if len(path_parts) == 4 and path_parts[0] == '' and path_parts[2] == 'status':
+            path = "/x/status/" + path_parts[3]
+            parsed_query = None
+
+    if host == 'threadreaderapp.com':
+        if path.startswith('/thread/'):
+            path = '/x/status/' + path[len('/thread/'):]
+            parsed_query = None
+            host = 'twitter.com'
+
+    return host, path, parsed_query
+
+
 def _canonical_specific_websites(host, path, parsed_query):
     for h in [
             _canonical_webarchive, _canonical_youtube, _canonical_medium,
             _canonical_github, _canonical_nytimes, _canonical_techcrunch,
-            _canonical_wikipedia, _canonical_arstechnica, _canonical_bbc
+            _canonical_wikipedia, _canonical_arstechnica, _canonical_bbc,
+            _canonical_twitter
     ]:
         host, path, parsed_query = h(host, path, parsed_query)
     return host, path, parsed_query
+
+
+__host_map = {'edition.cnn.com': 'cnn.com'}
+
+
+def _remap_host(host):
+    return __host_map.get(host) or host
 
 
 def canonical_url(url,
@@ -298,6 +327,8 @@ def canonical_url(url,
 
     host, path, parsed_query = _canonical_specific_websites(
         host, path, parsed_query)
+
+    host = _remap_host(host)
 
     query = url_parse.urlencode(parsed_query or '')
 

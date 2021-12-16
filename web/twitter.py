@@ -51,6 +51,8 @@ def tweet(status, username):
     auth.set_access_token(token, token_secret)
     api = tweepy.API(auth, wait_on_rate_limit=True)
     status = api.update_status(status)
+    if status.id:
+        api.create_favorite(status.id)
     return status.id
 
 
