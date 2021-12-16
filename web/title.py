@@ -37,6 +37,13 @@ def __format(title):
     return title
 
 
+def __punctuation(title):
+    title = title.replace("'s ", ' ')
+    for c in '\'.,":?!;':
+        title = title.replace(c, '')
+    return title
+
+
 def normalize(title, platform=None, url="", tags=[]):
     title = (title or '').lower().strip()
 
@@ -51,5 +58,7 @@ def normalize(title, platform=None, url="", tags=[]):
         title = __hacker_news(title)
     elif platform == 'u':
         title = __lambda_the_ultimate(title)
+
+    title = __punctuation(title)
 
     return title

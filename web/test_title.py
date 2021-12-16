@@ -11,12 +11,14 @@ class Title(unittest.TestCase):
             n('Show HN: Cool Project', platform='h'),
             n('Show HN: second Project'),
             n('Ask HN: q?', platform='h'),
-            n('old pdf (1981) [pdf]')
+            n('old pdf (1981) [pdf]'),
+            n('book\'s "title"')
         ], [
             'national park typeface',
             'a',
             'cool project',
-            'show hn: second project',
-            'q?',
-            'old pdf'
+            'show hn second project',
+            'q',
+            'old pdf',
+            'book title'
         ])
