@@ -30,9 +30,11 @@ class DiscussionAdmin(admin.ModelAdmin):
         'platform_id',
         'created_at',
         'tags',
+        'normalized_tags',
         'comment_count',
         'score',
-        'title'
+        'title',
+        'normalized_title'
     ]
     list_filter = [
         "platform",

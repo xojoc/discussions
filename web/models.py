@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.postgres import fields as postgres_fields
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import TrigramWordSimilarity
-from . import discussions, tags
+from . import discussions, tags, title
 from django.utils import timezone
 import datetime
 from django.core import serializers
@@ -17,6 +17,9 @@ class Discussion(models.Model):
         indexes = [
             GinIndex(name='gin_discussion_title',
                      fields=['title'],
+                     opclasses=['gin_trgm_ops']),
+            GinIndex(name='gin_discussion_norm_title',
+                     fields=['normalized_title'],
                      opclasses=['gin_trgm_ops']),
             models.Index(fields=['schemeless_story_url']),
             models.Index(fields=['canonical_story_url']),
@@ -39,6 +42,8 @@ class Discussion(models.Model):
                                               null=True)
 
     title = models.CharField(max_length=2048)
+    normalized_title = models.CharField(max_length=2048, null=True, blank=True)
+
     comment_count = models.IntegerField(default=0)
     score = models.IntegerField(default=0, null=True)
     """In case of Reddit tags will have only one entry which represents the subreddit"""
@@ -86,8 +91,11 @@ class Discussion(models.Model):
                 or self.canonical_redirect_url == self.schemeless_story_url):
             self.canonical_redirect_url = None
 
+        self.normalized_title = title.normalize(
+            self.title, self.platform,  self.schemeless_story_url, self.tags)
+
         self.normalized_tags = tags.normalize(
-            self.tags, self.platform, self.title, self.schemeless_story_url)
+            self.tags, self.platform, self.normalized_title, self.schemeless_story_url)
 
         super(Discussion, self).save(*args, **kwargs)
 
@@ -268,7 +276,7 @@ class Discussion(models.Model):
                 | Q(platform='u'))
 
             # xojoc: disable for now since it messes with the PostgreSQL query planner
-            # ts = ts[:20]
+            ts = ts[:20]
 
             ds = ds.union(ts)
 

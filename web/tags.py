@@ -1,5 +1,3 @@
-
-
 def __augment_tags(title, tags, keyword, atleast_tags=None, new_tag=None):
     if atleast_tags:
         if len(tags & atleast_tags) == 0:
@@ -42,6 +40,11 @@ def __hacker_news(tags, title):
 
 
 def __lambda_the_ultimate(tags, title):
+    return tags
+
+
+def __from_title(tags, title):
+    # todo: use wikidata to extrapolate tag from title?
     return tags
 
 
