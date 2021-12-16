@@ -90,4 +90,4 @@ def normalize(tags, platform=None, title="", url=""):
         tags = __rename(tags, title)
         tags = __enrich(tags, title)
 
-    return list(tags)
+    return sorted(list(tags))

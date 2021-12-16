@@ -25,4 +25,24 @@ class StatisticsAdmin(admin.ModelAdmin):
         return TemplateResponse(request, "web/admin_statistics.html", context)
 
 
-admin.site.register([models.Discussion, models.Tweet, models.Statistics])
+class DiscussionAdmin(admin.ModelAdmin):
+    list_display = [
+        'platform_id',
+        'created_at',
+        'tags',
+        'comment_count',
+        'score',
+        'title'
+    ]
+    list_filter = [
+        "platform",
+    ]
+    search_fields = (
+        "title",
+        "tags",
+    )
+
+
+admin.site.register(models.Discussion, DiscussionAdmin)
+
+admin.site.register([models.Tweet, models.Statistics])
