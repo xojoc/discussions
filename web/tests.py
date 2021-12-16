@@ -19,6 +19,7 @@ class Discussions(unittest.TestCase):
             c("https://threadreaderapp.com/thread/1453753924960219145"),
             c("https://twitter.com/RustDiscussions/status/1448994137504686086"),
             c("https://github.com/xojoc/discussions/tree/master"),
+            c("https://github.com/satwikkansal/wtfpython/blob/master/readme.md"),
             c("https://groups.google.com/forum/#!topic/mozilla.dev.platform/1PHhxBxSehQ"
               ),
             c("groups.google.com/forum/?utm_term=0_62dc6ea1a0-4367aed1fd-246207570#!msg/mi.jobs/poxlcw8udk4/_ghzqb9sg9gj"
@@ -40,6 +41,7 @@ class Discussions(unittest.TestCase):
             'twitter.com/x/status/1453753924960219145',
             'twitter.com/x/status/1448994137504686086',
             'github.com/xojoc/discussions',
+            'github.com/satwikkansal/wtfpython',
             'groups.google.com/g/mozilla.dev.platform/c/1phhxbxsehq',
             'groups.google.com/g/mi.jobs/c/poxlcw8udk4/m/_ghzqb9sg9gj',
             'nytimes.com/2006/10/11/technology/11yahoo',

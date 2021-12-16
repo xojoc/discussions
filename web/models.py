@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.postgres import fields as postgres_fields
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import TrigramWordSimilarity
-from . import discussions
+from . import discussions, tags
 from django.utils import timezone
 import datetime
 from django.core import serializers
@@ -47,6 +47,11 @@ class Discussion(models.Model):
                                       null=True,
                                       blank=True)
 
+    normalized_tags = postgres_fields.ArrayField(models.CharField(max_length=255,
+                                                                  blank=True),
+                                                 null=True,
+                                                 blank=True)
+
     archived = models.BooleanField(default=False)
 
     entry_created_at = models.DateTimeField(auto_now_add=True)
@@ -80,6 +85,9 @@ class Discussion(models.Model):
         if (self.canonical_redirect_url == self.canonical_story_url
                 or self.canonical_redirect_url == self.schemeless_story_url):
             self.canonical_redirect_url = None
+
+        self.normalized_tags = tags.normalize(
+            self.tags, self.platform, self.title, self.schemeless_story_url)
 
         super(Discussion, self).save(*args, **kwargs)
 
@@ -249,7 +257,8 @@ class Discussion(models.Model):
                 or url_or_title.lower().startswith('https:')):
 
             ts = cls.objects.\
-                annotate(word_similarity=Round(TrigramWordSimilarity(url_or_title, 'title'), 2))
+                annotate(word_similarity=Round(
+                    TrigramWordSimilarity(url_or_title, 'title'), 2))
 
             ts = ts.filter(title__trigram_word_similar=url_or_title)
 

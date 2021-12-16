@@ -210,8 +210,8 @@ def _canonical_medium(host, path, parsed_query):
 
 def _canonical_github(host, path, parsed_query):
     if host == 'github.com':
-        if path:
-            path = path.removesuffix('/tree/master')
+        path = path.removesuffix('/tree/master')
+        path = path.removesuffix('/blob/master/readme')
 
     return host, path, parsed_query
 
