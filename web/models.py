@@ -276,7 +276,7 @@ class Discussion(models.Model):
                 | Q(platform='u'))
 
             # xojoc: disable for now since it messes with the PostgreSQL query planner
-            ts = ts[:20]
+            # ts = ts[:20]
 
             ds = ds.union(ts)
 

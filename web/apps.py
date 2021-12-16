@@ -42,7 +42,7 @@ class WebConfig(AppConfig):
         if sender.vendor == 'postgresql':
             connection.cursor().execute("""
             set pg_trgm.similarity_threshold = 0.63;
-            set pg_trgm.word_similarity_threshold = 0.80;
+            set pg_trgm.word_similarity_threshold = 0.90;
             """)
 
     def __set_trigram_threshold(self):
