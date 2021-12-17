@@ -390,7 +390,6 @@ def update_canonical_urls(current_index, manual_commit=True):
         if len(cu) <= 2000 and cu != story.canonical_story_url:
             story.canonical_story_url = cu
             dirty = True
-            count_dirty += 1
 
         # if random.random() <= 0.001:
         #     rcu = canonical_url(story.story_url,
@@ -409,6 +408,7 @@ def update_canonical_urls(current_index, manual_commit=True):
             dirty = True
 
         if dirty:
+            count_dirty += 1
             story.save()
 
         # if current_index % 5_000 == 0:

@@ -4,8 +4,9 @@ import nltk
 
 
 def __lobsters(title):
-    title = title.removeprefix('show lobsters')
-    title = title.removeprefix('show lobste.rs')
+    title = title.removeprefix('show lobsters ')
+    title = title.removeprefix('show lobste.rs ')
+    title = title.removeprefix('show lobste rs ')
     return title
 
 
@@ -14,9 +15,9 @@ def __reddit(title):
 
 
 def __hacker_news(title):
-    title = title.removeprefix('show hn:')
-    title = title.removeprefix('ask hn:')
-    title = title.removeprefix('tell hn:')
+    title = title.removeprefix('show hn ')
+    title = title.removeprefix('ask hn ')
+    title = title.removeprefix('tell hn ')
     title = title.strip()
     return title
 
@@ -107,12 +108,14 @@ def normalize(title, platform=None, url="", tags=[]):
     title = ' '.join(title.split())
     title = title.lower().strip()
 
-    # title = __stem(title)
-
     title = __format(title)
     title = __year(title)
 
     title = __contraction(title)
+
+    title = __punctuation(title)
+
+    title = __stem(title)
 
     if platform == 'l':
         title = __lobsters(title)
@@ -122,7 +125,5 @@ def normalize(title, platform=None, url="", tags=[]):
         title = __hacker_news(title)
     elif platform == 'u':
         title = __lambda_the_ultimate(title)
-
-    title = __punctuation(title)
 
     return title

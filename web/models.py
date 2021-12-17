@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.postgres import fields as postgres_fields
 from django.contrib.postgres.indexes import GinIndex
-from django.contrib.postgres.search import TrigramWordSimilarity
+from django.contrib.postgres.search import TrigramWordSimilarity, SearchVectorField
 from . import discussions, tags, title
 from django.utils import timezone
 import datetime
@@ -21,6 +21,8 @@ class Discussion(models.Model):
             GinIndex(name='gin_discussion_norm_title',
                      fields=['normalized_title'],
                      opclasses=['gin_trgm_ops']),
+            GinIndex(name='gin_discussion_vec_title',
+                     fields=["title_vector"]),
             models.Index(fields=['schemeless_story_url']),
             models.Index(fields=['canonical_story_url']),
             models.Index(fields=['canonical_redirect_url']),
@@ -43,6 +45,7 @@ class Discussion(models.Model):
 
     title = models.CharField(max_length=2048)
     normalized_title = models.CharField(max_length=2048, null=True, blank=True)
+    title_vector = SearchVectorField(null=True)
 
     comment_count = models.IntegerField(default=0)
     score = models.IntegerField(default=0, null=True)
