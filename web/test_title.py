@@ -12,7 +12,10 @@ class Title(unittest.TestCase):
             n('Show HN: second Project'),
             n('Ask HN: q?', platform='h'),
             n('old pdf (1981) [pdf]'),
-            n('book\'s "title"')
+            n('book\'s "title"'),
+            n('“Quotes”'),
+            n('Ⅷ'),
+            n("isn't you're i'd we'll i'm can’t")
         ], [
             'national park typeface',
             'a',
@@ -20,5 +23,8 @@ class Title(unittest.TestCase):
             'show hn second project',
             'q',
             'old pdf',
-            'book title'
+            'book title',
+            'quotes',
+            'viii',
+            'is not you are i had we will i am can not'
         ])

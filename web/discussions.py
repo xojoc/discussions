@@ -404,6 +404,9 @@ def update_canonical_urls(current_index, manual_commit=True):
         #         story.canonical_redirect_url = rcu
         #         dirty = True
 
+        if not story.normalized_title:
+            dirty = True
+
         if dirty:
             story.save()
 
