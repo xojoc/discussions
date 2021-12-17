@@ -19,8 +19,6 @@ class Migration(migrations.Migration):
               tsvector_update_trigger(
                 title_vector, 'pg_catalog.english', title
               );
-
-              UPDATE web_discussion SET title_vector = NULL;
             ''',
 
             reverse_sql='''
