@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.postgres import fields as postgres_fields
 from django.contrib.postgres.indexes import GinIndex
-from django.contrib.postgres.search import TrigramWordSimilarity, SearchVectorField
+# from django.contrib.postgres.search import TrigramWordSimilarity,
+from django.contrib.postgres.search import SearchVectorField, SearchQuery, SearchRank
 from . import discussions, tags, title
 from django.utils import timezone
 import datetime
@@ -267,11 +268,19 @@ class Discussion(models.Model):
                 url_or_title.lower().startswith('http:')
                 or url_or_title.lower().startswith('https:')):
 
+            sq = SearchQuery(url_or_title, search_type='websearch')
+
             ts = cls.objects.\
                 annotate(word_similarity=Round(
-                    TrigramWordSimilarity(url_or_title, 'title'), 2))
+                    SearchRank('title_vector', sq), 2))
 
-            ts = ts.filter(title__trigram_word_similar=url_or_title)
+            ts = ts.filter(title_vector=sq)
+
+            # ts = cls.objects.\
+            #     annotate(word_similarity=Round(
+            #         TrigramWordSimilarity(url_or_title, 'title'), 2))
+
+            # ts = ts.filter(title__trigram_word_similar=url_or_title)
 
             ts = ts.filter(
                 Q(comment_count__gte=min_comments)

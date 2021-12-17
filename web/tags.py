@@ -13,7 +13,7 @@ def __augment_tags(title, tags, keyword, atleast_tags=None, new_tag=None):
         return tags
 
     if keyword:
-        if keyword.lower() not in title.lower().split(' '):
+        if keyword.lower() not in title.lower().split():
             return tags
 
     return tags | {new_tag}
@@ -36,6 +36,7 @@ def __reddit(tags, title):
 
 def __hacker_news(tags, title):
     tags = __augment_tags(title, tags, 'python')
+    tags = __augment_tags(title, tags, 'rust', None, 'rustlang')
     return tags
 
 
