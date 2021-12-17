@@ -185,7 +185,7 @@ def _canonical_youtube(host, path, parsed_query):
                     path = '/' + path_parts[-1]
                     parsed_query = None
 
-    if host == 'dev.tube' and path.startswith('/video/'):
+    if host == 'dev.tube' and path and path.startswith('/video/'):
         path = path[len('/video'):]
         host = 'youtu.be'
         parsed_query = None
@@ -210,8 +210,9 @@ def _canonical_medium(host, path, parsed_query):
 
 def _canonical_github(host, path, parsed_query):
     if host == 'github.com':
-        path = path.removesuffix('/tree/master')
-        path = path.removesuffix('/blob/master/readme')
+        if path:
+            path = path.removesuffix('/tree/master')
+            path = path.removesuffix('/blob/master/readme')
 
     return host, path, parsed_query
 

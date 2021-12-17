@@ -1,5 +1,6 @@
 import re
 import unicodedata
+import nltk
 
 
 def __lobsters(title):
@@ -87,6 +88,17 @@ def __contraction(title):
     return new_title
 
 
+def __stem(title):
+    new_title = ""
+    stemmer = nltk.stem.snowball.SnowballStemmer("english")
+    tokens = nltk.tokenize.word_tokenize(title)
+    for w in tokens:
+        new_title += ' '
+        new_title += stemmer.stem(w)
+
+    return new_title.strip()
+
+
 def normalize(title, platform=None, url="", tags=[]):
     title = title or ''
 
@@ -94,6 +106,8 @@ def normalize(title, platform=None, url="", tags=[]):
 
     title = ' '.join(title.split())
     title = title.lower().strip()
+
+    # title = __stem(title)
 
     title = __format(title)
     title = __year(title)

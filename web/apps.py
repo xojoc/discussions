@@ -49,7 +49,12 @@ class WebConfig(AppConfig):
         connection_created.connect(
             WebConfig.__connection_created_signal_handler)
 
+    def __nltk_download_data(self):
+        import nltk
+        nltk.download('punkt')
+
     def ready(self):
         self.__reddit_configuration()
         self.__twitter_configuration()
         self.__set_trigram_threshold()
+        self.__nltk_download_data()
