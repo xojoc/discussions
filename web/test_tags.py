@@ -2,7 +2,7 @@ from web import tags, title as web_title
 import unittest
 
 
-class Title(unittest.TestCase):
+class Tags(unittest.TestCase):
     def test_normalization(self):
         def n(ts, platform=None, title="", url=""):
             return tags.normalize(ts, platform,

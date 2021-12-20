@@ -392,8 +392,8 @@ def update_canonical_urls(current_index, manual_commit=True):
             dirty = True
 
         nt = title.normalize(story.title)
-        if nt != story.normlized_title:
-            story.normlized_title = nt
+        if nt != story.normalized_title:
+            story.normalized_title = nt
             dirty = True
 
         ntags = tags.normalize(story.tags, story.platform,

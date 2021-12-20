@@ -66,18 +66,43 @@ def tweet(status, username):
     return status.id
 
 
-def tweet_story(title, url, tags):
+STATUS_MAX_LENGTH = 280
+URL_LENGTH = 23
+
+
+def build_story_status(title, url, tags):
     hashtags = sorted(['#' + t for t in tags])
 
     discussions_url = util.discussions_url(url)
 
-    status = f"""{title}
+    status = f"""
 
 {url}
 
 Discussions: {discussions_url}
 
 {' '.join(hashtags)}"""
+
+    status_len = f"""
+
+{'x' * URL_LENGTH}
+
+Discussions: {'x' * URL_LENGTH}
+
+{' '.join(hashtags)}"""
+
+    left_len = STATUS_MAX_LENGTH - len(status_len)
+
+    if len(title) > left_len:
+        status = title[:left_len - 2] + "…" + status
+    else:
+        status = title + status
+
+    return status
+
+
+def tweet_story(title, url, tags):
+    status = build_story_status(title, url, tags)
 
     tweet_ids = set()
 
