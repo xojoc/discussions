@@ -1,9 +1,10 @@
 from django.db import models
 from django.contrib.postgres import fields as postgres_fields
 from django.contrib.postgres.indexes import GinIndex
-from django.contrib.postgres.search import TrigramWordSimilarity
+from django.contrib.postgres.search import TrigramWordBase
 from django.contrib.postgres.search import SearchVectorField
-# from django.contrib.postgres.search import SearchQuery, SearchRank
+from django.db.models.lookups import PostgresOperatorLookup
+from django.contrib.postgres.search import SearchQuery, SearchRank
 from . import discussions, tags, title
 from django.utils import timezone
 import datetime
@@ -12,6 +13,16 @@ import json
 from dateutil import parser as dateutil_parser
 from django.db.models import Value, Q
 from django.db.models.functions import Round
+
+
+class MyTrigramStrictWordSimilarity(TrigramWordBase):
+    function = 'STRICT_WORD_SIMILARITY'
+
+
+@models.CharField.register_lookup
+class MyTrigramStrictWordSimilar(PostgresOperatorLookup):
+    lookup_name = 'trigram_strict_word_similar'
+    postgres_operator = '%%>>'
 
 
 class Discussion(models.Model):
@@ -264,33 +275,40 @@ class Discussion(models.Model):
             | Q(platform='u'))
 
         ds = ds.annotate(word_similarity=Value(99))
+        ds = ds.annotate(search_rank=Value(1))
+
+        # xojoc: test search with:
+        #   https://discu.eu/q/APL%20in%20JavaScript
+        #   https://discu.eu/q/Go%201.4.1%20has%20been%20released
+        #   https://discu.eu/q/The%20Gosu%20Programming%20Language
+        #   https://discu.eu/q/F-35%20C%2B%2B%20coding%20standard%20%5Bpdf%5D
+        #   https://discu.eu/q/The%20Carnap%20Programming%20Language
 
         if len(url_or_title) > 3 and not (
                 url_or_title.lower().startswith('http:')
                 or url_or_title.lower().startswith('https:')):
 
-            # sq = SearchQuery(url_or_title, search_type='websearch')
-
-            # ts = cls.objects.\
-            #     annotate(word_similarity=Round(
-            #         SearchRank('title_vector', sq, cover_density=True),
-            #         2))
-
-            # ts = ts.filter(title_vector=sq)
+            sq = SearchQuery(url_or_title, search_type='websearch')
 
             ts = cls.objects.\
                 annotate(word_similarity=Round(
-                    TrigramWordSimilarity(url_or_title, 'title'), 2))
+                    MyTrigramStrictWordSimilarity(url_or_title, 'title'), 2)).\
+                annotate(search_rank=SearchRank('title_vector', sq))
 
-            ts = ts.filter(title__trigram_word_similar=url_or_title)
+            ts = ts.filter(title__trigram_strict_word_similar=url_or_title)
+
+            # xojoc: this is needed to filter out sensless results non
+            # filtered out by the trigram filter. Example: "APL in JavaScript"
+            ts = ts.filter(search_rank__gt=0.2)
 
             ts = ts.filter(
                 Q(comment_count__gte=min_comments)
                 | Q(created_at__gt=seven_days_ago)
                 | Q(platform='u'))
 
-            # xojoc: disable for now since it messes with the PostgreSQL query planner
-            # ts = ts[:20]
+            ts = ts.order_by('-word_similarity')
+
+            ts = ts[:13]
 
             ds = ds.union(ts)
 

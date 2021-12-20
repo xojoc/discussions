@@ -86,7 +86,46 @@ def __contraction(title):
             new_title += w
         new_title += ' '
 
-    return new_title
+    return new_title.strip()
+
+
+__synonyms = {
+    "postgres": "postgresql",
+    "c++": "cpp",
+    "c#": "csharp",
+    "covid": "coronavirus",
+    "covid-19": "coronavirus",
+    "python4": "python",
+    "python3": "python",
+    "python2": "python",
+    "python2.7": "python"
+}
+
+
+def __synonym(title):
+    new_title = ""
+    for w in title.split():
+        if syn := __synonyms.get(w):
+            new_title += syn
+        else:
+            new_title += w
+        new_title += ' '
+
+    return new_title.strip()
+
+
+def __url(title, url):
+    new_title = ""
+    for w in title.split():
+        if w == 'go' and 'golang' in url:
+            new_title += 'golang'
+        elif w == 'rust' and 'rustlang' in url:
+            new_title += 'rustlang'
+        else:
+            new_title += w
+        new_title += ' '
+
+    return new_title.strip()
 
 
 def __stem(title):
@@ -100,8 +139,14 @@ def __stem(title):
     return new_title.strip()
 
 
-def normalize(title, platform=None, url="", tags=[]):
+def __duplicate(title):
+    prev = object()
+    return ' '.join((prev := v for v in title.split() if prev != v))
+
+
+def normalize(title, platform=None, url="", tags=[], stem=True):
     title = title or ''
+    url = (url or '').lower()
 
     title = __unicode(title)
 
@@ -113,9 +158,14 @@ def normalize(title, platform=None, url="", tags=[]):
 
     title = __contraction(title)
 
+    title = __synonym(title)
+
     title = __punctuation(title)
 
-    title = __stem(title)
+    title = __synonym(title)
+
+    if url:
+        title = __url(title, url)
 
     if platform == 'l':
         title = __lobsters(title)
@@ -125,5 +175,10 @@ def normalize(title, platform=None, url="", tags=[]):
         title = __hacker_news(title)
     elif platform == 'u':
         title = __lambda_the_ultimate(title)
+
+    title = __duplicate(title)
+
+    if stem:
+        title = __stem(title)
 
     return title

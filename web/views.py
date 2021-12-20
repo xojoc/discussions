@@ -1,4 +1,4 @@
-from web import models, discussions, serializers, util
+from web import models, discussions, serializers, twitter, util
 from django.shortcuts import render
 import itertools
 from django.core.cache import cache
@@ -148,6 +148,23 @@ def index(request, path_q=None):
 def statistics(request):
     ctx = {'statistics': models.Statistics.all_statistics()}
     return render(request, "web/statistics.html", {'ctx': ctx})
+
+
+def __social_context(request):
+    bots = []
+    for bot_name, bot_values in twitter.configuration['bots'].items():
+        bot = {'link': f"https://twitter.com/{ bot_name }",
+               'link_title': f"{ bot_values['topic'] } Twitter bot",
+               'nick': f"@{ bot_name }",
+               'description': f"{ bot_values['description'] }"}
+        bots.append(bot)
+
+    return {'twitter_bots': bots}
+
+
+def social(request):
+    ctx = __social_context(request)
+    return render(request, "web/social.html", {'ctx': ctx})
 
 
 class APIUserViewSet(viewsets.ModelViewSet):

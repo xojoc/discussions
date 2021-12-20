@@ -16,12 +16,16 @@ configuration = {
         'IntPyDiscu': {
             'email': 'python_discussions@xojoc.pw',
             'user_id': '1442929661328117760',
-            'tags': {'python', 'django', 'flask'}
+            'tags': {'python', 'django', 'flask'},
+            'description': 'Python discussions',
+            'topic': 'Python'
         },
         'RustDiscussions': {
             'email': 'rust_discussions@xojoc.pw',
             'user_id': '1446199026865557510',
-            'tags': {'rustlang'}
+            'tags': {'rustlang'},
+            'description': 'Rust discussions',
+            'topic': 'Rust'
         }
     }
 }

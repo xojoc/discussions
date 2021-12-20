@@ -1,0 +1,30 @@
+{% extends "web/base.html" %}
+
+{% block title %}
+Social accounts/bots
+{% endblock title %}
+
+{% block main %}
+
+<h2>Twitter Bots</h2>
+<p>
+	The following bots tweet regularly the most interesting discussions about some particular topic:
+</p>
+
+{% for bot in ctx.twitter_bots %}
+
+<ul>
+	<li><a href="{{bot.link}}" title="{{bot.link_title}}">{{bot.nick}}</a> - {{bot.description}}</li>
+</ul>
+
+{% endfor %}
+
+<br />
+
+<p>
+	You can find me at <a href="https://twitter.com/XojocXojoc"
+		title="Twitter profile of Alexandru Cojocaru">@XojocXojoc</a>.
+</p>
+
+
+{% endblock main %}

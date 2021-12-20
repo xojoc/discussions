@@ -15,7 +15,10 @@ class Title(unittest.TestCase):
             n('books\'s "title"'),
             n('“Quotes”'),
             n('Ⅷ'),
-            n("isn't you're i'd we'll i'm can’t")
+            n("isn't you're i'd we'll i'm can’t"),
+            n("Postgres Plugin in c++"),
+            n('Why Go?', url='blog.org/why-golang', stem=False),
+            n("Postgres: PostgreSQL 10 Released", stem=False),
         ], [
             'nation park typefac',
             'a',
@@ -26,15 +29,8 @@ class Title(unittest.TestCase):
             'book titl',
             'quot',
             'viii',
-            'is not you are i had we will i am can not'
-            # 'national park typeface',
-            # 'a',
-            # 'cool project',
-            # 'show hn second project',
-            # 'q',
-            # 'old pdf',
-            # 'book title',
-            # 'quotes',
-            # 'viii',
-            # 'is not you are i had we will i am can not'
+            'is not you are i had we will i am can not',
+            'postgresql plugin in cpp',
+            'why golang',
+            'postgresql 10 released'
         ])

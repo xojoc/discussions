@@ -41,30 +41,40 @@ def __hacker_news(tags, title):
 
 
 def __lambda_the_ultimate(tags, title):
+    return tags - {'previously', 'general', 'recent discussion', 'previously on ltu', 'discussion', 'recently', 'here'}
+
+
+def __from_title_url(tags, title, url):
+    tags = __augment_tags(title, tags, 'golang')
+    tags = __augment_tags(title, tags, 'rustlang')
+    tags = __augment_tags(title, tags, 'cpp')
+    tags = __augment_tags(title, tags, 'csharp')
+    tags = __augment_tags(title, tags, 'django',
+                          {'python', 'webdev', 'programming'})
+    tags = __augment_tags(title, tags, 'flask',
+                          {'python', 'webdev', 'programming'})
+    tags = __augment_tags(title, tags, 'linux')
+    tags = __augment_tags(title, tags, 'dragonflybsd')
+    tags = __augment_tags(title, tags, 'freebsd')
+    tags = __augment_tags(title, tags, 'netbsd')
+    tags = __augment_tags(title, tags, 'openbsd')
     return tags
 
 
-def __from_title(tags, title):
-    # todo: use wikidata to extrapolate tag from title?
-    return tags
-
-
-def __rename(tags, title):
+def __rename(tags, title, platform=None):
     to_replace = [('rust', 'rustlang'), ('go', 'golang'),
                   ('c++', 'cpp'), ('.net', 'dotnet'),
-                  ('c#', 'csharp')]
+                  ('c#', 'csharp'),
+                  ('web', 'webdev', 'l')]
     for p in to_replace:
+        if len(p) == 3 and p[2] != platform:
+            continue
         tags = __replace_tag(tags, p[0], p[1])
 
     return tags
 
 
 def __enrich(tags, title):
-    tags = __augment_tags(title, tags, 'django',
-                          {'python', 'web', 'webdev', 'programming'})
-    tags = __augment_tags(title, tags, 'flask',
-                          {'python', 'web', 'webdev', 'programming'})
-
     tags = __augment_tags(title, tags, None,
                           {'python', 'rustlang', 'golang', 'haskell', 'cpp'},
                           'programming')
@@ -72,6 +82,13 @@ def __enrich(tags, title):
     tags = __augment_tags(title, tags, None,
                           {'django', 'flask'},
                           'python')
+    tags = __augment_tags(title, tags, None,
+                          {'django', 'flask'},
+                          'webdev')
+
+    tags = __augment_tags(title, tags, None,
+                          {'linux', 'dragonflybsd', 'freebsd', 'netbsd', 'openbsd'},
+                          'unix')
 
     return tags
 
@@ -80,8 +97,11 @@ def normalize(tags, platform=None, title="", url=""):
     tags = tags or []
     tags = set(t.lower().strip() for t in tags)
     title = title.lower()
+    url = url.lower()
 
     for _ in range(3):
+        tags = __from_title_url(tags, title, url)
+
         if platform == 'l':
             tags = __lobsters(tags, title)
         elif platform == 'r':
@@ -91,7 +111,7 @@ def normalize(tags, platform=None, title="", url=""):
         elif platform == 'u':
             tags = __lambda_the_ultimate(tags, title)
 
-        tags = __rename(tags, title)
+        tags = __rename(tags, title, platform)
         tags = __enrich(tags, title)
 
     return sorted(list(tags))

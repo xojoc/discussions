@@ -43,6 +43,7 @@ class WebConfig(AppConfig):
             connection.cursor().execute("""
             set pg_trgm.similarity_threshold = 0.63;
             set pg_trgm.word_similarity_threshold = 0.90;
+            set pg_trgm.strict_word_similarity_threshold = 0.60;
             """)
 
     def __set_trigram_threshold(self):

@@ -1,4 +1,5 @@
 from django.urls import include, path
+from django.views.generic.base import RedirectView
 from . import views
 from rest_framework import routers
 from django.views.generic import TemplateView
@@ -23,7 +24,8 @@ urlpatterns = [
          views.APIDiscussionsOfURLView.as_view(),
          name='discussions'),
     path('sentry-debug/', sentry_trigger_error),
-    path('twitter/', TemplateView.as_view(template_name="web/twitter.html")),
+    path('twitter/', RedirectView.as_view(url='/social/')),
+    path('social/', views.social),
     path('statistics/', views.statistics),
     path('opensearch.xml', TemplateView.as_view(template_name='web/opensearch.xml',
          content_type='application/opensearchdescription+xml'))
