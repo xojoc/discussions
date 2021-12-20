@@ -13,12 +13,11 @@ logger = logging.getLogger(__name__)
 # other parameters filled inside web/apps.py
 configuration = {
     'bots': {
-        'IntPyDiscu': {
-            'email': 'python_discussions@xojoc.pw',
-            'user_id': '1442929661328117760',
-            'tags': {'python', 'django', 'flask'},
-            'description': 'Python discussions',
-            'topic': 'Python'
+        'ProgDiscussions': {
+            'email': 'programming_discussions@xojoc.pw',
+            'tags': {'programming'},
+            'description': 'Programming discussions',
+            'topic': 'Programming'
         },
         'RustDiscussions': {
             'email': 'rust_discussions@xojoc.pw',
@@ -26,6 +25,13 @@ configuration = {
             'tags': {'rustlang'},
             'description': 'Rust discussions',
             'topic': 'Rust'
+        },
+        'IntPyDiscu': {
+            'email': 'python_discussions@xojoc.pw',
+            'user_id': '1442929661328117760',
+            'tags': {'python'},
+            'description': 'Python discussions',
+            'topic': 'Python'
         }
     }
 }
@@ -60,52 +66,7 @@ def tweet(status, username):
     return status.id
 
 
-def __augment_tags(title, tags, keyword, atleast_tags, new_tag=None):
-    if atleast_tags:
-        if len(tags & atleast_tags) == 0:
-            return tags
-
-    if not new_tag and keyword:
-        new_tag = keyword.lower()
-
-    if not new_tag:
-        return tags
-
-    if new_tag in tags:
-        return tags
-
-    if keyword:
-        if keyword.lower() not in title.lower().split(' '):
-            return tags
-
-    return tags | {new_tag}
-
-
-def __replace_tag(tags, old_tag, new_tag):
-    if old_tag not in tags:
-        return tags
-
-    return (tags - {old_tag}) | {new_tag}
-
-
 def tweet_story(title, url, tags):
-    if not tags:
-        tags = set()
-    else:
-        tags = set(tags)
-
-    tags = __augment_tags(title, tags, 'django',
-                          {'python', 'web', 'webdev', 'programming'})
-    tags = __augment_tags(title, tags, 'flask',
-                          {'python', 'web', 'webdev', 'programming'})
-
-    tags = __replace_tag(tags, 'rust', 'rustlang')
-    tags = __replace_tag(tags, 'go', 'golang')
-
-    tags = __augment_tags(title, tags, None,
-                          {'python', 'rustlang', 'golang', 'haskell', 'cpp'},
-                          'programming')
-
     hashtags = sorted(['#' + t for t in tags])
 
     discussions_url = util.discussions_url(url)
@@ -121,7 +82,7 @@ Discussions: {discussions_url}
     tweet_ids = set()
 
     for bot_name, cfg in configuration['bots'].items():
-        if not cfg['tags'] or cfg['tags'] & tags:
+        if cfg.get('tags') and cfg['tags'] & tags:
             tweet_id = tweet(status, bot_name)
             tweet_ids.add((tweet_id, bot_name))
 
@@ -133,6 +94,7 @@ def tweet_discussions():
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
     stories = models.Discussion.objects.\
         filter(created_at__gte=three_days_ago).\
+        filter(comment_count__gte=1).\
         filter(score__gte=2).\
         filter(tweet=None)
 
@@ -164,9 +126,9 @@ def tweet_discussions():
         if already_tweeted:
             continue
 
-        tags = set(story.tags or [])
+        tags = set(story.normalized_tags or [])
         for rd in related_discussions:
-            tags = tags | set(rd.tags or [])
+            tags = tags | set(rd.normalized_tags or [])
 
         tweet_ids = tweet_story(story.title, story.story_url, tags)
 

@@ -9,7 +9,7 @@ import urllib3
 from django_redis import get_redis_connection
 from urllib3.util import Url
 
-from web import models, celery_util
+from web import models, celery_util, title, tags
 
 from celery import shared_task
 
@@ -391,34 +391,20 @@ def update_canonical_urls(current_index, manual_commit=True):
             story.canonical_story_url = cu
             dirty = True
 
-        # if random.random() <= 0.001:
-        #     rcu = canonical_url(story.story_url,
-        #                         follow_redirects=True,
-        #                         client=c,
-        #                         redis=r,
-        #                         cache=False)
-        #     if rcu == story.schemeless_story_url or rcu == story.canonical_story_url:
-        #         story.canonical_redirect_url = None
-        #         dirty = True
-        #     elif len(rcu) <= 2000:
-        #         story.canonical_redirect_url = rcu
-        #         dirty = True
+        nt = title.normalize(story.title)
+        if nt != story.normlized_title:
+            story.normlized_title = nt
+            dirty = True
 
-        if not story.normalized_title:
+        ntags = tags.normalize(story.tags, story.platform,
+                               story.normalized_title, story.schemeless_story_url)
+        if ntags != story.normalized_tags:
+            story.normalized_tags = ntags
             dirty = True
 
         if dirty:
             count_dirty += 1
             story.save()
-
-        # if current_index % 5_000 == 0:
-        #     logger.warning(f"update_canonical_urls: current_index: {current_index}: dirty: {count_dirty} (sleeping)")
-        #     time.sleep(3)
-
-        # if dirty:
-        #     if count_dirty > 0 and count_dirty % 100 == 0:
-        #         logger.warning(f"update_canonical_urls: dirty: {count_dirty} (sleeping)")
-        #         time.sleep(3)
 
     if manual_commit:
         django.db.transaction.commit()
