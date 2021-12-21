@@ -26,12 +26,31 @@ configuration = {
             'description': 'Rust discussions',
             'topic': 'Rust'
         },
+        'GoDiscussions': {
+            'email': 'golang_discussions@xojoc.pw',
+            'tags': {'golang'},
+            'description': 'Go discussions',
+            'topic': 'Golang'
+        },
         'IntPyDiscu': {
             'email': 'python_discussions@xojoc.pw',
             'user_id': '1442929661328117760',
             'tags': {'python'},
             'description': 'Python discussions',
             'topic': 'Python'
+        },
+        'CPPDiscussions': {
+            'email': 'c_discussions@xojoc.pw',
+            'tags': {'c', 'cpp'},
+            'description': 'C & C++ discussions',
+            'topic': 'C & C++'
+        },
+        'HNDiscussions': {
+            'email': 'hn_discussions@xojoc.pw',
+            'tags': {},
+            'description': 'Hacker News discussions',
+            'topic': 'Hacker News',
+            'platform': 'h'
         }
     }
 }
@@ -51,10 +70,10 @@ def tweet(status, username):
         random.seed()
         print(username)
         print(status)
-        print(api_key)
-        print(api_secret_key)
-        print(token)
-        print(token_secret)
+        # print(api_key)
+        # print(api_secret_key)
+        # print(token)
+        # print(token_secret)
         return random.randint(1, 1_000_000)
 
     auth = tweepy.OAuthHandler(api_key, api_secret_key)
@@ -70,8 +89,14 @@ STATUS_MAX_LENGTH = 280
 URL_LENGTH = 23
 
 
+def __hashtags(tags):
+    replacements = {'c': 'cprogramming'}
+    tags = (replacements.get(t, t) for t in tags)
+    return sorted(['#' + t for t in tags])
+
+
 def build_story_status(title, url, tags):
-    hashtags = sorted(['#' + t for t in tags])
+    hashtags = __hashtags(tags)
 
     discussions_url = util.discussions_url(url)
 
@@ -101,13 +126,13 @@ Discussions: {'x' * URL_LENGTH}
     return status
 
 
-def tweet_story(title, url, tags):
+def tweet_story(title, url, tags, platform, already_tweeted):
     status = build_story_status(title, url, tags)
 
     tweet_ids = set()
 
     for bot_name, cfg in configuration['bots'].items():
-        if cfg.get('tags') and cfg['tags'] & tags:
+        if (not already_tweeted and cfg.get('tags') and cfg['tags'] & tags) or cfg.get('platform') == platform:
             tweet_id = tweet(status, bot_name)
             tweet_ids.add((tweet_id, bot_name))
 
@@ -117,6 +142,7 @@ def tweet_story(title, url, tags):
 @shared_task(ignore_result=True)
 def tweet_discussions():
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
+    five_days_ago = timezone.now() - datetime.timedelta(days=5)
     stories = models.Discussion.objects.\
         filter(created_at__gte=three_days_ago).\
         filter(comment_count__gte=1).\
@@ -140,7 +166,7 @@ def tweet_discussions():
         # see if this story was recently tweeted
         for rd in related_discussions:
             ts = models.Tweet.objects.\
-                filter(created_at__gte=three_days_ago).\
+                filter(created_at__gte=five_days_ago).\
                 filter(discussions=rd)
 
             for t in ts:
@@ -148,14 +174,15 @@ def tweet_discussions():
                 t.save()
                 already_tweeted = True
 
-        if already_tweeted:
-            continue
+        # if already_tweeted:
+        #     continue
 
         tags = set(story.normalized_tags or [])
         for rd in related_discussions:
             tags = tags | set(rd.normalized_tags or [])
 
-        tweet_ids = tweet_story(story.title, story.story_url, tags)
+        tweet_ids = tweet_story(
+            story.title, story.story_url, tags, story.platform, already_tweeted)
 
         for tweet_id in tweet_ids:
             t = models.Tweet(tweet_id=tweet_id[0], bot_name=tweet_id[1])

@@ -27,7 +27,9 @@ def __replace_tag(tags, old_tag, new_tag):
 
 
 def __lobsters(tags, title):
-    return tags
+    return tags - {'ask', 'audio', 'book',
+                   'pdf', 'show', 'slides',
+                   'transcript',  'video', }
 
 
 def __reddit(tags, title):
@@ -49,6 +51,9 @@ def __from_title_url(tags, title, url):
     tags = __augment_tags(title, tags, 'rustlang')
     tags = __augment_tags(title, tags, 'cpp')
     tags = __augment_tags(title, tags, 'csharp')
+    tags = __augment_tags(title, tags, 'haskell')
+    tags = __augment_tags(title, tags, 'java',
+                          {'programming'})
     tags = __augment_tags(title, tags, 'django',
                           {'python', 'webdev', 'programming'})
     tags = __augment_tags(title, tags, 'flask',
@@ -65,7 +70,8 @@ def __rename(tags, title, platform=None):
     to_replace = [('rust', 'rustlang'), ('go', 'golang'),
                   ('c++', 'cpp'), ('.net', 'dotnet'),
                   ('c#', 'csharp'),
-                  ('web', 'webdev', 'l')]
+                  ('web', 'webdev', 'l'),
+                  ('coding', 'programming', 'r')]
     for p in to_replace:
         if len(p) == 3 and p[2] != platform:
             continue
