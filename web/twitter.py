@@ -51,6 +51,42 @@ configuration = {
             'description': 'Hacker News discussions',
             'topic': 'Hacker News',
             'platform': 'h'
+        },
+        'HaskellDiscu': {
+            'email': 'haskell_discussions@xojoc.pw',
+            'tags': {'haskell'},
+            'description': 'Haskell discussions',
+            'topic': 'Haskell'
+        },
+        'LispDiscussions': {
+            'email': 'lisp_discussions@xojoc.pw',
+            'tags': {'lisp', 'scheme', 'racket'},
+            'description': 'Lisp & Scheme discussions',
+            'topic': 'Lisp & Scheme'
+        },
+        'ErlangDiscu': {
+            'email': 'erlang_discussions@xojoc.pw',
+            'tags': {'erlang', 'elixir'},
+            'description': 'Erlang & Elixir discussions',
+            'topic': 'Erlang & Elixir'
+        },
+        'RubyDiscussions': {
+            'email': 'ruby_discussions@xojoc.pw',
+            'tags': {'ruby'},
+            'description': 'Ruby discussions',
+            'topic': 'Ruby'
+        },
+        'CompsciDiscu': {
+            'email': 'compsci_discussions@xojoc.pw',
+            'tags': {'compsci'},
+            'description': 'Computer Science  discussions',
+            'topic': 'Computer Science'
+        },
+        'DevopsDiscu': {
+            'email': 'devops_discussions@xojoc.pw',
+            'tags': {'devops', 'docker', 'kubernets'},
+            'description': 'DevOps discussions',
+            'topic': 'DevOps'
         }
     }
 }
