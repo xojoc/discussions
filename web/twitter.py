@@ -11,14 +11,10 @@ import random
 logger = logging.getLogger(__name__)
 
 # other parameters filled inside web/apps.py
+# order is important: see tweet_story
+
 configuration = {
     'bots': {
-        'ProgDiscussions': {
-            'email': 'programming_discussions@xojoc.pw',
-            'tags': {'programming'},
-            'description': 'Programming discussions',
-            'topic': 'Programming'
-        },
         'RustDiscussions': {
             'email': 'rust_discussions@xojoc.pw',
             'user_id': '1446199026865557510',
@@ -44,13 +40,6 @@ configuration = {
             'tags': {'c', 'cpp'},
             'description': 'C & C++ discussions',
             'topic': 'C & C++'
-        },
-        'HNDiscussions': {
-            'email': 'hn_discussions@xojoc.pw',
-            'tags': {},
-            'description': 'Hacker News discussions',
-            'topic': 'Hacker News',
-            'platform': 'h'
         },
         'HaskellDiscu': {
             'email': 'haskell_discussions@xojoc.pw',
@@ -87,6 +76,19 @@ configuration = {
             'tags': {'devops', 'docker', 'kubernets'},
             'description': 'DevOps discussions',
             'topic': 'DevOps'
+        },
+        'ProgDiscussions': {
+            'email': 'programming_discussions@xojoc.pw',
+            'tags': {'programming'},
+            'description': 'Programming discussions',
+            'topic': 'Programming'
+        },
+        'HNDiscussions': {
+            'email': 'hn_discussions@xojoc.pw',
+            'tags': {},
+            'description': 'Hacker News discussions',
+            'topic': 'Hacker News',
+            'platform': 'h'
         }
     }
 }
@@ -119,6 +121,30 @@ def tweet(status, username):
     if status.id:
         api.create_favorite(status.id)
     return status.id
+
+
+def retweet(tweet_id, username):
+    api_key = configuration['api_key']
+    api_secret_key = configuration['api_secret_key']
+    token = configuration['bots'][username]['token']
+    token_secret = configuration['bots'][username]['token_secret']
+
+    if not api_key or not api_secret_key or not token or not token_secret:
+        logger.warn(f"Twitter bot: {username} non properly configured")
+        return
+
+    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+        random.seed()
+        print(username)
+        print(tweet_id)
+        return random.randint(1, 1_000_000)
+
+    auth = tweepy.OAuthHandler(api_key, api_secret_key)
+    auth.set_access_token(token, token_secret)
+    api = tweepy.API(auth, wait_on_rate_limit=True)
+    api.retweet(tweet_id)
+    api.create_favorite(tweet_id)
+    return tweet_id
 
 
 STATUS_MAX_LENGTH = 280
@@ -167,10 +193,15 @@ def tweet_story(title, url, tags, platform, already_tweeted):
 
     tweet_ids = set()
 
+    tweet_id = None
+
     for bot_name, cfg in configuration['bots'].items():
         if (not already_tweeted and cfg.get('tags') and cfg['tags'] & tags) or cfg.get('platform') == platform:
-            tweet_id = tweet(status, bot_name)
-            tweet_ids.add((tweet_id, bot_name))
+            if tweet_id:
+                retweet(tweet_id, bot_name)
+            else:
+                tweet_id = tweet(status, bot_name)
+                tweet_ids.add((tweet_id, bot_name))
 
     return tweet_ids
 

@@ -71,7 +71,8 @@ def __rename(tags, title, platform=None):
                   ('c++', 'cpp'), ('.net', 'dotnet'),
                   ('c#', 'csharp'),
                   ('web', 'webdev', 'l'),
-                  ('coding', 'programming', 'r')]
+                  ('coding', 'programming', 'r'),
+                  ('c_programming', 'c', 'r')]
     for p in to_replace:
         if len(p) == 3 and p[2] != platform:
             continue
@@ -82,7 +83,8 @@ def __rename(tags, title, platform=None):
 
 def __enrich(tags, title):
     tags = __augment_tags(title, tags, None,
-                          {'python', 'rustlang', 'golang', 'haskell', 'cpp'},
+                          {'python', 'rustlang', 'golang',
+                              'haskell', 'cpp', 'lisp', 'scheme'},
                           'programming')
 
     tags = __augment_tags(title, tags, None,
