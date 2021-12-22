@@ -23,12 +23,12 @@ configuration = {
             'description': 'Rust discussions',
             'topic': 'Rust'
         },
-        'GoDiscussions': {
-            'email': 'golang_discussions@xojoc.pw',
-            'tags': {'golang'},
-            'description': 'Go discussions',
-            'topic': 'Golang'
-        },
+        # 'GoDiscussions': {
+        #     'email': 'golang_discussions@xojoc.pw',
+        #     'tags': {'golang'},
+        #     'description': 'Go discussions',
+        #     'topic': 'Golang'
+        # },
         'IntPyDiscu': {
             'email': 'python_discussions@xojoc.pw',
             'user_id': '1442929661328117760',
@@ -42,12 +42,12 @@ configuration = {
             'description': 'C & C++ discussions',
             'topic': 'C & C++'
         },
-        'HaskellDiscu': {
-            'email': 'haskell_discussions@xojoc.pw',
-            'tags': {'haskell'},
-            'description': 'Haskell discussions',
-            'topic': 'Haskell'
-        },
+        # 'HaskellDiscu': {
+        #     'email': 'haskell_discussions@xojoc.pw',
+        #     'tags': {'haskell'},
+        #     'description': 'Haskell discussions',
+        #     'topic': 'Haskell'
+        # },
         'LispDiscussions': {
             'email': 'lisp_discussions@xojoc.pw',
             'tags': {'lisp', 'scheme', 'racket'},
@@ -66,18 +66,18 @@ configuration = {
             'description': 'Ruby discussions',
             'topic': 'Ruby'
         },
-        'CompsciDiscu': {
-            'email': 'compsci_discussions@xojoc.pw',
-            'tags': {'compsci'},
-            'description': 'Computer Science  discussions',
-            'topic': 'Computer Science'
-        },
-        'DevopsDiscu': {
-            'email': 'devops_discussions@xojoc.pw',
-            'tags': {'devops', 'docker', 'kubernets'},
-            'description': 'DevOps discussions',
-            'topic': 'DevOps'
-        },
+        # 'CompsciDiscu': {
+        #     'email': 'compsci_discussions@xojoc.pw',
+        #     'tags': {'compsci'},
+        #     'description': 'Computer Science  discussions',
+        #     'topic': 'Computer Science'
+        # },
+        # 'DevopsDiscu': {
+        #     'email': 'devops_discussions@xojoc.pw',
+        #     'tags': {'devops', 'docker', 'kubernets'},
+        #     'description': 'DevOps discussions',
+        #     'topic': 'DevOps'
+        # },
         'ProgDiscussions': {
             'email': 'programming_discussions@xojoc.pw',
             'tags': {'programming'},
