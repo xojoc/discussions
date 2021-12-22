@@ -161,9 +161,22 @@ CELERY_TASK_ACKS_LATE = True
 # xojoc: find a way to create default schedules for freshly installed apps
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
+
+def change_404_level_to_INFO(record):
+    if record.status_code == 404:
+        record.levelname = 'INFO'
+    return True
+
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'change_404_to_info': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': change_404_level_to_INFO,
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
@@ -192,6 +205,12 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'WARNING',
             'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+            'filters': ['change_404_to_info']
         },
         'daphne': {
             'handlers': ['console'],

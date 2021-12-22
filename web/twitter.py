@@ -7,6 +7,7 @@ from . import models
 from django.utils import timezone
 import datetime
 import random
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -198,13 +199,19 @@ def tweet_story(title, url, tags, platform, already_tweeted):
     for bot_name, cfg in configuration['bots'].items():
         if (not already_tweeted and cfg.get('tags') and cfg['tags'] & tags) or cfg.get('platform') == platform:
             if tweet_id:
-                retweet(tweet_id, bot_name)
+                try:
+                    retweet(tweet_id, bot_name)
+                except Exception as e:
+                    logger.warn(f"{bot_name}: {e}")
+                    time.sleep(3)
             else:
                 try:
                     tweet_id = tweet(status, bot_name)
                     tweet_ids.add((tweet_id, bot_name))
                 except Exception as e:
                     logger.warn(f"{bot_name}: {e}")
+                    time.sleep(3)
+            time.sleep(2)
 
     return tweet_ids
 

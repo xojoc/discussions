@@ -13,6 +13,7 @@ deploy: poetry_export
 	@caprover deploy --default
 
 run:
+	echo $$DATABASE_HOST
 	-kill $$(lsof -i:7777 -t -sTCP:LISTEN)
 	-killall -KILL celery
 	#@poetry run python3 manage.py runserver 7777&
