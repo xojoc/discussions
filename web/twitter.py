@@ -200,8 +200,11 @@ def tweet_story(title, url, tags, platform, already_tweeted):
             if tweet_id:
                 retweet(tweet_id, bot_name)
             else:
-                tweet_id = tweet(status, bot_name)
-                tweet_ids.add((tweet_id, bot_name))
+                try:
+                    tweet_id = tweet(status, bot_name)
+                    tweet_ids.add((tweet_id, bot_name))
+                except Exception as e:
+                    logger.warn(f"{bot_name}: {e}")
 
     return tweet_ids
 
