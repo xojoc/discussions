@@ -248,8 +248,12 @@ def tweet_discussions():
         for rd in related_discussions:
             tags = tags | set(rd.normalized_tags or [])
 
-        tweet_ids = tweet_story(
-            story.title, story.story_url, tags, story.platform, already_tweeted)
+        tweet_ids = []
+        try:
+            tweet_ids = tweet_story(
+                story.title, story.story_url, tags, story.platform, already_tweeted)
+        except Exception as e:
+            logger.warn(e)
 
         for tweet_id in tweet_ids:
             t = models.Tweet(tweet_id=tweet_id[0], bot_name=tweet_id[1])

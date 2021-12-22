@@ -1,6 +1,6 @@
 import re
-import unicodedata
 import nltk
+import unicodedata
 
 
 def __lobsters(title):
