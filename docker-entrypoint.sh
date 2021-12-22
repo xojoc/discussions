@@ -43,7 +43,7 @@ echo "Starting server on port $port"
 if [ "$DJANGO_DEVELOPMENT" == "true" ]; then
 	python manage.py runserver 0.0.0.0:$port &
 else
-	daphne --http-timeout 240 -v 0 -b 0.0.0.0 -p $port  discussions.asgi:application &
+	daphne --http-timeout 300 -v 0 -b 0.0.0.0 -p $port  discussions.asgi:application &
 fi
 echo "Now wait..."
 
