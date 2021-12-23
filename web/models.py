@@ -434,8 +434,20 @@ class Statistics(models.Model):
 class Tweet(models.Model):
     tweet_id = models.BigIntegerField(primary_key=True, null=False)
     bot_name = models.CharField(max_length=255)
+    bot_names = postgres_fields.ArrayField(models.CharField(max_length=255),
+                                           null=True,
+                                           blank=True,
+                                           default=[])
 
     discussions = models.ManyToManyField(Discussion)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.bot_name:
+            self.bot_names = (self.bot_names or []).append(self.bot_name)
+
+        self.bot_names = sorted(set(self.bot_names or []))
+
+        super(Tweet, self).save(*args, **kwargs)

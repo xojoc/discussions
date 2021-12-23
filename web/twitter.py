@@ -95,6 +95,17 @@ configuration = {
 }
 
 
+def __sleep(a, b):
+    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+        return
+    time.sleep(random.randint(a, b))
+
+
+def __print(s):
+    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+        print(s)
+
+
 def tweet(status, username):
     api_key = configuration['api_key']
     api_secret_key = configuration['api_secret_key']
@@ -120,6 +131,7 @@ def tweet(status, username):
     api = tweepy.API(auth, wait_on_rate_limit=True)
     status = api.update_status(status)
     if status.id:
+        __sleep(5, 9)
         api.create_favorite(status.id)
     return status.id
 
@@ -144,6 +156,7 @@ def retweet(tweet_id, username):
     auth.set_access_token(token, token_secret)
     api = tweepy.API(auth, wait_on_rate_limit=True)
     api.retweet(tweet_id)
+    __sleep(13, 25)
     api.create_favorite(tweet_id)
     return tweet_id
 
@@ -189,89 +202,95 @@ Discussions: {'x' * URL_LENGTH}
     return status
 
 
-def tweet_story(title, url, tags, platform, already_tweeted):
+def tweet_story(title, url, tags, platform, already_tweeted_by):
     status = build_story_status(title, url, tags)
 
-    tweet_ids = set()
-
+    tweeted_by = []
     tweet_id = None
 
     for bot_name, cfg in configuration['bots'].items():
-        if (not already_tweeted and cfg.get('tags') and cfg['tags'] & tags) or cfg.get('platform') == platform:
+        if bot_name in already_tweeted_by:
+            continue
+
+        if (cfg.get('tags') and cfg['tags'] & tags) or cfg.get('platform') == platform:
             if tweet_id:
                 try:
+                    __sleep(11, 23)
                     retweet(tweet_id, bot_name)
+                    tweeted_by.append(bot_name)
                 except Exception as e:
                     logger.warn(f"{bot_name}: {e}")
-                    time.sleep(3)
+                    __sleep(7, 13)
             else:
                 try:
                     tweet_id = tweet(status, bot_name)
-                    tweet_ids.add((tweet_id, bot_name))
+                    tweeted_by.append(bot_name)
                 except Exception as e:
                     logger.warn(f"{bot_name}: {e}")
-                    time.sleep(3)
-            time.sleep(2)
+                    __sleep(2, 5)
 
-    return tweet_ids
+            __sleep(4, 7)
+
+    return tweet_id, tweeted_by
 
 
 @shared_task(ignore_result=True)
 def tweet_discussions():
+    __sleep(10, 20)
+
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
     five_days_ago = timezone.now() - datetime.timedelta(days=5)
+
     stories = models.Discussion.objects.\
         filter(created_at__gte=three_days_ago).\
         filter(comment_count__gte=1).\
-        filter(score__gte=2).\
-        filter(tweet=None)
+        filter(score__gte=2)
 
     for story in stories:
         related_discussions, _, _ = models.Discussion.of_url(
             story.story_url, only_relevant_stories=False)
 
         total_comment_count = 0
-        # total_comment_count += story.comment_count
         for rd in related_discussions:
             total_comment_count += rd.comment_count
 
         if total_comment_count < 10:
             continue
 
-        already_tweeted = False
+        already_tweeted_by = []
+
+        for t in story.tweet_set.filter(created_at__gte=five_days_ago):
+            already_tweeted_by.append(t.bot_name)
+            already_tweeted_by.extend(t.bot_names)
 
         # see if this story was recently tweeted
         for rd in related_discussions:
-            ts = models.Tweet.objects.\
-                filter(created_at__gte=five_days_ago).\
-                filter(discussions=rd)
+            for t in rd.tweet_set.filter(created_at__gte=five_days_ago):
+                already_tweeted_by.append(t.bot_name)
+                already_tweeted_by.extend(t.bot_names)
 
-            for t in ts:
-                t.discussions.add(story)
-                t.save()
-                already_tweeted = True
-
-        # if already_tweeted:
-        #     continue
+        already_tweeted_by = set(already_tweeted_by)
 
         tags = set(story.normalized_tags or [])
         for rd in related_discussions:
             tags = tags | set(rd.normalized_tags or [])
 
-        tweet_ids = []
-        try:
-            tweet_ids = tweet_story(
-                story.title, story.story_url, tags, story.platform, already_tweeted)
-        except Exception as e:
-            logger.warn(e)
+        __print(f"{story.platform_id}: {already_tweeted_by}")
 
-        for tweet_id in tweet_ids:
-            t = models.Tweet(tweet_id=tweet_id[0], bot_name=tweet_id[1])
+        tweet_id = None
+        try:
+            tweet_id, tweeted_by = tweet_story(
+                story.title, story.story_url, tags, story.platform, already_tweeted_by)
+        except Exception as e:
+            logger.warn(f"{story.platform_id}: {e}")
+
+        __print(f"{tweet_id}: {tweeted_by}")
+
+        if tweet_id:
+            t = models.Tweet(tweet_id=tweet_id, bot_names=tweeted_by)
             t.save()
             t.discussions.add(story)
-            for rd in related_discussions:
-                t.discussions.add(rd)
             t.save()
 
-        if tweet_ids:
+        if tweet_id:
             break

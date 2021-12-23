@@ -2,6 +2,7 @@ from django.apps import AppConfig
 import logging
 import os
 from django.db.backends.signals import connection_created
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,7 @@ class WebConfig(AppConfig):
         nltk.download('punkt')
 
     def ready(self):
+        random.seed()
         self.__reddit_configuration()
         self.__twitter_configuration()
         self.__set_trigram_threshold()
