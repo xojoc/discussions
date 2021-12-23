@@ -226,7 +226,7 @@ def tweet_story(title, url, tags, platform, already_tweeted_by):
                     tweet_id = tweet(status, bot_name)
                     tweeted_by.append(bot_name)
                 except Exception as e:
-                    logger.warn(f"{bot_name}: {e}")
+                    logger.warn(f"{bot_name}: {e}: {status}")
                     __sleep(2, 5)
 
             __sleep(4, 7)
