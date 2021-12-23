@@ -111,7 +111,7 @@ class Discussion(models.Model):
             self.title, self.platform,  self.schemeless_story_url, self.tags)
 
         self.normalized_tags = tags.normalize(
-            self.tags, self.platform, self.normalized_title, self.schemeless_story_url)
+            self.tags, self.platform, self.title, self.schemeless_story_url)
 
         super(Discussion, self).save(*args, **kwargs)
 

@@ -47,7 +47,9 @@ class WebConfig(AppConfig):
             set pg_trgm.strict_word_similarity_threshold = 0.60;
             """)
 
-    def __set_trigram_threshold(self):
+            # set statement_timeout = 240000;
+
+    def __set_database_parameters(self):
         connection_created.connect(
             WebConfig.__connection_created_signal_handler)
 
@@ -59,5 +61,5 @@ class WebConfig(AppConfig):
         random.seed()
         self.__reddit_configuration()
         self.__twitter_configuration()
-        self.__set_trigram_threshold()
+        self.__set_database_parameters()
         self.__nltk_download_data()

@@ -10,6 +10,10 @@ from django.http import HttpResponsePermanentRedirect
 from discussions import settings
 from urllib.parse import unquote as url_unquote
 from urllib.parse import quote
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def discussions_context_cached(q):
@@ -60,6 +64,12 @@ def discussions_context(q):
         return ctx
     ctx['display_discussions'] = True
     uds, cu, rcu = models.Discussion.of_url_or_title(ctx['url'])
+    try:
+        uds = list(uds)
+    except Exception as e:
+        logger.warn(e)
+        uds = []
+
     # tds = tds[:11]
     tds = None
 

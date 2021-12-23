@@ -1,3 +1,6 @@
+from web import title as web_title
+
+
 def __augment_tags(title, tags, keyword, atleast_tags=None, new_tag=None):
     if atleast_tags:
         if len(tags & atleast_tags) == 0:
@@ -104,7 +107,7 @@ def __enrich(tags, title):
 def normalize(tags, platform=None, title="", url=""):
     tags = tags or []
     tags = set(t.lower().strip() for t in tags)
-    title = title.lower()
+    title = web_title.normalize(title, platform, url, tags, stem=False)
     url = url.lower()
 
     for _ in range(3):

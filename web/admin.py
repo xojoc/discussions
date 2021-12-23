@@ -36,9 +36,9 @@ class DiscussionAdmin(admin.ModelAdmin):
         'title',
         'normalized_title'
     ]
-    list_filter = [
-        "platform",
-    ]
+    # list_filter = [
+    #     "platform",
+    # ]
     search_fields = (
         "title",
         "tags",
