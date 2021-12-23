@@ -23,12 +23,12 @@ configuration = {
             'description': 'Rust discussions',
             'topic': 'Rust'
         },
-        # 'GoDiscussions': {
-        #     'email': 'golang_discussions@xojoc.pw',
-        #     'tags': {'golang'},
-        #     'description': 'Go discussions',
-        #     'topic': 'Golang'
-        # },
+        'GoDiscussions': {
+            'email': 'golang_discussions@xojoc.pw',
+            'tags': {'golang'},
+            'description': 'Go discussions',
+            'topic': 'Golang'
+        },
         'IntPyDiscu': {
             'email': 'python_discussions@xojoc.pw',
             'user_id': '1442929661328117760',
