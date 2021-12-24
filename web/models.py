@@ -36,9 +36,15 @@ class Discussion(models.Model):
                      opclasses=['gin_trgm_ops']),
             GinIndex(name='gin_discussion_vec_title',
                      fields=["title_vector"]),
-            models.Index(fields=['schemeless_story_url']),
-            models.Index(fields=['canonical_story_url']),
-            models.Index(fields=['canonical_redirect_url']),
+            models.Index(name='index_schemeless_story_url',
+                         fields=['schemeless_story_url'],
+                         opclasses=['varchar_pattern_ops']),
+            models.Index(name='index_canonical_story_url',
+                         fields=['canonical_story_url'],
+                         opclasses=['varchar_pattern_ops']),
+            models.Index(name='index_canonical_redirect_url',
+                         fields=['canonical_redirect_url'],
+                         opclasses=['varchar_pattern_ops']),
             models.Index(fields=['created_at'])
         ]
 
