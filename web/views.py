@@ -1,4 +1,4 @@
-from web import models, discussions, serializers, twitter, util
+from web import models, discussions, serializers, twitter, util, forms
 from django.shortcuts import render
 import itertools
 from django.core.cache import cache
@@ -79,6 +79,8 @@ def discussions_context(q):
     ctx['discussions'] = uds
     ctx['title_discussions'] = tds
 
+    uds.sort(key=lambda i: i.platform)
+
     # We have to convert the iterator to a list, see: https://stackoverflow.com/a/16171518
     ctx['grouped_discussions'] = [
         (platform, models.Discussion.platform_name(platform),
@@ -146,6 +148,35 @@ def index(request, path_q=None):
     ctx = discussions_context_cached(q)
 
     get_submit_links(request, ctx)
+
+    ctx['form'] = forms.QueryForm(request.GET)
+    ctx['form'].fields['tags'].choices = [('tag', 'asdf'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ('tag2', 'fdsa'),
+                                          ]
 
     response = render(request, "web/discussions.html", {'ctx': ctx})
 

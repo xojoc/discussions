@@ -9,11 +9,21 @@
 {% endif %}
 {% endblock extra_head %}
 
+
+
+
 {% block main %}
+<!--
+     <form method="GET" class="discussions_form" action="/">
+     {{ ctx.form.as_ul }}
+     <input type="submit" value="Find discussions" />
+     </form>
+-->
+
+
 <div id=discussions>
 	<form method="GET" class="discussions_form" action="/">
 		<div class="flex-container">
-			<!-- <label for=q>URL</label> -->
 			<div class="flex-container input-submit">
 				<input class="flex-fill-width" id="q" name="q" type="text" autofocus
 					onfocus="this.selectionStart = this.selectionEnd = this.value.length;"
@@ -45,13 +55,16 @@
 		<li>
 			<span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a></span>
 			<span class="similar-search">(<a href="{{d.story_url|discussions_url}}"
-					title="Find discussions for this URL">Search by URL</a>)</span>
+							       title="Find discussions for this URL">Search by URL</a>)</span>
 			<br />
 			{{d.title}} <span class="similar-search">(<a href="{{d.title|discussions_url}}"
-					title="Search discussions with similar title">Search by title</a>)</span>
+									   title="Search discussions with similar title">Search by title</a>)</span>
 			<br />
+			<!--
+			     rel="noreferrer noopener" target="_blank"
+			-->
 
-			<a href="{{d.discussion_url}}" rel="noreferrer noopener" target="_blank"><b>{{d.comment_count}}</b>
+			<a href="{{d.discussion_url}}"><b>{{d.comment_count}}</b>
 				comment{{d.comment_count|pluralize:",s"}}</a>, <b>{{d.score}}</b> {{d.score_label}} [<time
 				datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
 			{% if d.tags %}

@@ -4,7 +4,7 @@ from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import TrigramWordBase
 from django.contrib.postgres.search import SearchVectorField
 from django.db.models.lookups import PostgresOperatorLookup
-from django.contrib.postgres.search import SearchQuery, SearchRank
+# from django.contrib.postgres.search import SearchQuery, SearchRank
 from . import discussions, tags, title
 from django.utils import timezone
 import datetime
@@ -281,7 +281,7 @@ class Discussion(models.Model):
             | Q(platform='u'))
 
         ds = ds.annotate(word_similarity=Value(99))
-        ds = ds.annotate(search_rank=Value(1))
+        # ds = ds.annotate(search_rank=Value(1))
 
         # xojoc: test search with:
         #   https://discu.eu/q/APL%20in%20JavaScript
@@ -294,18 +294,19 @@ class Discussion(models.Model):
                 url_or_title.lower().startswith('http:')
                 or url_or_title.lower().startswith('https:')):
 
-            sq = SearchQuery(url_or_title, search_type='websearch')
+            # sq = SearchQuery(url_or_title, search_type='websearch')
 
             ts = cls.objects.\
                 annotate(word_similarity=Round(
-                    MyTrigramStrictWordSimilarity(url_or_title, 'title'), 2)).\
-                annotate(search_rank=SearchRank('title_vector', sq))
+                    MyTrigramStrictWordSimilarity(url_or_title, 'title'), 2))
+
+            # annotate(search_rank=SearchRank('title_vector', sq))
 
             ts = ts.filter(title__trigram_strict_word_similar=url_or_title)
 
             # xojoc: this is needed to filter out sensless results non
             # filtered out by the trigram filter. Example: "APL in JavaScript"
-            ts = ts.filter(search_rank__gt=0.2)
+            # ts = ts.filter(search_rank__gt=0.2)
 
             ts = ts.filter(
                 Q(comment_count__gte=min_comments)
@@ -318,7 +319,7 @@ class Discussion(models.Model):
 
             ds = ds.union(ts)
 
-        ds = ds.order_by('platform', '-word_similarity', '-created_at',
+        ds = ds.order_by('-word_similarity', '-created_at',
                          '-platform_id')
 
         return ds, cu, rcu
