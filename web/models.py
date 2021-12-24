@@ -443,7 +443,7 @@ class Tweet(models.Model):
     bot_names = postgres_fields.ArrayField(models.CharField(max_length=255),
                                            null=True,
                                            blank=True,
-                                           default=[])
+                                           default=list)
 
     discussions = models.ManyToManyField(Discussion)
 
@@ -457,3 +457,14 @@ class Tweet(models.Model):
         self.bot_names = sorted(set(self.bot_names or []))
 
         super(Tweet, self).save(*args, **kwargs)
+
+
+# class Resource(models.model):
+#     id = models.BigAutoField(primary_key=True)
+
+#     url = models.CharField(max_length=100_000,
+#                            blank=True,
+#                            default=None,
+#                            null=True)
+
+#     title = models.CharField(max_length=2048)

@@ -87,6 +87,7 @@ DATABASES = {
         'NAME': os.environ.get('DATABASE_NAME'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
         'USER': os.environ.get('DATABASE_USER'),
+        'CONN_MAX_AGE': 600,
     }
 }
 

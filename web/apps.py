@@ -45,9 +45,10 @@ class WebConfig(AppConfig):
             set pg_trgm.similarity_threshold = 0.63;
             set pg_trgm.word_similarity_threshold = 0.90;
             set pg_trgm.strict_word_similarity_threshold = 0.60;
+            set statement_timeout = 600000;
             """)
 
-            # set statement_timeout = 240000;
+            #
 
     def __set_database_parameters(self):
         connection_created.connect(
