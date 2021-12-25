@@ -294,15 +294,16 @@ class Discussion(models.Model):
                 url_or_title.lower().startswith('http:')
                 or url_or_title.lower().startswith('https:')):
 
-            sq = SearchQuery(url_or_title, search_type='websearch')
+            wsq = SearchQuery(url_or_title, search_type='websearch')
+            psq = SearchQuery(url_or_title, search_type='plain')
             # normalized_title = title.normalize(url_or_title, stem=True)
 
-            ts = cls.objects.annotate(search_rank=SearchRank('title_vector', sq))
+            ts = cls.objects.annotate(search_rank=SearchRank('title_vector', psq))
             # annotate(word_similarity=Round(
             #     MyTrigramStrictWordSimilarity(normalized_title, 'title'), 2))
 
             # ts = ts.filter(title__trigram_strict_word_similar=normalized_title)
-            ts = ts.filter(title_vector=sq)
+            ts = ts.filter(Q(title_vector=wsq) | Q(title_vector=psq))
 
             # xojoc: this is needed to filter out sensless results non
             # filtered out by the trigram filter. Example: "APL in JavaScript"
