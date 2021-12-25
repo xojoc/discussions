@@ -40,15 +40,15 @@ class WebConfig(AppConfig):
                 bot_values['token_secret'] = token_secret
 
     def __connection_created_signal_handler(sender, connection, **kwargs):
-        if sender.vendor == 'postgresql':
-            connection.cursor().execute("""
-            set pg_trgm.similarity_threshold = 0.63;
-            set pg_trgm.word_similarity_threshold = 0.90;
-            set pg_trgm.strict_word_similarity_threshold = 0.60;
-            set statement_timeout = 600000;
-            """)
+        return
+        # if sender.vendor == 'postgresql':
+        #     connection.cursor().execute("""
+        #     set pg_trgm.similarity_threshold = 0.63;
+        #     set pg_trgm.word_similarity_threshold = 0.90;
+        #     set pg_trgm.strict_word_similarity_threshold = 0.60;
+        #     """)
 
-            #
+        # set statement_timeout = 600000;
 
     def __set_database_parameters(self):
         connection_created.connect(
@@ -57,6 +57,7 @@ class WebConfig(AppConfig):
     def __nltk_download_data(self):
         import nltk
         nltk.download('punkt')
+        nltk.download('stopwords')
 
     def ready(self):
         random.seed()

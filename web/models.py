@@ -4,7 +4,7 @@ from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import TrigramWordBase
 from django.contrib.postgres.search import SearchVectorField
 from django.db.models.lookups import PostgresOperatorLookup
-# from django.contrib.postgres.search import SearchQuery, SearchRank
+from django.contrib.postgres.search import SearchQuery, SearchRank
 from . import discussions, tags, title
 from django.utils import timezone
 import datetime
@@ -12,7 +12,7 @@ from django.core import serializers
 import json
 from dateutil import parser as dateutil_parser
 from django.db.models import Value, Q
-from django.db.models.functions import Round
+# from django.db.models.functions import Round
 
 
 class MyTrigramStrictWordSimilarity(TrigramWordBase):
@@ -280,8 +280,8 @@ class Discussion(models.Model):
             | Q(created_at__gt=seven_days_ago)
             | Q(platform='u'))
 
-        ds = ds.annotate(word_similarity=Value(99))
-        # ds = ds.annotate(search_rank=Value(1))
+        # ds = ds.annotate(word_similarity=Value(99))
+        ds = ds.annotate(search_rank=Value(1))
 
         # xojoc: test search with:
         #   https://discu.eu/q/APL%20in%20JavaScript
@@ -294,15 +294,15 @@ class Discussion(models.Model):
                 url_or_title.lower().startswith('http:')
                 or url_or_title.lower().startswith('https:')):
 
-            # sq = SearchQuery(url_or_title, search_type='websearch')
+            sq = SearchQuery(url_or_title, search_type='websearch')
+            # normalized_title = title.normalize(url_or_title, stem=True)
 
-            ts = cls.objects.\
-                annotate(word_similarity=Round(
-                    MyTrigramStrictWordSimilarity(url_or_title, 'title'), 2))
+            ts = cls.objects.annotate(search_rank=SearchRank('title_vector', sq))
+            # annotate(word_similarity=Round(
+            #     MyTrigramStrictWordSimilarity(normalized_title, 'title'), 2))
 
-            # annotate(search_rank=SearchRank('title_vector', sq))
-
-            ts = ts.filter(title__trigram_strict_word_similar=url_or_title)
+            # ts = ts.filter(title__trigram_strict_word_similar=normalized_title)
+            ts = ts.filter(title_vector=sq)
 
             # xojoc: this is needed to filter out sensless results non
             # filtered out by the trigram filter. Example: "APL in JavaScript"
@@ -313,13 +313,14 @@ class Discussion(models.Model):
                 | Q(created_at__gt=seven_days_ago)
                 | Q(platform='u'))
 
-            ts = ts.order_by('-word_similarity')
+            # ts = ts.order_by('-word_similarity')
+            ts = ts.order_by('-search_rank')
 
             ts = ts[:13]
 
             ds = ds.union(ts)
 
-        ds = ds.order_by('-word_similarity', '-created_at',
+        ds = ds.order_by('-search_rank', '-created_at',
                          '-platform_id')
 
         return ds, cu, rcu
