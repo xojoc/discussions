@@ -12,7 +12,7 @@ from django.core import serializers
 import json
 from dateutil import parser as dateutil_parser
 from django.db.models import Value, Q
-# from django.db.models.functions import Round
+from django.db.models.functions import Round
 
 
 class MyTrigramStrictWordSimilarity(TrigramWordBase):
@@ -298,7 +298,7 @@ class Discussion(models.Model):
             psq = SearchQuery(url_or_title, search_type='plain')
             # normalized_title = title.normalize(url_or_title, stem=True)
 
-            ts = cls.objects.annotate(search_rank=SearchRank('title_vector', psq))
+            ts = cls.objects.annotate(search_rank=Round(SearchRank('title_vector', psq), 2))
             # annotate(word_similarity=Round(
             #     MyTrigramStrictWordSimilarity(normalized_title, 'title'), 2))
 
@@ -317,7 +317,7 @@ class Discussion(models.Model):
             # ts = ts.order_by('-word_similarity')
             ts = ts.order_by('-search_rank')
 
-            ts = ts[:13]
+            ts = ts[:23]
 
             ds = ds.union(ts)
 

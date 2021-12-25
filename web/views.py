@@ -11,9 +11,23 @@ from discussions import settings
 from urllib.parse import unquote as url_unquote
 from urllib.parse import quote
 import logging
+from django_redis import get_redis_connection
 
 
 logger = logging.getLogger(__name__)
+
+
+def __log_query(q):
+    if not q:
+        return
+
+    q = q.strip().lower()
+
+    r = get_redis_connection()
+    if q.startswith('http://') or q.startswith('https://'):
+        r.zincrby('discussions:stats:query:url', 1, q)
+    else:
+        r.zincrby('discussions:stats:query:search', 1, q)
 
 
 def discussions_context_cached(q):
@@ -177,6 +191,11 @@ def index(request, path_q=None):
                                           ('tag2', 'fdsa'),
                                           ('tag2', 'fdsa'),
                                           ]
+
+    try:
+        __log_query(q)
+    except Exception as e:
+        logger.warn(e)
 
     response = render(request, "web/discussions.html", {'ctx': ctx})
 
