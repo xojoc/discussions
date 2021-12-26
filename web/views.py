@@ -78,6 +78,11 @@ def discussions_context(q):
         return ctx
     ctx['display_discussions'] = True
     uds, cu, rcu = models.Discussion.of_url_or_title(ctx['url'])
+
+    ctx['sql_query'] = ''
+    if uds is not None:
+        ctx['sql_query'] = str(uds.query)
+
     try:
         uds = list(uds)
     except Exception as e:

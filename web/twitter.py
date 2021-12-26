@@ -43,12 +43,12 @@ configuration = {
             'description': 'C & C++ discussions',
             'topic': 'C & C++'
         },
-        # 'HaskellDiscu': {
-        #     'email': 'haskell_discussions@xojoc.pw',
-        #     'tags': {'haskell'},
-        #     'description': 'Haskell discussions',
-        #     'topic': 'Haskell'
-        # },
+        'HaskellDiscu': {
+            'email': 'haskell_discussions@xojoc.pw',
+            'tags': {'haskell'},
+            'description': 'Haskell discussions',
+            'topic': 'Haskell'
+        },
         'LispDiscussions': {
             'email': 'lisp_discussions@xojoc.pw',
             'tags': {'lisp', 'scheme', 'racket'},
@@ -67,18 +67,18 @@ configuration = {
             'description': 'Ruby discussions',
             'topic': 'Ruby'
         },
-        # 'CompsciDiscu': {
-        #     'email': 'compsci_discussions@xojoc.pw',
-        #     'tags': {'compsci'},
-        #     'description': 'Computer Science  discussions',
-        #     'topic': 'Computer Science'
-        # },
-        # 'DevopsDiscu': {
-        #     'email': 'devops_discussions@xojoc.pw',
-        #     'tags': {'devops', 'docker', 'kubernets'},
-        #     'description': 'DevOps discussions',
-        #     'topic': 'DevOps'
-        # },
+        'CompsciDiscu': {
+            'email': 'compsci_discussions@xojoc.pw',
+            'tags': {'compsci'},
+            'description': 'Computer Science  discussions',
+            'topic': 'Computer Science'
+        },
+        'DevopsDiscu': {
+            'email': 'devops_discussions@xojoc.pw',
+            'tags': {'devops', 'docker', 'kubernets'},
+            'description': 'DevOps discussions',
+            'topic': 'DevOps'
+        },
         'ProgDiscussions': {
             'email': 'programming_discussions@xojoc.pw',
             'tags': {'programming'},
@@ -203,7 +203,7 @@ Discussions: {'x' * URL_LENGTH}
     return status
 
 
-def tweet_story(title, url, tags, platform, already_tweeted_by):
+def tweet_story(title, url, tags, platforms, already_tweeted_by):
     status = build_story_status(title, url, tags)
 
     tweeted_by = []
@@ -213,7 +213,8 @@ def tweet_story(title, url, tags, platform, already_tweeted_by):
         if bot_name in already_tweeted_by:
             continue
 
-        if (cfg.get('tags') and cfg['tags'] & tags) or cfg.get('platform') == platform:
+        if (cfg.get('tags') and cfg['tags'] & tags) or \
+           (cfg.get('platform') and cfg.get('platform') in platforms):
             if tweet_id:
                 try:
                     __sleep(11, 23)
@@ -245,10 +246,13 @@ def tweet_discussions():
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
     five_days_ago = timezone.now() - datetime.timedelta(days=5)
 
+    min_comment_count = 1
+    min_score = 2
+
     stories = models.Discussion.objects.\
         filter(created_at__gte=three_days_ago).\
-        filter(comment_count__gte=1).\
-        filter(score__gte=2)
+        filter(comment_count__gte=min_comment_count).\
+        filter(score__gte=min_score)
 
     for story in stories:
         related_discussions, _, _ = models.Discussion.of_url(
@@ -276,15 +280,20 @@ def tweet_discussions():
         already_tweeted_by = set(already_tweeted_by)
 
         tags = set(story.normalized_tags or [])
+        platforms = {story.platform}
         for rd in related_discussions:
-            tags = tags | set(rd.normalized_tags or [])
+            if rd.comment_count >= 1 and rd.score >= 2:
+                tags |= set(rd.normalized_tags or [])
+            if rd.comment_count >= min_comment_count and\
+               rd.score >= min_score:
+                platforms |= {rd.platform}
 
-        __print(f"{story.platform_id}: {already_tweeted_by}")
+        __print(f"{story.platform_id}: {already_tweeted_by}: {platforms}")
 
         tweet_id = None
         try:
             tweet_id, tweeted_by = tweet_story(
-                story.title, story.story_url, tags, story.platform, already_tweeted_by)
+                story.title, story.story_url, tags, platforms, already_tweeted_by)
         except Exception as e:
             logger.warn(f"{story.platform_id}: {e}")
 

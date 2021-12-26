@@ -24,14 +24,21 @@
 <div id=discussions>
 	<form method="GET" class="discussions_form" action="/">
 		<div class="flex-container">
-			<div class="flex-container input-submit">
-				<input class="flex-fill-width" id="q" name="q" type="text" autofocus
-					onfocus="this.selectionStart = this.selectionEnd = this.value.length;"
-					value="{{ctx.original_query}}" placeholder="URL or title" />
-				<input type="submit" value="Find discussions" />
-			</div>
+		    <div class="flex-container input-submit">
+			<input class="flex-fill-width" id="q" name="q" type="text" autofocus
+			       onfocus="this.selectionStart = this.selectionEnd = this.value.length;"
+				      value="{{ctx.original_query}}" placeholder="URL or title" />
+			<input type="submit" value="Find discussions" />
+		    </div>
 		</div>
 	</form>
+
+
+	<!--
+	     SQL query:
+
+	     {{ctx.sql_query}}
+	-->
 
 	{% if ctx.nothing_found %}
 	<h2>Discussions not found</h2>

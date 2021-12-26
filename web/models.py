@@ -306,6 +306,7 @@ class Discussion(models.Model):
             #   https://discu.eu/q/The%20Gosu%20Programming%20Language
             #   https://discu.eu/q/F-35%20C%2B%2B%20coding%20standard%20%5Bpdf%5D
             #   https://discu.eu/q/The%20Carnap%20Programming%20Language
+            #   https://discu.eu/?q=For+C+programmers+that+hate+C%2B%2B+%282011%29
 
             q = title.normalize(url_or_title, stem=False)
 
