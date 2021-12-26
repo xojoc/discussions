@@ -132,6 +132,7 @@ def __stem(title):
     new_title = ""
     stemmer = nltk.stem.snowball.SnowballStemmer("english")
     tokens = nltk.tokenize.word_tokenize(title)
+
     for w in tokens:
         new_title += ' '
         new_title += stemmer.stem(w)
