@@ -8,6 +8,7 @@ from django.utils import timezone
 import datetime
 import random
 import time
+import sentry_sdk
 
 logger = logging.getLogger(__name__)
 
@@ -220,6 +221,7 @@ def tweet_story(title, url, tags, platform, already_tweeted_by):
                     tweeted_by.append(bot_name)
                 except Exception as e:
                     logger.warn(f"{bot_name}: {e}")
+                    sentry_sdk.capture_exception(e)
                     __sleep(7, 13)
             else:
                 try:
@@ -227,6 +229,7 @@ def tweet_story(title, url, tags, platform, already_tweeted_by):
                     tweeted_by.append(bot_name)
                 except Exception as e:
                     logger.warn(f"{bot_name}: {e}: {status}")
+                    sentry_sdk.capture_exception(e)
                     __sleep(2, 5)
 
             __sleep(4, 7)
