@@ -3,7 +3,7 @@ import os
 from . import util
 import logging
 from celery import shared_task
-from . import models
+from . import models, celery_util
 from django.utils import timezone
 import datetime
 import random
@@ -238,6 +238,7 @@ def tweet_story(title, url, tags, platform, already_tweeted_by):
 
 
 @shared_task(ignore_result=True)
+@celery_util.singleton(blocking_timeout=3)
 def tweet_discussions():
     __sleep(10, 20)
 
