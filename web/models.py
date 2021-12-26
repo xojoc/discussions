@@ -114,7 +114,7 @@ class Discussion(models.Model):
             self.canonical_redirect_url = None
 
         self.normalized_title = title.normalize(
-            self.title, self.platform,  self.schemeless_story_url, self.tags)
+            self.title, self.platform,  self.schemeless_story_url, self.tags, stem=False)
 
         self.normalized_tags = tags.normalize(
             self.tags, self.platform, self.title, self.schemeless_story_url)
@@ -271,31 +271,43 @@ class Discussion(models.Model):
         cu = discussions.canonical_url(url)
         rcu = cu
 
-        ds = (cls.objects.filter(schemeless_story_url=url)
-              | cls.objects.filter(schemeless_story_url=cu)
-              | cls.objects.filter(canonical_story_url=cu))
+        domain_prefix = 'domain:'
+        if url_or_title.startswith(domain_prefix) and\
+           ' ' not in url_or_title and\
+           len(url_or_title) > len(domain_prefix):
 
-        ds = ds.filter(
-            Q(comment_count__gte=min_comments)
-            | Q(created_at__gt=seven_days_ago)
-            | Q(platform='u'))
+            domain = url_or_title[len(domain_prefix):]
+            ds = (cls.objects.filter(schemeless_story_url=domain) |
+                  cls.objects.filter(canonical_story_url=domain) |
+                  cls.objects.filter(schemeless_story_url__startswith=domain+'/'))
+        else:
+            ds = (cls.objects.filter(schemeless_story_url=url)
+                  | cls.objects.filter(schemeless_story_url=cu)
+                  | cls.objects.filter(canonical_story_url=cu))
+
+            ds = ds.filter(
+                Q(comment_count__gte=min_comments)
+                | Q(created_at__gt=seven_days_ago)
+                | Q(platform='u'))
 
         # ds = ds.annotate(word_similarity=Value(99))
         ds = ds.annotate(search_rank=Value(1))
-
-        # xojoc: test search with:
-        #   https://discu.eu/q/APL%20in%20JavaScript
-        #   https://discu.eu/q/Go%201.4.1%20has%20been%20released
-        #   https://discu.eu/q/The%20Gosu%20Programming%20Language
-        #   https://discu.eu/q/F-35%20C%2B%2B%20coding%20standard%20%5Bpdf%5D
-        #   https://discu.eu/q/The%20Carnap%20Programming%20Language
 
         if len(url_or_title) > 3 and not (
                 url_or_title.lower().startswith('http:')
                 or url_or_title.lower().startswith('https:')):
 
-            wsq = SearchQuery(url_or_title, search_type='websearch')
-            psq = SearchQuery(url_or_title, search_type='plain')
+            # xojoc: test search with:
+            #   https://discu.eu/q/APL%20in%20JavaScript
+            #   https://discu.eu/q/Go%201.4.1%20has%20been%20released
+            #   https://discu.eu/q/The%20Gosu%20Programming%20Language
+            #   https://discu.eu/q/F-35%20C%2B%2B%20coding%20standard%20%5Bpdf%5D
+            #   https://discu.eu/q/The%20Carnap%20Programming%20Language
+
+            q = title.normalize(url_or_title, stem=False)
+
+            wsq = SearchQuery(q, search_type='websearch')
+            psq = SearchQuery(q, search_type='plain')
             # normalized_title = title.normalize(url_or_title, stem=True)
 
             ts = cls.objects.annotate(search_rank=Round(SearchRank('title_vector', psq), 2))
@@ -325,45 +337,6 @@ class Discussion(models.Model):
                          '-platform_id')
 
         return ds, cu, rcu
-
-        # uds, cu, rcu = Discussion.of_url(url_or_title)
-        # tds = Discussion.objects.none()
-        # if len(url_or_title) > 3 and \
-        #    '/' not in url_or_title and \
-        #    not url_or_title.startswith('http:') and \
-        #    not url_or_title.startswith('https:'):
-
-        #     tds = Discussion.of_title(url_or_title)
-        # return uds, tds, cu, rcu
-
-    @classmethod
-    def of_title(cls, title, client=None):
-        pass
-        # ds = (cls.objects.filter(schemeless_story_url=url) |
-        #       cls.objects.filter(schemeless_story_url=cu) |
-        #       # cls.objects.filter(schemeless_story_url=rcu) |
-        #       cls.objects.filter(canonical_story_url=cu)
-        #       # cls.objects.filter(canonical_redirect_url=rcu)
-        #       ).\
-        #     order_by('platform', '-created_at', 'tags__0', '-platform_id')
-
-        # return ds, cu, rcu
-
-        # tds = cls.objects.\
-        #     annotate(canonical_url=Coalesce('canonical_story_url',
-        #                                     'schemeless_story_url'),
-        #              word_similarity=Round(TrigramWordSimilarity(title, 'title'), 2)).\
-        #     values('canonical_url').\
-        #     filter(title__trigram_word_similar=title).\
-        #     annotate(comment_count=Sum('comment_count'),
-        #              title=Max('title'),
-        #              date__last_discussion=Max('created_at'),
-        #              story_url=Max('schemeless_story_url'),
-        #              word_similarity=Max('word_similarity')).\
-        #     filter(comment_count__gt=3).\
-        #     order_by('-word_similarity', '-comment_count')
-
-        # return tds
 
     @classmethod
     def delete_useless_discussions(cls):

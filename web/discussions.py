@@ -390,7 +390,9 @@ def update_canonical_urls(current_index, manual_commit=True):
             story.canonical_story_url = cu
             dirty = True
 
-        nt = title.normalize(story.title)
+        nt = title.normalize(story.title, story.platform,
+                             story.schemeless_story_url,
+                             story.tags, stem=False)
         if nt != story.normalized_title:
             story.normalized_title = nt
             dirty = True

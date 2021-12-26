@@ -39,7 +39,7 @@ def __unicode(title):
 
 
 def __year(title):
-    if re.search(r'\(\d\d\d\d\)$', title):
+    if re.search(r'\(1|2\d\d\d\)$', title):
         title = title[:-len('(1234)')]
     title = title.strip()
     return title
