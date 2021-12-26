@@ -102,7 +102,7 @@ class Discussion(models.Model):
 
         return url.split('/')[0]
 
-    def save(self, *args, **kwargs):
+    def _pre_save(self):
         if not self.platform:
             self.platform = self.platform_id[0]
 
@@ -120,6 +120,8 @@ class Discussion(models.Model):
         self.normalized_tags = tags.normalize(
             self.tags, self.platform, self.title, self.schemeless_story_url)
 
+    def save(self, *args, **kwargs):
+        self._pre_save()
         super(Discussion, self).save(*args, **kwargs)
 
     @property
