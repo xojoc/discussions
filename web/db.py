@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 def timing_iterate_all(chunk_size=10_000):
     start_time = time.monotonic()
     stories = models.Discussion.objects.all().order_by()
-    for _ in stories:
+    for _ in stories.iterator(chunk_size=chunk_size):
         pass
 
     logger.info(f"db iterate all: {time.monotonic() - start_time}")
