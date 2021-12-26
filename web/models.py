@@ -114,7 +114,8 @@ class Discussion(models.Model):
             self.canonical_redirect_url = None
 
         self.normalized_title = title.normalize(
-            self.title, self.platform,  self.schemeless_story_url, self.tags, stem=False)
+            self.title, self.platform,
+            self.schemeless_story_url, self.tags, stem=False)
 
         self.normalized_tags = tags.normalize(
             self.tags, self.platform, self.title, self.schemeless_story_url)
