@@ -103,9 +103,9 @@ def __sleep(a, b):
 
 
 def __print(s):
-    logger.info(s)
-    # if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
-    #     print(s)
+    # logger.info(s)
+    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+        print(s)
 
 
 def tweet(status, username):
