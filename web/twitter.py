@@ -103,8 +103,9 @@ def __sleep(a, b):
 
 
 def __print(s):
-    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
-        print(s)
+    logger.info(s)
+    # if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+    #     print(s)
 
 
 def tweet(status, username):
@@ -284,8 +285,10 @@ def tweet_discussions():
         for rd in related_discussions:
             if rd.comment_count >= 1 and rd.score >= 2:
                 tags |= set(rd.normalized_tags or [])
-            if rd.comment_count >= min_comment_count and\
-               rd.score >= min_score:
+            if rd.comment_count >= min_comment_count and \
+               rd.score >= min_score and \
+               rd.created_at >= five_days_ago:
+
                 platforms |= {rd.platform}
 
         __print(f"{story.platform_id}: {already_tweeted_by}: {platforms}")

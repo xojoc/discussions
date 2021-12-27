@@ -228,7 +228,6 @@ if not os.environ.get('DJANGO_DEVELOPMENT'):
     )
 
     sentry_sdk.init(dsn=os.getenv("SENTRY_DSN"),
-                    traces_sample_rate=0.01,
                     integrations=[
                         DjangoIntegration(),
                         CeleryIntegration(),
