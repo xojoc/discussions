@@ -41,7 +41,7 @@ def get_semaphore(url):
     return True
 
 
-def set_semaphore(url, timeout=5):
+def set_semaphore(url, timeout=60):
     u = urllib3.util.parse_url(url)
 
     if not u or not u.host:
@@ -54,7 +54,7 @@ def set_semaphore(url, timeout=5):
 
 
 def fetch(url):
-    one_day_ago = timezone.now() - datetime.timedelta(days=1)
+    one_week_ago = timezone.now() - datetime.timedelta(days=7)
 
     scheme, u = discussions.split_scheme(url)
     cu = discussions.canonical_url(u)
@@ -68,7 +68,7 @@ def fetch(url):
             canonical_url=cu)
 
     if resource.last_fetch and\
-       resource.last_fetch >= one_day_ago:
+       resource.last_fetch >= one_week_ago:
 
         logger.debug(f'recently fetched: {resource.last_fetch}: {url}')
         return True
@@ -77,12 +77,11 @@ def fetch(url):
 
     resource.status_code = response.status_code
 
-    html = http.parse_html(response, safe_html=True)
-
-    html_structure = extract.structure(html)
-
-    resource.clean_html = str(html)
-    resource.title = html_structure.title
+    if resource.status_code == 200:
+        html = http.parse_html(response, safe_html=True)
+        resource.clean_html = str(html)
+        html_structure = extract.structure(html)
+        resource.title = html_structure.title
 
     resource.last_fetch = timezone.now()
 
