@@ -274,15 +274,20 @@ class Discussion(models.Model):
         cu = discussions.canonical_url(url)
         rcu = cu
 
-        domain_prefix = 'domain:'
-        if url_or_title.startswith(domain_prefix) and\
+        site_prefix = 'site:'
+        if url_or_title.startswith(site_prefix) and\
            ' ' not in url_or_title and\
-           len(url_or_title) > len(domain_prefix):
+           len(url_or_title) > len(site_prefix):
 
-            domain = url_or_title[len(domain_prefix):]
-            ds = (cls.objects.filter(schemeless_story_url=domain) |
-                  cls.objects.filter(canonical_story_url=domain) |
-                  cls.objects.filter(schemeless_story_url__startswith=domain+'/'))
+            url_prefix = url_or_title[len(site_prefix):]
+            ds = (cls.objects.filter(schemeless_story_url=url_prefix) |
+                  cls.objects.filter(canonical_story_url=url_prefix) |
+                  cls.objects.filter(schemeless_story_url__startswith=url_prefix))
+
+            ds = ds.filter(
+                Q(comment_count__gte=min_comments)
+                | Q(created_at__gt=seven_days_ago)
+                | Q(platform='u'))
         else:
             ds = (cls.objects.filter(schemeless_story_url=url)
                   | cls.objects.filter(schemeless_story_url=cu)
@@ -439,12 +444,52 @@ class Tweet(models.Model):
         super(Tweet, self).save(*args, **kwargs)
 
 
-# class Resource(models.model):
-#     id = models.BigAutoField(primary_key=True)
+class Resource(models.Model):
+    class Meta:
+        indexes = [
+            models.Index(name='index_url',
+                         fields=['url'],
+                         opclasses=['varchar_pattern_ops']),
+            models.Index(name='index_canonical_url',
+                         fields=['canonical_url'],
+                         opclasses=['varchar_pattern_ops'])
+        ]
 
-#     url = models.CharField(max_length=100_000,
-#                            blank=True,
-#                            default=None,
-#                            null=True)
+    id = models.BigAutoField(primary_key=True)
 
-#     title = models.CharField(max_length=2048)
+    scheme = models.CharField(max_length=25)
+
+    url = models.CharField(max_length=100_000,
+                           blank=True,
+                           default=None,
+                           null=True)
+
+    canonical_url = models.CharField(max_length=100_000,
+                                     blank=True,
+                                     null=True)
+
+    title = models.CharField(max_length=2048, null=True)
+
+    normalized_tags = postgres_fields.ArrayField(models.CharField(max_length=255,
+                                                                  blank=True),
+                                                 null=True,
+                                                 blank=True)
+
+    clean_html = models.TextField(null=True)
+
+    excerpt = models.TextField(null=True)
+
+    last_fetch = models.DateTimeField(null=True)
+
+    status_code = models.IntegerField(null=True)
+
+    @classmethod
+    def by_url(cls, url):
+        scheme, url = discussions.split_scheme(url)
+        cu = discussions.canonical_url(url)
+
+        r = (cls.objects.filter(url=url) |
+             cls.objects.filter(url=cu) |
+             cls.objects.filter(canonical_url=cu)).first()
+
+        return r

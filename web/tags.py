@@ -30,17 +30,50 @@ def __replace_tag(tags, old_tag, new_tag):
 
 
 def __lobsters(tags, title):
-    return tags - {'ask', 'audio', 'book',
-                   'pdf', 'show', 'slides',
-                   'transcript',  'video', }
+    tags -= {'ask', 'audio', 'book',
+             'pdf', 'show', 'slides',
+             'transcript',  'video',
+             'announce', 'interview', 'meta'}
+
+    tags = __augment_tags(title, tags, None,
+                          {'api', 'debugging', 'performance', 'devops', 'privacy', 'practices', 'practices', 'scaling', 'security', 'testing', 'virtualization'},
+                          'programming')
+
+    tags = __augment_tags(title, tags, None,
+                          {'ai', 'distributed', 'formalmethods', 'graphics', 'networking', 'osdev', 'plt'},
+                          'compsci')
+
+    return tags
 
 
 def __reddit(tags, title):
+    tags = __augment_tags(title, tags, None,
+                          {'soccer', 'nfl', 'chess', 'nba',
+                           'hockey', 'formula1', 'baseball',
+                           'wrestling', 'mma'},
+                          'sport')
+    tags = __augment_tags(title, tags, None,
+                          {'nfl'},
+                          'football')
+    tags = __augment_tags(title, tags, None,
+                          {'nba'},
+                          'basketball')
+    tags = __augment_tags(title, tags, None,
+                          {'apple'},
+                          'technology')
+    tags = __augment_tags(title, tags, None,
+                          {'spacex'},
+                          'space')
+    tags = __augment_tags(title, tags, None,
+                          {'laravel'},
+                          'php')
+    return tags
     return tags
 
 
 def __hacker_news(tags, title):
     tags = __augment_tags(title, tags, 'python')
+    tags = __augment_tags(title, tags, 'docker')
     tags = __augment_tags(title, tags, 'rust', None, 'rustlang')
     return tags
 
@@ -66,16 +99,36 @@ def __from_title_url(tags, title, url):
     tags = __augment_tags(title, tags, 'freebsd')
     tags = __augment_tags(title, tags, 'netbsd')
     tags = __augment_tags(title, tags, 'openbsd')
+    tags = __augment_tags(title, tags, 'spacex')
+
+    if 'swift' in title.split() and ('swift.org' in url or 'swiftlang' in url):
+        tags |= {'swiftlang'}
+
     return tags
 
 
 def __rename(tags, title, platform=None):
-    to_replace = [('rust', 'rustlang'), ('go', 'golang'),
-                  ('c++', 'cpp'), ('.net', 'dotnet'),
+    to_replace = [('rust', 'rustlang'),
+                  ('go', 'golang'),
+                  ('c++', 'cpp'),
+                  ('.net', 'dotnet'),
                   ('c#', 'csharp'),
+                  ('swift', 'swiftlang'),
                   ('web', 'webdev', 'l'),
                   ('coding', 'programming', 'r'),
-                  ('c_programming', 'c', 'r')]
+                  ('c_programming', 'c', 'r'),
+                  ('btc', 'bitcoin', 'r'),
+                  ('worldevents', 'news', 'r'),
+                  ('worldnews', 'news', 'r'),
+                  ('upliftingnews', 'news', 'r'),
+                  ('moderatepolitics', 'politics', 'r'),
+                  ('internationalpolitics', 'politics', 'r'),
+                  ('sports', 'sport', 'r'),
+                  ('web_design', 'webdesign', 'r'),
+                  ('reddit.com', 'reddit', 'r'),
+                  ('squaredcircle', 'wrestling', 'r'),
+                  ('europes', 'europe', 'r'),
+                  ('ml', 'ocaml', 'l')]
     for p in to_replace:
         if len(p) == 3 and p[2] != platform:
             continue
@@ -87,19 +140,30 @@ def __rename(tags, title, platform=None):
 def __enrich(tags, title):
     tags = __augment_tags(title, tags, None,
                           {'python', 'rustlang', 'golang',
-                              'haskell', 'cpp', 'lisp', 'scheme'},
+                           'haskell', 'cpp', 'lisp', 'scheme',
+                           'swiftlang', 'apl', 'assembly',
+                           'cprogramming', 'clojure',
+                           'dlang', 'dotnet', 'elixir',
+                           'elm', 'erlang', 'fortran',
+                           'java', 'javascript', 'lua',
+                           'ocaml', 'nodejs', 'objectivec',
+                           'perl', 'php', 'scala', 'zig'},
                           'programming')
 
     tags = __augment_tags(title, tags, None,
                           {'django', 'flask'},
                           'python')
     tags = __augment_tags(title, tags, None,
-                          {'django', 'flask'},
+                          {'django', 'flask', 'javascript', 'typescript'},
                           'webdev')
 
     tags = __augment_tags(title, tags, None,
                           {'linux', 'dragonflybsd', 'freebsd', 'netbsd', 'openbsd'},
                           'unix')
+
+    tags = __augment_tags(title, tags, None,
+                          {'docker', 'kubernets'},
+                          'devops')
 
     return tags
 

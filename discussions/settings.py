@@ -132,7 +132,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-USERAGENT = 'Discussions bot/0.1'
+USERAGENT = 'Discu.eu bot/0.1'
 
 CACHES = {
     "default": {
@@ -220,6 +220,8 @@ LOGGING = {
     },
 }
 
+if os.environ.get('DJANGO_DEVELOPMENT'):
+    LOGGING['loggers']['web']['level'] = 'DEBUG'
 
 if not os.environ.get('DJANGO_DEVELOPMENT'):
     sentry_logging = LoggingIntegration(

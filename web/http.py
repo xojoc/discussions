@@ -84,33 +84,34 @@ def fetch(url, force_cache=0, refresh_on_get=False, rate_limiting=True):
                                url=url,
                                headers=_default_headers(),
                                hooks=requests.hooks.default_hooks())
-    r = get_redis_connection("default")
     c = client()
-    adapter = c.get_adapter(url=request.url)
-    if force_cache:
-        serialized_resp = r.get('discussions:forced_cached:' + url)
-        resp = adapter.controller.serializer.loads(request, serialized_resp)
-        if resp:
-            if refresh_on_get:
-                r.expire('discussions:forced_cached:' + url, force_cache)
-            return adapter.build_response(request, resp, from_cache=True)
-    resp = adapter.controller.cached_request(request)
-    if resp:
-        redirect_to = resp.get_redirect_location()
-        if redirect_to:
-            return fetch(redirect_to,
-                         force_cache=force_cache,
-                         rate_limiting=rate_limiting)
-        return adapter.build_response(request, resp, from_cache=True)
 
-    if rate_limiting:
-        _rate_limit(r, urllib3.util.parse_url(url).host)
+    # r = get_redis_connection("default")
+    # adapter = c.get_adapter(url=request.url)
+    # if force_cache:
+    #     serialized_resp = r.get('discussions:forced_cached:' + url)
+    #     resp = adapter.controller.serializer.loads(request, serialized_resp)
+    #     if resp:
+    #         if refresh_on_get:
+    #             r.expire('discussions:forced_cached:' + url, force_cache)
+    #         return adapter.build_response(request, resp, from_cache=True)
+    # resp = adapter.controller.cached_request(request)
+    # if resp:
+    #     redirect_to = resp.get_redirect_location()
+    #     if redirect_to:
+    #         return fetch(redirect_to,
+    #                      force_cache=force_cache,
+    #                      rate_limiting=rate_limiting)
+    #     return adapter.build_response(request, resp, from_cache=True)
+
+    # if rate_limiting:
+    #     _rate_limit(r, urllib3.util.parse_url(url).host)
     resp = c.send(request.prepare(), stream=True)
 
-    if force_cache:
-        serialized = adapter.controller.serializer.dumps(request, resp.raw)
-        r.set('discussions:forced_cached:' + url, serialized, ex=force_cache)
-        return fetch(url, force_cache=force_cache, rate_limiting=rate_limiting)
+    # if force_cache:
+    # serialized = adapter.controller.serializer.dumps(request, resp.raw)
+    # r.set('discussions:forced_cached:' + url, serialized, ex=force_cache)
+    # return fetch(url, force_cache=force_cache, rate_limiting=rate_limiting)
 
     return resp
 

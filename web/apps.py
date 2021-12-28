@@ -55,6 +55,7 @@ class WebConfig(AppConfig):
             WebConfig.__connection_created_signal_handler)
 
     def __nltk_download_data(self):
+        return
         import nltk
         nltk.download('punkt')
         nltk.download('stopwords')
