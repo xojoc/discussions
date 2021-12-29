@@ -1,4 +1,5 @@
 from collections import namedtuple
+from . import http
 
 Author = namedtuple('Author', ['name',
                                'twitter_account',
@@ -22,9 +23,13 @@ class Structure:
     publication_date = None
     edit_date = None
     author = None
+    outbound_links = []
 
 
 def structure(h):
+    if type(h) == str:
+        h = http.parse_html(h, safe_html=True)
+
     s = Structure()
 
     try:
@@ -37,6 +42,11 @@ def structure(h):
     if s.article:
         try:
             s.title = s.article.select_one('h1, h2, h3').get_text().strip()
+        except Exception:
+            pass
+
+        try:
+            s.outbound_links = s.article.select('a') or []
         except Exception:
             pass
 

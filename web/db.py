@@ -1,7 +1,6 @@
 import time
 import logging
-from web import models
-from web import celery_util
+from web import models, celery_util, crawler
 from celery import shared_task
 
 logger = logging.getLogger(__name__)
@@ -21,6 +20,7 @@ def timing_iterate_all(chunk_size=10_000):
 def update_db():
     start_time = time.monotonic()
     count_dirty = 0
+    count_dirty_resource = 0
     stories = models.Discussion.objects.all().order_by()
 
     logger.info(f"db update: count {stories.count()}")
@@ -57,8 +57,18 @@ def update_db():
         if len(dirty_stories) >= 1000:
             __update(dirty_stories)
 
+        resource = models.Resource.by_url(story.schemeless_story_url)
+        if resource:
+            if resource.last_fetch and\
+               resource.status_code == 200 and\
+               (not resource.last_processed or resource.last_processed < resource.last_fetch):
+
+                crawler.extract_html.delay(resource.id)
+                count_dirty_resource += 1
+
     if len(dirty_stories) > 0:
         __update(dirty_stories)
 
     logger.info(f"db update: total dirty: {count_dirty}")
+    logger.info(f"db update: total resource dirty: {count_dirty_resource}")
     logger.info(f"db update: {time.monotonic() - start_time}")

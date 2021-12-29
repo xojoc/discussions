@@ -123,7 +123,16 @@ def fetch(url, force_cache=0, refresh_on_get=False, rate_limiting=True, timeout=
 
 
 def parse_html(res, safe_html=False):
-    h = BeautifulSoup(res.content, 'lxml')
+    html = None
+    if type(res) == str:
+        html = res
+    else:
+        html = res.content
+
+    if not html:
+        return None
+
+    h = BeautifulSoup(html, 'lxml')
     if safe_html:
         if h.script:
             h.script.decompose()

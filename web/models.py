@@ -469,6 +469,12 @@ class Resource(models.Model):
                                      null=True)
 
     title = models.CharField(max_length=2048, null=True)
+    normalized_title = models.CharField(max_length=2048, null=True, blank=True)
+
+    tags = postgres_fields.ArrayField(models.CharField(max_length=255,
+                                                       blank=True),
+                                      null=True,
+                                      blank=True)
 
     normalized_tags = postgres_fields.ArrayField(models.CharField(max_length=255,
                                                                   blank=True),
@@ -480,8 +486,14 @@ class Resource(models.Model):
     excerpt = models.TextField(null=True)
 
     last_fetch = models.DateTimeField(null=True)
+    last_processed = models.DateTimeField(null=True)
 
     status_code = models.IntegerField(null=True)
+
+    links = models.ManyToManyField('self',
+                                   symmetrical=False,
+                                   through='Link',
+                                   related_name='inbound_link')
 
     @classmethod
     def by_url(cls, url):
@@ -493,3 +505,18 @@ class Resource(models.Model):
              cls.objects.filter(canonical_url=cu)).first()
 
         return r
+
+    def inbound_links(self):
+        return self.links.filter(links__to_resource=self.id)
+
+
+class Link(models.Model):
+    from_resource = models.ForeignKey(Resource,
+                                      on_delete=models.CASCADE,
+                                      related_name='from_resource')
+    to_resource = models.ForeignKey(Resource,
+                                    on_delete=models.CASCADE,
+                                    related_name='to_resource')
+
+    anchor_title = models.TextField(null=True)
+    anchor_text = models.TextField(null=True)

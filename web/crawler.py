@@ -1,6 +1,6 @@
 import time
 import urllib3
-from . import models, discussions, http, extract
+from . import models, discussions, http, extract, title, tags
 from django.utils import timezone
 import datetime
 import logging
@@ -73,7 +73,7 @@ def fetch(url):
         logger.debug(f'recently fetched: {resource.last_fetch}: {url}')
         return True
 
-    response = http.fetch(url)
+    response = http.fetch(url, timeout=60)
 
     if not response:
         resource.status_code = 999
@@ -89,6 +89,9 @@ def fetch(url):
     resource.last_fetch = timezone.now()
 
     resource.save()
+
+    if resource.status_code == 200:
+        extract_html.delay(resource.id)
 
     return True
 
@@ -150,3 +153,43 @@ def populate_queue():
 
     for d in discussions:
         add_to_queue(d.story_url)
+
+
+@shared_task(ignore_result=True)
+def extract_html(resource):
+    if type(resource) == int:
+        resource = models.Resource.objects.get(pk=resource)
+
+    if resource.status_code != 200:
+        return
+
+    html = http.parse_html(resource.clean_html, safe_html=True)
+    html_structure = extract.structure(html)
+    resource.title = html_structure.title
+
+    resource.links.clear()
+    for link in html_structure.outbound_links:
+        href = link.get('href')
+        if not href:
+            continue
+
+        to = models.Resource.by_url(href)
+        if not to:
+            # xojoc: todo: call add_to_queue? so next time the relationship is created?
+            continue
+
+        anchor_title = link.get('title')
+        anchor_text = link.text
+
+        link = models.Link(from_resource=resource,
+                           to_resource=to,
+                           anchor_title=anchor_title,
+                           anchor_text=anchor_text)
+        link.save()
+
+    resource.normalized_title = title.normalize(resource.title)
+    resource.normalized_tags = tags.normalize(resource.tags)
+
+    resource.last_processed = timezone.now()
+
+    resource.save()
