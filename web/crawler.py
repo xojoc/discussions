@@ -75,7 +75,10 @@ def fetch(url):
 
     response = http.fetch(url)
 
-    resource.status_code = response.status_code
+    if not response:
+        resource.status_code = 999
+    else:
+        resource.status_code = response.status_code
 
     if resource.status_code == 200:
         html = http.parse_html(response, safe_html=True)
