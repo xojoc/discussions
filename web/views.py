@@ -113,8 +113,19 @@ def discussions_context(q):
         for platform, uds in itertools.groupby(uds, lambda x: x.platform)
     ]
 
+    if q.startswith('http://') or\
+       q.startswith('https://'):
+
+        ctx['resource'] = models.Resource.by_url(cu)
+        if ctx['resource']:
+            ctx['title'] = ctx['resource'].title
+            ctx['inbound_resources'] = ctx['resource'].inbound_resources()
+            for res in ctx['inbound_resources']:
+                res.discussions_comment_count = res.discussions_comment_count()
+
     if uds:
-        ctx['title'] = uds[0].title
+        if not ctx.get('title'):
+            ctx['title'] = uds[0].title
     else:
         ctx['display_discussions'] = False
 

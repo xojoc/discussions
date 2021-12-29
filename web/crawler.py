@@ -138,7 +138,8 @@ def process():
 @receiver(post_save, sender=models.Discussion)
 def process_discussion(sender, instance, created, **kwargs):
     if created:
-        add_to_queue.delay(instance.story_url)
+        if instance.story_url:
+            add_to_queue.delay(instance.story_url)
 
 
 @shared_task(ignore_result=True)

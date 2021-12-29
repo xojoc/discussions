@@ -830,3 +830,9 @@ tbody td {
 	list-style-position: inside;
 	padding-left: 1em;
 }
+
+.inbound_links ul li {
+	list-style-type: disc;
+	list-style-position: inside;
+	padding-left: 1em;
+}

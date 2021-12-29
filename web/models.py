@@ -11,8 +11,8 @@ import datetime
 from django.core import serializers
 import json
 from dateutil import parser as dateutil_parser
-from django.db.models import Value, Q
-from django.db.models.functions import Round
+from django.db.models import Sum, Value, Q
+from django.db.models.functions import Round, Coalesce
 
 
 class MyTrigramStrictWordSimilarity(TrigramWordBase):
@@ -495,6 +495,10 @@ class Resource(models.Model):
                                    through='Link',
                                    related_name='inbound_link')
 
+    @property
+    def complete_url(self):
+        return self.scheme + '://' + self.url
+
     @classmethod
     def by_url(cls, url):
         scheme, url = discussions.split_scheme(url)
@@ -506,8 +510,16 @@ class Resource(models.Model):
 
         return r
 
-    def inbound_links(self):
-        return self.links.filter(links__to_resource=self.id)
+    def inbound_resources(self):
+        return self.inbound_link.all()
+
+    def discussions_comment_count(self):
+        q = (Discussion.objects.filter(schemeless_story_url=self.url) |
+             Discussion.objects.filter(schemeless_story_url=self.canonical_url) |
+             Discussion.objects.filter(canonical_story_url=self.canonical_url)).\
+             aggregate(comment_count=Coalesce(Sum('comment_count'), 0))
+
+        return q['comment_count']
 
 
 class Link(models.Model):
