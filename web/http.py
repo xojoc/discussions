@@ -8,6 +8,9 @@ import datetime
 import time
 import urllib3
 from bs4 import BeautifulSoup
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class _CustomRedisCache(BaseCache):
@@ -55,7 +58,6 @@ def client(with_cache=False, with_retries=True):
 
     session = requests.session()
     session.headers = _default_headers()
-    session
 
     client = session
 
@@ -78,7 +80,7 @@ def _rate_limit(r, host):
     r.set('discussions:rate_limit:' + host, 1, ex=3)
 
 
-def fetch(url, force_cache=0, refresh_on_get=False, rate_limiting=True):
+def fetch(url, force_cache=0, refresh_on_get=False, rate_limiting=True, timeout=30):
     url = cachecontrol.CacheController.cache_url(url)
     request = requests.Request(method='GET',
                                url=url,
@@ -106,7 +108,11 @@ def fetch(url, force_cache=0, refresh_on_get=False, rate_limiting=True):
 
     # if rate_limiting:
     #     _rate_limit(r, urllib3.util.parse_url(url).host)
-    resp = c.send(request.prepare(), stream=True)
+    resp = None
+    try:
+        resp = c.send(request.prepare(), stream=True, timeout=timeout)
+    except Exception as e:
+        logger.debug(f'http.fetch: send fail: {e}')
 
     # if force_cache:
     # serialized = adapter.controller.serializer.dumps(request, resp.raw)
