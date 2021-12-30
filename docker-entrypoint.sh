@@ -21,7 +21,7 @@ echo "Apply database migrations"
 python manage.py migrate --noinput
 
 echo "Run Celery"
-celery -A discussions worker--without-mingle --without-hearbeat --without-gossip  -E -l WARNING -P gevent -c 50 &
+celery -A discussions worker --without-mingle --without-heartbeat --without-gossip  -E -l WARNING -P gevent -c 50 &
 
 echo "Run Celery Beat"
 celery -A discussions beat -l WARNING &

@@ -85,13 +85,13 @@ configuration = {
             'description': 'Programming discussions',
             'topic': 'Programming'
         },
-        'HNDiscussions': {
-            'email': 'hn_discussions@xojoc.pw',
-            'tags': {},
-            'description': 'Hacker News discussions',
-            'topic': 'Hacker News',
-            'platform': 'h'
-        }
+        # 'HNDiscussions': {
+        #     'email': 'hn_discussions@xojoc.pw',
+        #     'tags': {},
+        #     'description': 'Hacker News discussions',
+        #     'topic': 'Hacker News',
+        #     'platform': 'h'
+        # }
     }
 }
 
