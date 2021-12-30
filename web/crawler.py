@@ -146,13 +146,12 @@ def process_next():
 
 
 @shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
 def process():
     start_time = time.monotonic()
 
     r = get_redis_connection()
 
-    while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME*2:
+    while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME:
         stop = process_next()
         if stop:
             break
