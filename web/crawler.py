@@ -77,7 +77,7 @@ def fetch(url):
         logger.debug(f'recently fetched: {resource.last_fetch}: {url}')
         return True
 
-    response = http.fetch(url, timeout=60)
+    response = http.fetch(url, timeout=60, with_retries=False)
 
     if not response:
         resource.status_code = 999

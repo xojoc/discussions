@@ -80,13 +80,15 @@ def _rate_limit(r, host):
     r.set('discussions:rate_limit:' + host, 1, ex=3)
 
 
-def fetch(url, force_cache=0, refresh_on_get=False, rate_limiting=True, timeout=30):
+def fetch(url, force_cache=0,
+          refresh_on_get=False, rate_limiting=True,
+          timeout=30, with_retries=True):
     url = cachecontrol.CacheController.cache_url(url)
     request = requests.Request(method='GET',
                                url=url,
                                headers=_default_headers(),
                                hooks=requests.hooks.default_hooks())
-    c = client()
+    c = client(with_retries=with_retries)
 
     # r = get_redis_connection("default")
     # adapter = c.get_adapter(url=request.url)
