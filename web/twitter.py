@@ -3,7 +3,7 @@ import os
 from . import util
 import logging
 from celery import shared_task
-from . import models, celery_util
+from . import models, celery_util, extract
 from django.utils import timezone
 import datetime
 import random
@@ -216,7 +216,7 @@ Discussions: {'x' * URL_LENGTH}
 
 def tweet_story(title, url, tags, platforms, already_tweeted_by):
     resource = models.Resource.by_url(url)
-    author = None
+    author = extract.Author()
     if resource:
         author = resource.author
 
