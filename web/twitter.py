@@ -216,9 +216,10 @@ Discussions: {'x' * URL_LENGTH}
 
 def tweet_story(title, url, tags, platforms, already_tweeted_by):
     resource = models.Resource.by_url(url)
-    author = extract.Author()
+    author = None
     if resource:
         author = resource.author
+    author = author or extract.Author()
 
     status = build_story_status(title, url, tags, author)
 

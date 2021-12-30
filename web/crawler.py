@@ -135,7 +135,7 @@ def process_next():
 def process():
     start_time = time.monotonic()
 
-    while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME:
+    while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME*2:
         stop = process_next()
         if stop:
             break

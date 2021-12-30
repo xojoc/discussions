@@ -46,8 +46,8 @@ def __extract_author(article, h):
         author.twitter_account = parts[-1]
         author.twitter_account = author.twitter_account.strip()
 
-    if ' ' in author.twitter_account:
-        author.twitter_account = None
+        if ' ' in author.twitter_account:
+            author.twitter_account = None
 
     if author.twitter_site:
         parts = author.twitter_site.split('/')
@@ -55,8 +55,8 @@ def __extract_author(article, h):
         author.twitter_site = parts[-1]
         author.twitter_site = author.twitter_site.strip()
 
-    if ' ' in author.twitter_site:
-        author.twitter_site = None
+        if ' ' in author.twitter_site:
+            author.twitter_site = None
 
     if not author.twitter_account:
         domain = 'twitter.com'
