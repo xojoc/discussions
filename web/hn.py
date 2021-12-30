@@ -131,7 +131,7 @@ def fetch_discussions(from_id, max_id):
 
     while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME:
         item = fetch_item(id, revisit_max_id=revisit_max_id, c=c, redis=redis)
-        process_item.delay(item, revisit_max_id=revisit_max_id)
+        process_item(item, revisit_max_id=revisit_max_id)
         id += 1
         if id > max_id:
             break
@@ -169,7 +169,7 @@ def fetch_update(id, redis=None, skip_timeout=60 * 5):
         return
     redis.setex(r_skip_prefix + str(id), skip_timeout, 1)
     if item.get("type") == "story":
-        process_item.delay(item, skip_timeout=skip_timeout)
+        process_item(item, skip_timeout=skip_timeout)
     if item.get("type") == "comment":
         if item.get("parent"):
             fetch_update(item.get("parent"),
@@ -185,7 +185,7 @@ def fetch_updates():
                     timeout=7.05).json()
 
     for id in updates.get('items'):
-        fetch_update.delay(id)
+        fetch_update(id)
 
 
 def submit_story(title, url, submit_from_dev=False):
