@@ -34,11 +34,12 @@ class Structure:
 def __extract_author(article, h):
     author = Author()
 
-    author.twitter_account = (h.select_one('meta[name="twitter:creator"], meta[property="twitter:creator"]') or {}).\
-        get('content', '').removeprefix('@') or None
+    if h:
+        author.twitter_account = (h.select_one('meta[name="twitter:creator"], meta[property="twitter:creator"]') or {}).\
+            get('content', '').removeprefix('@') or None
 
-    author.twitter_site = (h.select_one('meta[name="twitter:site"], meta[property="twitter:site"]') or {}).\
-        get('content', '').removeprefix('@') or None
+        author.twitter_site = (h.select_one('meta[name="twitter:site"], meta[property="twitter:site"]') or {}).\
+            get('content', '').removeprefix('@') or None
 
     if author.twitter_account:
         parts = author.twitter_account.split('/')
@@ -63,7 +64,8 @@ def __extract_author(article, h):
         twitter_links = []
         if article:
             twitter_links = article.select(f'a[href*="{domain}" i]')
-        twitter_links.extend(h.select(f'a[href*="{domain}" i]'))
+        if h:
+            twitter_links.extend(h.select(f'a[href*="{domain}" i]'))
         possible_accounts = set()
 
         for t in twitter_links:

@@ -16,16 +16,24 @@ logger = logging.getLogger(__name__)
 
 redis_prefix = 'discussions:crawler:'
 redis_queue_name = redis_prefix + 'queue'
+redis_queue_medium_name = redis_prefix + 'queue_medium'
 redis_queue_low_name = redis_prefix + 'queue_low'
+redis_queue_zero_name = redis_prefix + 'queue_zero'
 redis_host_semaphore = redis_prefix + 'semaphore:host'
 
 
 @shared_task(ignore_result=True)
-def add_to_queue(url, low=False):
+def add_to_queue(url, priority=0):
     r = get_redis_connection()
-    n = redis_queue_name
-    if low:
+    if priority == 0:
+        n = redis_queue_name
+    elif priority == 1:
+        n = redis_queue_medium_name
+    elif priority == 2:
         n = redis_queue_low_name
+    elif priority == 3:
+        n = redis_queue_zero_name
+
     r.rpush(n, url)
 
 
@@ -102,9 +110,17 @@ def fetch(url):
 
 def process_next():
     r = get_redis_connection()
+    priority = 0
     url = r.lpop(redis_queue_name)
     if not url:
-        url = r.lpop(redis_queue_low_name)
+        priority = 1
+        url = r.lpop(redis_queue_medium_name)
+        if not url:
+            priority = 2
+            url = r.lpop(redis_queue_low_name)
+            if not url:
+                priority = 3
+                url = r.lpop(redis_queue_zero_name)
 
     if not url:
         logger.debug("process_next: no url from queue")
@@ -114,18 +130,17 @@ def process_next():
 
     if not get_semaphore(url):
         logger.debug(f"process_next: semaphore red: {url}")
-        add_to_queue(url)
+        if priority <= 1:
+            priority += 1
+        add_to_queue(url, priority=priority)
         return False
 
-    fetched = False
+    set_semaphore(url, timeout=30)
 
     try:
-        fetched = fetch(url)
+        fetch(url)
     except Exception as e:
         logger.warn(f"process_next: fetch fail: {e}")
-
-    if fetched:
-        set_semaphore(url)
 
     return False
 
@@ -135,22 +150,30 @@ def process_next():
 def process():
     start_time = time.monotonic()
 
+    r = get_redis_connection()
+
     while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME*2:
         stop = process_next()
         if stop:
             break
+
+        print(f'redis connections: {r.connection_pool._created_connections}')
 
 
 @receiver(post_save, sender=models.Discussion)
 def process_discussion(sender, instance, created, **kwargs):
     if created:
         if instance.story_url:
-            low = False
+            priority = 0
             days_ago = timezone.now() - datetime.timedelta(days=14)
-            if instance.created_at and instance.created_at < days_ago:
-                low = True
+            one_year_ago = timezone.now() - datetime.timedelta(days=365)
+            if instance.created_at:
+                if instance.created_at < days_ago:
+                    priority = 1
+                elif instance.created_at < one_year_ago:
+                    priority = 2
 
-            add_to_queue.delay(instance.story_url, low=low)
+            add_to_queue.delay(instance.story_url, priority=priority)
 
 
 @shared_task(ignore_result=True)
@@ -164,7 +187,7 @@ def populate_queue(comment_count=10, score=10, days=3):
         filter(score__gte=score)
 
     for d in discussions:
-        add_to_queue(d.story_url, low=True)
+        add_to_queue(d.story_url, priority=3)
 
 
 @shared_task(ignore_result=True)
