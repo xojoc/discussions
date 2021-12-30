@@ -43,7 +43,7 @@ shell:
 
 
 lint:
-	@poetry run flake8 --extend-ignore E501 | tac
+	@poetry run flake8 --extend-ignore E501,E741 | tac
 
 test:
 	@poetry run python -Wa manage.py test --noinput --keepdb

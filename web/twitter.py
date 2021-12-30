@@ -173,7 +173,7 @@ def __hashtags(tags):
     return sorted(['#' + t for t in tags])
 
 
-def build_story_status(title, url, tags):
+def build_story_status(title, url, tags, author):
     hashtags = __hashtags(tags)
 
     discussions_url = util.discussions_url(url)
@@ -194,6 +194,16 @@ Discussions: {'x' * URL_LENGTH}
 
 {' '.join(hashtags)}"""
 
+    status = status.rstrip()
+    status_len = status_len.rstrip()
+
+    if author.twitter_account:
+        status += f"\n\nby @{author.twitter_account}"
+        status_len += f"\n\nby @{author.twitter_account}"
+    elif author.twitter_site:
+        status += f"\n\nvia @{author.twitter_site}"
+        status_len += f"\n\nvia @{author.twitter_site}"
+
     left_len = STATUS_MAX_LENGTH - len(status_len)
 
     if len(title) > left_len:
@@ -205,7 +215,12 @@ Discussions: {'x' * URL_LENGTH}
 
 
 def tweet_story(title, url, tags, platforms, already_tweeted_by):
-    status = build_story_status(title, url, tags)
+    resource = models.Resource.by_url(url)
+    author = None
+    if resource:
+        author = resource.author
+
+    status = build_story_status(title, url, tags, author)
 
     tweeted_by = []
     tweet_id = None

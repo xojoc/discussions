@@ -16,13 +16,17 @@ logger = logging.getLogger(__name__)
 
 redis_prefix = 'discussions:crawler:'
 redis_queue_name = redis_prefix + 'queue'
+redis_queue_low_name = redis_prefix + 'queue_low'
 redis_host_semaphore = redis_prefix + 'semaphore:host'
 
 
 @shared_task(ignore_result=True)
-def add_to_queue(url):
+def add_to_queue(url, low=False):
     r = get_redis_connection()
-    r.rpush(redis_queue_name, url)
+    n = redis_queue_name
+    if low:
+        n = redis_queue_low_name
+    r.rpush(n, url)
 
 
 def get_semaphore(url):
@@ -99,6 +103,8 @@ def fetch(url):
 def process_next():
     r = get_redis_connection()
     url = r.lpop(redis_queue_name)
+    if not url:
+        url = r.lpop(redis_queue_low_name)
 
     if not url:
         logger.debug("process_next: no url from queue")
@@ -144,16 +150,16 @@ def process_discussion(sender, instance, created, **kwargs):
 
 @shared_task(ignore_result=True)
 @celery_util.singleton(blocking_timeout=3)
-def populate_queue():
-    three_days_ago = timezone.now() - datetime.timedelta(days=3)
+def populate_queue(comment_count=10, score=10, days=3):
+    days_ago = timezone.now() - datetime.timedelta(days=days)
 
     discussions = models.Discussion.objects.\
-        filter(created_at__gte=three_days_ago).\
-        filter(comment_count__gte=10).\
-        filter(score__gte=10)
+        filter(created_at__gte=days_ago).\
+        filter(comment_count__gte=comment_count).\
+        filter(score__gte=score)
 
     for d in discussions:
-        add_to_queue(d.story_url)
+        add_to_queue(d.story_url, low=True)
 
 
 @shared_task(ignore_result=True)

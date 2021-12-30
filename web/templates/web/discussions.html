@@ -4,12 +4,13 @@
 {% load util %}
 
 
-
-{% if ctx.title or ctx.original_query %}
 {% block title %}
+{% if ctx.title or ctx.original_query %}
 Discussions for «{% firstof ctx.title ctx.original_query %}»
-{% endblock title %}
+{% else %}
+Discussions around the Web
 {% endif %}
+{% endblock title %}
 
 {% block extra_head %}
 {% if ctx.link_canonical_url %}
@@ -22,7 +23,12 @@ Discussions for «{% firstof ctx.title ctx.original_query %}»
 
 {% block main %}
 <!--
-     <form method="GET" class="discussions_form" action="/">
+     "{{ctx.title}}"
+     "{{ctx.original_query}}"
+-->
+
+<!--
+<form method="GET" class="discussions_form" action="/">
      {{ ctx.form.as_ul }}
      <input type="submit" value="Find discussions" />
      </form>

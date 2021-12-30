@@ -5,7 +5,7 @@ from django.contrib.postgres.search import TrigramWordBase
 from django.contrib.postgres.search import SearchVectorField
 from django.db.models.lookups import PostgresOperatorLookup
 from django.contrib.postgres.search import SearchQuery, SearchRank
-from . import discussions, tags, title
+from . import discussions, tags, title, extract
 from django.utils import timezone
 import datetime
 from django.core import serializers
@@ -301,7 +301,7 @@ class Discussion(models.Model):
         # ds = ds.annotate(word_similarity=Value(99))
         ds = ds.annotate(search_rank=Value(1))
 
-        if len(url_or_title) > 3 and not (
+        if len(url_or_title) > 1 and not (
                 url_or_title.lower().startswith('http:')
                 or url_or_title.lower().startswith('https:')):
 
@@ -520,6 +520,16 @@ class Resource(models.Model):
              aggregate(comment_count=Coalesce(Sum('comment_count'), 0))
 
         return q['comment_count']
+
+    @property
+    def author(self):
+        # for now extract at runtime. In the future possibly add to the model
+        if self.clean_html:
+            s = extract.structure(self.clean_html)
+            if s:
+                return s.author
+
+        return extract.Author()
 
 
 class Link(models.Model):

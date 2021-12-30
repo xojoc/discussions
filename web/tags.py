@@ -74,6 +74,8 @@ def __reddit(tags, title):
 def __hacker_news(tags, title):
     tags = __augment_tags(title, tags, 'python')
     tags = __augment_tags(title, tags, 'docker')
+    tags = __augment_tags(title, tags, 'javascript')
+    tags = __augment_tags(title, tags, 'typescript')
     tags = __augment_tags(title, tags, 'rust', None, 'rustlang')
     return tags
 
@@ -145,7 +147,8 @@ def __enrich(tags, title):
                            'cprogramming', 'clojure',
                            'dlang', 'dotnet', 'elixir',
                            'elm', 'erlang', 'fortran',
-                           'java', 'javascript', 'lua',
+                           'java', 'javascript', 'typescript',
+                           'lua',
                            'ocaml', 'nodejs', 'objectivec',
                            'perl', 'php', 'scala', 'zig'},
                           'programming')
