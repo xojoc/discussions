@@ -145,7 +145,12 @@ def process():
 def process_discussion(sender, instance, created, **kwargs):
     if created:
         if instance.story_url:
-            add_to_queue.delay(instance.story_url)
+            low = False
+            days_ago = timezone.now() - datetime.timedelta(days=14)
+            if instance.created_at and instance.created_at < days_ago:
+                low = True
+
+            add_to_queue.delay(instance.story_url, low=low)
 
 
 @shared_task(ignore_result=True)
