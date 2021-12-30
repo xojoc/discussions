@@ -105,7 +105,10 @@ def fetch(url):
     resource.save()
 
     if resource.status_code == 200:
-        extract_html.delay(resource.id)
+        try:
+            extract_html(resource)
+        except Exception as e:
+            logger.debug(f"fetch: extract html: {e}")
 
     return True
 
@@ -130,6 +133,12 @@ def process_next():
 
     url = str(url, 'utf-8')
 
+    if url.startswith('https://streamja.com'):
+        return False
+
+    if url.startswith('https://www.reddit.com/gallery/'):
+        return False
+
     if not get_semaphore(url):
         logger.debug(f"process_next: semaphore red: {url}")
         if priority <= 1:
@@ -137,7 +146,12 @@ def process_next():
         add_to_queue(url, priority=priority)
         return False
 
-    set_semaphore(url, timeout=30)
+    timeout = 30
+
+    if url.startswith('https://github.com'):
+        timeout = 3
+
+    set_semaphore(url, timeout=timeout)
 
     try:
         fetch(url)
