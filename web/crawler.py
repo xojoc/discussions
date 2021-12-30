@@ -23,8 +23,10 @@ redis_host_semaphore = redis_prefix + 'semaphore:host'
 
 
 @shared_task(ignore_result=True)
-def add_to_queue(url, priority=0):
+def add_to_queue(url, priority=0, low=False):
     r = get_redis_connection()
+    if low:
+        priority = 2
     if priority == 0:
         n = redis_queue_name
     elif priority == 1:
@@ -149,14 +151,10 @@ def process_next():
 def process():
     start_time = time.monotonic()
 
-    r = get_redis_connection()
-
     while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME:
         stop = process_next()
         if stop:
             break
-
-        print(f'redis connections: {r.connection_pool._created_connections}')
 
 
 @receiver(post_save, sender=models.Discussion)
@@ -167,10 +165,10 @@ def process_discussion(sender, instance, created, **kwargs):
             days_ago = timezone.now() - datetime.timedelta(days=14)
             one_year_ago = timezone.now() - datetime.timedelta(days=365)
             if instance.created_at:
-                if instance.created_at < days_ago:
-                    priority = 1
-                elif instance.created_at < one_year_ago:
+                if instance.created_at < one_year_ago:
                     priority = 2
+                elif instance.created_at < days_ago:
+                    priority = 1
 
             add_to_queue.delay(instance.story_url, priority=priority)
 
