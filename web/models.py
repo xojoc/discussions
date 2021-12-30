@@ -424,7 +424,7 @@ class Statistics(models.Model):
 
 class Tweet(models.Model):
     tweet_id = models.BigIntegerField(primary_key=True, null=False)
-    bot_name = models.CharField(max_length=255, null=True)
+    bot_name = models.CharField(max_length=255)
     bot_names = postgres_fields.ArrayField(models.CharField(max_length=255),
                                            null=True,
                                            blank=True,
