@@ -123,10 +123,16 @@ def discussions_context(q):
             for res in ctx['inbound_resources']:
                 res.discussions_comment_count = res.discussions_comment_count()
 
-    if uds:
-        if not ctx.get('title'):
+
+    if not ctx.get('title'):
+        if uds and\
+           (q.startswith('http://') or\
+            q.startswith('https://')):
             ctx['title'] = uds[0].title
-    else:
+        else:
+            ctx['title'] = ctx['original_query']
+
+    if not uds:
         ctx['display_discussions'] = False
 
     if not uds and not tds:
