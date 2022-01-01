@@ -152,6 +152,8 @@ APP_CELERY_TASK_MAX_TIME = 30  # seconds
 CELERY_BROKER_URL = os.getenv('REDIS_URL')
 CELERY_RESULT_BACKEND = os.getenv('REDIS_URL')
 
+task_ignore_result = True
+
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     'fanout_patterns': True,
     'fanout_prefix': True,

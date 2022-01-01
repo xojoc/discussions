@@ -175,7 +175,7 @@ def _canonical_youtube(host, path, parsed_query):
                     if v[0] == 'v':
                         host = 'youtu.be'
                         path = '/' + v[1]
-                        parsed_query = None
+                        parsed_query = []
                         break
 
             if path.startswith("/embed/"):
@@ -188,7 +188,7 @@ def _canonical_youtube(host, path, parsed_query):
     if host == 'dev.tube' and path and path.startswith('/video/'):
         path = path[len('/video'):]
         host = 'youtu.be'
-        parsed_query = None
+        parsed_query = []
 
     return host, path, parsed_query
 
@@ -219,10 +219,10 @@ def _canonical_github(host, path, parsed_query):
 
 def _canonical_nytimes(host, path, parsed_query):
     if host == 'nytimes.com':
-        parsed_query = None
+        parsed_query = []
     if host == 'open.nytimes.com':
         if path:
-            parsed_query = None
+            parsed_query = []
             path_parts = path.split('/')
             if len(path_parts) >= 2:
                 path = '/' + path_parts[-1].split('-')[-1]
@@ -232,21 +232,21 @@ def _canonical_nytimes(host, path, parsed_query):
 
 def _canonical_techcrunch(host, path, parsed_query):
     if host == 'techcrunch.com' or host.endswith('.techcrunch.com'):
-        parsed_query = None
+        parsed_query = []
 
     return host, path, parsed_query
 
 
 def _canonical_wikipedia(host, path, parsed_query):
     if host.endswith('.wikipedia.org'):
-        parsed_query = None
+        parsed_query = []
 
     return host, path, parsed_query
 
 
 def _canonical_arstechnica(host, path, parsed_query):
     if host == 'arstechnica' and 'viewtopic.php' not in path:
-        parsed_query = None
+        parsed_query = []
 
     return host, path, parsed_query
 
@@ -256,7 +256,7 @@ def _canonical_bbc(host, path, parsed_query):
         host = host.replace('.co.uk', '.com')
 
     if host == 'news.bbc.com':
-        parsed_query = None
+        parsed_query = []
 
     return host, path, parsed_query
 
@@ -268,12 +268,12 @@ def _canonical_twitter(host, path, parsed_query):
         path_parts = path.split('/')
         if len(path_parts) == 4 and path_parts[0] == '' and path_parts[2] == 'status':
             path = "/x/status/" + path_parts[3]
-            parsed_query = None
+            parsed_query = []
 
     if host == 'threadreaderapp.com':
         if path.startswith('/thread/'):
             path = '/x/status/' + path[len('/thread/'):]
-            parsed_query = None
+            parsed_query = []
             host = 'twitter.com'
 
     return host, path, parsed_query

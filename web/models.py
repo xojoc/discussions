@@ -28,12 +28,12 @@ class MyTrigramStrictWordSimilar(PostgresOperatorLookup):
 class Discussion(models.Model):
     class Meta:
         indexes = [
-            GinIndex(name='gin_discussion_title',
-                     fields=['title'],
-                     opclasses=['gin_trgm_ops']),
-            GinIndex(name='gin_discussion_norm_title',
-                     fields=['normalized_title'],
-                     opclasses=['gin_trgm_ops']),
+            # GinIndex(name='gin_discussion_title',
+            #          fields=['title'],
+            #          opclasses=['gin_trgm_ops']),
+            # GinIndex(name='gin_discussion_norm_title',
+            #          fields=['normalized_title'],
+            #          opclasses=['gin_trgm_ops']),
             GinIndex(name='gin_discussion_vec_title',
                      fields=["title_vector"]),
             models.Index(name='index_schemeless_story_url',

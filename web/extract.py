@@ -15,6 +15,7 @@ class Author:
 #   ArticleIndex
 #   wikipedia
 #   Github
+#   Video (Viemo, youtube, streamja, etc.)
 
 
 class Structure:
