@@ -45,6 +45,10 @@ def __worker_fetch(task, platform):
     current_page = int(current_page)
 
     while True:
+        if worker.graceful_exit(task):
+            logger.info(f"lobsters {platform} fetch: graceful exit")
+            break
+
         pages = [current_page]
 
         if current_page % 10 == 0:
@@ -66,10 +70,6 @@ def __worker_fetch(task, platform):
         current_page += 1
 
         cache.set(cache_current_page_key, current_page, timeout=None)
-
-        if worker.graceful_exit(task):
-            logger.info(f"lobsters {platform} fetch: graceful exit")
-            break
 
 
 @shared_task(bind=True, ignore_result=True)

@@ -101,6 +101,10 @@ def worker_fetch(self):
     max_item = None
 
     while True:
+        if worker.graceful_exit(self):
+            logger.info("hn fetch: graceful exit")
+            break
+
         if not max_item:
             max_item = client.get("https://hacker-news.firebaseio.com/v0/maxitem.json").content
             max_item = int(max_item)
@@ -130,13 +134,13 @@ def worker_fetch(self):
         # for id in updates.get('items')[:10]:
         #     queue.append((id, 60*15))
 
-        # for id in client.get("https://hacker-news.firebaseio.com/v0/topstories.json",
-        #                      timeout=7.05).json()[:10] :
-        #     queue.append((id, 60*15))
-
-        for id in client.get("https://hacker-news.firebaseio.com/v0/beststories.json",
-                             timeout=7.05).json()[:20]:
+        for id in client.get("https://hacker-news.firebaseio.com/v0/topstories.json",
+                             timeout=7.05).json()[:30]:
             queue.append((id, 60*15))
+
+        # for id in client.get("https://hacker-news.firebaseio.com/v0/beststories.json",
+        #                      timeout=7.05).json()[:20]:
+        #     queue.append((id, 60*15))
 
         for id in client.get("https://hacker-news.firebaseio.com/v0/newstories.json",
                              timeout=7.05).json()[:20]:
@@ -155,10 +159,6 @@ def worker_fetch(self):
                 time.sleep(0.1)
 
         cache.set(cache_current_item_key, current_item, timeout=None)
-
-        if worker.graceful_exit(self):
-            logger.info("hn fetch: graceful exit")
-            break
 
 
 def submit_story(title, url, submit_from_dev=False):

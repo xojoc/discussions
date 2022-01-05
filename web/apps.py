@@ -65,10 +65,11 @@ class WebConfig(AppConfig):
         nltk.download('stopwords')
 
     def __start_workers(self):
-        from . import hn, lobsters
-        hn.worker_fetch.delay()
-        lobsters.worker_fetch_lobsters.delay()
-        lobsters.worker_fetch_barnacles.delay()
+        return
+        # from . import hn, lobsters
+        # hn.worker_fetch.delay()
+        # lobsters.worker_fetch_lobsters.delay()
+        # lobsters.worker_fetch_barnacles.delay()
 
     def ready(self):
         random.seed()

@@ -171,7 +171,7 @@ def _canonical_youtube(host, path, parsed_query):
     if host == 'youtube.com':
         if path:
             if path == '/watch':
-                for v in parsed_query:
+                for v in (parsed_query or []):
                     if v[0] == 'v':
                         host = 'youtu.be'
                         path = '/' + v[1]
