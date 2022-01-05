@@ -8,6 +8,8 @@ class Author:
     name = None
     twitter_account = None
     twitter_site = None
+    mastodon_account = None
+    mastodon_site = None
     homepage = None
 
 # Page type:

@@ -1,12 +1,10 @@
 import datetime
 import logging
 import time
-
 from celery import shared_task
-from discussions.settings import APP_CELERY_TASK_MAX_TIME
-from web import http, discussions, models
-from web import celery_util
-from django_redis import get_redis_connection
+from . import http, discussions, models
+from . import celery_util, worker
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -16,208 +14,71 @@ logger = logging.getLogger(__name__)
 #       https://lobste.rs/s/7bbyke.json
 
 
-class EndOfPages(Exception):
-    pass
-
-
-@shared_task(ignore_result=True)
-def process_item(item, platform_prefix):
-    story_url = (item.get('url') or '').strip()
-    if not story_url:
-        return
-
-    # if not item.get('comment_count'):
-    #    return
-
-    # if item.get('score', 0) < 0:
-    #    return
+def process_item(item, platform):
+    platform_id = f"{platform}{item.get('short_id')}"
 
     created_at = datetime.datetime.fromisoformat(item.get('created_at'))
 
-    scheme, url = discussions.split_scheme(story_url)
-    if len(url) > 2000:
-        return
-    if not scheme:
-        return
+    scheme, url, canonical_url = None, None, None
+    if item.get('url'):
+        scheme, url = discussions.split_scheme(item.get('url').strip())
+        canonical_url = discussions.canonical_url(url)
 
-    canonical_url = discussions.canonical_url(url)
-    if len(canonical_url) > 2000 or canonical_url == url:
-        canonical_url = None
-
-    platform_id = f"{platform_prefix}{item.get('short_id')}"
-
-    try:
-        discussion = models.Discussion.objects.get(pk=platform_id)
-
-        discussion.comment_count = item.get('comment_count') or 0
-        discussion.score = item.get('score') or 0
-        discussion.created_at = created_at
-        discussion.scheme_of_story_url = scheme
-        discussion.schemeless_story_url = url
-        discussion.canonical_story_url = canonical_url
-        discussion.title = item.get('title')
-        discussion.tags = item.get('tags')
-        discussion.save()
-    except models.Discussion.DoesNotExist:
-        models.Discussion(platform_id=platform_id,
-                          comment_count=item.get('comment_count') or 0,
-                          score=item.get('score') or 0,
-                          created_at=created_at,
-                          scheme_of_story_url=scheme,
-                          schemeless_story_url=url,
-                          canonical_story_url=canonical_url,
-                          title=item.get('title'),
-                          tags=item.get('tags')).save()
+    models.Discussion.objects.update_or_create(
+        pk=platform_id,
+        defaults={'comment_count': item.get('comment_count') or 0,
+                  'score': item.get('score') or 0,
+                  'created_at': created_at,
+                  'scheme_of_story_url': scheme,
+                  'schemeless_story_url': url,
+                  'canonical_story_url': canonical_url,
+                  'title': item.get('title'),
+                  'tags': item.get('tags')})
 
 
-def fetch_discussions(current_page, platform_prefix, base_url):
-    c = http.client(with_cache=False)
+def __worker_fetch(task, platform):
+    client = http.client(with_cache=False)
+    base_url = models.Discussion.platform_url(platform)
+    cache_current_page_key = f'discussions:lobsters:{platform}:current_page'
 
-    start_time = time.monotonic()
+    current_page = cache.get(cache_current_page_key) or 1
+    current_page = int(current_page)
 
-    while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME:
-        page_url = f"{base_url}/newest/page/{current_page}.json"
+    while True:
+        pages = [current_page]
 
-        r = c.get(page_url, timeout=11.05)
+        if current_page % 10 == 0:
+            pages.extend([1, 2])
 
-        if r.status_code == 404:
-            raise EndOfPages
+        for page in pages:
+            logger.debug(f"lobsters {platform}: {page}")
+            page_url = f"{base_url}/newest/page/{page}.json"
+            r = client.get(page_url, timeout=11.05)
+            if r.status_code == 404:
+                current_page = 0
+                break
 
-        page = r.json()
-        if not page:
-            raise EndOfPages
+            for item in r.json():
+                process_item(item, platform)
 
-        for item in page:
-            process_item.delay(item, platform_prefix)
+            time.sleep(10)
 
         current_page += 1
 
-        time.sleep(2.1)
+        cache.set(cache_current_page_key, current_page, timeout=None)
 
-    return current_page
-
-
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
-def fetch_recent_discussions():
-    r = get_redis_connection("default")
-    redis_prefix = 'discussions:fetch_recent_lobsters_discussions:'
-    current_index = int(r.get(redis_prefix + 'current_index') or 0)
-    max_index = int(r.get(redis_prefix + 'max_index') or 0)
-    if not current_index or not max_index or (current_index > max_index):
-        max_index = 3
-        r.set(redis_prefix + 'max_index', max_index)
-        current_index = 1
-
-    try:
-        current_index = fetch_discussions(current_index, 'l',
-                                          'https://lobste.rs')
-    except EndOfPages:
-        current_index = max_index + 1
-
-    r.set(redis_prefix + 'current_index', current_index)
+        if worker.graceful_exit(task):
+            logger.info(f"lobsters {platform} fetch: graceful exit")
+            break
 
 
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
-def fetch_all_discussions():
-    r = get_redis_connection("default")
-    redis_prefix = 'discussions:fetch_all_lobsters_discussions:'
-    current_index = int(r.get(redis_prefix + 'current_index') or 0)
-    max_index = int(r.get(redis_prefix + 'max_index') or 0)
-    if not current_index or not max_index or (current_index > max_index):
-        max_index = 1000_000_000
-        r.set(redis_prefix + 'max_index', max_index)
-        current_index = 1
-
-    try:
-        current_index = fetch_discussions(current_index, 'l',
-                                          'https://lobste.rs')
-    except EndOfPages:
-        current_index = max_index + 1
-
-    r.set(redis_prefix + 'current_index', current_index)
+@shared_task(bind=True, ignore_result=True)
+@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+def worker_fetch_lobsters(self):
+    __worker_fetch(self, 'l')
 
 
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
-def fetch_recent_barnacles_discussions():
-    r = get_redis_connection("default")
-    redis_prefix = 'discussions:fetch_recent_barnacles_discussions:'
-    current_index = int(r.get(redis_prefix + 'current_index') or 0)
-    max_index = int(r.get(redis_prefix + 'max_index') or 0)
-    if not current_index or not max_index or (current_index > max_index):
-        max_index = 5
-        r.set(redis_prefix + 'max_index', max_index)
-        current_index = 1
-
-    try:
-        current_index = fetch_discussions(current_index, 'b',
-                                          'https://barnacl.es')
-    except EndOfPages:
-        current_index = max_index + 1
-
-    r.set(redis_prefix + 'current_index', current_index)
-
-
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
-def fetch_all_barnacles_discussions():
-    r = get_redis_connection("default")
-    redis_prefix = 'discussions:fetch_all_barnacles_discussions:'
-    current_index = int(r.get(redis_prefix + 'current_index') or 0)
-    max_index = int(r.get(redis_prefix + 'max_index') or 0)
-    if not current_index or not max_index or (current_index > max_index):
-        max_index = 10_000
-        r.set(redis_prefix + 'max_index', max_index)
-        current_index = 1
-
-    try:
-        current_index = fetch_discussions(current_index, 'b',
-                                          'https://barnacl.es')
-    except EndOfPages:
-        current_index = max_index + 1
-
-    r.set(redis_prefix + 'current_index', current_index)
-
-
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
-def fetch_recent_gambero_discussions():
-    r = get_redis_connection("default")
-    redis_prefix = 'discussions:fetch_recent_gambero_discussions:'
-    current_index = int(r.get(redis_prefix + 'current_index') or 0)
-    max_index = int(r.get(redis_prefix + 'max_index') or 0)
-    if not current_index or not max_index or (current_index > max_index):
-        max_index = 5
-        r.set(redis_prefix + 'max_index', max_index)
-        current_index = 1
-
-    try:
-        current_index = fetch_discussions(current_index, 'g',
-                                          'https://gambe.ro')
-    except EndOfPages:
-        current_index = max_index + 1
-
-    r.set(redis_prefix + 'current_index', current_index)
-
-
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
-def fetch_all_gambero_discussions():
-    r = get_redis_connection("default")
-    redis_prefix = 'discussions:fetch_all_gambero_discussions:'
-    current_index = int(r.get(redis_prefix + 'current_index') or 0)
-    max_index = int(r.get(redis_prefix + 'max_index') or 0)
-    if not current_index or not max_index or (current_index > max_index):
-        max_index = 10_000
-        r.set(redis_prefix + 'max_index', max_index)
-        current_index = 1
-
-    try:
-        current_index = fetch_discussions(current_index, 'g',
-                                          'https://gambe.ro')
-    except EndOfPages:
-        current_index = max_index + 1
-
-    r.set(redis_prefix + 'current_index', current_index)
+@shared_task(bind=True, ignore_result=True)
+@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+def worker_fetch_barnacles(self):
+    __worker_fetch(self, 'b')

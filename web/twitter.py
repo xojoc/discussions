@@ -22,76 +22,88 @@ configuration = {
             'user_id': '1446199026865557510',
             'tags': {'rustlang'},
             'description': 'Rust discussions',
-            'topic': 'Rust'
+            'topic': 'Rust',
+            'mastodon_account': '@rust_discussions@mastodon.social',
         },
         'GoDiscussions': {
             'email': 'golang_discussions@xojoc.pw',
             'tags': {'golang'},
             'description': 'Go discussions',
-            'topic': 'Golang'
+            'topic': 'Golang',
+            'mastodon_account': '@golang_discussions@mastodon.social',
         },
         'IntPyDiscu': {
             'email': 'python_discussions@xojoc.pw',
             'user_id': '1442929661328117760',
             'tags': {'python'},
             'description': 'Python discussions',
-            'topic': 'Python'
+            'topic': 'Python',
+            'mastodon_account': '@python_discussions@mastodon.social',
         },
         'CPPDiscussions': {
             'email': 'c_discussions@xojoc.pw',
             'tags': {'c', 'cpp'},
             'description': 'C & C++ discussions',
-            'topic': 'C & C++'
+            'topic': 'C & C++',
+            'mastodon_account': '@c_discussions@mastodon.social',
         },
         'HaskellDiscu': {
             'email': 'haskell_discussions@xojoc.pw',
             'tags': {'haskell'},
             'description': 'Haskell discussions',
-            'topic': 'Haskell'
+            'topic': 'Haskell',
+            'mastodon_account': '@haskell_discussions@mastodon.social',
         },
         'LispDiscussions': {
             'email': 'lisp_discussions@xojoc.pw',
             'tags': {'lisp', 'scheme', 'racket'},
             'description': 'Lisp & Scheme discussions',
-            'topic': 'Lisp & Scheme'
+            'topic': 'Lisp & Scheme',
+            'mastodon_account': '@lisp_discussions@mastodon.social',
         },
         'ErlangDiscu': {
             'email': 'erlang_discussions@xojoc.pw',
             'tags': {'erlang', 'elixir'},
             'description': 'Erlang & Elixir discussions',
-            'topic': 'Erlang & Elixir'
+            'topic': 'Erlang & Elixir',
+            'mastodon_account': '@erlang_discussions@mastodon.social',
         },
         'RubyDiscussions': {
             'email': 'ruby_discussions@xojoc.pw',
             'tags': {'ruby'},
             'description': 'Ruby discussions',
-            'topic': 'Ruby'
+            'topic': 'Ruby',
+            'mastodon_account': '@ruby_discussions@mastodon.social',
         },
         'CompsciDiscu': {
             'email': 'compsci_discussions@xojoc.pw',
             'tags': {'compsci'},
-            'description': 'Computer Science  discussions',
-            'topic': 'Computer Science'
+            'description': 'Computer Science discussions',
+            'topic': 'Computer Science',
+            'mastodon_account': '@compsci_discussions@mastodon.social',
         },
         'DevopsDiscu': {
             'email': 'devops_discussions@xojoc.pw',
             'tags': {'devops', 'docker', 'kubernets'},
             'description': 'DevOps discussions',
-            'topic': 'DevOps'
+            'topic': 'DevOps',
+            'mastodon_account': '@devops_discussions@mastodon.social',
         },
         'ProgDiscussions': {
             'email': 'programming_discussions@xojoc.pw',
             'tags': {'programming'},
             'description': 'Programming discussions',
-            'topic': 'Programming'
+            'topic': 'Programming',
+            'mastodon_account': '@programming_discussions@mastodon.social',
         },
-        # 'HNDiscussions': {
-        #     'email': 'hn_discussions@xojoc.pw',
-        #     'tags': {},
-        #     'description': 'Hacker News discussions',
-        #     'topic': 'Hacker News',
-        #     'platform': 'h'
-        # }
+        'HNDiscussions': {
+            'email': 'hn_discussions@xojoc.pw',
+            'tags': {},
+            'description': 'Hacker News discussions',
+            'topic': 'Hacker News',
+            'platform': 'h',
+            'mastodon_account': '@hn_discussions@mastodon.social',
+        }
     }
 }
 

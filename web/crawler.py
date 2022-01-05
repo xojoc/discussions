@@ -146,9 +146,13 @@ def process_next():
         add_to_queue(url, priority=priority)
         return False
 
-    timeout = 30
+    timeout = 15
 
     if url.startswith('https://github.com'):
+        timeout = 3
+
+    if url.startswith('https://twitter.com') or\
+       url.startswith('https://www.twitter.com'):
         timeout = 3
 
     set_semaphore(url, timeout=timeout)
@@ -184,7 +188,7 @@ def process_discussion(sender, instance, created, **kwargs):
                 elif instance.created_at < days_ago:
                     priority = 1
 
-            add_to_queue.delay(instance.story_url, priority=priority)
+            add_to_queue(instance.story_url, priority=priority)
 
 
 @shared_task(ignore_result=True)

@@ -39,6 +39,11 @@ class WebConfig(AppConfig):
                 bot_values['token'] = token
                 bot_values['token_secret'] = token_secret
 
+            if bot_values.get('mastodon_account'):
+                mastodon_access_token = os.getenv(f'MASTODON_{n}_ACCESS_TOKEN')
+                if mastodon_access_token:
+                    bot_values['mastodon_access_token'] = mastodon_access_token
+
     def __connection_created_signal_handler(sender, connection, **kwargs):
         return
         # if sender.vendor == 'postgresql':
@@ -59,9 +64,16 @@ class WebConfig(AppConfig):
         nltk.download('punkt')
         nltk.download('stopwords')
 
+    def __start_workers(self):
+        from . import hn, lobsters
+        hn.worker_fetch.delay()
+        lobsters.worker_fetch_lobsters.delay()
+        lobsters.worker_fetch_barnacles.delay()
+
     def ready(self):
         random.seed()
         self.__reddit_configuration()
         self.__twitter_configuration()
         self.__set_database_parameters()
         self.__nltk_download_data()
+        self.__start_workers()

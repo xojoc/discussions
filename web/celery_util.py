@@ -46,13 +46,16 @@ def split_task(redis_prefix,
         r.set(redis_prefix + 'current_index', current_index + step)
 
 
-def singleton(timeout=APP_CELERY_TASK_MAX_TIME * 5, blocking_timeout=3):
+def singleton(timeout=APP_CELERY_TASK_MAX_TIME * 5, blocking_timeout=0.1):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             r = get_redis_connection("default")
             f_path = f"{f.__module__}.{f.__name__}".replace('.', ':')
             lock_name = "discussions:lock:" + f_path
+
+            logger.debug(f'Lock {lock_name}: {timeout}: {blocking_timeout}')
+
             try:
                 with r.lock(lock_name,
                             timeout=timeout,
@@ -60,11 +63,7 @@ def singleton(timeout=APP_CELERY_TASK_MAX_TIME * 5, blocking_timeout=3):
 
                     f(*args, **kwargs)
             except LockError:
-                pass
-                # logger.warn(
-                #     f"Lock expired {lock_name} blocking_timeout = {blocking_timeout}: {e}"
-                # )
-                # raise
+                logger.debug(f"Lock {lock_name} not acquired timeout = {timeout}, blocking_timeout = {blocking_timeout}")
 
         return wrapper
 

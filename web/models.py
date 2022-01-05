@@ -51,9 +51,9 @@ class Discussion(models.Model):
     platform_id = models.CharField(primary_key=True, max_length=255)
     platform = models.CharField(max_length=1, blank=False)
     created_at = models.DateTimeField(null=True)
-    scheme_of_story_url = models.CharField(max_length=25)
+    scheme_of_story_url = models.CharField(max_length=25, null=True)
     """Original URL of the story without the scheme"""
-    schemeless_story_url = models.CharField(max_length=100_000)
+    schemeless_story_url = models.CharField(max_length=100_000, null=True)
     canonical_story_url = models.CharField(max_length=100_000,
                                            blank=True,
                                            null=True)
@@ -62,7 +62,7 @@ class Discussion(models.Model):
                                               default=None,
                                               null=True)
 
-    title = models.CharField(max_length=2048)
+    title = models.CharField(max_length=2048, null=True)
     normalized_title = models.CharField(max_length=2048, null=True, blank=True)
     title_vector = SearchVectorField(null=True)
 
@@ -115,10 +115,10 @@ class Discussion(models.Model):
 
         self.normalized_title = title.normalize(
             self.title, self.platform,
-            self.schemeless_story_url, self.tags, stem=False)
+            (self.schemeless_story_url or ''), self.tags, stem=False)
 
         self.normalized_tags = tags.normalize(
-            self.tags, self.platform, self.title, self.schemeless_story_url)
+            self.tags, self.platform, self.title, (self.schemeless_story_url or ''))
 
     def save(self, *args, **kwargs):
         self._pre_save()
@@ -176,7 +176,7 @@ class Discussion(models.Model):
             return "Gambero"
 
     @classmethod
-    def platform_url(cls, platform, preferred_external_url):
+    def platform_url(cls, platform, preferred_external_url=discussions.PreferredExternalURL.Standard):
         if platform == 'r':
             if preferred_external_url == discussions.PreferredExternalURL.Standard:
                 return 'https://www.reddit.com'
@@ -444,6 +444,19 @@ class Tweet(models.Model):
         super(Tweet, self).save(*args, **kwargs)
 
 
+class MastodonPost(models.Model):
+    post_id = models.BigIntegerField(primary_key=True, null=False)
+    bot_names = postgres_fields.ArrayField(models.CharField(max_length=255),
+                                           null=True,
+                                           blank=True,
+                                           default=list)
+
+    discussions = models.ManyToManyField(Discussion)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class Resource(models.Model):
     class Meta:
         indexes = [
@@ -542,3 +555,16 @@ class Link(models.Model):
 
     anchor_title = models.TextField(null=True)
     anchor_text = models.TextField(null=True)
+
+
+# class HackerNewsItem(models.Model):
+#     class Type(models.TextChoices):
+#         COMMENT = 'c'
+#         STORY = 's'
+
+
+#     id = models.BigAutoField(primary_key=True)
+
+#     parent = models.ForeignKey('self')
+
+#     type = models.CharField(max_length=1, choices = Type.choices)
