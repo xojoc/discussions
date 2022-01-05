@@ -2,6 +2,7 @@ import logging
 from web import hn, lobsters, reddit, statistics  # noqa F401
 from web import discussions, twitter, mastodon, archiveis  # noqa F401
 from web import ltu, db, crawler, worker  # noqa F401
+from web import echojs  # noqa F401
 from celery import shared_task
 from . import celery_util
 

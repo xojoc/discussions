@@ -49,6 +49,7 @@ def process_item(item, redis=None, skip_timeout=None):
 
     if item.get('time'):
         created_at = datetime.datetime.fromtimestamp(item.get('time'))
+        created_at = make_aware(created_at)
     else:
         created_at = None
 
@@ -62,7 +63,7 @@ def process_item(item, redis=None, skip_timeout=None):
         pk=platform_id,
         defaults={'comment_count': item.get('descendants') or 0,
                   'score': item.get('score') or 0,
-                  'created_at': make_aware(created_at),
+                  'created_at': created_at,
                   'scheme_of_story_url': scheme,
                   'schemeless_story_url': url,
                   'canonical_story_url': canonical_url,

@@ -146,6 +146,12 @@ class Discussion(models.Model):
             return 40
         elif platform == 'g':
             return 50
+        elif platform == 't':
+            return 60
+        elif platform == 's':
+            return 70
+        elif platform == 'e':
+            return 80
         else:
             return 100
 
@@ -154,7 +160,7 @@ class Discussion(models.Model):
             cls,
             preferred_external_url=discussions.PreferredExternalURL.Standard):
         ps = {}
-        for p in sorted(['h', 'u', 'r', 'l', 'b', 'g'],
+        for p in sorted(['h', 'u', 'r', 'l', 'b', 'g', 't', 's', 'e'],
                         key=lambda x: cls.platform_order(x)):
             ps[p] = (cls.platform_name(p),
                      cls.platform_url(p, preferred_external_url))
@@ -174,6 +180,12 @@ class Discussion(models.Model):
             return 'Barnacles'
         elif platform == 'g':
             return "Gambero"
+        elif platform == 't':
+            return "tilde news"
+        elif platform == 's':
+            return "Standard"
+        elif platform == 'e':
+            return "Echo JS"
 
     @classmethod
     def platform_url(cls, platform, preferred_external_url=discussions.PreferredExternalURL.Standard):
@@ -194,6 +206,12 @@ class Discussion(models.Model):
             return "https://barnacl.es"
         elif platform == 'g':
             return "https://gambe.ro"
+        elif platform == 't':
+            return "https://tilde.news"
+        elif platform == 's':
+            return "https://std.bz"
+        elif platform == 'e':
+            return "https://echojs.com"
 
     @classmethod
     def platform_tag_url(cls, platform, preferred_external_url):
@@ -204,12 +222,8 @@ class Discussion(models.Model):
                 return 'https://old.reddit.com/r'
             if preferred_external_url == discussions.PreferredExternalURL.Mobile:
                 return 'https://m.reddit.com/r'
-        elif platform == 'l':
-            return "https://lobste.rs/t"
-        elif platform == 'b':
-            return "https://barnacl.es/t"
-        elif platform == 'g':
-            return "https://gambe.ro/t"
+        elif platform in ('l', 'b', 'g', 't', 's'):
+            return cls.platform_url(platform, preferred_external_url) + '/t'
 
         return None
 
@@ -228,8 +242,10 @@ class Discussion(models.Model):
             return f"{bu}/item?id={self.id}"
         elif self.platform == 'u':
             return f"{bu}/{self.id}"
-        elif self.platform in ('l', 'b', 'g'):
+        elif self.platform in ('l', 'b', 'g', 't', 's'):
             return f"{bu}/s/{self.id}"
+        elif self.platform in ('e'):
+            return f"{bu}/news/{self.id}"
 
     def subreddit_name(self):
         return f"/r/{self.subreddit}"

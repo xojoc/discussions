@@ -82,3 +82,15 @@ def worker_fetch_lobsters(self):
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_barnacles(self):
     __worker_fetch(self, 'b')
+
+
+@shared_task(bind=True, ignore_result=True)
+@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+def worker_fetch_tilde_news(self):
+    __worker_fetch(self, 't')
+
+
+@shared_task(bind=True, ignore_result=True)
+@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+def worker_fetch_standard(self):
+    __worker_fetch(self, 's')
