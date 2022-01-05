@@ -6,6 +6,27 @@ Social accounts/bots
 
 {% block main %}
 
+<h2>Mastodon Bots</h2>
+<p>
+    The following bots post regularly the most interesting discussions about some particular topic:
+</p>
+
+{% for bot in ctx.mastodon_bots %}
+
+<ul>
+    <li><a href="{{bot.link}}" title="{{bot.link_title}}">{{bot.nick}}</a> - {{bot.description}}</li>
+</ul>
+
+{% endfor %}
+
+<br />
+
+<p>
+    You can find me at <a href="https://mastodon.social/@xojoc"
+				title="Mastodon profile of Alexandru Cojocaru">@xojoc</a>.
+</p>
+
+
 <h2>Twitter Bots</h2>
 <p>
 	The following bots tweet regularly the most interesting discussions about some particular topic:

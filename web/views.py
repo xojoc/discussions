@@ -1,4 +1,5 @@
 from web import models, discussions, serializers, twitter, util, forms
+from . import mastodon
 from django.shortcuts import render
 import itertools
 from django.core.cache import cache
@@ -232,15 +233,24 @@ def statistics(request):
 
 
 def __social_context(request):
-    bots = []
+    twitter_bots = []
     for bot_name, bot_values in twitter.configuration['bots'].items():
         bot = {'link': f"https://twitter.com/{ bot_name }",
                'link_title': f"{ bot_values['topic'] } Twitter bot",
                'nick': f"@{ bot_name }",
                'description': f"{ bot_values['description'] }"}
-        bots.append(bot)
+        twitter_bots.append(bot)
 
-    return {'twitter_bots': bots}
+    mastodon_bots = []
+    for bot_name, bot_values in twitter.configuration['bots'].items():
+        bot = {'link': mastodon.profile_url(bot_values['mastodon_account']),
+               'link_title': f"{ bot_values['topic'] } Mastodon bot",
+               'nick': '@' + bot_values['mastodon_account'].split('@')[1],
+               'description': f"{ bot_values['description'] }"}
+        mastodon_bots.append(bot)
+
+    return {'twitter_bots': twitter_bots,
+            'mastodon_bots': mastodon_bots}
 
 
 def social(request):

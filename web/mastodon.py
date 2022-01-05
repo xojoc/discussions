@@ -25,6 +25,11 @@ def __print(s):
         print(s)
 
 
+def profile_url(account):
+    parts = account.split('@')
+    return f"https://{parts[2]}/@{parts[1]}"
+
+
 def post(status, username, post_from_dev=False):
     access_token = configuration['bots'][username].get('mastodon_access_token')
 
