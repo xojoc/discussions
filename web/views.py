@@ -155,6 +155,7 @@ def get_submit_links(request, ctx):
     submit_links = {'Hacker News': f'https://news.ycombinator.com/submitlink?u={url}&t={t}',
                     'Reddit': f'https://www.reddit.com/submit?url={url}&title={t}',
                     'Lobsters': f'https://lobste.rs/stories/new?url={url}&title={t}',
+                    'Laarc': f'https://www.laarc.io/submitlink?u={url}&t={t}',
                     'Barnacles': f'https://barnacl.es/stories/new?url={url}&title={t}',
                     'Gambero': f'https://gambe.ro/stories/new?url={url}&title={t}'
                     }

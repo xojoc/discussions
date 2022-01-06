@@ -103,7 +103,7 @@ def fetch_item(platform, id, client=None):
         return
 
 
-def _worker_fetch(self, platform):
+def _worker_fetch(task, platform):
     client = http.client(with_cache=False)
     redis = get_redis_connection()
 
@@ -116,7 +116,7 @@ def _worker_fetch(self, platform):
     bu = __base_url(platform)
 
     while True:
-        if worker.graceful_exit(self):
+        if worker.graceful_exit(task):
             logger.info("hn fetch: graceful exit")
             break
 
@@ -178,13 +178,13 @@ def _worker_fetch(self, platform):
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_hn(self):
-    _worker_fetch('h')
+    _worker_fetch(self, 'h')
 
 
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_laarc(self):
-    _worker_fetch('a')
+    _worker_fetch(self, 'a')
 
 
 def submit_story(title, url, submit_from_dev=False):
