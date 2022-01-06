@@ -382,11 +382,11 @@ class Discussion(models.Model):
 
             # ds = ds.union(ts)
 
-        if site and ts:
+        if site and ts is not None:
             ds = ts
             ds = ds.order_by('-search_rank', '-created_at',
                              '-platform_id')
-        elif not site and ts:
+        elif not site and ts is not None:
             ds = ds[:30]
             ts = ts[:23]
             ds = ds.union(ts)
