@@ -14,23 +14,35 @@ from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
-
 cache_prefix = 'discussions:hn:'
-cache_skip_prefix = "discussions:hn:skip:"
-redis_comment_set_key = "discussions:hn:comment_set"
 
 
-def process_item(item, redis=None, skip_timeout=None):
+def __cache_skip_prefix(platform):
+    return f"discussions:hn:{platform}:skip:"
+
+
+def __redis_comment_set_key(platform):
+    return f"discussions:hn:{platform}:comment_set"
+
+
+def __base_url(platform):
+    if platform == 'h':
+        return 'https://hacker-news.firebaseio.com'
+    elif platform == 'a':
+        return 'https://laarrc.firebaseio.com'
+
+
+def process_item(platform, item, redis=None, skip_timeout=None):
     if not item:
         return
 
     if not redis:
         redis = get_redis_connection("default")
 
-    platform_id = f"h{item.get('id')}"
+    platform_id = f"{platform}{item.get('id')}"
 
     for kid in item.get('kids', []):
-        redis.sadd(redis_comment_set_key, kid)
+        redis.sadd(__redis_comment_set_key(platform), kid)
 
     if item.get('deleted'):
         models.Discussion.objects.filter(pk=platform_id).delete()
@@ -38,7 +50,7 @@ def process_item(item, redis=None, skip_timeout=None):
 
     if item.get('type') != 'story':
         if item.get('type') == 'comment':
-            redis.sadd(redis_comment_set_key, item.get('id'))
+            redis.sadd(__redis_comment_set_key(platform), item.get('id'))
         else:
             logger.debug(f"{platform_id}: item not story or comment: {item.get('type')}")
         return
@@ -70,18 +82,20 @@ def process_item(item, redis=None, skip_timeout=None):
                   'title': item.get('title')})
 
     if skip_timeout:
-        cache.set(cache_skip_prefix + str(item.get('id')), 1, timeout=skip_timeout)
+        cache.set(__cache_skip_prefix(platform) + str(item.get('id')), 1, timeout=skip_timeout)
 
 
-def fetch_item(id, client=None):
+def fetch_item(platform, id, client=None):
     if not client:
         client = http.client(with_cache=False)
 
-    if cache.get(cache_skip_prefix + str(id)):
+    if cache.get(__cache_skip_prefix(platform) + str(id)):
         return
 
+    bu = __base_url(platform)
+
     try:
-        return client.get(f"https://hacker-news.firebaseio.com/v0/item/{id}.json",
+        return client.get(f"{bu}/v0/item/{id}.json",
                           timeout=11.05).json()
     except Exception as e:
         time.sleep(3)
@@ -89,17 +103,17 @@ def fetch_item(id, client=None):
         return
 
 
-@shared_task(bind=True, ignore_result=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
-def worker_fetch(self):
+def _worker_fetch(self, platform):
     client = http.client(with_cache=False)
     redis = get_redis_connection()
 
-    cache_current_item_key = 'discussions:hn:current_item'
+    cache_current_item_key = f'discussions:hn:{platform}:current_item'
 
     current_item = cache.get(cache_current_item_key) or 1
     current_item = int(current_item)
     max_item = None
+
+    bu = __base_url(platform)
 
     while True:
         if worker.graceful_exit(self):
@@ -107,7 +121,7 @@ def worker_fetch(self):
             break
 
         if not max_item:
-            max_item = client.get("https://hacker-news.firebaseio.com/v0/maxitem.json").content
+            max_item = client.get(f"{bu}/v0/maxitem.json").content
             max_item = int(max_item)
 
         if current_item > max_item:
@@ -117,7 +131,7 @@ def worker_fetch(self):
 
         c = 0
         while True:
-            if not redis.sismember(redis_comment_set_key, current_item):
+            if not redis.sismember(__redis_comment_set_key(platform), current_item):
                 queue.append((current_item, 0))
                 c += 1
 
@@ -129,37 +143,48 @@ def worker_fetch(self):
             if c > 70:
                 break
 
-        # updates = client.get("https://hacker-news.firebaseio.com/v0/updates.json",
+        # updates = client.get(f"{bu}/v0/updates.json",
         #                 timeout=7.05).json()
 
         # for id in updates.get('items')[:10]:
         #     queue.append((id, 60*15))
 
-        for id in client.get("https://hacker-news.firebaseio.com/v0/topstories.json",
+        for id in client.get(f"{bu}/v0/topstories.json",
                              timeout=7.05).json()[:30]:
             queue.append((id, 60*15))
 
-        # for id in client.get("https://hacker-news.firebaseio.com/v0/beststories.json",
+        # for id in client.get(f"{bu}/v0/beststories.json",
         #                      timeout=7.05).json()[:20]:
         #     queue.append((id, 60*15))
 
-        for id in client.get("https://hacker-news.firebaseio.com/v0/newstories.json",
+        for id in client.get(f"{bu}/v0/newstories.json",
                              timeout=7.05).json()[:20]:
             queue.append((id, 60*5))
 
-        logger.info(f"hn fetch: queue length: {len(queue)}")
         for (id, skip_timeout) in queue:
             logger.debug(f"hn fetch: {current_item} {id} {skip_timeout}")
 
-            if redis.sismember(redis_comment_set_key, id):
+            if redis.sismember(__redis_comment_set_key(platform), id):
                 continue
 
-            item = fetch_item(id, client=client)
+            item = fetch_item(platform, id, client=client)
             if item:
-                process_item(item, redis=redis, skip_timeout=skip_timeout)
+                process_item(platform, item, redis=redis, skip_timeout=skip_timeout)
                 time.sleep(0.1)
 
         cache.set(cache_current_item_key, current_item, timeout=None)
+
+
+@shared_task(bind=True, ignore_result=True)
+@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+def worker_fetch_hn(self):
+    _worker_fetch('h')
+
+
+@shared_task(bind=True, ignore_result=True)
+@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+def worker_fetch_laarc(self):
+    _worker_fetch('a')
 
 
 def submit_story(title, url, submit_from_dev=False):

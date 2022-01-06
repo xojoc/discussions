@@ -152,6 +152,8 @@ class Discussion(models.Model):
             return 70
         elif platform == 'e':
             return 80
+        elif platform == 'a':
+            return 90
         else:
             return 100
 
@@ -160,7 +162,7 @@ class Discussion(models.Model):
             cls,
             preferred_external_url=discussions.PreferredExternalURL.Standard):
         ps = {}
-        for p in sorted(['h', 'u', 'r', 'l', 'b', 'g', 't', 's', 'e'],
+        for p in sorted(['h', 'u', 'r', 'l', 'b', 'g', 't', 's', 'e', 'a'],
                         key=lambda x: cls.platform_order(x)):
             ps[p] = (cls.platform_name(p),
                      cls.platform_url(p, preferred_external_url))
@@ -186,6 +188,8 @@ class Discussion(models.Model):
             return "Standard"
         elif platform == 'e':
             return "Echo JS"
+        elif platform == 'a':
+            return "Laarc"
 
     @classmethod
     def platform_url(cls, platform, preferred_external_url=discussions.PreferredExternalURL.Standard):
@@ -212,6 +216,8 @@ class Discussion(models.Model):
             return "https://std.bz"
         elif platform == 'e':
             return "https://echojs.com"
+        elif platform == 'a':
+            return "https://www.laarc.io"
 
     @classmethod
     def platform_tag_url(cls, platform, preferred_external_url):
@@ -238,7 +244,7 @@ class Discussion(models.Model):
         bu = self.platform_url(self.platform, preferred_external_url)
         if self.platform == 'r':
             return f"{bu}/r/{self.subreddit}/comments/{self.id}"
-        elif self.platform == 'h':
+        elif self.platform in ('h', 'a'):
             return f"{bu}/item?id={self.id}"
         elif self.platform == 'u':
             return f"{bu}/{self.id}"
@@ -285,25 +291,38 @@ class Discussion(models.Model):
     def of_url_or_title(cls, url_or_title, client=None):
         seven_days_ago = timezone.now() - datetime.timedelta(days=7)
         min_comments = 2
+        min_score = 2
 
         scheme, url = discussions.split_scheme(url_or_title)
         cu = discussions.canonical_url(url)
         rcu = cu
 
-        site_prefix = 'site:'
-        if url_or_title.startswith(site_prefix) and\
-           ' ' not in url_or_title and\
-           len(url_or_title) > len(site_prefix):
+        query = url_or_title
 
-            url_prefix = url_or_title[len(site_prefix):]
+        site_prefix = 'site:'
+        site = None
+        if url_or_title.startswith(site_prefix) and\
+           len(url_or_title.split()[0]) > len(site_prefix):
+
+            site = url_or_title.split()[0]
+            query = ' '.join(url_or_title.split()[1:])
+
+            url_prefix = site[len(site_prefix):]
+            curl_prefix = discussions.canonical_url(url_prefix)
+
             ds = (cls.objects.filter(schemeless_story_url=url_prefix) |
                   cls.objects.filter(canonical_story_url=url_prefix) |
-                  cls.objects.filter(schemeless_story_url__startswith=url_prefix))
+                  cls.objects.filter(canonical_story_url=curl_prefix) |
+                  cls.objects.filter(schemeless_story_url__startswith=url_prefix) |
+                  cls.objects.filter(schemeless_story_url__startswith=curl_prefix) |
+                  cls.objects.filter(canonical_story_url__startswith=url_prefix) |
+                  cls.objects.filter(canonical_story_url__startswith=curl_prefix))
 
             ds = ds.filter(
                 Q(comment_count__gte=min_comments)
                 | Q(created_at__gt=seven_days_ago)
                 | Q(platform='u'))
+            ds = ds.filter(score__gte=min_score)
         else:
             ds = (cls.objects.filter(schemeless_story_url=url)
                   | cls.objects.filter(schemeless_story_url=cu)
@@ -317,9 +336,11 @@ class Discussion(models.Model):
         # ds = ds.annotate(word_similarity=Value(99))
         ds = ds.annotate(search_rank=Value(1))
 
-        if len(url_or_title) > 1 and not (
-                url_or_title.lower().startswith('http:')
-                or url_or_title.lower().startswith('https:')):
+        ts = None
+
+        if len(query) > 1 and not (
+                query.lower().startswith('http:')
+                or query.lower().startswith('https:')):
 
             # xojoc: test search with:
             #   https://discu.eu/q/APL%20in%20JavaScript
@@ -329,13 +350,16 @@ class Discussion(models.Model):
             #   https://discu.eu/q/The%20Carnap%20Programming%20Language
             #   https://discu.eu/?q=For+C+programmers+that+hate+C%2B%2B+%282011%29
 
-            q = title.normalize(url_or_title, stem=False)
+            q = title.normalize(query, stem=False)
 
             wsq = SearchQuery(q, search_type='websearch')
             psq = SearchQuery(q, search_type='plain')
             # normalized_title = title.normalize(url_or_title, stem=True)
 
-            ts = cls.objects.annotate(search_rank=Round(SearchRank('title_vector', psq), 2))
+            base = cls.objects
+            if site:
+                base = ds
+            ts = base.annotate(search_rank=Round(SearchRank('title_vector', psq), 2))
             # annotate(word_similarity=Round(
             #     MyTrigramStrictWordSimilarity(normalized_title, 'title'), 2))
 
@@ -354,12 +378,24 @@ class Discussion(models.Model):
             # ts = ts.order_by('-word_similarity')
             ts = ts.order_by('-search_rank')
 
+            # ts = ts[:23]
+
+            # ds = ds.union(ts)
+
+        if site and ts:
+            ds = ts
+            ds = ds.order_by('-search_rank', '-created_at',
+                             '-platform_id')
+        elif not site and ts:
+            ds = ds[:30]
             ts = ts[:23]
-
             ds = ds.union(ts)
-
-        ds = ds.order_by('-search_rank', '-created_at',
-                         '-platform_id')
+            ds = ds.order_by('-search_rank', '-created_at',
+                             '-platform_id')
+        else:
+            ds = ds.order_by('-search_rank', '-created_at',
+                             '-platform_id')
+            ds = ds[:30]
 
         return ds, cu, rcu
 

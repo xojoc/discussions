@@ -57,6 +57,13 @@ Discussions around the Web
     {% if ctx.nothing_found %}
     <h2>Discussions not found</h2>
     <p>Sorry, we couldn't find nothing for <b>{{ctx.url}}</b></p>
+    {% if ctx.try_with_site_prefix %}
+    <p>Try searching the whole domain: <a href="{{ctx.try_with_site_prefix|discussions_url}}">{{ctx.try_with_site_prefix}}</a></p>
+    {% endif %}
+    {% if ctx.try_with_title %}
+    <p>Try searching by title: <a href="{{ctx.try_with_title|discussions_url}}">{{ctx.try_with_title}}</a></p>
+    {% endif %}
+
     <p>You may may need to retry with a "clean" URL. For example instead of
 	<b>https://adomain.com/interesting-article<i>?tracking=id</i></b> try with
 	<b>https://adomain.com/interesting-article</b>

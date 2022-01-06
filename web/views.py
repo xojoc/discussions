@@ -13,7 +13,7 @@ from urllib.parse import unquote as url_unquote
 from urllib.parse import quote
 import logging
 from django_redis import get_redis_connection
-
+import urllib3
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +72,7 @@ def discussions_context(q):
 
     ctx['original_query'] = q
     ctx['url'] = url
+    ctx['is_url'] = url.startswith('http://') or url.startswith('https://')
     ctx['display_discussions'] = False
     ctx['nothing_found'] = False
     ctx['title'] = ""
@@ -185,30 +186,17 @@ def index(request, path_q=None):
 
     get_submit_links(request, ctx)
 
+    if ctx['nothing_found']:
+        if ctx.get('is_url'):
+            url = ctx.get('url', '')
+            u = urllib3.util.parse_url(url)
+            if u.host:
+                ctx['try_with_site_prefix'] = 'site:' + u.host
+            if ctx.get('submit_title'):
+                ctx['try_with_title'] = ctx.get('submit_title')
+
     ctx['form'] = forms.QueryForm(request.GET)
     ctx['form'].fields['tags'].choices = [('tag', 'asdf'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
-                                          ('tag2', 'fdsa'),
                                           ('tag2', 'fdsa'),
                                           ('tag2', 'fdsa'),
                                           ('tag2', 'fdsa'),
