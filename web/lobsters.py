@@ -65,7 +65,7 @@ def __worker_fetch(task, platform):
             for item in r.json():
                 process_item(item, platform)
 
-            time.sleep(10)
+            time.sleep(30)
 
         current_page += 1
 

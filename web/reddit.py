@@ -203,11 +203,8 @@ def client(with_cache=False, with_retries=True):
     c = praw.Reddit(client_id=settings.REDDIT_CLIENT_ID,
                     client_secret=settings.REDDIT_CLIENT_SECRET,
                     user_agent=settings.USERAGENT,
-                    requestor_kwargs={
-                        'session':
-                        http.client(with_cache=with_cache,
-                                    with_retries=with_retries)
-                    })
+                    ratelimit_seconds=60*14,
+                    timeout=60)
     return c
 
 
@@ -232,7 +229,7 @@ def get_subreddit(subreddit,
         reddit_client = client()
     list = None
     if listing == 'new':
-        list = reddit_client.subreddit(subreddit).new(limit=50)
+        list = reddit_client.subreddit(subreddit).new(limit=100)
     if listing == 'top':
         list = reddit_client.subreddit(subreddit).top(listing_argument,
                                                       limit=30)
@@ -261,7 +258,7 @@ def fetch_discussions(index):
     while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME:
         if index >= len(subreddit_whitelist):
             raise EndOfSubreddits
-        subreddit = list(subreddit_whitelist)[index]
+        subreddit = sorted(subreddit_whitelist)[index]
         name = subreddit.lower()
         index += 1
 
