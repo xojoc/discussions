@@ -1,9 +1,7 @@
-import bz2
 import datetime
 import io
 import json
 import logging
-import lzma
 import os
 import re
 import shutil
@@ -14,12 +12,13 @@ import prawcore
 import zstandard
 from celery import shared_task
 from django.conf import settings
-from django.db import transaction
+from django.db import IntegrityError
 from django.utils.timezone import make_aware
 from django_redis import get_redis_connection
 from discussions.settings import APP_CELERY_TASK_MAX_TIME
+from django.core.cache import cache
 
-from web import celery_util
+from . import celery_util, worker
 from . import http, models, discussions
 import pickle
 
@@ -28,6 +27,172 @@ logger = logging.getLogger(__name__)
 # filled in apps.WebConfig.ready
 subreddit_blacklist = set()
 subreddit_whitelist = set()
+
+
+def url_blacklisted(url):
+    if url.startswith('i.imgur.com') or \
+            url.startswith('imgur.com') or \
+            url.startswith('gfycat.com'):
+        return True
+
+    return False
+
+
+def __process_archive_line(line):
+    p = json.loads(line)
+    if p.get('subreddit') not in subreddit_whitelist:
+        # logger.debug(f"subreddit skipped {p.get('subreddit')}")
+        return
+
+    if not p.get('url'):
+        return
+    if p.get('is_self'):
+        return
+    if p.get('over_18'):
+        return
+    if p.get('is_reddit_media_domain'):
+        return
+    if p.get('hidden'):
+        return
+    if p.get('media'):
+        return
+    if (p.get('score') or 0) < 1:
+        return
+    if (p.get('num_comments') or 0) <= 2:
+        return
+
+    platform_id = 'r' + p.get('id')
+
+    scheme, url, canonical_url = None, None, None
+
+    if p.get('url'):
+        scheme, url = discussions.split_scheme(p.get('url'))
+        if scheme:
+            canonical_url = discussions.canonical_url(url)
+            if url_blacklisted(canonical_url or url):
+                return
+        else:
+            logging.warning(
+                f"Reddit archive: no scheme for {platform_id}, url {p.get('url')}")
+            return
+
+    created_at = None
+    if p.get('created_utc'):
+        created_at = datetime.datetime.fromtimestamp(int(p.get('created_utc')))
+        created_at = make_aware(created_at)
+
+    subreddit = p.get('subreddit') or ''
+    if not subreddit:
+        logger.warn(f"Reddi archive: no subreddit {platform_id}")
+        return
+
+    try:
+        models.Discussion.objects.create(platform_id=platform_id,
+                                         comment_count=p.get('num_comments') or 0,
+                                         score=p.get('score') or 0,
+                                         created_at=created_at,
+                                         scheme_of_story_url=scheme,
+                                         schemeless_story_url=url,
+                                         canonical_story_url=canonical_url,
+                                         title=p.get('title'),
+                                         tags=[subreddit.lower()])
+    except IntegrityError:
+        pass
+    except Exception as e:
+        logger.warning(f"Reddit archive: {e}")
+        return
+
+
+def __get_reddit_archive_links(client, starting_from=None):
+    url_prefix = 'https://files.pushshift.io/reddit/submissions/'
+    digests = client.get(url_prefix + 'sha256sums.txt')
+    available_files = []
+    for line in digests.content.decode().split("\n"):
+        fields = line.split()
+        if len(fields) >= 2:
+            available_files.append(fields[1])
+
+    chosen_files = []
+
+    for file in available_files:
+        match = re.findall(r"RS.*(\d\d\d\d)-(\d\d)\.zst", file)[0]
+        year_month = match[0] + "-" + match[1]
+
+        if starting_from and year_month < starting_from:
+            continue
+
+        chosen_files.append(url_prefix + file)
+
+    return chosen_files
+
+
+@shared_task(bind=True, ignore_result=True)
+@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+def worker_fetch_reddit_archive(self):
+    client = http.client(with_cache=False)
+    cache_prefix = 'fetch_reddit_archive'
+    cache_timeout = 60 * 60 * 24 * 90
+
+    for file in __get_reddit_archive_links(client):
+        if cache.get(f"{cache_prefix}:processed:{file}"):
+            continue
+
+        if worker.graceful_exit(self):
+            logger.info("reddit archive: graceful exit")
+            break
+
+        logger.info(f"reddit archive: processing {file}")
+
+        file_name = '/tmp/discussions_reddit_archive_compressed'
+
+        if not os.path.isfile(file_name):
+            cache.delete(f"{cache_prefix}:downloaded:{file}")
+
+        if not cache.get(f"{cache_prefix}:downloaded:{file}"):
+            with client.get(file, stream=True) as res:
+                logger.info(f"reddit archive: start download {file}")
+                f = open(file_name, 'wb')
+                shutil.copyfileobj(res.raw, f)
+                f.close()
+                logger.info(f"reddit archive: end download {file}")
+                cache.set(f"{cache_prefix}:downloaded:{file}",
+                          1,
+                          timeout=cache_timeout)
+
+        f = open(file_name, 'rb')
+
+        stream = zstandard.ZstdDecompressor(max_window_size=2**31).\
+            stream_reader(f, read_across_frames=True)
+
+        text = io.TextIOWrapper(stream)
+
+        graceful_exit = False
+
+        c = 0
+        for line in text:
+            if c % 1_000_000 == 0:
+                logger.info(f"reddit archive: File {file}, line {c}")
+                if worker.graceful_exit(self):
+                    logger.info("reddit archive: graceful exit")
+                    graceful_exit = True
+                    break
+
+            c += 1
+            try:
+                __process_archive_line(line)
+            except Exception as e:
+                logger.info(f"reddit archive: line failed: {e}\n\n{line}")
+
+        stream.close()
+        f.close()
+        os.remove(file_name)
+
+        if not graceful_exit:
+            cache.set(f"{cache_prefix}:processed:{file}",
+                      1,
+                      timeout=cache_timeout)
+
+        time.sleep(5)
 
 
 class EndOfSubreddits(Exception):
@@ -80,170 +245,6 @@ def get_subreddit(subreddit,
     redis_client.expire(redis_key, 60 * 7)
 
     return stories
-
-
-def get_reddit_archive_links(client, starting_from=None):
-    url_prefix = 'https://files.pushshift.io/reddit/submissions/'
-    digests = client.get(url_prefix + 'sha256sums.txt')
-    available_files = []
-    for line in digests.content.decode().split("\n"):
-        fields = line.split()
-        if len(fields) >= 2:
-            available_files.append(fields[1])
-    available_months = set()
-    for file in available_files:
-        match = re.findall(r"RS.*(\d\d\d\d)-(\d\d)\..*", file)[0]
-        available_months.add(match[0] + "-" + match[1])
-
-    extensions = ['zst', 'xz', 'bz2']
-
-    chosen_files = []
-    for month in sorted(available_months):
-        if starting_from and month < starting_from:
-            continue
-        found = False
-        for ext in extensions:
-            if found:
-                break
-            for file in available_files:
-                if re.findall(f'RS.*{month}.' + ext, file):
-                    found = True
-                    chosen_files.append(url_prefix + file)
-                    break
-
-    return chosen_files
-
-
-def url_blacklisted(url):
-    if url.startswith('i.imgur.com') or \
-            url.startswith('imgur.com') or \
-            url.startswith('gfycat.com'):
-        return True
-
-    return False
-
-
-def process_archive_line(line):
-    p = json.loads(line)
-    if p.get('subreddit') not in subreddit_whitelist:
-        # print(f"subreddit skipped {p.get('subreddit')}")
-        return
-
-    if not p.get('url'):
-        return
-    if p.get('is_self'):
-        return
-    if p.get('over_18'):
-        return
-    if p.get('is_reddit_media_domain'):
-        return
-    if p.get('hidden'):
-        return
-    if p.get('media'):
-        return
-    if p.get('score') < 1:
-        return
-    if p.get('num_comments') <= 2:
-        return
-
-    platform_id = 'r' + p.get('id')
-
-    if models.Discussion.objects.filter(platform_id=platform_id).exists():
-        return
-
-    scheme, url = discussions.split_scheme((p.get('url') or '').strip())
-    if len(url) > 2000:
-        return
-    if not scheme:
-        logging.warning(
-            f"Reddit archive: no scheme for {platform_id}, url {p.get('url')}")
-        return
-
-    canonical_url = discussions.canonical_url(url)
-    if len(canonical_url) > 2000 or canonical_url == url:
-        canonical_url = None
-
-    if url_blacklisted(canonical_url or url):
-        return
-
-    created_utc = p.get('created_utc')
-    if type(created_utc) == str:
-        created_utc = int(created_utc)
-    created_at = datetime.datetime.fromtimestamp(created_utc)
-    created_at = make_aware(created_at)
-
-    subreddit = p.get('subreddit') or ''
-
-    try:
-        models.Discussion(platform_id=platform_id,
-                          comment_count=p.get('num_comments') or 0,
-                          score=p.get('score') or 0,
-                          created_at=created_at,
-                          scheme_of_story_url=scheme,
-                          schemeless_story_url=url,
-                          canonical_story_url=canonical_url,
-                          title=p.get('title'),
-                          tags=[subreddit.lower()]).save()
-    except Exception as e:
-        logger.warning(f"reddit archive: {e}")
-        return
-
-
-def fetch_reddit_archive():
-    client = http.client(with_cache=False)
-    r = get_redis_connection("default")
-    redis_prefix = 'discussions:fetch_reddit_archive'
-
-    for file in get_reddit_archive_links(client):
-        logger.warning(f"reddit archive: processing {file}")
-        if r.get(f"{redis_prefix}:processed:{file}"):
-            continue
-
-        file_name = '/tmp/discussions_reddit_archive_compressed'
-
-        if not r.get(f"{redis_prefix}:downloaded:{file}"):
-            with client.get(file, stream=True) as res:
-                logger.warning(f"reddit archive: start download {file}")
-                f = open(file_name, 'wb')
-                shutil.copyfileobj(res.raw, f)
-                f.close()
-                logger.warning(f"reddit archive: end download {file}")
-                r.set(f"{redis_prefix}:downloaded:{file}",
-                      1,
-                      ex=60 * 60 * 24 * 30)
-
-        f = open(file_name, 'rb')
-
-        if file.endswith('.zst'):
-            stream = zstandard.ZstdDecompressor(
-                max_window_size=2**31
-            ).\
-                stream_reader(f, read_across_frames=True)
-        if file.endswith('.xz'):
-            stream = lzma.open(f, mode="r")
-        if file.endswith('.bz2'):
-            stream = bz2.open(f, mode="r")
-
-        text = io.TextIOWrapper(stream)
-
-        c = 0
-        for line in text:
-            if c % 1_000_000 == 0:
-                logger.warning(f"reddit archive: File {file}, line {c}")
-            c += 1
-            try:
-                process_archive_line(line)
-            except Exception as e:
-                logger.warning(f"reddit archive: line failed: {e}")
-                logger.warning(line)
-
-        stream.close()
-        f.close()
-        os.remove(file_name)
-
-        r.set(f"{redis_prefix}:processed:{file}", 1, ex=60 * 60 * 24 * 30)
-
-        time.sleep(3)
 
 
 def fetch_discussions(index):
@@ -402,71 +403,69 @@ def fetch_recent_discussions():
     r.set(redis_prefix + 'current_index', current_index)
 
 
-def udpate_all_discussions_queryset():
-    return (models.Discussion.objects.filter(platform='r').filter(
+@shared_task(bind=True, ignore_result=True)
+@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+def worker_update_all_discussions(self):
+    reddit = client()
+    cache_current_index_key = 'discussions:reddit_update:current_index'
+    current_index = cache.get(cache_current_index_key) or 0
+
+    logger.debug(f"reddit update all: current index: {current_index}")
+
+    q = (models.Discussion.objects.filter(platform='r').filter(
         archived=False).order_by('pk'))
 
+    logger.debug(f"reddit update all: count {q.count()}")
 
-@transaction.atomic
-def update_all_discussions(from_index, to_index):
-    reddit = client()
+    while True:
+        if worker.graceful_exit(self):
+            logger.info("reddit update all: graceful exit")
+            break
 
-    ps = []
-    ds = []
+        ps = []
+        ds = []
+        query_has_results = False
 
-    for d in udpate_all_discussions_queryset()[from_index:to_index].iterator():
-        if d.subreddit.lower() in subreddit_blacklist:
-            d.delete()
-            continue
-        if url_blacklisted(d.story_canonical_url or d.schemeless_story_url):
-            d.delete()
-            continue
+        step = 100
 
-        if d.subreddit not in subreddit_whitelist:
-            d.delete()
-            continue
+        for d in q[current_index:current_index+step].iterator():
+            query_has_results = True
 
-        ps.append(f't3_{d.id}')
-        ds.append(d)
+            if d.subreddit.lower() in subreddit_blacklist:
+                d.delete()
+                continue
+            if url_blacklisted(d.canonical_story_url or d.schemeless_story_url):
+                d.delete()
+                continue
+            if d.subreddit not in subreddit_whitelist:
+                d.delete()
+                continue
 
-    for p in reddit.info(ps):
-        d = next(d for d in ds if d.platform_id and d.id == p.id)
+            ps.append(f't3_{d.id}')
+            ds.append(d)
 
-        if p.over_18:
-            d.delete()
-            continue
-
-        scheme, url = discussions.split_scheme((p.url or '').strip())
-        if len(url) > 2000:
-            continue
-        if not scheme:
-            logger.warning(
-                f"reddit: update_all_stories: no scheme for {p.id}, url {p.url}"
-            )
-            d.delete()
+        if not query_has_results:
+            logger.debug(f"reddit update all: query with no results: {current_index}")
+            current_index = 0
+            cache.set(cache_current_index_key, current_index, timeout=None)
             continue
 
-        canonical_url = discussions.canonical_url(url)
-        if len(canonical_url) > 2000 or canonical_url == url:
-            canonical_url = None
+        for i, p in enumerate(reddit.info(ps)):
+            d = ds[i]
 
-        if url_blacklisted(canonical_url or url):
-            d.delete()
-            continue
+            if p.over_18:
+                d.delete()
+                continue
 
-        created_utc = p.created_utc
-        if type(created_utc) == str:
-            created_utc = int(created_utc)
-        created_at = datetime.datetime.fromtimestamp(created_utc)
-        created_at = make_aware(created_at)
+            d.comment_count = p.num_comments or 0
+            d.score = p.score or 0
+            d.title = p.title
+            # d.tags = [(p.subreddit.display_name or '').lower()]
+            d.archived = p.archived
+            d.save()
 
-        d.comment_count = p.num_comments or 0
-        d.score = p.score or 0
-        d.created_at = created_at
-        d.story_url_scheme = scheme
-        d.scheme_of_story_url = url
-        d.canonical_story_url = canonical_url
-        d.title = p.title
-        d.tags = [(p.subreddit.display_name or '').lower()]
-        d.archived = p.archived
-        d.save()
+        current_index += step
+
+        cache.set(cache_current_index_key, current_index, timeout=None)
+
+        time.sleep(10)

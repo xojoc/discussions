@@ -59,11 +59,10 @@ def process_item(platform, item, redis=None, skip_timeout=None):
         models.Discussion.objects.filter(pk=platform_id).delete()
         return
 
+    created_at = None
     if item.get('time'):
         created_at = datetime.datetime.fromtimestamp(item.get('time'))
         created_at = make_aware(created_at)
-    else:
-        created_at = None
 
     scheme, url, canonical_url = None, None, None
 
