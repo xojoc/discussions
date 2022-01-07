@@ -44,10 +44,6 @@ def __process_archive_line(line):
         # logger.debug(f"subreddit skipped {p.get('subreddit')}")
         return
 
-    if not p.get('url'):
-        return
-    if p.get('is_self'):
-        return
     if p.get('over_18'):
         return
     if p.get('is_reddit_media_domain'):
@@ -62,6 +58,26 @@ def __process_archive_line(line):
         return
 
     platform_id = 'r' + p.get('id')
+
+    url = None
+    if p.get('is_self') and p.get('selftext_html'):
+        h = http.parse_html(p.get('selftext_html'))
+        if h and h.a and h.a.get('href'):
+            url = h.a['href']
+    else:
+        url = p.get('url')
+
+    if not url:
+        return
+
+    scheme, story_url = discussions.split_scheme(url.strip())
+    if not scheme:
+        return
+
+    canonical_url = discussions.canonical_url(story_url)
+
+    if url_blacklisted(canonical_url or story_url):
+        return
 
     scheme, url, canonical_url = None, None, None
 
@@ -150,11 +166,11 @@ def worker_fetch_reddit_archive(self):
 
         if not cache.get(f"{cache_prefix}:downloaded:{file}"):
             with client.get(file, stream=True) as res:
-                logger.info(f"reddit archive: start download {file}")
+                logger.debug(f"reddit archive: start download {file}")
                 f = open(file_name, 'wb')
                 shutil.copyfileobj(res.raw, f)
                 f.close()
-                logger.info(f"reddit archive: end download {file}")
+                logger.debug(f"reddit archive: end download {file}")
                 cache.set(f"{cache_prefix}:downloaded:{file}",
                           1,
                           timeout=cache_timeout)
@@ -244,14 +260,79 @@ def get_subreddit(subreddit,
     return stories
 
 
+def __process_post(p):
+    platform_id = f"r{p.id}"
+
+    if p.over_18:
+        return
+
+    if p.is_reddit_media_domain:
+        return
+
+    if p.hidden:
+        return
+
+    if p.media:
+        return
+
+    url = None
+    if p.is_self and p.selftext_html:
+        h = http.parse_html(p.selftext_html)
+        if h and h.a and h.a.get('href'):
+            url = h.a['href']
+    else:
+        url = p.url
+
+    if not url:
+        return
+
+    scheme, story_url = discussions.split_scheme(url.strip())
+    if not scheme:
+        return
+
+    canonical_url = discussions.canonical_url(story_url)
+
+    if url_blacklisted(canonical_url or story_url):
+        return
+
+    created_utc = p.created_utc
+    if type(created_utc) == str:
+        created_utc = int(created_utc)
+    created_at = datetime.datetime.fromtimestamp(created_utc)
+    created_at = make_aware(created_at)
+
+    subreddit = p.subreddit.display_name.lower()
+
+    try:
+        discussion = models.Discussion.objects.get(pk=platform_id)
+        discussion.comment_count = p.num_comments or 0
+        discussion.score = p.score or 0
+        discussion.created_at = created_at
+        discussion.scheme_of_story_url = scheme
+        discussion.schemeless_story_url = story_url
+        discussion.canonical_story_url = canonical_url
+        discussion.title = p.title
+        discussion.archived = p.archived
+        discussion.tags = [subreddit]
+        discussion.save()
+    except models.Discussion.DoesNotExist:
+        models.Discussion(platform_id=platform_id,
+                          comment_count=p.num_comments or 0,
+                          score=p.score or 0,
+                          created_at=created_at,
+                          scheme_of_story_url=scheme,
+                          schemeless_story_url=story_url,
+                          canonical_story_url=canonical_url,
+                          title=p.title,
+                          archived=p.archived,
+                          tags=[subreddit]).save()
+
+
 def fetch_discussions(index):
     reddit = client()
     redis = get_redis_connection("default")
-    skip_key_prefix = 'discussions:reddit:skip:'
-    temporary_skip_key_prefix = 'discussions:reddit:temporary_skip:'
     skip_sub_key_prefix = 'discussions:reddit:subreddit:skip:'
     max_created_at_key = 'discussions:reddit:max_created_at:'
-    cache_timeout = 60 * 30
 
     start_time = time.monotonic()
 
@@ -278,91 +359,8 @@ def fetch_discussions(index):
 
         try:
             for p in stories:
-                platform_id = f"r{p.id}"
-
-                if redis.get(skip_key_prefix + p.id):
-                    redis.set(skip_key_prefix + p.id, 1, ex=cache_timeout)
-                    continue
-
-                if redis.get(temporary_skip_key_prefix + p.id):
-                    continue
-
-                if not p.url:
-                    redis.set(skip_key_prefix + p.id, 1, ex=cache_timeout)
-                    continue
-
-                if p.is_self:
-                    redis.set(skip_key_prefix + p.id, 1, ex=cache_timeout)
-                    continue
-
-                if p.over_18:
-                    redis.set(skip_key_prefix + p.id, 1, ex=cache_timeout)
-                    continue
-
-                if p.is_reddit_media_domain:
-                    redis.set(skip_key_prefix + p.id, 1, ex=cache_timeout)
-                    continue
-
-                if p.hidden:
-                    redis.set(temporary_skip_key_prefix + p.id,
-                              1,
-                              ex=cache_timeout)
-                    continue
-
-                if p.media:
-                    redis.set(skip_key_prefix + p.id, 1, ex=cache_timeout)
-                    continue
-
-                scheme, url = discussions.split_scheme((p.url or '').strip())
-                if len(url) > 2000:
-                    continue
-                if not scheme:
-                    redis.set(skip_key_prefix + p.id, 1, ex=cache_timeout)
-                    continue
-
-                canonical_url = discussions.canonical_url(url)
-                if len(canonical_url) > 2000 or canonical_url == url:
-                    canonical_url = None
-
-                if url_blacklisted(canonical_url or url):
-                    redis.set(skip_key_prefix + p.id, 1, ex=cache_timeout)
-                    continue
-
-                created_utc = p.created_utc
-                if type(created_utc) == str:
-                    created_utc = int(created_utc)
-                created_at = datetime.datetime.fromtimestamp(created_utc)
-                created_at = make_aware(created_at)
-
+                __process_post(p)
                 max_created_at = max(p.created_utc, max_created_at)
-
-                try:
-                    discussion = models.Discussion.objects.get(pk=platform_id)
-                    discussion.comment_count = p.num_comments or 0
-                    discussion.score = p.score or 0
-                    discussion.created_at = created_at
-                    discussion.scheme_of_story_url = scheme
-                    discussion.schemeless_story_url = url
-                    discussion.canonical_story_url = canonical_url
-                    discussion.title = p.title
-                    discussion.archived = p.archived
-                    discussion.tags = [name]
-                    discussion.save()
-                except models.Discussion.DoesNotExist:
-                    models.Discussion(platform_id=platform_id,
-                                      comment_count=p.num_comments or 0,
-                                      score=p.score or 0,
-                                      created_at=created_at,
-                                      scheme_of_story_url=scheme,
-                                      schemeless_story_url=url,
-                                      canonical_story_url=canonical_url,
-                                      title=p.title,
-                                      archived=p.archived,
-                                      tags=[name]).save()
-
-                # To avoid to hit the Reddit API too often, skip this discussion for some time
-                redis.set(temporary_skip_key_prefix + p.id, 1, ex=60 * 15)
-
         except (prawcore.exceptions.Forbidden, prawcore.exceptions.NotFound,
                 prawcore.exceptions.PrawcoreException) as e:
             logger.warning(f"reddit: subreddit {name}: {e}")
