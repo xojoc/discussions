@@ -59,6 +59,10 @@ def process_item(platform, item, redis=None, skip_timeout=None):
         models.Discussion.objects.filter(pk=platform_id).delete()
         return
 
+    tags = None
+    if item.get('keys'):
+        tags = [k.removeprefix('/l/') for k in item.get('keys') if k.startswith('/l/')]
+
     created_at = None
     if item.get('time'):
         created_at = datetime.datetime.fromtimestamp(item.get('time'))
@@ -78,7 +82,8 @@ def process_item(platform, item, redis=None, skip_timeout=None):
                   'scheme_of_story_url': scheme,
                   'schemeless_story_url': url,
                   'canonical_story_url': canonical_url,
-                  'title': item.get('title')})
+                  'title': item.get('title'),
+                  'tags': tags})
 
     if skip_timeout:
         cache.set(__cache_skip_prefix(platform) + str(item.get('id')), 1, timeout=skip_timeout)

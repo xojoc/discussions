@@ -1,7 +1,10 @@
 import time
 import logging
-from web import models, celery_util, crawler
+from web import models, celery_util, crawler, discussions
 from celery import shared_task
+from django.utils import timezone
+import datetime
+
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +24,9 @@ def update_db():
     start_time = time.monotonic()
     count_dirty = 0
     count_dirty_resource = 0
-    stories = models.Discussion.objects.all().order_by()
+    seven_days_ago = timezone.now() - datetime.timedelta(days=7)
+    stories = models.Discussion.\
+        objects.filter(entry_updated_at__lte=seven_days_ago).order_by()
 
     logger.info(f"db update: count {stories.count()}")
 
@@ -41,6 +46,9 @@ def update_db():
         canonical_story_url = story.canonical_story_url
         normalized_title = story.normalized_title
         normalized_tags = story.normalized_tags
+
+        if story.schemeless_story_url:
+            story.canonical_story_url = discussions.canonical_url(story.schemeless_story_url)
 
         story._pre_save()
 

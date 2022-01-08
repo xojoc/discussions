@@ -105,8 +105,10 @@ def _canonical_query(query):
     pq = url_parse.parse_qsl(query, keep_blank_values=True)
 
     queries_to_skip = {
-        'cd-origin', 'utm_term', 'utm_campaign', 'utm_content', 'utm_source',
-        'utm_medium', 'gclid', 'gclsrc', 'dclid', 'fbclid', 'zanpid',
+        'cd-origin',
+        'utm_term', 'utm_campaign', 'utm_content', 'utm_source', 'utm_medium',
+        'cmpid', 'camp', 'cid',
+        'gclid', 'gclsrc', 'dclid', 'fbclid', 'zanpid',
         'guccounter', 'campaign_id', 'tstart'
     }
 

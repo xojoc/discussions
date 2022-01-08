@@ -68,7 +68,6 @@ def __reddit(tags, title):
                           {'laravel'},
                           'php')
     return tags
-    return tags
 
 
 def __hacker_news(tags, title):
@@ -82,6 +81,10 @@ def __hacker_news(tags, title):
 
 def __lambda_the_ultimate(tags, title):
     return tags - {'previously', 'general', 'recent discussion', 'previously on ltu', 'discussion', 'recently', 'here'}
+
+
+def __laarc(tags, title):
+    return tags - {'news', 'meta', 'laarc'}
 
 
 def __from_title_url(tags, title, url):
@@ -186,6 +189,8 @@ def normalize(tags, platform=None, title="", url=""):
             tags = __reddit(tags, title)
         elif platform == 'h':
             tags = __hacker_news(tags, title)
+        elif platform == 'a':
+            tags = __laarc(tags, title)
         elif platform == 'u':
             tags = __lambda_the_ultimate(tags, title)
 

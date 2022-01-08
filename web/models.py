@@ -230,6 +230,8 @@ class Discussion(models.Model):
                 return 'https://m.reddit.com/r'
         elif platform in ('l', 'b', 'g', 't', 's'):
             return cls.platform_url(platform, preferred_external_url) + '/t'
+        elif platform in ('a'):
+            return cls.platform_url(platform, preferred_external_url) + '/l'
 
         return None
 
@@ -566,6 +568,9 @@ class Resource(models.Model):
 
     @classmethod
     def by_url(cls, url):
+        if not url:
+            return None
+
         scheme, url = discussions.split_scheme(url)
         cu = discussions.canonical_url(url)
 
