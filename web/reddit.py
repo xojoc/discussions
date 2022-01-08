@@ -6,7 +6,7 @@ import os
 import re
 import shutil
 import time
-
+import statistics
 import praw
 import prawcore
 import zstandard
@@ -17,10 +17,9 @@ from django.utils.timezone import make_aware
 from django_redis import get_redis_connection
 from discussions.settings import APP_CELERY_TASK_MAX_TIME
 from django.core.cache import cache
-
 from . import celery_util, worker
 from . import http, models, discussions
-import pickle
+
 
 logger = logging.getLogger(__name__)
 
@@ -225,24 +224,13 @@ def client(with_cache=False, with_retries=True):
 
 
 def get_subreddit(subreddit,
+                  reddit_client,
                   listing='new',
-                  listing_argument='',
-                  redis_client=None,
-                  reddit_client=None):
+                  listing_argument=''):
 
-    if not redis_client:
-        redis_client = get_redis_connection("default")
     subreddit = subreddit.lower()
-    redis_key = f'discussions:subreddit_cache:{listing}:{listing_argument}:{subreddit}'
 
     stories = set()
-    for story in redis_client.smembers(redis_key):
-        stories.add(pickle.loads(story, encoding='UTF-8'))
-    if stories:
-        return stories
-
-    if not reddit_client:
-        reddit_client = client()
     list = None
     if listing == 'new':
         list = reddit_client.subreddit(subreddit).new(limit=100)
@@ -252,10 +240,7 @@ def get_subreddit(subreddit,
 
     for story in list:
         _ = story.title  # force load
-        redis_client.sadd(redis_key, pickle.dumps(story))
         stories.add(story)
-
-    redis_client.expire(redis_key, 60 * 7)
 
     return stories
 
@@ -330,9 +315,7 @@ def __process_post(p):
 
 def fetch_discussions(index):
     reddit = client()
-    redis = get_redis_connection("default")
     skip_sub_key_prefix = 'discussions:reddit:subreddit:skip:'
-    max_created_at_key = 'discussions:reddit:max_created_at:'
 
     start_time = time.monotonic()
 
@@ -343,37 +326,44 @@ def fetch_discussions(index):
         name = subreddit.lower()
         index += 1
 
-        if redis.get(skip_sub_key_prefix + name):
+        if cache.get(skip_sub_key_prefix + name):
             continue
 
         try:
-            stories = get_subreddit(name,
-                                    redis_client=redis,
-                                    reddit_client=reddit)
+            stories = get_subreddit(name, reddit)
         except Exception as e:
             logger.warning(f"reddit: subreddit {name}: {e}")
             continue
 
-        subreddit_max_created_at = redis.get(max_created_at_key + name)
-        max_created_at = 0
+        created_at = []
 
         try:
             for p in stories:
                 __process_post(p)
-                max_created_at = max(p.created_utc, max_created_at)
+                if p.created_utc:
+                    created_at.append(int(p.created_utc))
         except (prawcore.exceptions.Forbidden, prawcore.exceptions.NotFound,
                 prawcore.exceptions.PrawcoreException) as e:
             logger.warning(f"reddit: subreddit {name}: {e}")
             continue
 
-        if not subreddit_max_created_at or max_created_at > float(
-                subreddit_max_created_at):
-            redis.set(max_created_at_key + name,
-                      max_created_at,
-                      ex=60 * 60 * 24 * 180)
+        created_at = sorted(created_at)
+        created_at_diff = [created_at[i+1] - created_at[i] for i in range(len(created_at)-1)]
+
+        if created_at_diff:
+            delay = statistics.median(created_at_diff)
         else:
-            # No new story. Skip this subreddit for a while
-            redis.set(skip_sub_key_prefix + name, 1, ex=60 * 60)
+            delay = 0
+
+        logger.debug(f"reddit update: {name}: median {delay}")
+
+        delay = 3*delay/4
+        delay = max(60*15, min(delay, 60*60*24*7))
+
+        td = datetime.timedelta(seconds=delay)
+        logger.debug(f"reddit update: {name}: delay {td}")
+
+        cache.set(skip_sub_key_prefix + name, 1, timeout=delay)
 
     return index
 
