@@ -19,6 +19,7 @@ from discussions.settings import APP_CELERY_TASK_MAX_TIME
 from django.core.cache import cache
 from . import celery_util, worker
 from . import http, models, discussions
+import markdown
 
 
 logger = logging.getLogger(__name__)
@@ -59,10 +60,13 @@ def __process_archive_line(line):
     platform_id = 'r' + p.get('id')
 
     url = None
-    if p.get('is_self') and p.get('selftext_html'):
-        h = http.parse_html(p.get('selftext_html'))
-        if h and h.a and h.a.get('href'):
-            url = h.a['href']
+    if p.get('is_self'):
+        if p.get('selftext'):
+            logger.debug(f"reddit archive: is self {platform_id}")
+            h = http.parse_html(markdown.markdown(p.get('selftext')))
+            if h and h.a and h.a.get('href'):
+                url = h.a['href']
+                logger.debug(f"reddit archive: url from selftext: {platform_id}: {url}")
     else:
         url = p.get('url')
 
@@ -261,10 +265,11 @@ def __process_post(p):
         return
 
     url = None
-    if p.is_self and p.selftext_html:
-        h = http.parse_html(p.selftext_html)
-        if h and h.a and h.a.get('href'):
-            url = h.a['href']
+    if p.is_self:
+        if p.selftext_html:
+            h = http.parse_html(p.selftext_html)
+            if h and h.a and h.a.get('href'):
+                url = h.a['href']
     else:
         url = p.url
 
