@@ -83,7 +83,7 @@ Discussions around the Web
 	<li>
 	    <span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a></span>
 	    <span class="similar-search">(<a href="{{d.story_url|discussions_url}}"
-					     title="Find discussions for this URL">Search by URL</a>)</span>
+					     title="All discussions for this URL">Search by URL</a>)</span>
 	    <br />
 	    {{d.title}} <span class="similar-search">(<a href="{{d.title|discussions_url}}"
 							 title="Search discussions with similar title">Search by title</a>)</span>
@@ -92,7 +92,7 @@ Discussions around the Web
 		 rel="noreferrer noopener" target="_blank"
 	    -->
 
-	    <a href="{{d.discussion_url}}"><b>{{d.comment_count}}</b>
+	    <a href="{{d.discussion_url}}" title="View discussion on {{platform_name}}"><b>{{d.comment_count}}</b>
 		comment{{d.comment_count|pluralize:",s"}}</a>, <b>{{d.score}}</b> {{d.score_label}} [<time
 													 datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
 	    {% if d.tags %}
@@ -101,7 +101,8 @@ Discussions around the Web
 	    {% endif %}
 	    {% for tag in d.tags %}
 	    {% if platform_tag_url %}
-	    <a href="{{platform_tag_url}}/{{tag}}">{{tag}}</a>{% if not forloop.last %}, {% endif %}
+	    <a href="{{platform_tag_url}}/{{tag}}"
+	       title="View tag «{{tag}}» on {{platform_name}}">{{tag}}</a>{% if not forloop.last %}, {% endif %}
 	    {% else %}
 	    {{tag}}{% if not forloop.last %}, {% endif %}
 	    {% endif %}
@@ -212,7 +213,9 @@ Discussions around the Web
 
     {% if not ctx.nothing_found %}
     <br />
-    <h2><a href="https://xojoc.pw/donate">Donate</a></h2>
+    <div class="donate">
+    <p><a href="https://xojoc.pw/donate">Donate</a></p>
+    </div>
     {% endif %}
 
 </div>

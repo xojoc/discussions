@@ -84,7 +84,7 @@ def __lambda_the_ultimate(tags, title):
 
 
 def __laarc(tags, title):
-    return tags - {'news', 'meta', 'laarc'}
+    return tags - {'news', 'meta', 'laarc', 'ask'}
 
 
 def __from_title_url(tags, title, url):

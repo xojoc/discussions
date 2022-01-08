@@ -39,8 +39,21 @@ body {
 body a {
 /*	color: #F0FFA9; */
 	color: #066f8f;
-	 text-decoration: none;
+	text-decoration: none;
 }
+/*
+body a:visited {
+    color: #103b48;
+}
+*/
+
+footer a, footer a:visited {
+    color: #066f8f;
+    text-decoration: none;
+    font-size: 0.8em;
+}
+
+
 body a:hover {
 	text-decoration: underline;
 }
@@ -180,7 +193,7 @@ header h1 {
 	padding-bottom: 0.1em;
 	font-size: 2em;
 }
-header h1 a {
+header h1 a, header h1 a:visited {
 	color: black;
 	text-decoration: none;
 	font-weight: bold;
@@ -435,12 +448,6 @@ footer {
 	background-color: #f9f9f9;
 	box-shadow: 0 -0.05em 1em 0.1em #00000010;
 	color: black;
-}
-
-footer a {
-/*	color: #2A3440; */
-	text-decoration: none;
-	font-size: 0.8em;
 }
 
 .source_description, .helptext {
@@ -755,6 +762,10 @@ tbody tr:nth-child(even) {
 	padding-right: 0.5em;
 }
 
+#discussions li {
+    padding-bottom: 0.2em;
+}
+
 /*
 #discussions input[type=url] {
 	min-width: 50vw;
@@ -815,13 +826,18 @@ tbody td {
 }
 
 .similar-search {
-	font-size: 0.6em;
+    font-size: 0.6em;
+    padding-left: 0.2em;
+}
+
+.similar-search a, .similar-search a:visited {
+    color: black;
 }
 
 .discussions_story_url {
 	font-size: 0.65em;
 }
-.discussions_story_url a {
+.discussions_story_url a, .discussions_story_url a:visited {
 	color: black;
 }
 
@@ -835,4 +851,9 @@ tbody td {
 	list-style-type: disc;
 	list-style-position: inside;
 	padding-left: 1em;
+}
+
+.donate a, .donate a:visited {
+    color: #2C8C00;
+    font-weight: 900;
 }

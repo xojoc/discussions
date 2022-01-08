@@ -139,6 +139,9 @@ def process_next():
     if url.startswith('https://www.reddit.com/gallery/'):
         return False
 
+    if url.startswith('https://www.reddit.com/r/'):
+        return False
+
     if not get_semaphore(url):
         logger.debug(f"process_next: semaphore red: {url}")
         if priority <= 1:
