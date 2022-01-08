@@ -27,8 +27,9 @@ def discussions_platform_statistics():
 
 def discussions_top_stories():
     stats = models.Discussion.objects.\
-        values('canonical_story_url').\
+        exclude(canonical_story_url__isnull=True).\
         exclude(canonical_story_url__startswith='reddit.com/').\
+        values('canonical_story_url').\
         annotate(comment_count=Sum('comment_count'),
                  title=Max('title'),
                  date__last_discussion=Max('created_at'),

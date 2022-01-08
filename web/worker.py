@@ -11,7 +11,9 @@ cache_graceful_exit_key = 'discussions:worker:graceful_exit'
 
 @celery.signals.worker_ready.connect
 def celery_worker_ready(signal, sender, **kwargs):
-    cache.delete(cache_graceful_exit_key)
+    # wait for entry to expire
+    return
+    # cache.delete(cache_graceful_exit_key)
 
 
 def __patch_greenlet(f):
@@ -22,7 +24,7 @@ def __patch_greenlet(f):
 
 @__patch_greenlet
 def __cache_set():
-    cache.set(cache_graceful_exit_key, 1, timeout=60*2)
+    cache.set(cache_graceful_exit_key, 1, timeout=60*3)
 
 
 def __timer(after, repeat, f):
