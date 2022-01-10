@@ -284,7 +284,8 @@ def tweet_discussions():
     stories = models.Discussion.objects.\
         filter(created_at__gte=three_days_ago).\
         filter(comment_count__gte=min_comment_count).\
-        filter(score__gte=min_score)
+        filter(score__gte=min_score).\
+        exclude(schemeless_story_url__isnull=True)
 
     for story in stories:
         related_discussions, _, _ = models.Discussion.of_url(
