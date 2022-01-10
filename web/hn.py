@@ -174,7 +174,7 @@ def _worker_fetch(task, platform):
             item = fetch_item(platform, id, client=client)
             if item:
                 process_item(platform, item, redis=redis, skip_timeout=skip_timeout)
-                time.sleep(0.1)
+                time.sleep(0.5)
 
         cache.set(cache_current_item_key, current_item, timeout=None)
 

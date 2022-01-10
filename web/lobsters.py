@@ -24,16 +24,27 @@ def process_item(item, platform):
         scheme, url = discussions.split_scheme(item.get('url').strip())
         canonical_url = discussions.canonical_url(url)
 
-    models.Discussion.objects.update_or_create(
-        pk=platform_id,
-        defaults={'comment_count': item.get('comment_count') or 0,
-                  'score': item.get('score') or 0,
-                  'created_at': created_at,
-                  'scheme_of_story_url': scheme,
-                  'schemeless_story_url': url,
-                  'canonical_story_url': canonical_url,
-                  'title': item.get('title'),
-                  'tags': item.get('tags')})
+    try:
+        discussion = models.Discussion.objects.get(pk=platform_id)
+        discussion.comment_count = item.get('comment_count') or 0
+        discussion.score = item.get('score') or 0
+        discussion.created_at = created_at
+        discussion.scheme_of_story_url = scheme
+        discussion.schemeless_story_url = url
+        discussion.canonical_story_url = canonical_url
+        discussion.title = item.get('title')
+        discussion.tags = item.get('tags')
+        discussion.save()
+    except models.Discussion.DoesNotExist:
+        models.Discussion(platform_id=platform_id,
+                          comment_count=item.get('comment_count') or 0,
+                          score=item.get('score') or 0,
+                          created_at=created_at,
+                          scheme_of_story_url=scheme,
+                          schemeless_story_url=url,
+                          canonical_story_url=canonical_url,
+                          title=item.get('title'),
+                          tags=item.get('tags')).save()
 
 
 def __worker_fetch(task, platform):

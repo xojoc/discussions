@@ -64,9 +64,18 @@ def __process_archive_line(line):
         if p.get('selftext'):
             logger.debug(f"reddit archive: is self {platform_id}")
             h = http.parse_html(markdown.markdown(p.get('selftext')))
-            if h and h.a and h.a.get('href'):
-                url = h.a['href']
-                logger.debug(f"reddit archive: url from selftext: {platform_id}: {url}")
+            if h:
+                for a in (h.select('a') or []):
+                    if a and a.get('href'):
+                        url = a['href']
+                        if not (url.startswith('http://') or
+                                url.startswith('https://')):
+                            url = None
+                            continue
+                        else:
+                            logger.debug(f"reddit archive: url from selftext: {platform_id}: {url}")
+                            break
+
     else:
         url = p.get('url')
 
@@ -268,8 +277,18 @@ def __process_post(p):
     if p.is_self:
         if p.selftext_html:
             h = http.parse_html(p.selftext_html)
-            if h and h.a and h.a.get('href'):
-                url = h.a['href']
+            if h:
+                for a in (h.select('a') or []):
+                    if a and a.get('href'):
+                        url = a['href']
+                        if not (url.startswith('http://') or
+                                url.startswith('https://')):
+                            url = None
+                            continue
+                        else:
+                            logger.debug(f"reddit process: url from selftext: {platform_id}: {url}")
+                            break
+
     else:
         url = p.url
 
@@ -362,7 +381,7 @@ def fetch_discussions(index):
 
         logger.debug(f"reddit update: {name}: median {delay}")
 
-        delay = 3*delay/4
+        # delay = 3*delay/4
         delay = max(60*15, min(delay, 60*60*24*7))
 
         td = datetime.timedelta(seconds=delay)

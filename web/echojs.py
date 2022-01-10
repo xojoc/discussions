@@ -10,7 +10,7 @@ from django.utils.timezone import make_aware
 logger = logging.getLogger(__name__)
 
 
-def process_item(item, platform):
+def __process_item(item, platform):
     platform_id = f"{platform}{item.get('id')}"
 
     if item.get('ctime'):
@@ -20,7 +20,8 @@ def process_item(item, platform):
         created_at = None
 
     scheme, url, canonical_url = None, None, None
-    if item.get('url'):
+    if item.get('url') and (item.get('url').startswith('http://') or
+                            item.get('url').startswith('https://')):
         scheme, url = discussions.split_scheme(item.get('url').strip())
         canonical_url = discussions.canonical_url(url)
 
@@ -73,7 +74,7 @@ def __worker_fetch(task, platform):
                 break
 
             for item in j.get('news'):
-                process_item(item, platform)
+                __process_item(item, platform)
 
             time.sleep(10)
 
