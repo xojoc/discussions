@@ -144,9 +144,9 @@ def tweet(status, username):
     auth.set_access_token(token, token_secret)
     api = tweepy.API(auth, wait_on_rate_limit=True)
     status = api.update_status(status)
-    if status.id:
-        __sleep(5, 9)
-        api.create_favorite(status.id)
+    # if status.id:
+    #    __sleep(5, 9)
+    #    api.create_favorite(status.id)
     return status.id
 
 
@@ -170,8 +170,8 @@ def retweet(tweet_id, username):
     auth.set_access_token(token, token_secret)
     api = tweepy.API(auth, wait_on_rate_limit=True)
     api.retweet(tweet_id)
-    __sleep(13, 25)
-    api.create_favorite(tweet_id)
+    # __sleep(13, 25)
+    # api.create_favorite(tweet_id)
     return tweet_id
 
 
