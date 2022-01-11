@@ -167,8 +167,8 @@ def post_discussions():
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
     five_days_ago = timezone.now() - datetime.timedelta(days=5)
 
-    min_comment_count = 1
-    min_score = 2
+    min_comment_count = 2
+    min_score = 5
 
     stories = models.Discussion.objects.\
         filter(created_at__gte=three_days_ago).\
@@ -202,7 +202,7 @@ def post_discussions():
         tags = set(story.normalized_tags or [])
         platforms = {story.platform}
         for rd in related_discussions:
-            if rd.comment_count >= 1 and rd.score >= 2:
+            if rd.comment_count >= min_comment_count and rd.score >= min_score:
                 tags |= set(rd.normalized_tags or [])
             if rd.comment_count >= min_comment_count and \
                rd.score >= min_score and \

@@ -153,17 +153,22 @@ def _worker_fetch(task, platform):
         # for id in updates.get('items')[:10]:
         #     queue.append((id, 60*15))
 
-        for id in client.get(f"{bu}/v0/topstories.json",
-                             timeout=7.05).json()[:30]:
-            queue.append((id, 60*15))
+        logger.debug("hn fetch top stories")
+        top_stories = client.get(f"{bu}/v0/topstories.json", timeout=7.05).json()
+        for i, id in enumerate(top_stories[:100]):
+            queue.append((id, 60*(i/10+10)))
+
+        logger.debug("hn fetch end top stories")
 
         # for id in client.get(f"{bu}/v0/beststories.json",
         #                      timeout=7.05).json()[:20]:
         #     queue.append((id, 60*15))
 
-        for id in client.get(f"{bu}/v0/newstories.json",
-                             timeout=7.05).json()[:20]:
-            queue.append((id, 60*5))
+        logger.debug("hn fetch new stories")
+        new_stories = client.get(f"{bu}/v0/newstories.json", timeout=7.05).json()
+        for i, id in enumerate(new_stories[:100]):
+            queue.append((id, 60*(i/10+10)))
+        logger.debug("hn fetch end new stories")
 
         for (id, skip_timeout) in queue:
             logger.debug(f"hn fetch: {current_item} {id} {skip_timeout}")
@@ -174,7 +179,10 @@ def _worker_fetch(task, platform):
             item = fetch_item(platform, id, client=client)
             if item:
                 process_item(platform, item, redis=redis, skip_timeout=skip_timeout)
-                time.sleep(0.5)
+                t = 0.5
+                if platform == 'h':
+                    t = 0.1
+                time.sleep(t)
 
         cache.set(cache_current_item_key, current_item, timeout=None)
 

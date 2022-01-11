@@ -3,7 +3,6 @@
 {% load humanize %}
 {% load util %}
 
-
 {% block title %}
 {% if ctx.title or ctx.original_query %}
 Discussions for «{% firstof ctx.title ctx.original_query %}»
@@ -17,8 +16,6 @@ Discussions around the Web
 <link rel="canonical" href="{{ctx.link_canonical_url}}" />
 {% endif %}
 {% endblock extra_head %}
-
-
 
 
 {% block main %}
@@ -124,27 +121,40 @@ Discussions around the Web
 
     <br />
     <h2>What is this?</h2>
-    <p>This form finds all the discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker
+    <p>Search for discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker
 	News</a>,
 	<a href="https://lobste.rs/" title='Lobsters'>Lobsters</a>, <a href="https://www.reddit.com/"
 									     title='Reddit'>Reddit</a>, <a href="http://lambda-the-ultimate.org" title="Lambda the Ultimate">Lambda the
-	    Ultimate</a> and <a href="https://barnacl.es/" title="Barnacles">Barnacles</a>
-	for a given URL. You can also search for stories using a title or keyword.
+	    Ultimate</a>, <a href="https://laarc.io/" title="Laarc">Laarc</a> (and <a href="/statistics#platforms" title="Platforms">others</a>)
+	for a given URL or keyword.
     </p>
 
 
     <h2>Examples</h2>
+    Lookup by URL:
+
     <ul>
-	<li>Get the discussions for a given URL: <a href="/q/https%3A%2F%2Fxojoc.pw%2Fblog%2Ffocus"
-							  title="Why I'm focusing only on some programming languages">https://xojoc.pw/blog/focus</a></li>
-	<li>another example: <a
-				 href="/q/https%3A%2F%2Fhacks.mozilla.org%2F2017%2F11%2Fentering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster%2F">https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster/</a>
+	<li><a href="{{'https://xojoc.pw/blog/focus'|discussions_url}}"
+	       title="Why I'm focusing only on some programming languages">https://xojoc.pw/blog/focus</a></li>
+	<li><a href="{{'https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster'|discussions_url}}" title="How Firefox Got Fast Again">https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster</a>
 	</li>
-	<li>Or search by title/keyword: <a href="{{'Catala programming language'|discussions_url}}">Catala programming
+    </ul>
+
+    Lookup by title/keyword:
+    <ul>
+	<li><a href="{{'Catala programming language'|discussions_url}}">Catala programming
 	    language</a></li>
-	<li>another example: <a href="{{'Postgres 14'|discussions_url}}">Postgres 14</a> or <a
+	<li> <a href="{{'Postgres 14'|discussions_url}}">Postgres 14</a></li>
+	<li><a
 												href="{{'Why Most Published Research Findings Are False'|discussions_url}}">Why Most Published Research
 	    Findings Are False</a></a></li>
+    </ul>
+
+    Search for stories on a given site:
+    <ul>
+	<li><a href="{{'site:bellard.org'|discussions_url}}" title="Fabrice Bellard's website">site:bellard.org</a></li>
+	<li><a href="{{'site:rust-lang.org'|discussions_url}}" title="Rust's website">site:rust-lang.org</a></li>
+	<li><a href="{{'site:arxiv.org programming language'|discussions_url}}" title="Papers about programming languages">site:arxiv.org programming language</a> - papers on arXiv.org about programming languages</li>
     </ul>
 
 

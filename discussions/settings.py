@@ -226,6 +226,16 @@ LOGGING = {
             'level': 'WARNING',
             'propagate': False,
         },
+        'requests': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'urllib3': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        }
     },
 }
 
