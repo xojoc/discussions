@@ -239,9 +239,6 @@ def tweet_story(title, url, tags, platforms, already_tweeted_by):
     tweet_id = None
 
     for bot_name, cfg in configuration['bots'].items():
-        if bot_name not in ('RustDiscussions'):
-            continue
-
         if bot_name in already_tweeted_by:
             continue
 

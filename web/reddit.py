@@ -37,6 +37,27 @@ def url_blacklisted(url):
 
     return False
 
+def __url_from_selftext(selftext):
+    if not selftext:
+        return
+
+    h = http.parse_html(markdown.markdown(selftext))
+    if not h:
+        return
+
+    for a in (h.select('a') or []):
+        if a and a.get('href'):
+            scheme, u = discussions.split_scheme(a['href'])
+            if scheme not in ('http', 'https', 'ftp'):
+                continue
+            if url_blacklisted(u):
+                continue
+            if u.startswith('reddit.com') or\
+               u.startswith('www.reddit.com'):
+                continue
+
+            return a['href']
+
 
 def __process_archive_line(line):
     p = json.loads(line)
@@ -61,21 +82,7 @@ def __process_archive_line(line):
 
     url = None
     if p.get('is_self'):
-        if p.get('selftext'):
-            logger.debug(f"reddit archive: is self {platform_id}")
-            h = http.parse_html(markdown.markdown(p.get('selftext')))
-            if h:
-                for a in (h.select('a') or []):
-                    if a and a.get('href'):
-                        url = a['href']
-                        if not (url.startswith('http://') or
-                                url.startswith('https://')):
-                            url = None
-                            continue
-                        else:
-                            logger.debug(f"reddit archive: url from selftext: {platform_id}: {url}")
-                            break
-
+        url = __url_from_selftext(p.get('selftext'))
     else:
         url = p.get('url')
 
@@ -275,20 +282,7 @@ def __process_post(p):
 
     url = None
     if p.is_self:
-        if p.selftext_html:
-            h = http.parse_html(p.selftext_html)
-            if h:
-                for a in (h.select('a') or []):
-                    if a and a.get('href'):
-                        url = a['href']
-                        if not (url.startswith('http://') or
-                                url.startswith('https://')):
-                            url = None
-                            continue
-                        else:
-                            logger.debug(f"reddit process: url from selftext: {platform_id}: {url}")
-                            break
-
+        url = __url_from_selftext(p.selftext)
     else:
         url = p.url
 
