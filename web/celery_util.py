@@ -64,6 +64,8 @@ def singleton(timeout=APP_CELERY_TASK_MAX_TIME * 5, blocking_timeout=0.1):
                     f(*args, **kwargs)
             except LockError:
                 logger.debug(f"Lock {lock_name} not acquired timeout = {timeout}, blocking_timeout = {blocking_timeout}")
+            except Exception as e:
+                logger.debug(f"singleton {lock_name}: {e}")
 
         return wrapper
 

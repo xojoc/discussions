@@ -5,6 +5,7 @@ from celery import shared_task
 from . import http, discussions, models
 from . import celery_util, worker
 from django.core.cache import cache
+import django
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,7 @@ def __worker_fetch(task, platform):
             for item in r.json():
                 process_item(item, platform)
 
+            django.db.connections.close_all()
             time.sleep(60)
 
         current_page += 1
