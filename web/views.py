@@ -123,7 +123,7 @@ def discussions_context(q):
             ctx['title'] = ctx['resource'].title
             ctx['inbound_resources'] = ctx['resource'].inbound_resources()
             for res in ctx['inbound_resources']:
-                res.discussions_comment_count = res.discussions_comment_count()
+                res.discussions_comment_count = 0  # res.discussions_comment_count()
 
     if not ctx.get('title'):
         if uds and\
