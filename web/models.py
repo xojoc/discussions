@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.postgres import fields as postgres_fields
-from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.indexes import GinIndex, OpClass
 from django.contrib.postgres.search import TrigramWordBase
 from django.contrib.postgres.search import SearchVectorField
 from django.db.models.lookups import PostgresOperatorLookup
@@ -12,7 +12,7 @@ from django.core import serializers
 import json
 from dateutil import parser as dateutil_parser
 from django.db.models import Sum, Value, Q
-from django.db.models.functions import Round, Coalesce
+from django.db.models.functions import Round, Coalesce, Upper
 
 
 class MyTrigramStrictWordSimilarity(TrigramWordBase):
@@ -36,9 +36,9 @@ class Discussion(models.Model):
             #          opclasses=['gin_trgm_ops']),
             GinIndex(name='gin_discussion_vec_title',
                      fields=["title_vector"]),
-            models.Index(name='index_schemeless_story_url',
-                         fields=['schemeless_story_url'],
-                         opclasses=['varchar_pattern_ops']),
+            models.Index(OpClass(Upper('schemeless_story_url'),
+                                 name='varchar_pattern_ops'),
+                         name='index_schemeless_story_url'),
             models.Index(name='index_canonical_story_url',
                          fields=['canonical_story_url'],
                          opclasses=['varchar_pattern_ops']),
@@ -272,8 +272,8 @@ class Discussion(models.Model):
         cu = discussions.canonical_url(url)
         rcu = cu
 
-        ds = (cls.objects.filter(schemeless_story_url=url)
-              | cls.objects.filter(schemeless_story_url=cu)
+        ds = (cls.objects.filter(schemeless_story_url__iexact=url)
+              | cls.objects.filter(schemeless_story_url__iexact=cu)
               | cls.objects.filter(canonical_story_url=cu))
 
         if only_relevant_stories:
@@ -295,55 +295,29 @@ class Discussion(models.Model):
         min_comments = 2
         min_score = 2
 
+        if not url_or_title:
+            return None, None, None
+
         scheme, url = discussions.split_scheme(url_or_title)
         cu = discussions.canonical_url(url)
         rcu = cu
 
-        query = url_or_title
+        ds = (cls.objects.filter(schemeless_story_url__iexact=url)
+              | cls.objects.filter(schemeless_story_url__iexact=cu)
+              | cls.objects.filter(canonical_story_url=cu))
 
-        site_prefix = 'site:'
-        site = None
-        if url_or_title.startswith(site_prefix) and\
-           len(url_or_title.split()[0]) > len(site_prefix):
-
-            site = url_or_title.split()[0]
-            query = ' '.join(url_or_title.split()[1:])
-
-            url_prefix = site[len(site_prefix):]
-            curl_prefix = discussions.canonical_url(url_prefix)
-
-            ds = (cls.objects.filter(schemeless_story_url=url_prefix) |
-                  cls.objects.filter(canonical_story_url=url_prefix) |
-                  cls.objects.filter(canonical_story_url=curl_prefix) |
-                  cls.objects.filter(schemeless_story_url__startswith=url_prefix) |
-                  cls.objects.filter(schemeless_story_url__startswith=curl_prefix) |
-                  cls.objects.filter(canonical_story_url__startswith=url_prefix) |
-                  cls.objects.filter(canonical_story_url__startswith=curl_prefix))
-
-            ds = ds.filter(
-                Q(comment_count__gte=min_comments)
-                | Q(created_at__gt=seven_days_ago)
-                | Q(platform='u'))
-            ds = ds.filter(score__gte=min_score)
-        else:
-            ds = (cls.objects.filter(schemeless_story_url=url)
-                  | cls.objects.filter(schemeless_story_url=cu)
-                  | cls.objects.filter(canonical_story_url=cu))
-
-            ds = ds.filter(
-                Q(comment_count__gte=min_comments)
-                | Q(created_at__gt=seven_days_ago)
-                | Q(platform='u'))
-
-        # ds = ds.annotate(word_similarity=Value(99))
         ds = ds.annotate(search_rank=Value(1))
+
+        ds = ds.filter(
+            Q(comment_count__gte=min_comments)
+            | Q(created_at__gt=seven_days_ago)
+            | Q(platform='u'))
+
+        # ds = ds[:50]
 
         ts = None
 
-        if len(query) > 1 and not (
-                query.lower().startswith('http:')
-                or query.lower().startswith('https:')):
-
+        if scheme not in ('http', 'https', 'ftp'):
             # xojoc: test search with:
             #   https://discu.eu/q/APL%20in%20JavaScript
             #   https://discu.eu/q/Go%201.4.1%20has%20been%20released
@@ -352,52 +326,52 @@ class Discussion(models.Model):
             #   https://discu.eu/q/The%20Carnap%20Programming%20Language
             #   https://discu.eu/?q=For+C+programmers+that+hate+C%2B%2B+%282011%29
 
-            q = title.normalize(query, stem=False)
+            query = url_or_title
+            site_prefix = 'site:'
+            tokens = url_or_title.split()
 
-            wsq = SearchQuery(q, search_type='websearch')
-            psq = SearchQuery(q, search_type='plain')
-            # normalized_title = title.normalize(url_or_title, stem=True)
+            if tokens[0].startswith(site_prefix) and len(tokens[0]) > len(site_prefix):
+                query = ' '.join(tokens[1:])
 
-            base = cls.objects
-            if site:
-                base = ds
-            ts = base.annotate(search_rank=Round(SearchRank('title_vector', psq), 2))
-            # annotate(word_similarity=Round(
-            #     MyTrigramStrictWordSimilarity(normalized_title, 'title'), 2))
+                url_prefix = tokens[0][len(site_prefix):].lower()
+                curl_prefix = discussions.canonical_url(url_prefix, generic=True)
 
-            # ts = ts.filter(title__trigram_strict_word_similar=normalized_title)
-            ts = ts.filter(Q(title_vector=wsq) | Q(title_vector=psq))
+                ts = (cls.objects.filter(schemeless_story_url__iexact=url_prefix) |
+                      cls.objects.filter(schemeless_story_url__iexact=url_prefix) |
+                      cls.objects.filter(canonical_story_url=curl_prefix) |
+                      cls.objects.filter(schemeless_story_url__istartswith=url_prefix) |
+                      cls.objects.filter(schemeless_story_url__istartswith=curl_prefix) |
+                      cls.objects.filter(canonical_story_url__startswith=url_prefix) |
+                      cls.objects.filter(canonical_story_url__startswith=curl_prefix))
 
-            # xojoc: this is needed to filter out sensless results non
-            # filtered out by the trigram filter. Example: "APL in JavaScript"
-            # ts = ts.filter(search_rank__gt=0.2)
+            if len(query) > 1:
+                q = title.normalize(query, stem=False)
+                psq = SearchQuery(q, search_type='plain')
 
-            ts = ts.filter(
-                Q(comment_count__gte=min_comments)
-                | Q(created_at__gt=seven_days_ago)
-                | Q(platform='u'))
+                base = cls.objects
+                if ts is not None:
+                    base = ts
 
-            # ts = ts.order_by('-word_similarity')
-            ts = ts.order_by('-search_rank')
+                ts = base.annotate(search_rank=Round(SearchRank('title_vector', psq), 2))
+                ts = ts.filter(title_vector=psq)
+            else:
+                if ts is not None:
+                    ts = ts.annotate(search_rank=Value(1))
 
-            # ts = ts[:23]
+            if ts is not None:
+                ts = ts.filter(
+                    (Q(comment_count__gte=min_comments) & Q(score__gte=min_score))
+                    | Q(created_at__gt=seven_days_ago)
+                    | Q(platform='u'))
 
-            # ds = ds.union(ts)
+                ts = ts[:30]
 
-        if site and ts is not None:
-            ds = ts
-            ds = ds.order_by('-search_rank', '-created_at',
-                             '-platform_id')
-        elif not site and ts is not None:
-            ds = ds[:30]
-            ts = ts[:23]
+        if ts is not None:
             ds = ds.union(ts)
-            ds = ds.order_by('-search_rank', '-created_at',
-                             '-platform_id')
-        else:
-            ds = ds.order_by('-search_rank', '-created_at',
-                             '-platform_id')
-            ds = ds[:30]
+
+        ds = ds.order_by('-search_rank', '-created_at', '-platform_id')
+
+        ds = ds[:50]
 
         return ds, cu, rcu
 

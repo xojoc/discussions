@@ -37,6 +37,7 @@ def url_blacklisted(url):
 
     return False
 
+
 def __url_from_selftext(selftext):
     if not selftext:
         return

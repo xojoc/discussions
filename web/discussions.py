@@ -304,7 +304,8 @@ def canonical_url(url,
                   redis=None,
                   follow_redirects=False,
                   cache=True,
-                  timeout=3.05):
+                  timeout=3.05,
+                  generic=False):
     if not url:
         return url
 
@@ -330,8 +331,9 @@ def canonical_url(url,
     if new_path is not None:
         path = new_path
 
-    host, path, parsed_query = _canonical_specific_websites(
-        host, path, parsed_query)
+    if not generic:
+        host, path, parsed_query = _canonical_specific_websites(
+            host, path, parsed_query)
 
     host = _remap_host(host)
 

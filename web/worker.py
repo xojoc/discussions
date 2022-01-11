@@ -24,7 +24,7 @@ def __patch_greenlet(f):
 
 @__patch_greenlet
 def __cache_set():
-    cache.set(cache_graceful_exit_key, 1, timeout=60*3)
+    cache.set(cache_graceful_exit_key, 1, timeout=60*4)
 
 
 def __timer(after, repeat, f):
