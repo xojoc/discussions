@@ -62,34 +62,34 @@ def __extract_author(article, h):
         if ' ' in author.twitter_site:
             author.twitter_site = None
 
-    if not author.twitter_account:
-        domain = 'twitter.com'
-        twitter_links = []
-        if article:
-            twitter_links = article.select(f'a[href*="{domain}" i]')
-        if h:
-            twitter_links.extend(h.select(f'a[href*="{domain}" i]'))
-        possible_accounts = set()
+    # if not author.twitter_account:
+    #     domain = 'twitter.com'
+    #     twitter_links = []
+    #     if article:
+    #         twitter_links = article.select(f'a[href*="{domain}" i]')
+    #     if h:
+    #         twitter_links.extend(h.select(f'a[href*="{domain}" i]'))
+    #     possible_accounts = set()
 
-        for t in twitter_links:
-            l = t.get('href', '')
-            l = l.removeprefix('https://')
-            l = l.removeprefix('http://')
-            parts = l.split('/')
-            parts = [p for p in parts if p]
-            if len(parts) == 2:
-                if parts[0] not in ('twitter.com', 'm.twitter.com', 'mobile.twitter.com', 'www.twitter.com'):
-                    continue
-                if '?' in parts[1] or '&' in parts[1]:
-                    continue
-                if parts[1] in ('signup', 'login', 'signin', 'about', 'share'):
-                    continue
-                possible_accounts.add(parts[1])
+    #     for t in twitter_links:
+    #         l = t.get('href', '')
+    #         l = l.removeprefix('https://')
+    #         l = l.removeprefix('http://')
+    #         parts = l.split('/')
+    #         parts = [p for p in parts if p]
+    #         if len(parts) == 2:
+    #             if parts[0] not in ('twitter.com', 'm.twitter.com', 'mobile.twitter.com', 'www.twitter.com'):
+    #                 continue
+    #             if '?' in parts[1] or '&' in parts[1]:
+    #                 continue
+    #             if parts[1] in ('signup', 'login', 'signin', 'about', 'share'):
+    #                 continue
+    #             possible_accounts.add(parts[1])
 
-        if len(possible_accounts) == 1:
-            author.twitter_account = possible_accounts.pop()
-            if author.twitter_account.lower() == (author.twitter_site or '').lower():
-                author.twitter_account = None
+    #     if len(possible_accounts) == 1:
+    #         author.twitter_account = possible_accounts.pop()
+    #         if author.twitter_account.lower() == (author.twitter_site or '').lower():
+    #             author.twitter_account = None
 
     return author
 

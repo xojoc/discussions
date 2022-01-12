@@ -17,8 +17,9 @@ class Title(unittest.TestCase):
             n('Ⅷ'),
             n("isn't you're i'd we'll i'm can’t"),
             n("Postgres Plugin in c++"),
-            n('Why Go?', url='blog.org/why-golang', stem=False),
+            n('Why Go 1.4.1.?', url='blog.org/why-golang', stem=False),
             n("Postgres: PostgreSQL 10 Released", stem=False),
+            n("a++ A-0 c-- C* J++ J# xbase++ .ql", stem=False),
         ], [
             'nation park typefac',
             'a',
@@ -31,6 +32,7 @@ class Title(unittest.TestCase):
             'viii',
             'is not you are i had we will i am can not',
             'postgresql plugin in cpp',
-            'why golang',
-            'postgresql 10 released'
+            'why golang 1.4.1',
+            'postgresql 10 released',
+            'app a-0 cmm cstar jpp jsharp xbasepp dotql'
         ])

@@ -55,12 +55,24 @@ def __format(title):
 def __punctuation(title):
     title = title.replace("'s ", ' ')
     new_title = ""
-    for c in title:
-        cat = unicodedata.category(c)
-        if cat.startswith('P'):
-            new_title += ' '
-            continue
-        new_title += c
+    for w in title.split():
+        while len(w) > 0:
+            cat = unicodedata.category(w[0])
+            if cat.startswith('P'):
+                w = w[1:]
+            else:
+                break
+
+        while len(w) > 0:
+            cat = unicodedata.category(w[-1])
+            if cat.startswith('P'):
+                w = w[:-1]
+            else:
+                break
+
+        new_title += w
+        new_title += " "
+
     new_title = ' '.join(new_title.split())
     return new_title
 
@@ -91,8 +103,8 @@ def __contraction(title):
 
 __synonyms = {
     "postgres": "postgresql",
-    "c++": "cpp",
-    "c#": "csharp",
+    # "c++": "cpp",
+    # "c#": "csharp",
     "covid": "coronavirus",
     "covid-19": "coronavirus",
     "python4": "python",
@@ -109,6 +121,23 @@ def __synonym(title):
             new_title += syn
         else:
             new_title += w
+        new_title += ' '
+
+    return new_title.strip()
+
+
+def __programming_language_name(title):
+    new_title = ""
+    for w in title.split():
+        if re.match(r'^\w+[#\-+*]+$', w, flags=re.ASCII):
+            w = w.replace('+', 'p')
+            w = w.replace('#', 'sharp')
+            w = w.replace('-', 'm')
+            w = w.replace('*', 'star')
+        elif re.match(r'^\.\w+$', w, flags=re.ASCII):
+            w = w.replace('.', 'dot')
+
+        new_title += w
         new_title += ' '
 
     return new_title.strip()
@@ -160,6 +189,7 @@ def normalize(title, platform=None, url="", tags=[], stem=True):
     title = __contraction(title)
 
     title = __synonym(title)
+    title = __programming_language_name(title)
 
     title = __punctuation(title)
 
