@@ -250,7 +250,7 @@ def tweet_story(title, url, tags, platforms, already_tweeted_by):
                     retweet(tweet_id, bot_name)
                     tweeted_by.append(bot_name)
                 except Exception as e:
-                    logger.warn(f"{bot_name}: {e}")
+                    logger.warn(f"twitter {bot_name}: {e}")
                     sentry_sdk.capture_exception(e)
                     __sleep(7, 13)
             else:
@@ -258,7 +258,7 @@ def tweet_story(title, url, tags, platforms, already_tweeted_by):
                     tweet_id = tweet(status, bot_name)
                     tweeted_by.append(bot_name)
                 except Exception as e:
-                    logger.warn(f"{bot_name}: {e}: {status}")
+                    logger.warn(f"twitter {bot_name}: {e}: {status}")
                     sentry_sdk.capture_exception(e)
                     __sleep(2, 5)
 
@@ -320,16 +320,16 @@ def tweet_discussions():
 
                 platforms |= {rd.platform}
 
-        __print(f"{story.platform_id}: {already_tweeted_by}: {platforms}")
+        logger.info(f"twitter {story.platform_id}: {already_tweeted_by}: {platforms}: {tags}")
 
         tweet_id = None
         try:
             tweet_id, tweeted_by = tweet_story(
                 story.title, story.story_url, tags, platforms, already_tweeted_by)
         except Exception as e:
-            logger.warn(f"{story.platform_id}: {e}")
+            logger.warn(f"twitter: {story.platform_id}: {e}")
 
-        __print(f"{tweet_id}: {tweeted_by}")
+        logger.info(f"twitter {tweet_id}: {tweeted_by}")
 
         if tweet_id:
             t = models.Tweet(tweet_id=tweet_id, bot_names=tweeted_by)

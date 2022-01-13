@@ -331,13 +331,13 @@ def fetch_discussions(index):
         if cache.get(skip_sub_key_prefix + name):
             continue
 
+        logger.info(f"reddit fetch: subdreddit {name}")
+
         try:
             stories = get_subreddit(name, reddit)
         except Exception as e:
             logger.warning(f"reddit: subreddit {name}: {e}")
             continue
-
-        logger.info(f"reddit fetch: subdreddit {name}")
 
         created_at = []
 
@@ -411,7 +411,7 @@ def worker_update_all_discussions(self):
             logger.info("reddit update all: graceful exit")
             break
 
-        logger.info(f"reddit update: next step {current_index}")
+        # logger.info(f"reddit update: next step {current_index}")
 
         ps = []
         ds = []

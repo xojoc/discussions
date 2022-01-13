@@ -161,6 +161,8 @@ def _worker_fetch(task, platform):
 
         logger.info(f"hn {platform} queue: {queue_loops_c} {queue_max_loops} {skip_timeout_weight}")
 
+        queue_loops_c += 1
+
         end = time.monotonic() + 60
         while time.monotonic() < end and queue:
             (id, nth) = queue.pop(0)
@@ -171,8 +173,6 @@ def _worker_fetch(task, platform):
                 skip_timeout = 60*(nth/10 + skip_timeout_weight)
 
             __fetch_process_item(platform, id, client, redis, skip_timeout)
-
-        queue_loops_c += 1
 
         if worker.graceful_exit(task):
             logger.info("hn {platform} fetch: graceful exit")
