@@ -61,6 +61,8 @@ def __worker_fetch(task, platform):
             logger.info(f"lobsters {platform} fetch: graceful exit")
             break
 
+        logger.info(f"lobsters {platform} fetch: page {current_page}")
+
         pages = [current_page]
 
         if current_page % 10 == 0:

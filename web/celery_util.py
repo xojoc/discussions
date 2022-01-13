@@ -46,13 +46,17 @@ def split_task(redis_prefix,
         r.set(redis_prefix + 'current_index', current_index + step)
 
 
+def lock_key(f):
+    f_path = f"{f.__module__}.{f.__name__}".replace('.', ':')
+    return "discussions:lock:" + f_path
+
+
 def singleton(timeout=APP_CELERY_TASK_MAX_TIME * 5, blocking_timeout=0.1):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             r = get_redis_connection("default")
-            f_path = f"{f.__module__}.{f.__name__}".replace('.', ':')
-            lock_name = "discussions:lock:" + f_path
+            lock_name = lock_key(f)
 
             logger.debug(f'Lock {lock_name}: {timeout}: {blocking_timeout}')
 

@@ -75,6 +75,7 @@ def __hacker_news(tags, title):
     tags = __augment_tags(title, tags, 'docker')
     tags = __augment_tags(title, tags, 'javascript')
     tags = __augment_tags(title, tags, 'typescript')
+    tags = __augment_tags(title, tags, 'lisp')
     tags = __augment_tags(title, tags, 'rust', None, 'rustlang')
     return tags
 
@@ -90,15 +91,13 @@ def __laarc(tags, title):
 def __from_title_url(tags, title, url):
     tags = __augment_tags(title, tags, 'golang')
     tags = __augment_tags(title, tags, 'rustlang')
+    tags = __augment_tags(title, tags, 'rust', {'programming'}, 'rustlang')
     tags = __augment_tags(title, tags, 'cpp')
     tags = __augment_tags(title, tags, 'csharp')
     tags = __augment_tags(title, tags, 'haskell')
-    tags = __augment_tags(title, tags, 'java',
-                          {'programming'})
-    tags = __augment_tags(title, tags, 'django',
-                          {'python', 'webdev', 'programming'})
-    tags = __augment_tags(title, tags, 'flask',
-                          {'python', 'webdev', 'programming'})
+    tags = __augment_tags(title, tags, 'java', {'programming'})
+    tags = __augment_tags(title, tags, 'django', {'python', 'webdev', 'programming'})
+    tags = __augment_tags(title, tags, 'flask', {'python', 'webdev', 'programming'})
     tags = __augment_tags(title, tags, 'linux')
     tags = __augment_tags(title, tags, 'dragonflybsd')
     tags = __augment_tags(title, tags, 'freebsd')

@@ -1,6 +1,7 @@
 import time
 import logging
 from web import models, celery_util, crawler, discussions
+from web import worker
 from celery import shared_task
 from django.utils import timezone
 import datetime
@@ -18,9 +19,9 @@ def timing_iterate_all(chunk_size=10_000):
     logger.info(f"db iterate all: {time.monotonic() - start_time}")
 
 
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
-def update_db():
+@shared_task(ignore_result=True, bind=True)
+@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+def worker_update_discussions():
     start_time = time.monotonic()
     count_dirty = 0
     count_dirty_resource = 0
@@ -65,18 +66,33 @@ def update_db():
         if len(dirty_stories) >= 1000:
             __update(dirty_stories)
 
-        resource = models.Resource.by_url(story.schemeless_story_url)
-        if resource:
-            if resource.last_fetch and\
-               resource.status_code == 200 and\
-               (not resource.last_processed or resource.last_processed < resource.last_fetch):
-
-                crawler.extract_html.delay(resource.id)
-                count_dirty_resource += 1
-
     if len(dirty_stories) > 0:
         __update(dirty_stories)
 
     logger.info(f"db update: total dirty: {count_dirty}")
     logger.info(f"db update: total resource dirty: {count_dirty_resource}")
+    logger.info(f"db update: {time.monotonic() - start_time}")
+
+
+@shared_task(ignore_result=True, bind=True)
+@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+def worker_update_resources(self):
+    start_time = time.monotonic()
+    resources = models.Resource.objects.all().order_by()
+
+    logger.info(f"db update resources: count {resources.count()}")
+
+    last_checkpoint = time.monotonic()
+
+    for resource in resources.iterator(chunk_size=10):
+        crawler.extract_html(resource)
+        logger.info("x")
+        if time.monotonic() > last_checkpoint + 60:
+            if worker.graceful_exit(self):
+                logger.info("update resources: graceful exit")
+                break
+
+            logger.info("update resources: checkpoint")
+            last_checkpoint = time.monotonic()
+
     logger.info(f"db update: {time.monotonic() - start_time}")

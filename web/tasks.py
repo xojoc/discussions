@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 def test_task(self):
     logger.info("started test_task")
 
+    breakpoint()
+
     import time
     time.sleep(30)
 

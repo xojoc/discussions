@@ -216,6 +216,9 @@ def extract_html(resource):
     if resource.status_code != 200:
         return
 
+    if not resource.clean_html:
+        return
+
     html = http.parse_html(resource.clean_html, safe_html=True)
     html_structure = extract.structure(html)
     resource.title = html_structure.title

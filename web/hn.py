@@ -170,6 +170,8 @@ def _worker_fetch(task, platform):
             queue.append((id, 60*(i/10+10)))
         logger.debug("hn fetch end new stories")
 
+        logger.info(f"hn fetch: queue lenth {len(queue)}")
+
         for (id, skip_timeout) in queue:
             logger.debug(f"hn fetch: {current_item} {id} {skip_timeout}")
 

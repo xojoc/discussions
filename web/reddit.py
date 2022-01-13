@@ -30,6 +30,9 @@ subreddit_whitelist = set()
 
 
 def url_blacklisted(url):
+    if not url:
+        return False
+
     if url.startswith('i.imgur.com') or \
             url.startswith('imgur.com') or \
             url.startswith('gfycat.com'):
@@ -81,36 +84,18 @@ def __process_archive_line(line):
 
     platform_id = 'r' + p.get('id')
 
-    url = None
+    scheme, url, story_url, canonical_url = None, None, None, None
     if p.get('is_self'):
         url = __url_from_selftext(p.get('selftext'))
     else:
         url = p.get('url')
 
-    if not url:
-        return
-
-    scheme, story_url = discussions.split_scheme(url.strip())
-    if not scheme:
-        return
-
-    canonical_url = discussions.canonical_url(story_url)
+    if url:
+        scheme, story_url = discussions.split_scheme(url.strip())
+        canonical_url = discussions.canonical_url(story_url)
 
     if url_blacklisted(canonical_url or story_url):
         return
-
-    scheme, url, canonical_url = None, None, None
-
-    if p.get('url'):
-        scheme, url = discussions.split_scheme(p.get('url'))
-        if scheme:
-            canonical_url = discussions.canonical_url(url)
-            if url_blacklisted(canonical_url or url):
-                return
-        else:
-            logging.warning(
-                f"Reddit archive: no scheme for {platform_id}, url {p.get('url')}")
-            return
 
     created_at = None
     if p.get('created_utc'):
@@ -128,7 +113,7 @@ def __process_archive_line(line):
                                          score=p.get('score') or 0,
                                          created_at=created_at,
                                          scheme_of_story_url=scheme,
-                                         schemeless_story_url=url,
+                                         schemeless_story_url=story_url,
                                          canonical_story_url=canonical_url,
                                          title=p.get('title'),
                                          tags=[subreddit.lower()])
@@ -257,7 +242,7 @@ def get_subreddit(subreddit,
         list = reddit_client.subreddit(subreddit).new(limit=100)
     if listing == 'top':
         list = reddit_client.subreddit(subreddit).top(listing_argument,
-                                                      limit=30)
+                                                      limit=100)
 
     for story in list:
         _ = story.title  # force load
@@ -283,18 +268,18 @@ def __process_post(p):
 
     url = None
     if p.is_self:
-        url = __url_from_selftext(p.selftext)
+        if not p.stickied:
+            url = __url_from_selftext(p.selftext)
     else:
         url = p.url
 
     if not url:
         return
 
-    scheme, story_url = discussions.split_scheme(url.strip())
-    if not scheme:
-        return
-
-    canonical_url = discussions.canonical_url(story_url)
+    scheme, url, story_url, canonical_url = None, None, None, None
+    if url:
+        scheme, story_url = discussions.split_scheme(url.strip())
+        canonical_url = discussions.canonical_url(story_url)
 
     if url_blacklisted(canonical_url or story_url):
         return
@@ -353,6 +338,8 @@ def fetch_discussions(index):
         except Exception as e:
             logger.warning(f"reddit: subreddit {name}: {e}")
             continue
+
+        logger.info(f"reddit fetch: subdreddit {name}")
 
         created_at = []
 
@@ -425,6 +412,8 @@ def worker_update_all_discussions(self):
         if worker.graceful_exit(self):
             logger.info("reddit update all: graceful exit")
             break
+
+        logger.info(f"reddit update: next step {current_index}")
 
         ps = []
         ds = []

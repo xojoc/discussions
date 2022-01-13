@@ -3,6 +3,8 @@ import celery
 from django.core.cache import cache
 import gevent
 from gevent.hub import get_hub
+from web import celery_util
+from django_redis import get_redis_connection
 
 logger = logging.getLogger(__name__)
 
@@ -39,4 +41,11 @@ def celery_worker_shutting_down(**kwargs):
 
 
 def graceful_exit(task):
-    return cache.get(cache_graceful_exit_key)
+    e = cache.get(cache_graceful_exit_key)
+    if e:
+        return e
+    else:
+        k = celery_util.lock_key(task)
+        redis = get_redis_connection()
+        redis.expire(k, 60*5)
+        return False
