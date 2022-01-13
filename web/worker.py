@@ -47,5 +47,5 @@ def graceful_exit(task):
     else:
         k = celery_util.lock_key(task)
         redis = get_redis_connection()
-        redis.expire(k, 60*5)
+        redis.expire(k, 60*10)
         return False

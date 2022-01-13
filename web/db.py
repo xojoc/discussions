@@ -21,7 +21,7 @@ def timing_iterate_all(chunk_size=10_000):
 
 @shared_task(ignore_result=True, bind=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
-def worker_update_discussions():
+def worker_update_discussions(self):
     start_time = time.monotonic()
     count_dirty = 0
     count_dirty_resource = 0
@@ -86,7 +86,6 @@ def worker_update_resources(self):
 
     for resource in resources.iterator(chunk_size=10):
         crawler.extract_html(resource)
-        logger.info("x")
         if time.monotonic() > last_checkpoint + 60:
             if worker.graceful_exit(self):
                 logger.info("update resources: graceful exit")
