@@ -159,7 +159,7 @@ def _worker_fetch(task, platform):
 
             queue_loops_c = 0
 
-        logger.info(f"hn {platform} queue: {queue_loops_c} {queue_max_loops} {skip_timeout_weight}")
+        logger.info(f"hn {platform} queue ({len(queue)}): {queue_loops_c} {queue_max_loops} {skip_timeout_weight}")
 
         queue_loops_c += 1
 
