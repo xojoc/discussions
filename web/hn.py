@@ -32,7 +32,7 @@ def __base_url(platform):
         return 'https://laarrc.firebaseio.com'
 
 
-def process_item(platform, item, redis=None, skip_timeout=None):
+def process_item(platform, item, redis=None, skip_timeout=0):
     if not item:
         return
 
@@ -51,8 +51,6 @@ def process_item(platform, item, redis=None, skip_timeout=None):
     if item.get('type') != 'story':
         if item.get('type') == 'comment':
             redis.sadd(__redis_comment_set_key(platform), item.get('id'))
-        else:
-            logger.debug(f"{platform_id}: item not story or comment: {item.get('type')}")
         return
 
     if item.get('dead'):
@@ -85,7 +83,7 @@ def process_item(platform, item, redis=None, skip_timeout=None):
                   'title': item.get('title'),
                   'tags': tags})
 
-    if skip_timeout:
+    if skip_timeout > 0:
         cache.set(__cache_skip_prefix(platform) + str(item.get('id')), 1, timeout=skip_timeout)
 
 
@@ -107,17 +105,35 @@ def fetch_item(platform, id, client=None):
         return
 
 
+def __fetch_process_item(platform, id, client, redis, skip_timeout=0):
+    if redis.sismember(__redis_comment_set_key(platform), id):
+        return
+
+    item = fetch_item(platform, id, client=client)
+    if item:
+        process_item(platform, item, redis=redis, skip_timeout=skip_timeout)
+        t = 1
+        if platform == 'h':
+            t = 0.1
+        time.sleep(t)
+
+
 def _worker_fetch(task, platform):
     client = http.client(with_cache=False)
     redis = get_redis_connection()
 
     cache_current_item_key = f'discussions:hn:{platform}:current_item'
 
-    current_item = cache.get(cache_current_item_key) or 1
-    current_item = int(current_item)
-    max_item = None
+    current_item = int(cache.get(cache_current_item_key) or 1)
+    max_item = 0
 
     bu = __base_url(platform)
+
+    queue = []
+    queue_loops_c = 0
+    queue_max_loops = 3
+    cache_skip_timeout_weight_key = f'discussions:hn:{platform}:skip_timeout_weight'
+    skip_timeout_weight = int(cache.get(cache_skip_timeout_weight_key) or 30)
 
     while True:
         if worker.graceful_exit(task):
@@ -128,65 +144,53 @@ def _worker_fetch(task, platform):
             max_item = client.get(f"{bu}/v0/maxitem.json").content
             max_item = int(max_item)
 
-        if current_item > max_item:
-            current_item = 1
+        if not queue:
+            top_stories = client.get(f"{bu}/v0/topstories.json", timeout=7.05).json()
+            for i, id in enumerate(top_stories[:200]):
+                queue.append((id, i))
+            new_stories = client.get(f"{bu}/v0/newstories.json", timeout=7.05).json()
+            for i, id in enumerate(new_stories[:200]):
+                queue.append((id, i))
 
-        queue = []
+            if queue_loops_c > queue_max_loops:
+                skip_timeout_weight += 1
+            elif queue_loops_c == 1:
+                skip_timeout_weight -= 1
 
-        c = 0
-        while True:
-            if not redis.sismember(__redis_comment_set_key(platform), current_item):
-                queue.append((current_item, 0))
-                c += 1
+            cache.set(cache_skip_timeout_weight_key,
+                      skip_timeout_weight,
+                      timeout=None)
 
+            queue_loops_c = 0
+
+        logger.debug(f"hn queue: {queue_loops_c} {queue_max_loops} {skip_timeout_weight}")
+
+        end = time.monotonic() + 60
+        while time.monotonic() < end and queue:
+            (id, nth) = queue.pop(0)
+            logger.debug(f"hn fetch: {id}, {nth}")
+
+            skip_timeout = 0
+            if queue_loops_c > queue_max_loops:
+                skip_timeout = 60*(nth/10 + skip_timeout_weight)
+
+            __fetch_process_item(platform, id, client, redis, skip_timeout)
+
+        queue_loops_c += 1
+
+        logger.debug(f"hn fetch: current_item {current_item}")
+        end = time.monotonic() + 60
+        while time.monotonic() < end:
+            __fetch_process_item(platform, current_item, client, redis)
             current_item += 1
-
             if current_item > max_item:
+                current_item = 1
+                max_item = 0
                 break
 
-            if c > 70:
-                break
-
-        # updates = client.get(f"{bu}/v0/updates.json",
-        #                 timeout=7.05).json()
-
-        # for id in updates.get('items')[:10]:
-        #     queue.append((id, 60*15))
-
-        logger.debug("hn fetch top stories")
-        top_stories = client.get(f"{bu}/v0/topstories.json", timeout=7.05).json()
-        for i, id in enumerate(top_stories[:100]):
-            queue.append((id, 60*(i/10+10)))
-
-        logger.debug("hn fetch end top stories")
-
-        # for id in client.get(f"{bu}/v0/beststories.json",
-        #                      timeout=7.05).json()[:20]:
-        #     queue.append((id, 60*15))
-
-        logger.debug("hn fetch new stories")
-        new_stories = client.get(f"{bu}/v0/newstories.json", timeout=7.05).json()
-        for i, id in enumerate(new_stories[:100]):
-            queue.append((id, 60*(i/10+10)))
-        logger.debug("hn fetch end new stories")
-
-        logger.info(f"hn fetch: queue lenth {len(queue)}")
-
-        for (id, skip_timeout) in queue:
-            logger.debug(f"hn fetch: {current_item} {id} {skip_timeout}")
-
-            if redis.sismember(__redis_comment_set_key(platform), id):
-                continue
-
-            item = fetch_item(platform, id, client=client)
-            if item:
-                process_item(platform, item, redis=redis, skip_timeout=skip_timeout)
-                t = 0.5
-                if platform == 'h':
-                    t = 0.1
-                time.sleep(t)
-
-        cache.set(cache_current_item_key, current_item, timeout=None)
+        cache.set(cache_current_item_key,
+                  current_item,
+                  timeout=None)
 
 
 @shared_task(bind=True, ignore_result=True)

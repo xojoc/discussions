@@ -273,10 +273,7 @@ def __process_post(p):
     else:
         url = p.url
 
-    if not url:
-        return
-
-    scheme, url, story_url, canonical_url = None, None, None, None
+    scheme, story_url, canonical_url = None, None, None
     if url:
         scheme, story_url = discussions.split_scheme(url.strip())
         canonical_url = discussions.canonical_url(story_url)

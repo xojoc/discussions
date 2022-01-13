@@ -202,7 +202,8 @@ def populate_queue(comment_count=10, score=10, days=3):
     discussions = models.Discussion.objects.\
         filter(created_at__gte=days_ago).\
         filter(comment_count__gte=comment_count).\
-        filter(score__gte=score)
+        filter(score__gte=score).\
+        exclude(schemeless_story_url__isnull=True)
 
     for d in discussions:
         add_to_queue(d.story_url, priority=3)

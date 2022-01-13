@@ -86,6 +86,10 @@ class Discussion(models.Model):
 
     @property
     def story_url(self):
+        if not self.scheme_of_story_url or\
+           not self.schemeless_story_url:
+            return None
+
         return f"{self.scheme_of_story_url}://{self.schemeless_story_url}"
 
     def __str__(self):
