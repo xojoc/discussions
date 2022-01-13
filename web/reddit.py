@@ -232,17 +232,18 @@ def client(with_cache=False, with_retries=True):
 def get_subreddit(subreddit,
                   reddit_client,
                   listing='new',
-                  listing_argument=''):
+                  listing_argument='',
+                  limit=100):
 
     subreddit = subreddit.lower()
 
     stories = set()
     list = None
     if listing == 'new':
-        list = reddit_client.subreddit(subreddit).new(limit=100)
+        list = reddit_client.subreddit(subreddit).new(limit=limit)
     if listing == 'top':
         list = reddit_client.subreddit(subreddit).top(listing_argument,
-                                                      limit=100)
+                                                      limit=limit)
 
     for story in list:
         _ = story.title  # force load

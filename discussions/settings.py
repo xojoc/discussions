@@ -241,6 +241,7 @@ LOGGING = {
 
 if os.environ.get('DJANGO_DEVELOPMENT'):
     LOGGING['loggers']['web']['level'] = 'DEBUG'
+    LOGGING['loggers']['prawcore'] = {'level': 'DEBUG'}
 
 if not os.environ.get('DJANGO_DEVELOPMENT'):
     sentry_logging = LoggingIntegration(

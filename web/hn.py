@@ -140,10 +140,6 @@ def _worker_fetch(task, platform):
             logger.info("hn fetch: graceful exit")
             break
 
-        if not max_item:
-            max_item = client.get(f"{bu}/v0/maxitem.json").content
-            max_item = int(max_item)
-
         if not queue:
             top_stories = client.get(f"{bu}/v0/topstories.json", timeout=7.05).json()
             for i, id in enumerate(top_stories[:200]):
@@ -163,7 +159,7 @@ def _worker_fetch(task, platform):
 
             queue_loops_c = 0
 
-        logger.debug(f"hn queue: {queue_loops_c} {queue_max_loops} {skip_timeout_weight}")
+        logger.info(f"hn queue: {queue_loops_c} {queue_max_loops} {skip_timeout_weight}")
 
         end = time.monotonic() + 60
         while time.monotonic() < end and queue:
@@ -178,7 +174,15 @@ def _worker_fetch(task, platform):
 
         queue_loops_c += 1
 
-        logger.debug(f"hn fetch: current_item {current_item}")
+        if worker.graceful_exit(task):
+            logger.info("hn fetch: graceful exit")
+            break
+
+        if not max_item:
+            max_item = client.get(f"{bu}/v0/maxitem.json").content
+            max_item = int(max_item)
+
+        logger.info(f"hn fetch: current_item {current_item}")
         end = time.monotonic() + 60
         while time.monotonic() < end:
             __fetch_process_item(platform, current_item, client, redis)
