@@ -137,7 +137,7 @@ def _worker_fetch(task, platform):
 
     while True:
         if worker.graceful_exit(task):
-            logger.info("hn {platform} fetch: graceful exit")
+            logger.info(f"hn {platform} fetch: graceful exit")
             break
 
         if not queue:
@@ -175,7 +175,7 @@ def _worker_fetch(task, platform):
             __fetch_process_item(platform, id, client, redis, skip_timeout)
 
         if worker.graceful_exit(task):
-            logger.info("hn {platform} fetch: graceful exit")
+            logger.info(f"hn {platform} fetch: graceful exit")
             break
 
         if not max_item:

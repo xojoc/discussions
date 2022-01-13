@@ -268,7 +268,7 @@ def tweet_story(title, url, tags, platforms, already_tweeted_by):
 
 
 @shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
+@celery_util.singleton(blocking_timeout=0.1)
 def tweet_discussions():
     __sleep(10, 20)
 
@@ -282,7 +282,8 @@ def tweet_discussions():
         filter(created_at__gte=three_days_ago).\
         filter(comment_count__gte=min_comment_count).\
         filter(score__gte=min_score).\
-        exclude(schemeless_story_url__isnull=True)
+        exclude(schemeless_story_url__isnull=True).\
+        order_by('created_at')
 
     for story in stories:
         related_discussions, _, _ = models.Discussion.of_url(

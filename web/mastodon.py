@@ -162,7 +162,7 @@ def post_story(title, url, tags, platforms, already_posted_by):
 
 
 @shared_task(ignore_result=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+@celery_util.singleton(blocking_timeout=0.1)
 def post_discussions():
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
     five_days_ago = timezone.now() - datetime.timedelta(days=5)
@@ -174,7 +174,8 @@ def post_discussions():
         filter(created_at__gte=three_days_ago).\
         filter(comment_count__gte=min_comment_count).\
         filter(score__gte=min_score).\
-        exclude(schemeless_story_url__isnull=True)
+        exclude(schemeless_story_url__isnull=True).\
+        order_by('created_at')
 
     for story in stories:
         related_discussions, _, _ = models.Discussion.of_url(

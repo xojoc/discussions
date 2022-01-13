@@ -200,15 +200,15 @@ LOGGING = {
         'formatter': 'simple'
     },
     'loggers': {
-        'discussions.web': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': True,
-        },
+        # 'discussions.web': {
+        #     'handlers': ['console'],
+        #     'level': 'INFO',
+        #     'propagate': False,
+        # },
         'web': {
             'handlers': ['console'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
         'django.server': {
             'handlers': ['console'],
