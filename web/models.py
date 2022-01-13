@@ -280,6 +280,8 @@ class Discussion(models.Model):
               | cls.objects.filter(schemeless_story_url__iexact=cu)
               | cls.objects.filter(canonical_story_url=cu))
 
+        ds = ds.exclude(schemeless_story_url__isnull=True)
+
         if only_relevant_stories:
             ds = ds.filter(
                 Q(comment_count__gte=min_comments)
@@ -309,6 +311,8 @@ class Discussion(models.Model):
         ds = (cls.objects.filter(schemeless_story_url__iexact=url)
               | cls.objects.filter(schemeless_story_url__iexact=cu)
               | cls.objects.filter(canonical_story_url=cu))
+
+        ds = ds.exclude(schemeless_story_url__isnull=True)
 
         ds = ds.annotate(search_rank=Value(1))
 
@@ -367,6 +371,7 @@ class Discussion(models.Model):
                     (Q(comment_count__gte=min_comments) & Q(score__gte=min_score))
                     | Q(created_at__gt=seven_days_ago)
                     | Q(platform='u'))
+                ts = ts.exclude(schemeless_story_url__isnull=True)
 
                 ts = ts[:30]
 

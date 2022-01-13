@@ -137,7 +137,7 @@ def _worker_fetch(task, platform):
 
     while True:
         if worker.graceful_exit(task):
-            logger.info("hn fetch: graceful exit")
+            logger.info("hn {platform} fetch: graceful exit")
             break
 
         if not queue:
@@ -159,12 +159,12 @@ def _worker_fetch(task, platform):
 
             queue_loops_c = 0
 
-        logger.info(f"hn queue: {queue_loops_c} {queue_max_loops} {skip_timeout_weight}")
+        logger.info(f"hn {platform} queue: {queue_loops_c} {queue_max_loops} {skip_timeout_weight}")
 
         end = time.monotonic() + 60
         while time.monotonic() < end and queue:
             (id, nth) = queue.pop(0)
-            logger.debug(f"hn fetch: {id}, {nth}")
+            logger.debug(f"hn {platform} fetch: {id}, {nth}")
 
             skip_timeout = 0
             if queue_loops_c > queue_max_loops:
@@ -175,14 +175,14 @@ def _worker_fetch(task, platform):
         queue_loops_c += 1
 
         if worker.graceful_exit(task):
-            logger.info("hn fetch: graceful exit")
+            logger.info("hn {platform} fetch: graceful exit")
             break
 
         if not max_item:
             max_item = client.get(f"{bu}/v0/maxitem.json").content
             max_item = int(max_item)
 
-        logger.info(f"hn fetch: current_item {current_item}")
+        logger.info(f"hn {platform} fetch: current_item {current_item}")
         end = time.monotonic() + 60
         while time.monotonic() < end:
             __fetch_process_item(platform, current_item, client, redis)
