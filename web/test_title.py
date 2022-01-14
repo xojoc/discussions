@@ -8,9 +8,9 @@ class Title(unittest.TestCase):
         self.assertEqual([
             n('National Park Typeface (2019)'),
             n('a(2021)'),
-            n('Show HN: Cool Project', platform='h'),
+            # n('Show HN: Cool Project', platform='h'),
             n('Show HN: second Project'),
-            n('Ask HN: q?', platform='h'),
+            # n('Ask HN: q?', platform='h'),
             n('old pdf (1981) [pdf]'),
             n('books\'s "title"'),
             n('“Quotes”'),
@@ -23,9 +23,9 @@ class Title(unittest.TestCase):
         ], [
             'nation park typefac',
             'a',
-            'cool project',
+            # 'cool project',
             'show hn second project',
-            'q',
+            # 'q',
             'old pdf',
             'book titl',
             'quot',

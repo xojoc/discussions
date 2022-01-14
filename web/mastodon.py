@@ -211,7 +211,7 @@ def post_discussions():
 
                 platforms |= {rd.platform}
 
-        logger.info(f"mastodon {story.platform_id}: {already_posted_by}: {platforms}")
+        logger.info(f"mastodon {story.platform_id}: {already_posted_by}: {platforms}: {tags}")
 
         post_id = None
         try:

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import include, path
 import debug_toolbar
 from django.contrib.sitemaps.views import sitemap, index as sitemap_index
-from web import sitemaps
+from web import sitemaps, api_v0
 from django.views.generic.base import TemplateView
 from . import settings
 from django.views.decorators.cache import cache_page
@@ -14,8 +14,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('__debug__/', include(debug_toolbar.urls)),
 
-    path('api-auth/', include('rest_framework.urls')),
-
+    path('api/v0/', api_v0.api.urls),
 
     path('sitemap.xml',
          cache_page(60 * 60 * 24 * 7)(sitemap_index), {

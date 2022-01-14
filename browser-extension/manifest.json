@@ -1,0 +1,32 @@
+{
+    "manifest_version": 2,
+    "name": "discu.eu",
+    "version": "1.0",
+
+    "description": "Get discussions about a page",
+    "homepage_url": "https://discu.eu/extension",
+
+    "icons": {
+	"32": "icons/favicon-32x32.png"
+    },
+
+
+    "permissions": [
+	"<all_urls>", "activeTab", "tabs"
+    ],
+
+    "browser_action": {
+	"default_icon": "icons/favicon-32x32.png",
+	"default_title": "Discussions"
+    },
+
+    "background": {
+	"scripts": ["background.js"]
+    },
+
+    "browser_specific_settings": {
+	"gecko": {
+	    "id": "discussions@discu.eu"
+	}
+    }
+}

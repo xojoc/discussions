@@ -121,8 +121,6 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -241,7 +239,9 @@ LOGGING = {
 
 if os.environ.get('DJANGO_DEVELOPMENT'):
     LOGGING['loggers']['web']['level'] = 'DEBUG'
-    LOGGING['loggers']['prawcore'] = {'level': 'DEBUG'}
+    # LOGGING['loggers']['prawcore'] = {'level': 'DEBUG'}
+    # LOGGING['loggers']['psycopg2'] = {'level': 'DEBUG'}
+    # LOGGING['loggers']['django.db.backends'] = {'level': 'DEBUG'}
 
 if not os.environ.get('DJANGO_DEVELOPMENT'):
     sentry_logging = LoggingIntegration(
@@ -263,13 +263,6 @@ en_formats.DATE_FORMAT = 'j/n/Y'
 en_formats.DATETIME_FORMAT = 'H:i:s j/n/Y'
 
 INTERNAL_IPS = ['127.0.0.1']
-
-REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES':
-    ['rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly']
-}
 
 if os.environ.get('DJANGO_DEVELOPMENT'):
     from .settings_dev import *  # noqa F401, F403

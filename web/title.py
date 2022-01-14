@@ -4,10 +4,10 @@ import unicodedata
 
 
 def __lobsters(title):
+    return title
     title = title.removeprefix('show lobsters ')
     title = title.removeprefix('show lobste.rs ')
     title = title.removeprefix('show lobste rs ')
-    return title
 
 
 def __reddit(title):
@@ -15,11 +15,11 @@ def __reddit(title):
 
 
 def __hacker_news(title):
+    return title
     title = title.removeprefix('show hn ')
     title = title.removeprefix('ask hn ')
     title = title.removeprefix('tell hn ')
     title = title.strip()
-    return title
 
 
 def __lambda_the_ultimate(title):

@@ -1,13 +1,13 @@
 from web import util, archiveis
+from web import http, models, discussions
+from web import celery_util, worker
 import os
 import logging
-from django.utils.timezone import make_aware
-import datetime
-from django_redis import get_redis_connection
-from web import http, models, discussions
-from celery import shared_task
 import time
-from web import celery_util, worker
+import datetime
+from django.utils.timezone import make_aware
+from django_redis import get_redis_connection
+from celery import shared_task
 from django.utils import timezone
 from django.db.models import Q
 from django.core.cache import cache
@@ -115,6 +115,8 @@ def __fetch_process_item(platform, id, client, redis, skip_timeout=0):
         t = 1
         if platform == 'h':
             t = 0.1
+        if util.is_dev():
+            t = 10
         time.sleep(t)
 
 

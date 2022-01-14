@@ -47,4 +47,4 @@ class DiscussionAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Discussion, DiscussionAdmin)
 
-admin.site.register([models.Tweet, models.Statistics])
+admin.site.register([models.APIClient, models.Tweet, models.Statistics])

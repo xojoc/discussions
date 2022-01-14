@@ -11,8 +11,8 @@ import datetime
 from django.core import serializers
 import json
 from dateutil import parser as dateutil_parser
-from django.db.models import Sum, Value, Q
-from django.db.models.functions import Round, Coalesce, Upper
+from django.db.models import Sum, Value, Q, Count, Max, Min
+from django.db.models.functions import Round, Coalesce, Upper, Concat
 
 
 class MyTrigramStrictWordSimilarity(TrigramWordBase):
@@ -134,7 +134,18 @@ class Discussion(models.Model):
 
     @property
     def subreddit(self):
-        return self.tags[0]
+        if self.platform == 'r':
+            return self.tags[0]
+
+    def subreddit_name(self):
+        if self.platform == 'r':
+            return f"/r/{self.subreddit}"
+
+    def subreddit_url(
+            self,
+            preferred_external_url=discussions.PreferredExternalURL.Standard):
+        if self.platform == 'r':
+            return f"{self.platform_url(self.platform, preferred_external_url)}/r/{self.subreddit}"
 
     @classmethod
     def platform_order(self, platform):
@@ -244,6 +255,7 @@ class Discussion(models.Model):
             return 'reads'
         return 'points'
 
+    @property
     def discussion_url(
             self,
             preferred_external_url=discussions.PreferredExternalURL.Standard):
@@ -259,13 +271,29 @@ class Discussion(models.Model):
         elif self.platform in ('e'):
             return f"{bu}/news/{self.id}"
 
-    def subreddit_name(self):
-        return f"/r/{self.subreddit}"
+    @classmethod
+    def counts_of_url(cls, url):
+        if not url:
+            return
 
-    def subreddit_url(
-            self,
-            preferred_external_url=discussions.PreferredExternalURL.Standard):
-        return f"{self.platform_url(self.platform, preferred_external_url)}/r/{self.subreddit}"
+        scheme, url = discussions.split_scheme(url)
+        cu = discussions.canonical_url(url)
+        rcu = cu
+
+        dcs = (cls.objects.filter(schemeless_story_url__iexact=url)
+               | cls.objects.filter(schemeless_story_url__iexact=cu)
+               | cls.objects.filter(canonical_story_url=cu))
+
+        dcs = dcs.aggregate(total_comments=Coalesce(Sum('comment_count'), Value(0)),
+                            total_score=Coalesce(Sum('score'), Value(0)),
+                            total_discussions=Coalesce(Count('platform_id'), Value(0)),
+                            last_discussion=Max('created_at'),
+                            first_discussion=Min('created_at'),
+                            story_url=Concat(Max('scheme_of_story_url'),
+                                             Value('://'),
+                                             Max('schemeless_story_url')))
+
+        return dcs, cu, rcu
 
     @classmethod
     def of_url(cls, url, client=None, only_relevant_stories=True):
@@ -608,3 +636,24 @@ class Link(models.Model):
 #     parent = models.ForeignKey('self')
 
 #     type = models.CharField(max_length=1, choices = Type.choices)
+
+
+class APIClient(models.Model):
+    name = models.TextField()
+    token = models.TextField(null=True, blank=True)
+    limited = models.BooleanField(default=False)
+    email = models.TextField(null=True, blank=True)
+    url = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.email}"
+
+    @classmethod
+    def generate_token(cls):
+        import secrets
+        return secrets.token_urlsafe(32)
+
+    def save(self, *args, **kwargs):
+        if not self.token:
+            self.token = self.generate_token()
+        super(APIClient, self).save(*args, **kwargs)
