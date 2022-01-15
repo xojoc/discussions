@@ -161,9 +161,9 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
 
 CELERY_TASK_ACKS_LATE = False
 celery_task_acks_late = False
-CELERYD_PREFETCH_MULTIPLIER = 1
+CELERYD_PREFETCH_MULTIPLIER = 2
 
-CELERY_WORKER_ENABLE_REMOTE_CONTROL = False
+CELERY_WORKER_ENABLE_REMOTE_CONTROL = True
 
 # xojoc: find a way to create default schedules for freshly installed apps
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
