@@ -12,7 +12,7 @@ from django.core import serializers
 import json
 from dateutil import parser as dateutil_parser
 from django.db.models import Sum, Value, Q, Count, Max, Min
-# from django.db.models import Subquery, OuterRef
+from django.db.models import Subquery, OuterRef
 from django.db.models.functions import Round, Coalesce, Upper, Concat
 
 
@@ -594,21 +594,18 @@ class Resource(models.Model):
 
     def inbound_resources(self):
         ils = self.inbound_link.all()
-        # if ils is not None:
-        #     ils.annotate(comment_count=Subquery(
-        #         Discussion.objects.
-        #         filter(canonical_story_url=OuterRef('canonical_url')).
-        #         aggregate(comment_count=Coalesce(Sum('comment_count'), Value(0)))))
+        if ils is not None:
+            ils = ils.annotate(
+                discussions_comment_count=Coalesce(
+                    Subquery(
+                        Discussion.objects
+                        .filter(canonical_story_url=OuterRef('canonical_url'))
+                        .values('canonical_story_url')
+                        .annotate(comment_count=Sum('comment_count'))
+                        .values('comment_count')),
+                    Value(0)))
 
         return ils
-
-    def discussions_comment_count(self):
-        q = (Discussion.objects.filter(schemeless_story_url=self.url) |
-             Discussion.objects.filter(schemeless_story_url=self.canonical_url) |
-             Discussion.objects.filter(canonical_story_url=self.canonical_url)).\
-             aggregate(comment_count=Coalesce(Sum('comment_count'), 0))
-
-        return q['comment_count']
 
     @property
     def author(self):

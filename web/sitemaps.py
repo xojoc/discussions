@@ -10,6 +10,7 @@ class DiscussionsSitemap(Sitemap):
 
     def items(self):
         q = Discussion.objects.\
+            exclude(scheme_of_story_url__isnull=True).\
             exclude(canonical_story_url__isnull=True).\
             filter(comment_count__gte=5).\
             order_by('pk')

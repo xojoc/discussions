@@ -29,8 +29,24 @@ browser.browserAction.onClicked.addListener(openDiscussionsURLCurrentTab);
 api_base = 'https://discu.eu/api/v0';
 api_token = 'browser-extension';
 
+function _resetBadge(tabId) {
+     browser.browserAction.setBadgeText({
+	text: null,
+	tabId: tabId,
+    });
+
+    browser.browserAction.setTitle({
+	title: null,
+	tabId: tabId,
+    });
+}
+
 function _updateBadge(counts, tabId) {
-    if (!counts.total_discussions) {
+    console.log("counts: ");
+    console.log(tabId);
+    console.log(counts);
+    if (!counts || !counts.total_discussions) {
+	_resetBadge(tabId);
 	return;
     }
 
@@ -66,8 +82,8 @@ function updateBadge(url, tabId) {
 	    'Authorization': 'Bearer ' + api_token,
 	})
     })
-	.then(response => response.json(), console.error)
-	.then(counts => {_updateBadge(counts, tabId)}, console.error);
+	.then(response => response.json(), e => console.error(e))
+	.then(counts => _updateBadge(counts, tabId), e => console.error(e));
 }
 
 function updateTab(tabId, changeInfo, tab) {

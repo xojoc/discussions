@@ -612,6 +612,9 @@ category = "main"
 optional = false
 python-versions = ">=3.6"
 
+[package.dependencies]
+importlib-metadata = {version = ">=4.4", markers = "python_version < \"3.10\""}
+
 [package.extras]
 testing = ["coverage", "pyyaml"]
 
@@ -1248,8 +1251,8 @@ cffi = ["cffi (>=1.11)"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.10"
-content-hash = "34681eab8d844a53816d3b4271959e928c0069630c9785f236f3108ed154fae1"
+python-versions = "^3.9"
+content-hash = "f6633d01c2f49916e371e6cb507533e5d3936fa08bef979ff2d99d818c55de08"
 
 [metadata.files]
 amqp = [

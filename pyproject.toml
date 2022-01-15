@@ -5,7 +5,7 @@ description = ""
 authors = ["Alexandru Cojocaru <hi@xojoc.pw>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 Django = {version = "4.0a1", allow-prereleases = true}
 django-ninja = "^0.16.1"
 django-redis = "^4.12"
@@ -14,7 +14,8 @@ whitenoise = "^5.3.0"
 psycopg2-binary = "^2.8"
 daphne = "^3.0.2"
 celery = "^5.0"
-flower = "^1.0.0"
+setuptools = "59.0.6"
+flower = "^1.0"
 django-celery-beat = "^2"
 django-celerybeat-status = "^0.0.10"
 gevent = "^21.1"
