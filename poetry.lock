@@ -498,6 +498,18 @@ python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*"
 docs = ["sphinx"]
 
 [[package]]
+name = "huey"
+version = "2.4.3"
+description = "huey, a little task queue"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+backends = ["redis (>=3.0.0)"]
+redis = ["redis (>=3.0.0)"]
+
+[[package]]
 name = "humanize"
 version = "3.13.1"
 description = "Python humanize utilities"
@@ -1252,7 +1264,7 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "f6633d01c2f49916e371e6cb507533e5d3936fa08bef979ff2d99d818c55de08"
+content-hash = "5321c37fad65872f220813c19dfacb26bdd21cc606fae0bd0d5ba61f312b172a"
 
 [metadata.files]
 amqp = [
@@ -1536,6 +1548,9 @@ greenlet = [
     {file = "greenlet-1.1.2-cp39-cp39-win32.whl", hash = "sha256:f70a9e237bb792c7cc7e44c531fd48f5897961701cdaa06cf22fc14965c496cf"},
     {file = "greenlet-1.1.2-cp39-cp39-win_amd64.whl", hash = "sha256:013d61294b6cd8fe3242932c1c5e36e5d1db2c8afb58606c5a67efce62c1f5fd"},
     {file = "greenlet-1.1.2.tar.gz", hash = "sha256:e30f5ea4ae2346e62cedde8794a56858a67b878dd79f7df76a0767e356b1744a"},
+]
+huey = [
+    {file = "huey-2.4.3.tar.gz", hash = "sha256:4fa2f6055d581778c3bcf93fc8c9ce87aecc2a345d5ff35bd955da152c02ef37"},
 ]
 humanize = [
     {file = "humanize-3.13.1-py3-none-any.whl", hash = "sha256:a6f7cc1597db69a4e571ad5e19b4da07ee871da5a9de2b233dbfab02d98e9754"},

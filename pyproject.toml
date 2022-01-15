@@ -33,6 +33,7 @@ bs4 = "^0.0.1"
 lxml = "^4.6.3"
 archiveis = "^0.0.9"
 nltk = "^3.6.5"
+huey = "^2.4.3"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9"

@@ -156,7 +156,7 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     'fanout_patterns': True,
     'fanout_prefix': True,
     'visibility_timeout': 43200,
-    'global_keyprefix': 'discussions_celery:',
+    # 'global_keyprefix': 'discussions_celery:',
 }
 
 CELERY_TASK_ACKS_LATE = False
