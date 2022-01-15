@@ -22,7 +22,7 @@ python manage.py migrate --noinput
 
 echo "Run Celery"
 #  --without-mingle --without-heartbeat --without-gossip
-celery -A discussions worker -E -l info -P gevent -c 50 &
+celery -A discussions worker --without-mingle --without-heartbeat --without-gossip -E -l WARNING -P gevent -c 50 &
 
 echo "Run Celery Beat"
 celery -A discussions beat -l WARNING &
