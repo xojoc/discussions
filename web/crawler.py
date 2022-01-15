@@ -235,6 +235,9 @@ def extract_html(resource):
             # xojoc: todo: call add_to_queue? so next time the relationship is created?
             continue
 
+        if to.pk == resource.pk:
+            continue
+
         anchor_title = link.get('title')
         anchor_text = link.text
 

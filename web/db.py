@@ -91,7 +91,6 @@ def worker_update_resources(self):
                 logger.info("update resources: graceful exit")
                 break
 
-            logger.info("update resources: checkpoint")
             last_checkpoint = time.monotonic()
 
-    logger.info(f"db update: {time.monotonic() - start_time}")
+    logger.info(f"db update resources: {time.monotonic() - start_time}")

@@ -177,6 +177,8 @@ def post_discussions():
         exclude(schemeless_story_url__isnull=True).\
         order_by('created_at')
 
+    logger.info(f"mastodon: potential stories {stories.count()}")
+
     for story in stories:
         related_discussions, _, _ = models.Discussion.of_url(
             story.story_url, only_relevant_stories=False)
