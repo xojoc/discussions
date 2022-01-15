@@ -7,9 +7,9 @@ authors = ["Alexandru Cojocaru <hi@xojoc.pw>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 Django = {version = "4.0a1", allow-prereleases = true}
-django-ninja = "^0.16.1"
+django-ninja = "^0.16"
 django-redis = "^4.12"
-django-debug-toolbar = "^3.2.2"
+django-debug-toolbar = "^3.2"
 whitenoise = "^5.3.0"
 psycopg2-binary = "^2.8"
 daphne = "^3.0.2"
