@@ -221,6 +221,7 @@ def post_discussions():
                 story.title, story.story_url, tags, platforms, already_posted_by)
         except Exception as e:
             logger.warn(f"mastodon {story.platform_id}: {e}")
+            sentry_sdk.capture_exception(e)
 
         logger.info(f"mastodon {post_id}: {posted_by}")
 

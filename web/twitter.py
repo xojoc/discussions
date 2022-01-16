@@ -331,6 +331,7 @@ def tweet_discussions():
                 story.title, story.story_url, tags, platforms, already_tweeted_by)
         except Exception as e:
             logger.warn(f"twitter: {story.platform_id}: {e}")
+            sentry_sdk.capture_exception(e)
 
         logger.info(f"twitter {tweet_id}: {tweeted_by}")
 

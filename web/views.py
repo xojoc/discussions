@@ -28,6 +28,9 @@ def __log_query(q):
 
 
 def discussions_context_cached(q):
+    if util.is_dev():
+        return discussions_context(q)
+
     if not q:
         return discussions_context(q)
 

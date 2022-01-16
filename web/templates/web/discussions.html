@@ -189,6 +189,8 @@ Discussions around the Web
 		<a href="{{inbound_resource.complete_url}}" title="{% firstof inbound_resource.title inbound_resource.complete_url %}">{% firstof inbound_resource.title inbound_resource.complete_url %}</a><br/>
 		<a href="{{inbound_resource.complete_url | discussions_url}}" title="Discussions for «{% firstof inbound_resource.title inbound_resource.complete_url %}»">{{ inbound_resource.discussions_comment_count }} comments</a>
 
+		<!-- <p>{{inbound_resource.discussions_normalized_tags}}</p> -->
+
 	    </li>
 	    {% endfor %}
 	</ul>

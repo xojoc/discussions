@@ -4,9 +4,11 @@ from web import discussions, twitter, mastodon, archiveis  # noqa F401
 from web import ltu, db, crawler, worker  # noqa F401
 from web import echojs  # noqa F401
 from celery import shared_task
+# from celery.utils.log import get_task_logger
 from . import celery_util
 
 logger = logging.getLogger(__name__)
+# logger = get_task_logger(__name__)
 
 
 @shared_task(ignore_result=True, bind=True)

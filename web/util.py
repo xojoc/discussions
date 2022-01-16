@@ -6,6 +6,8 @@ import os
 
 
 def discussions_url(q, with_domain=True):
+    if not q:
+        q = ''
     path = '/q/' + quote(q, safe='/:?&=')
     if with_domain:
         return f'https://{settings.APP_DOMAIN}{path}'
@@ -14,6 +16,8 @@ def discussions_url(q, with_domain=True):
 
 
 def discussions_canonical_url(q, with_domain=True):
+    if not q:
+        q = ''
     q = q.lower()
     scheme, url = discussions.split_scheme(q)
     if scheme in ('http', 'https'):

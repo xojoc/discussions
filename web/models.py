@@ -3,6 +3,7 @@ from django.contrib.postgres import fields as postgres_fields
 from django.contrib.postgres.indexes import GinIndex, OpClass
 from django.contrib.postgres.search import TrigramWordBase
 from django.contrib.postgres.search import SearchVectorField
+# from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models.lookups import PostgresOperatorLookup
 from django.contrib.postgres.search import SearchQuery, SearchRank
 from . import discussions, tags, title, extract
@@ -13,6 +14,7 @@ import json
 from dateutil import parser as dateutil_parser
 from django.db.models import Sum, Value, Q, Count, Max, Min
 from django.db.models import Subquery, OuterRef
+# from django.db.models import Func, F
 from django.db.models.functions import Round, Coalesce, Upper, Concat
 
 
@@ -310,6 +312,7 @@ class Discussion(models.Model):
               | cls.objects.filter(canonical_story_url=cu))
 
         ds = ds.exclude(schemeless_story_url__isnull=True)
+        ds = ds.exclude(schemeless_story_url='')
 
         if only_relevant_stories:
             ds = ds.filter(
@@ -342,6 +345,7 @@ class Discussion(models.Model):
               | cls.objects.filter(canonical_story_url=cu))
 
         ds = ds.exclude(schemeless_story_url__isnull=True)
+        ds = ds.exclude(schemeless_story_url='')
 
         ds = ds.annotate(search_rank=Value(1))
 
@@ -401,6 +405,7 @@ class Discussion(models.Model):
                     | Q(created_at__gt=seven_days_ago)
                     | Q(platform='u'))
                 ts = ts.exclude(schemeless_story_url__isnull=True)
+                ts = ts.exclude(schemeless_story_url='')
 
                 ts = ts[:30]
 
@@ -604,6 +609,23 @@ class Resource(models.Model):
                         .annotate(comment_count=Sum('comment_count'))
                         .values('comment_count')),
                     Value(0)))
+            # ils = ils.annotate(
+            #     discussions_normalized_tags=Subquery(
+            #         Discussion.objects
+            #         .filter(canonical_story_url=OuterRef('canonical_url'))
+            #         .values('canonical_story_url')
+            #         .annotate(normalized_tag=Func(F('normalized_tags'),
+            #                                       function='unnest'))
+            #         .annotate(normalized_tags=ArrayAgg('normalized_tag'))
+            #         .values('normalized_tags')))
+
+            # discussions_normalized_tags=ArrayAgg(Subquery(
+            #     Discussion.objects
+            #     .filter(canonical_story_url=OuterRef('canonical_url'))
+            #     .values('canonical_story_url')
+            #     .annotate(normalized_tags=Func(F('normalized_tags'),
+            #                                    function='unnest'))
+            #     .values_list('normalized_tags', flat=True))))
 
         return ils
 

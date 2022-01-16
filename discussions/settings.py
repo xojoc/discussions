@@ -159,6 +159,7 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     # 'global_keyprefix': 'discussions_celery:',
 }
 
+# CELERYD_HIJACK_ROOT_LOGGER = False
 CELERY_TASK_ACKS_LATE = False
 celery_task_acks_late = False
 CELERYD_PREFETCH_MULTIPLIER = 1
@@ -233,7 +234,12 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'ERROR',
             'propagate': False,
-        }
+        },
+        # 'celery': {
+        #     'handlers': ['console'],
+        #     'level': 'INFO',
+        #     'propagate': True,
+        # }
     },
 }
 
