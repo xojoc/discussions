@@ -25,7 +25,7 @@ Discussions around the Web
 -->
 
 <!--
-<form method="GET" class="discussions_form" action="/">
+     <form method="GET" class="discussions_form" action="/">
      {{ ctx.form.as_ul }}
      <input type="submit" value="Find discussions" />
      </form>
@@ -54,13 +54,6 @@ Discussions around the Web
     {% if ctx.nothing_found %}
     <h2>Discussions not found</h2>
     <p>Sorry, we couldn't find nothing for <b>{{ctx.url}}</b></p>
-    {% if ctx.try_with_site_prefix %}
-    <p>Try searching the whole domain: <a href="{{ctx.try_with_site_prefix|discussions_url}}">{{ctx.try_with_site_prefix}}</a></p>
-    {% endif %}
-    {% if ctx.try_with_title %}
-    <p>Try searching by title: <a href="{{ctx.try_with_title|discussions_url}}">{{ctx.try_with_title}}</a></p>
-    {% endif %}
-
     {% else %}
 
     {% if ctx.display_discussions %}
@@ -77,7 +70,7 @@ Discussions around the Web
 					     title="All discussions for this URL">Search by URL</a>)</span>
 	    <br />
 	    {{d.title}} <span class="similar-search">(<a href="{{d.title|discussions_url}}"
-							 title="Search discussions with similar title">Search by title</a>)</span>
+							 title="Discussions with similar title">Search by title</a>)</span>
 	    <br />
 	    <!--
 		 rel="noreferrer noopener" target="_blank"
@@ -118,7 +111,7 @@ Discussions around the Web
     <p>Search for discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker
 	News</a>,
 	<a href="https://lobste.rs/" title='Lobsters'>Lobsters</a>, <a href="https://www.reddit.com/"
-									     title='Reddit'>Reddit</a>, <a href="http://lambda-the-ultimate.org" title="Lambda the Ultimate">Lambda the
+								       title='Reddit'>Reddit</a>, <a href="http://lambda-the-ultimate.org" title="Lambda the Ultimate">Lambda the
 	    Ultimate</a>, <a href="https://laarc.io/" title="Laarc">Laarc</a> (and <a href="/statistics#platforms" title="Platforms">others</a>)
 	for a given URL or keyword.
     </p>
@@ -140,7 +133,7 @@ Discussions around the Web
 	    language</a></li>
 	<li> <a href="{{'Postgres 14'|discussions_url}}">Postgres 14</a></li>
 	<li><a
-												href="{{'Why Most Published Research Findings Are False'|discussions_url}}">Why Most Published Research
+		href="{{'Why Most Published Research Findings Are False'|discussions_url}}">Why Most Published Research
 	    Findings Are False</a></a></li>
     </ul>
 
@@ -174,19 +167,22 @@ Discussions around the Web
 
     {% if ctx.inbound_resources %}
 
-    <div class="inbound_links">
-    <br />
+    <br/>
+    <h3>Related articles</h3>
 
-    <details>
-	<summary>Stories linking</summary>
+    <div class="inbound_links">
 	<ul>
 	    {% for inbound_resource in ctx.inbound_resources %}
 	    <!-- Inbound resource id: {{inbound_resource.id}} -->
 	    <li>
-		<!--
-		<a href="{{inbound_resource.complete_url}}" title="{% firstof inbound_resource.title inbound_resource.complete_url %}">{{inbound_resource.complete_url}}</a><br/>
-		-->
-		<a href="{{inbound_resource.complete_url}}" title="{% firstof inbound_resource.title inbound_resource.complete_url %}">{% firstof inbound_resource.title inbound_resource.complete_url %}</a><br/>
+		<span class="discussions_story_url">
+		    <a href="{{inbound_resource.complete_url}}" title="{% firstof inbound_resource.title inbound_resource.complete_url %}">{{inbound_resource.complete_url}}</a>
+		</span>
+		<br/>
+		{{inbound_resource.title}} <span class="similar-search">(<a href="{{inbound_resource.title|discussions_url}}"
+									    title="Discussions with similar title">Search by title</a>)</span>
+
+		<br/>
 		<a href="{{inbound_resource.complete_url | discussions_url}}" title="Discussions for «{% firstof inbound_resource.title inbound_resource.complete_url %}»">{{ inbound_resource.discussions_comment_count }} comments</a>
 
 		<!-- <p>{{inbound_resource.discussions_normalized_tags}}</p> -->
@@ -194,8 +190,6 @@ Discussions around the Web
 	    </li>
 	    {% endfor %}
 	</ul>
-    </details>
-
     </div>
     {% endif %}
 
@@ -210,7 +204,7 @@ Discussions around the Web
 		{% for submit_platform, submit_link in ctx.submit_links.items %}
 		<li>
 		    <a href="{{submit_link}}" title="Submit to {{submit_platform}}" rel="noreferrer noopener"
-			     target="_blank">{{submit_platform}}</a>
+		       target="_blank">{{submit_platform}}</a>
 		</li>
 		{% endfor %}
 	    </ul>
@@ -218,10 +212,27 @@ Discussions around the Web
     </div>
     {% endif %}
 
+    {% if ctx.try_with_site_prefix or ctx.try_with_title %}
+
+    <details {% if ctx.nothing_found %}open{% endif %}>
+	<summary>Related searches:</summary>
+
+	{% if ctx.try_with_site_prefix %}
+	<p>Try searching the whole domain: <a href="{{ctx.try_with_site_prefix|discussions_url}}">{{ctx.try_with_site_prefix}}</a></p>
+	{% endif %}
+
+	{% if ctx.try_with_title %}
+	<p>Try searching with title: <a href="{{ctx.try_with_title|discussions_url}}">{{ctx.try_with_title}}</a></p>
+	{% endif %}
+
+    </details>
+
+    {% endif %}
+
     {% if not ctx.nothing_found %}
     <br />
     <div class="donate">
-    <p><a href="https://xojoc.pw/donate">Donate</a></p>
+	<p><a href="https://xojoc.pw/donate">Donate</a></p>
     </div>
     {% endif %}
 

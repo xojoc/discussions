@@ -604,34 +604,47 @@ class Resource(models.Model):
         return r
 
     def inbound_resources(self):
-        ils = self.inbound_link.all()
-        if ils is not None:
-            ils = ils.annotate(
-                discussions_comment_count=Coalesce(
-                    Subquery(
-                        Discussion.objects
-                        .filter(canonical_story_url=OuterRef('canonical_url'))
-                        .values('canonical_story_url')
-                        .annotate(comment_count=Sum('comment_count'))
-                        .values('comment_count')),
-                    Value(0)))
-            # ils = ils.annotate(
-            #     discussions_normalized_tags=Subquery(
-            #         Discussion.objects
-            #         .filter(canonical_story_url=OuterRef('canonical_url'))
-            #         .values('canonical_story_url')
-            #         .annotate(normalized_tag=Func(F('normalized_tags'),
-            #                                       function='unnest'))
-            #         .annotate(normalized_tags=ArrayAgg('normalized_tag'))
-            #         .values('normalized_tags')))
+        ils = self.inbound_link.all().distinct()
+        ils = ils.annotate(
+            discussions_comment_count=Coalesce(
+                Subquery(
+                    Discussion.objects
+                    .filter(canonical_story_url=OuterRef('canonical_url'))
+                    .values('canonical_story_url')
+                    .annotate(comment_count=Sum('comment_count'))
+                    .values('comment_count')),
+                Value(0)))
+        # ils = ils.annotate(
+        #     discussions_normalized_tags=Subquery(
+        #         Discussion.objects
+        #         .filter(canonical_story_url=OuterRef('canonical_url'))
+        #         .values('canonical_story_url')
+        #         .annotate(unnest_tags=Subquery(
+        #             Discussion.objects
+        #             .filter(canonical_story_url=OuterRef('canonical_story_url'))
+        #             .annotate(normalized_tag=Func(F('normalized_tags'),
+        #                                           function='unnest'))))
+        #         .aggregate(normalized_tags=ArrayAgg('unnest_tags')
+        #                    )))
+        # ils = ils.annotate(
+        #     discussions_normalized_tags=Subquery(
+        #         Discussion.objects
+        #         .filter(canonical_story_url=OuterRef('canonical_url'))
+        #         .values('canonical_story_url')
+        #         .annotate(normalized_tag=Func(F('normalized_tags'),
+        #                                       function='unnest'))
+        #         .annotate(normalized_tags=ArrayAgg('normalized_tag'))
+        #         .values('normalized_tags')))
 
-            # discussions_normalized_tags=ArrayAgg(Subquery(
-            #     Discussion.objects
-            #     .filter(canonical_story_url=OuterRef('canonical_url'))
-            #     .values('canonical_story_url')
-            #     .annotate(normalized_tags=Func(F('normalized_tags'),
-            #                                    function='unnest'))
-            #     .values_list('normalized_tags', flat=True))))
+        # discussions_normalized_tags=ArrayAgg(Subquery(
+        #     Discussion.objects
+        #     .filter(canonical_story_url=OuterRef('canonical_url'))
+        #     .values('canonical_story_url')
+        #     .annotate(normalized_tags=Func(F('normalized_tags'),
+        #                                    function='unnest'))
+        #     .values_list('normalized_tags', flat=True))))
+
+        ils = ils.order_by('-discussions_comment_count')
 
         return ils
 

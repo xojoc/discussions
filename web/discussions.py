@@ -267,14 +267,17 @@ def _canonical_twitter(host, path, parsed_query):
     if not path:
         path = ''
     if host == 'twitter.com':
-        path_parts = path.split('/')
-        if len(path_parts) == 4 and path_parts[0] == '' and path_parts[2] == 'status':
-            path = "/x/status/" + path_parts[3]
-            parsed_query = []
+        if path == '/home':
+            path = ''
+        else:
+            path_parts = path.split('/')
+            if len(path_parts) == 4 and path_parts[0] == '' and path_parts[2] == 'status':
+                path = "/i/status/" + path_parts[3]
+                parsed_query = []
 
     if host == 'threadreaderapp.com':
         if path.startswith('/thread/'):
-            path = '/x/status/' + path[len('/thread/'):]
+            path = '/i/status/' + path[len('/thread/'):]
             parsed_query = []
             host = 'twitter.com'
 

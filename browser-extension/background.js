@@ -45,7 +45,7 @@ function _updateBadge(counts, tabId) {
     console.log("counts: ");
     console.log(tabId);
     console.log(counts);
-    if (!counts || !counts.total_discussions) {
+    if (!counts || (!counts.total_discussions && !counts.articles_count)) {
 	_resetBadge(tabId);
 	return;
     }
@@ -55,8 +55,10 @@ function _updateBadge(counts, tabId) {
 	tabId: tabId,
     });
 
+    let count = counts.total_comments + counts.articles_count;
+
     browser.browserAction.setTitle({
-	title: `Comments ${counts.total_comments} Discussions ${counts.total_discussions}`,
+	title: `Comments ${count} Discussions ${counts.total_discussions}`,
 	tabId: tabId,
     });
 

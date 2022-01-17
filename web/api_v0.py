@@ -52,6 +52,7 @@ class DiscussionCounts(Schema):
     first_discussion: date = None
     story_url: str = None
     discussions_url: str = None
+    articles_count: int
 
 
 class Message(Schema):
@@ -75,4 +76,10 @@ def get_discussion_counts(request, url: str):
     dcs, cu, rcu = models.Discussion.counts_of_url(url)
     if dcs:
         dcs['discussions_url'] = util.discussions_url(url)
+    dcs['articles_count'] = 0
+    r = models.Resource.by_url(url)
+    if r is not None:
+        ir = r.inbound_resources()
+        if ir is not None:
+            dcs['articles_count'] = ir.count()
     return dcs

@@ -40,7 +40,9 @@ def __lobsters(tags, title):
                           'programming')
 
     tags = __augment_tags(title, tags, None,
-                          {'ai', 'distributed', 'formalmethods', 'graphics', 'networking', 'osdev', 'plt'},
+                          {'ai', 'distributed', 'formalmethods',
+                           'graphics', 'networking', 'osdev',
+                           'plt'},
                           'compsci')
 
     return tags

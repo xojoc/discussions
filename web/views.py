@@ -114,13 +114,15 @@ def discussions_context(q):
         for platform, uds in itertools.groupby(uds, lambda x: x.platform)
     ]
 
-    if q.startswith('http://') or\
-       q.startswith('https://'):
+    # if q.startswith('http://') or\
+    #    q.startswith('https://'):
 
-        ctx['resource'] = models.Resource.by_url(cu)
-        if ctx['resource']:
-            ctx['title'] = ctx['resource'].title
-            ctx['inbound_resources'] = ctx['resource'].inbound_resources()
+    ctx['resource'] = models.Resource.by_url(cu)
+    if ctx['resource']:
+        ctx['title'] = ctx['resource'].title
+        ctx['inbound_resources'] = ctx['resource'].inbound_resources()
+        if ctx['inbound_resources'] is not None:
+            ctx['inbound_resources'] = ctx['inbound_resources'][:20]
 
     if not ctx.get('title'):
         if uds and\
@@ -130,10 +132,10 @@ def discussions_context(q):
         else:
             ctx['title'] = ctx['original_query']
 
-    if not uds:
+    if not uds and not ctx.get('inbound_resources'):
         ctx['display_discussions'] = False
 
-    if not uds and not tds:
+    if not uds and not tds and not ctx.get('inbound_resources'):
         ctx['nothing_found'] = True
 
     return ctx
@@ -184,14 +186,14 @@ def index(request, path_q=None):
 
     get_submit_links(request, ctx)
 
-    if ctx['nothing_found']:
-        if ctx.get('is_url'):
-            url = ctx.get('url', '')
-            u = urllib3.util.parse_url(url)
-            if u.host:
-                ctx['try_with_site_prefix'] = 'site:' + u.host
-            if ctx.get('submit_title'):
-                ctx['try_with_title'] = ctx.get('submit_title')
+    if ctx.get('is_url'):
+        url = ctx.get('url', '')
+        u = urllib3.util.parse_url(url)
+        if u.host:
+            ctx['try_with_site_prefix'] = 'site:' + u.host
+    if ctx.get('submit_title') and not (ctx.get('submit_title').startswith('http://') or
+                                        ctx.get('submit_title').startswith('https://')):
+        ctx['try_with_title'] = ctx.get('submit_title')
 
     ctx['form'] = forms.QueryForm(request.GET)
     ctx['form'].fields['tags'].choices = [('tag', 'asdf'),
