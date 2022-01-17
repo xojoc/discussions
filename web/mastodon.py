@@ -175,6 +175,8 @@ def post_discussions():
         filter(comment_count__gte=min_comment_count).\
         filter(score__gte=min_score).\
         exclude(schemeless_story_url__isnull=True).\
+        exclude(schemeless_story_url='').\
+        exclude(scheme_of_story_url__isnull=True).\
         order_by('created_at')
 
     logger.info(f"mastodon: potential stories {stories.count()}")

@@ -300,6 +300,9 @@ class Discussion(models.Model):
 
     @classmethod
     def of_url(cls, url, client=None, only_relevant_stories=True):
+        if not url:
+            return cls.objects.none(), '', ''
+
         seven_days_ago = timezone.now() - datetime.timedelta(days=7)
         min_comments = 1
 
@@ -329,6 +332,9 @@ class Discussion(models.Model):
 
     @classmethod
     def of_url_or_title(cls, url_or_title, client=None):
+        if not url_or_title:
+            return cls.objects.none(), '', ''
+
         seven_days_ago = timezone.now() - datetime.timedelta(days=7)
         min_comments = 2
         min_score = 2
