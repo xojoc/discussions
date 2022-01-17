@@ -50,6 +50,8 @@ def __extract_author(article, h):
         author.twitter_account = parts[-1]
         author.twitter_account = author.twitter_account.strip()
 
+        author.twitter_account = author.twitter_account.removeprefix('@')
+
         if ' ' in author.twitter_account:
             author.twitter_account = None
 
@@ -58,6 +60,8 @@ def __extract_author(article, h):
         parts = [p for p in parts if p]
         author.twitter_site = parts[-1]
         author.twitter_site = author.twitter_site.strip()
+
+        author.twitter_site = author.twitter_site.removeprefix('@')
 
         if ' ' in author.twitter_site:
             author.twitter_site = None

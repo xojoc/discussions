@@ -50,12 +50,12 @@ function _updateBadge(counts, tabId) {
 	return;
     }
 
+    let count = counts.total_comments + counts.articles_count;
+
     browser.browserAction.setBadgeText({
-	text: counts.total_comments.toString(),
+	text: count.toString(),
 	tabId: tabId,
     });
-
-    let count = counts.total_comments + counts.articles_count;
 
     browser.browserAction.setTitle({
 	title: `Comments ${count} Discussions ${counts.total_discussions}`,

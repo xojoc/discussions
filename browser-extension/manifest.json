@@ -1,7 +1,9 @@
 {
     "manifest_version": 2,
-    "name": "discu.eu",
+    "name": "Discussions around the web",
     "version": "1.0",
+
+    "author": "Alexandru Cojocaru",
 
     "description": "Get discussions about a page",
     "homepage_url": "https://discu.eu/extension",
@@ -10,9 +12,8 @@
 	"32": "icons/favicon-32x32.png"
     },
 
-
     "permissions": [
-	"<all_urls>", "activeTab", "tabs"
+	"*://discu.eu/*", "activeTab", "tabs"
     ],
 
     "browser_action": {
@@ -27,6 +28,17 @@
     "browser_specific_settings": {
 	"gecko": {
 	    "id": "discussions@discu.eu"
+	}
+    },
+
+    "chrome_settings_overrides": {
+	"search_provider": {
+	    "name": "Discussions",
+	    "search_url": "https://discu.eu/?q={searchTerms}",
+	    "keyword": "discu",
+	    "favicon_url": "https://discu.eu/static/favicon-32x32.png",
+	    "is_default": false,
+	    "encoding": "UTF-8"
 	}
     }
 }
