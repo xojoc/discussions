@@ -9,6 +9,7 @@ import random
 import time
 import sentry_sdk
 from web.twitter import configuration
+import unicodedata
 
 logger = logging.getLogger(__name__)
 
@@ -112,12 +113,18 @@ Discussions: {discussions_url}
     elif author.mastodon_site:
         status += f"\n\nvia @{author.mastodon_site}"
 
+    title = unicodedata.normalize('NFC', title)
+    title = ''.join(c for c in title if c.isprintable())
+    title = ' '.join(title.split())
+    status = unicodedata.normalize('NFC', status)
+
     status = title + status
 
     return status
 
 
-def post_story(title, url, tags, platforms, already_posted_by):
+def post_story(title, url, tags, platforms,
+               already_posted_by, comment_count):
     resource = models.Resource.by_url(url)
     author = None
     if resource:
@@ -148,6 +155,9 @@ def post_story(title, url, tags, platforms, already_posted_by):
                     sentry_sdk.capture_exception(e)
                     __sleep(7, 13)
             else:
+                if bot_name in ('HNDiscussions'):
+                    if comment_count < 50:
+                        continue
                 try:
                     post_id = post(status, bot_name)
                     posted_by.append(bot_name)
@@ -220,7 +230,8 @@ def post_discussions():
         post_id = None
         try:
             post_id, posted_by = post_story(
-                story.title, story.story_url, tags, platforms, already_posted_by)
+                story.title, story.story_url, tags,
+                platforms, already_posted_by, story.comment_count)
         except Exception as e:
             logger.warn(f"mastodon {story.platform_id}: {e}")
             sentry_sdk.capture_exception(e)

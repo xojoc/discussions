@@ -5,3 +5,4 @@ celerybeat-schedule.db
 staticfiles/
 .pdb-pyhist
 .vscode/
+extension.zip

@@ -9,6 +9,7 @@ import datetime
 import random
 import time
 import sentry_sdk
+import unicodedata
 
 logger = logging.getLogger(__name__)
 
@@ -216,6 +217,12 @@ Discussions: {'x' * URL_LENGTH}
         status += f"\n\nvia @{author.twitter_site}"
         status_len += f"\n\nvia @{author.twitter_site}"
 
+    title = unicodedata.normalize('NFC', title)
+    title = ''.join(c for c in title if c.isprintable())
+    title = ' '.join(title.split())
+    status = unicodedata.normalize('NFC', status)
+    status_len = unicodedata.normalize('NFC', status_len)
+
     left_len = STATUS_MAX_LENGTH - len(status_len)
 
     if len(title) > left_len:
@@ -226,7 +233,8 @@ Discussions: {'x' * URL_LENGTH}
     return status
 
 
-def tweet_story(title, url, tags, platforms, already_tweeted_by):
+def tweet_story(title, url, tags, platforms,
+                already_tweeted_by, comment_count):
     resource = models.Resource.by_url(url)
     author = None
     if resource:
@@ -254,6 +262,9 @@ def tweet_story(title, url, tags, platforms, already_tweeted_by):
                     sentry_sdk.capture_exception(e)
                     __sleep(7, 13)
             else:
+                if bot_name in ('HNDiscussions'):
+                    if comment_count < 50:
+                        continue
                 try:
                     tweet_id = tweet(status, bot_name)
                     tweeted_by.append(bot_name)
@@ -330,7 +341,8 @@ def tweet_discussions():
         tweet_id = None
         try:
             tweet_id, tweeted_by = tweet_story(
-                story.title, story.story_url, tags, platforms, already_tweeted_by)
+                story.title, story.story_url, tags,
+                platforms, already_tweeted_by, story.comment_count)
         except Exception as e:
             logger.warn(f"twitter: {story.platform_id}: {e}")
             sentry_sdk.capture_exception(e)

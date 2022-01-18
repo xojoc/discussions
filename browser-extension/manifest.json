@@ -5,8 +5,8 @@
 
     "author": "Alexandru Cojocaru",
 
-    "description": "See discussions about a page",
-    "homepage_url": "https://discu.eu/extension",
+    "description": "Get the discussions on Hacker News, Lobsters, Reddit and others about a page",
+    "homepage_url": "https://discu.eu",
 
     "icons": {
 	"32": "icons/favicon-32x32.png"
