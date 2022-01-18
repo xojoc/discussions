@@ -26,17 +26,18 @@ function openDiscussionsURLCurrentTab() {
 
 browser.browserAction.onClicked.addListener(openDiscussionsURLCurrentTab);
 
+
 api_base = 'https://discu.eu/api/v0';
 api_token = 'browser-extension';
 
 function _resetBadge(tabId) {
      browser.browserAction.setBadgeText({
-	text: null,
+	text: "",
 	tabId: tabId,
     });
 
     browser.browserAction.setTitle({
-	title: null,
+	title: "",
 	tabId: tabId,
     });
 }

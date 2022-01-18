@@ -263,7 +263,7 @@ def tweet_story(title, url, tags, platforms,
                     __sleep(7, 13)
             else:
                 if bot_name in ('HNDiscussions'):
-                    if comment_count < 50:
+                    if comment_count < 200:
                         continue
                 try:
                     tweet_id = tweet(status, bot_name)
