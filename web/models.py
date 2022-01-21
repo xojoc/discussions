@@ -669,6 +669,7 @@ class Link(models.Model):
 
     anchor_title = models.TextField(null=True)
     anchor_text = models.TextField(null=True)
+    anchor_rel = models.TextField(null=True)
 
 
 # class HackerNewsItem(models.Model):

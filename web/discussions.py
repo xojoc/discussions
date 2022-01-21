@@ -219,6 +219,14 @@ def _canonical_github(host, path, parsed_query):
     return host, path, parsed_query
 
 
+def _canonical_bitbucket(host, path, parsed_query):
+    if host == 'bitbucket.org':
+        if path:
+            path = path.removesuffix('/src/master')
+
+    return host, path, parsed_query
+
+
 def _canonical_nytimes(host, path, parsed_query):
     if host == 'nytimes.com':
         parsed_query = []
@@ -240,7 +248,9 @@ def _canonical_techcrunch(host, path, parsed_query):
 
 
 def _canonical_wikipedia(host, path, parsed_query):
-    if host.endswith('.wikipedia.org'):
+    if not path:
+        path = ''
+    if host.endswith('.wikipedia.org') and not path.endswith('/index.php'):
         parsed_query = []
 
     return host, path, parsed_query
@@ -287,7 +297,8 @@ def _canonical_twitter(host, path, parsed_query):
 def _canonical_specific_websites(host, path, parsed_query):
     for h in [
             _canonical_webarchive, _canonical_youtube, _canonical_medium,
-            _canonical_github, _canonical_nytimes, _canonical_techcrunch,
+            _canonical_github, _canonical_bitbucket,
+            _canonical_nytimes, _canonical_techcrunch,
             _canonical_wikipedia, _canonical_arstechnica, _canonical_bbc,
             _canonical_twitter
     ]:

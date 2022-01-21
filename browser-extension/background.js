@@ -4,7 +4,7 @@ function openDiscussionsURL(url, tab) {
 	    'active': true,
 	    'url': url,
 	    'index': tab.index + 1,
-	    'openerTabId': tab.id,
+	    /* 'openerTabId': tab.id, */
 	}
     ).then((tab) => {}, console.error);
 }
@@ -23,9 +23,7 @@ function openDiscussionsURLCurrentTab() {
 	      console.error);
 };
 
-
 browser.browserAction.onClicked.addListener(openDiscussionsURLCurrentTab);
-
 
 api_base = 'https://discu.eu/api/v0';
 api_token = 'browser-extension';
@@ -35,9 +33,8 @@ function _resetBadge(tabId) {
 	text: "",
 	tabId: tabId,
     });
-
     browser.browserAction.setTitle({
-	title: "",
+	title: "Discussions",
 	tabId: tabId,
     });
 }
@@ -53,16 +50,18 @@ function _updateBadge(counts, tabId) {
 
     let count = counts.total_comments + counts.articles_count;
 
+    if (count > 999) {
+	count = 999;
+    }
+
     browser.browserAction.setBadgeText({
 	text: count.toString(),
 	tabId: tabId,
     });
-
     browser.browserAction.setTitle({
-	title: `Comments ${count} Discussions ${counts.total_discussions}`,
+	title: `${counts.total_discussions} Discussions `,
 	tabId: tabId,
     });
-
     browser.browserAction.setBadgeBackgroundColor({
 	color: '#666666',
 	tabId: tabId,
@@ -88,6 +87,8 @@ function updateBadge(url, tabId) {
 	.then(response => response.json(), e => console.error(e))
 	.then(counts => _updateBadge(counts, tabId), e => console.error(e));
 }
+
+
 
 function updateTab(tabId, changeInfo, tab) {
     if (changeInfo.url) {

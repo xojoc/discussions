@@ -43,8 +43,8 @@ def get_semaphore(url):
     u = urllib3.util.parse_url(url)
 
     if not u or not u.host:
-        logger.debug("get_semaphore: parse error: {url}: {u}")
-        return False
+        logger.debug(f"get_semaphore: parse error: {url}: {u}")
+        return True
 
     r = get_redis_connection()
 
@@ -85,9 +85,9 @@ def fetch(url):
        resource.last_fetch >= one_week_ago:
 
         logger.debug(f'recently fetched: {resource.last_fetch}: {url}')
-        return True
+        return resource
 
-    response = http.fetch(url, timeout=60, with_retries=False)
+    response = http.fetch(url, timeout=30, with_retries=False)
 
     if not response:
         resource.status_code = 999
@@ -110,7 +110,7 @@ def fetch(url):
         except Exception as e:
             logger.debug(f"fetch: extract html: {e}")
 
-    return True
+    return resource
 
 
 def process_next():
@@ -240,11 +240,13 @@ def extract_html(resource):
 
         anchor_title = link.get('title')
         anchor_text = link.text
+        anchor_rel = link.get('rel')
 
         link = models.Link(from_resource=resource,
                            to_resource=to,
                            anchor_title=anchor_title,
-                           anchor_text=anchor_text)
+                           anchor_text=anchor_text,
+                           anchor_rel=anchor_rel)
         link.save()
 
     resource.normalized_title = title.normalize(resource.title)

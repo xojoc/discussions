@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
-    "name": "Discussions around the web",
-    "version": "1.0",
+    "name": "Discussions on HN, Reddit and Lobsters",
+    "version": "1.0.1",
 
     "author": "Alexandru Cojocaru",
 
@@ -27,7 +27,8 @@
 
     "browser_specific_settings": {
 	"gecko": {
-	    "id": "discussions@discu.eu"
+	    "id": "discussions@discu.eu",
+	    "strict_min_version": "65.0"
 	}
     },
 
