@@ -248,9 +248,10 @@ def _canonical_techcrunch(host, path, parsed_query):
 
 
 def _canonical_wikipedia(host, path, parsed_query):
-    if not path:
-        path = ''
-    if host.endswith('.wikipedia.org') and not path.endswith('/index.php'):
+    if host.endswith('.wikipedia.org'):
+        for q in parsed_query:
+            if q[0] == 'title':
+                path = '/wiki/' + q[1]
         parsed_query = []
 
     return host, path, parsed_query
