@@ -5,7 +5,7 @@
 
 {% block title %}
 {% if ctx.title or ctx.original_query %}
-Discussions for «{% firstof ctx.title ctx.original_query %}»
+{% firstof ctx.title ctx.original_query %} - discussions
 {% else %}
 Discussions around the Web
 {% endif %}

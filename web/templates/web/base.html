@@ -10,7 +10,10 @@
 	<link rel="stylesheet" href="{% static "style.css" %}" />
 	<link rel="icon" type="image/png" href="{% static "favicon-32x32.png" %}">
 
-	<title>{% block title %}Discussions around the Web{% endblock %}</title>
+
+	<title>{% spaceless %}
+	    {% block title %}Discussions around the Web{% endblock %}
+	    {% endspaceless %}</title>
 
 	{% block extra_head %}{% endblock %}
 
