@@ -18,7 +18,10 @@
 	{% block extra_head %}{% endblock %}
 
 	<meta name="description"
-	      content="Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL, title or keyword">
+	      content="{%spaceless%}
+{% block meta_description %}
+Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL, title or keyword
+{% endblock meta_description %}{% endspaceless %}">
 
 	<link rel="search" type="application/opensearchdescription+xml" title="Search Discussions"
 	      href="/opensearch.xml">

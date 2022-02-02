@@ -11,6 +11,14 @@ Discussions around the Web
 {% endif %}
 {% endblock title %}
 
+{% block meta_description %}
+{% if ctx.title or ctx.original_query %}
+Discussions and related articles about {% firstof ctx.title ctx.original_query %}
+{% else %}
+Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL, title or keyword
+{% endif %}
+{% endblock meta_description %}
+
 {% block extra_head %}
 {% if ctx.link_canonical_url %}
 <link rel="canonical" href="{{ctx.link_canonical_url}}" />
@@ -232,7 +240,7 @@ Discussions around the Web
     {% if not ctx.nothing_found %}
     <br />
     <div class="donate">
-	<p><a href="https://xojoc.pw/donate">Donate</a></p>
+	<p><a href="https://xojoc.pw/donate" rel="nofollow">Donate</a></p>
     </div>
     {% endif %}
 
