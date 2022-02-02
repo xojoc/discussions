@@ -61,7 +61,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
     {% if ctx.nothing_found %}
     <h2>Discussions not found</h2>
-    <p>Sorry, we couldn't find nothing for <b>{{ctx.url}}</b></p>
+    <p>Sorry, we couldn't find nothing for <span class="bold">{{ctx.url}}</span></p>
     {% else %}
 
     {% if ctx.display_discussions %}
@@ -75,7 +75,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	<li>
 	    <span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a></span>
 	    <span class="similar-search">(<a href="{{d.story_url|discussions_url}}"
-					     title="All discussions for this URL">Search by URL</a>)</span>
+					     title="Discussions and related articles for this URL">Lookup URL</a>)</span>
 	    <br />
 	    {{d.title}} <span class="similar-search">(<a href="{{d.title|discussions_url}}"
 							 title="Discussions with similar title">Search by title</a>)</span>
@@ -84,8 +84,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 		 rel="noreferrer noopener" target="_blank"
 	    -->
 
-	    <a href="{{d.discussion_url}}" title="View discussion on {{platform_name}}"><b>{{d.comment_count}}</b>
-		comment{{d.comment_count|pluralize:",s"}}</a>, <b>{{d.score}}</b> {{d.score_label}} [<time
+	    <a href="{{d.discussion_url}}" title="View discussion on {{platform_name}}"><span class="bold">{{d.comment_count}}</span>
+		comment{{d.comment_count|pluralize:",s"}}</a>, <span class="bold">{{d.score}}</span> {{d.score_label}} [<time
 													 datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
 	    {% if d.tags %}
 	    {% if platform != 'r' %}
@@ -240,7 +240,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
     {% if not ctx.nothing_found %}
     <br />
     <div class="donate">
-	<p><a href="https://xojoc.pw/donate" rel="nofollow">Donate</a></p>
+	<p><a href="https://xojoc.pw/donate" rel="nofollow" title="Support discu.eu's development">Donate</a></p>
     </div>
     {% endif %}
 

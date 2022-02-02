@@ -863,3 +863,7 @@ tbody td {
     color: #2C8C00;
     font-weight: 900;
 }
+
+.bold {
+    font-weight: bold;
+}
