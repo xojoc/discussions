@@ -586,7 +586,10 @@ footer {
 
 
 p {
-	margin-bottom: 0.3em;
+	margin-bottom: 0.5em;
+}
+pre {
+	margin-bottom: 0.5em;
 }
 
 #dashboard #main p {
@@ -628,24 +631,6 @@ p {
 	font-size: 80%;
 	display: flex;
 	align-items: center;
-}
-
-#dashboard .thumb, code, pre {
-/*	background-color: #434E5B; */
-	padding: 0.2em;
-	border-radius: 0.3em;
-	overflow-wrap: break-word;
-	white-space: pre-wrap;
-	font-family: monospace;
-}
-pre {
-	margin-top: 0.3em;
-	border: 1px black solid;
-}
-
-.newsletter pre {
-/*	background-color: #2A3440; */
-	border: none;
 }
 
 #dashboard .thumb {

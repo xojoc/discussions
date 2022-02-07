@@ -230,6 +230,17 @@ python-versions = ">=3.5.0"
 unicode_backport = ["unicodedata2"]
 
 [[package]]
+name = "cleanurl"
+version = "0.1.0"
+description = "Removes clutter from URLs and returns a canonicalized version"
+category = "main"
+optional = false
+python-versions = ">=3.9,<4.0"
+
+[package.dependencies]
+urllib3 = ">=1.26.8,<2.0.0"
+
+[[package]]
 name = "click"
 version = "8.0.3"
 description = "Composable command line interface toolkit"
@@ -1264,7 +1275,7 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "5321c37fad65872f220813c19dfacb26bdd21cc606fae0bd0d5ba61f312b172a"
+content-hash = "da882521abadb7dd6e44a99332072237e31783b314ee57530f0d7614622698e0"
 
 [metadata.files]
 amqp = [
@@ -1372,6 +1383,10 @@ cffi = [
 charset-normalizer = [
     {file = "charset-normalizer-2.0.10.tar.gz", hash = "sha256:876d180e9d7432c5d1dfd4c5d26b72f099d503e8fcc0feb7532c9289be60fcbd"},
     {file = "charset_normalizer-2.0.10-py3-none-any.whl", hash = "sha256:cb957888737fc0bbcd78e3df769addb41fd1ff8cf950dc9e7ad7793f1bf44455"},
+]
+cleanurl = [
+    {file = "cleanurl-0.1.0-py3-none-any.whl", hash = "sha256:d3e2f7c1a6b8c45d82911ac0a4f479558bd18b540a924e24aa59fe918b8edbb4"},
+    {file = "cleanurl-0.1.0.tar.gz", hash = "sha256:d4b0c578190fbd3bd5241d15a78bc680a391f57487eca2f73f152c7bf3d5a598"},
 ]
 click = [
     {file = "click-8.0.3-py3-none-any.whl", hash = "sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3"},

@@ -13,6 +13,9 @@ API for <a href="https://discu.eu" title="Discussions around the web">discu.eu</
 <p>
 To get a Bearer token please drop me an email: hi@xojoc.pw
 </p>
+<p>
+If you want only to try out the API then use <b>test</b> for the token.
+</p>
 """
 
 
@@ -45,14 +48,15 @@ class Discussion(ModelSchema):
 
 
 class DiscussionCounts(Schema):
-    total_comments: int
-    total_score: int
-    total_discussions: int
+    total_comments: int = 0
+    total_score: int = 0
+    total_discussions: int = 0
     last_discussion: date = None
     first_discussion: date = None
     story_url: str = None
     discussions_url: str = None
-    articles_count: int
+    articles_count: int = 0
+    comments_by_platform: dict[str, int] = {}
 
 
 class Message(Schema):
@@ -73,13 +77,39 @@ def get_discussions(request, url: str, only_relevant_stories: bool = True):
          auth=auth_bearer)
 def get_discussion_counts(request, url: str):
     """Get discussion counts for a given URL."""
-    dcs, cu, rcu = models.Discussion.counts_of_url(url)
-    if dcs:
-        dcs['discussions_url'] = util.discussions_url(url)
-    dcs['articles_count'] = 0
+    dcs = DiscussionCounts()
+
+    ds, cu, rcu = models.Discussion.of_url(url, True)
+
+    dcs.story_url = url
+    dcs.discussions_url = util.discussions_url(url)
+
+    for d in ds:
+        dcs.total_comments += d.comment_count
+        dcs.total_score += d.score
+        dcs.total_discussions += 1
+        if not dcs.first_discussion:
+            dcs.first_discussion = d.created_at
+        else:
+            dcs.first_discussion = min(dcs.first_discussion, d.created_at)
+
+        if not dcs.last_discussion:
+            dcs.last_discussion = d.created_at
+        else:
+            dcs.last_discussion = max(dcs.last_discussion, d.created_at)
+
+        dcs.comments_by_platform[d.platform] = (dcs.comments_by_platform.get(d.platform, 0) +
+                                                d.comment_count)
+
+        if d.platform == 'r':
+            platform = d.platform + '/' + d.subreddit
+            dcs.comments_by_platform[platform] = (dcs.comments_by_platform.get(platform, 0) +
+                                                  d.comment_count)
+
+    dcs.articles_count = 0
     r = models.Resource.by_url(url)
     if r is not None:
         ir = r.inbound_resources()
         if ir is not None:
-            dcs['articles_count'] = ir.count()
+            dcs.articles_count = ir.count()
     return dcs

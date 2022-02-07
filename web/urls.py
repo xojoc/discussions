@@ -19,6 +19,8 @@ urlpatterns = [
     path('twitter/', RedirectView.as_view(url='/social/')),
     path('statistics/', views.statistics),
     path('extension/', TemplateView.as_view(template_name='web/extension.html')),
+    path('website/', TemplateView.as_view(template_name='web/website.html')),
+    path('bookmarklet/', TemplateView.as_view(template_name='web/bookmarklet.html')),
     path('opensearch.xml', TemplateView.as_view(template_name='web/opensearch.xml',
          content_type='application/opensearchdescription+xml'))
 ]

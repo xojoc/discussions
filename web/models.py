@@ -282,30 +282,6 @@ class Discussion(models.Model):
             return f"{bu}/news/{self.id}"
 
     @classmethod
-    def counts_of_url(cls, url):
-        if not url:
-            return
-
-        scheme, url = discussions.split_scheme(url)
-        cu = discussions.canonical_url(url)
-        rcu = cu
-
-        dcs = (cls.objects.filter(schemeless_story_url__iexact=url)
-               | cls.objects.filter(schemeless_story_url__iexact=cu)
-               | cls.objects.filter(canonical_story_url=cu))
-
-        dcs = dcs.aggregate(total_comments=Coalesce(Sum('comment_count'), Value(0)),
-                            total_score=Coalesce(Sum('score'), Value(0)),
-                            total_discussions=Coalesce(Count('platform_id'), Value(0)),
-                            last_discussion=Max('created_at'),
-                            first_discussion=Min('created_at'),
-                            story_url=Concat(Max('scheme_of_story_url'),
-                                             Value('://'),
-                                             Max('schemeless_story_url')))
-
-        return dcs, cu, rcu
-
-    @classmethod
     def of_url(cls, url, client=None, only_relevant_stories=True):
         if not url:
             return cls.objects.none(), '', ''
@@ -336,6 +312,30 @@ class Discussion(models.Model):
                          '-platform_id')
 
         return ds, cu, rcu
+
+    @classmethod
+    def counts_of_url(cls, url):
+        if not url:
+            return
+
+        scheme, url = discussions.split_scheme(url)
+        cu = discussions.canonical_url(url)
+        rcu = cu
+
+        dcs = (cls.objects.filter(schemeless_story_url__iexact=url)
+               | cls.objects.filter(schemeless_story_url__iexact=cu)
+               | cls.objects.filter(canonical_story_url=cu))
+
+        dcs = dcs.aggregate(total_comments=Coalesce(Sum('comment_count'), Value(0)),
+                            total_score=Coalesce(Sum('score'), Value(0)),
+                            total_discussions=Coalesce(Count('platform_id'), Value(0)),
+                            last_discussion=Max('created_at'),
+                            first_discussion=Min('created_at'),
+                            story_url=Concat(Max('scheme_of_story_url'),
+                                             Value('://'),
+                                             Max('schemeless_story_url')))
+
+        return dcs, cu, rcu
 
     @classmethod
     def of_url_or_title(cls, url_or_title, client=None):

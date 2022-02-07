@@ -1,0 +1,41 @@
+{% extends "web/base.html" %}
+
+{% load util %}
+
+{% block title %}
+Display comments on your website - discussions
+{% endblock title %}
+
+{% block main %}
+
+<h2>Display comments on your website</h2>
+<p>
+    Just include a link to this site, like this:
+
+    <pre>
+    https://discu.eu/?q=<b>URL</b>&submit_title=<b>article title</b></pre>
+
+    the <b>submit_title</b> parameter is optional, but when included it will prefill the submission title if the user decides to submit your story to a platform.
+</p>
+<p>
+    For an example see the bottom of this <a href="https://xojoc.pw/blog/focus" title="Example article">article</a> which includes the following <a href="https://discu.eu/?q=https://xojoc.pw%2fblog%2ffocus&submit_title=Why%20I%27m%20focusing%20only%20on%20some%20programming%20languages">link</a>.
+</p>
+
+<p>
+    If you want to include a link only on pages with relevant dicussions then first call the <a href="/api/v0/docs" title="Discussions API">API</a> (use the <b>discussions_counts</b> method).
+</p>
+<p>
+    The API returns the total count of comments and the number of comments for each platform and subreddit. This way you can include a link only if you're interested in the comments of a specific platform or subreddit.
+</p>
+
+    <h2>Widget</h2>
+    <p>
+	Coming soon: widget to display discussions directly on your website
+    </p>
+
+
+    <h2>Whole site search</h2>
+    <p>
+    Pro tip: if would like to see all the discussions for your whole site, use the <b>site:</b> prefix when searching. Example <a href="{{'site:xojoc.pw'|discussions_url}}" title="Whole site search">site:xojoc.pw</a>.
+</p>
+{% endblock main %}
