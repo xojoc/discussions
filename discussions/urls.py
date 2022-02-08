@@ -30,4 +30,8 @@ urlpatterns = [
         extra_context={'sitemap_url': 'https://' +
                        settings.APP_DOMAIN + '/sitemap.xml'}
     )),
+    path("2e5ddde867414c0fb0973d5d52044653.txt",
+         TemplateView.as_view(
+             template_name="2e5ddde867414c0fb0973d5d52044653.txt",
+             content_type="text/plain")),
 ]
