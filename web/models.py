@@ -287,7 +287,7 @@ class Discussion(models.Model):
             return cls.objects.none(), '', ''
 
         seven_days_ago = timezone.now() - datetime.timedelta(days=7)
-        min_comments = 1
+        min_comments = 2
 
         scheme, url = discussions.split_scheme(url)
         cu = discussions.canonical_url(url)
@@ -343,7 +343,7 @@ class Discussion(models.Model):
             return cls.objects.none(), '', ''
 
         seven_days_ago = timezone.now() - datetime.timedelta(days=7)
-        min_comments = 2
+        min_comments = 1
         min_score = 2
 
         if not url_or_title:
