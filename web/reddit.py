@@ -243,8 +243,6 @@ def get_subreddit(
 
     subreddit = subreddit.lower()
 
-    limit = 1000
-
     stories = set()
     list = None
     if listing == "new":
@@ -379,8 +377,6 @@ def fetch_discussions(index):
         logger.debug(f"reddit update: {name}: median {delay}")
 
         delay = max(60 * 15, min(delay, 60 * 60 * 24 * 7))
-        if delay < 60 * 60 * 20:
-            delay = 60 * 60 * 20
 
         td = datetime.timedelta(seconds=delay)
         logger.debug(f"reddit update: {name}: delay {td}")
