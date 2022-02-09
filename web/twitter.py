@@ -17,121 +17,121 @@ logger = logging.getLogger(__name__)
 # order is important: see tweet_story
 
 configuration = {
-    'bots': {
-        'RustDiscussions': {
-            'email': 'rust_discussions@xojoc.pw',
-            'user_id': '1446199026865557510',
-            'tags': {'rustlang'},
-            'description': 'Rust discussions',
-            'topic': 'Rust',
-            'mastodon_account': '@rust_discussions@mastodon.social',
+    "bots": {
+        "RustDiscussions": {
+            "email": "rust_discussions@xojoc.pw",
+            "user_id": "1446199026865557510",
+            "tags": {"rustlang"},
+            "description": "Rust discussions",
+            "topic": "Rust",
+            "mastodon_account": "@rust_discussions@mastodon.social",
         },
-        'GoDiscussions': {
-            'email': 'golang_discussions@xojoc.pw',
-            'tags': {'golang'},
-            'description': 'Go discussions',
-            'topic': 'Golang',
-            'mastodon_account': '@golang_discussions@mastodon.social',
+        "GoDiscussions": {
+            "email": "golang_discussions@xojoc.pw",
+            "tags": {"golang"},
+            "description": "Go discussions",
+            "topic": "Golang",
+            "mastodon_account": "@golang_discussions@mastodon.social",
         },
-        'IntPyDiscu': {
-            'email': 'python_discussions@xojoc.pw',
-            'user_id': '1442929661328117760',
-            'tags': {'python'},
-            'description': 'Python discussions',
-            'topic': 'Python',
-            'mastodon_account': '@python_discussions@mastodon.social',
+        "IntPyDiscu": {
+            "email": "python_discussions@xojoc.pw",
+            "user_id": "1442929661328117760",
+            "tags": {"python"},
+            "description": "Python discussions",
+            "topic": "Python",
+            "mastodon_account": "@python_discussions@mastodon.social",
         },
-        'CPPDiscussions': {
-            'email': 'c_discussions@xojoc.pw',
-            'tags': {'c', 'cpp'},
-            'description': 'C & C++ discussions',
-            'topic': 'C & C++',
-            'mastodon_account': '@c_discussions@mastodon.social',
+        "CPPDiscussions": {
+            "email": "c_discussions@xojoc.pw",
+            "tags": {"c", "cpp"},
+            "description": "C & C++ discussions",
+            "topic": "C & C++",
+            "mastodon_account": "@c_discussions@mastodon.social",
         },
-        'HaskellDiscu': {
-            'email': 'haskell_discussions@xojoc.pw',
-            'tags': {'haskell'},
-            'description': 'Haskell discussions',
-            'topic': 'Haskell',
-            'mastodon_account': '@haskell_discussions@mastodon.social',
+        "HaskellDiscu": {
+            "email": "haskell_discussions@xojoc.pw",
+            "tags": {"haskell"},
+            "description": "Haskell discussions",
+            "topic": "Haskell",
+            "mastodon_account": "@haskell_discussions@mastodon.social",
         },
-        'LispDiscussions': {
-            'email': 'lisp_discussions@xojoc.pw',
-            'tags': {'lisp', 'scheme', 'racket'},
-            'description': 'Lisp & Scheme discussions',
-            'topic': 'Lisp & Scheme',
-            'mastodon_account': '@lisp_discussions@mastodon.social',
+        "LispDiscussions": {
+            "email": "lisp_discussions@xojoc.pw",
+            "tags": {"lisp", "scheme", "racket"},
+            "description": "Lisp & Scheme discussions",
+            "topic": "Lisp & Scheme",
+            "mastodon_account": "@lisp_discussions@mastodon.social",
         },
-        'ErlangDiscu': {
-            'email': 'erlang_discussions@xojoc.pw',
-            'tags': {'erlang', 'elixir'},
-            'description': 'Erlang & Elixir discussions',
-            'topic': 'Erlang & Elixir',
-            'mastodon_account': '@erlang_discussions@mastodon.social',
+        "ErlangDiscu": {
+            "email": "erlang_discussions@xojoc.pw",
+            "tags": {"erlang", "elixir"},
+            "description": "Erlang & Elixir discussions",
+            "topic": "Erlang & Elixir",
+            "mastodon_account": "@erlang_discussions@mastodon.social",
         },
-        'RubyDiscussions': {
-            'email': 'ruby_discussions@xojoc.pw',
-            'tags': {'ruby'},
-            'description': 'Ruby discussions',
-            'topic': 'Ruby',
-            'mastodon_account': '@ruby_discussions@mastodon.social',
+        "RubyDiscussions": {
+            "email": "ruby_discussions@xojoc.pw",
+            "tags": {"ruby"},
+            "description": "Ruby discussions",
+            "topic": "Ruby",
+            "mastodon_account": "@ruby_discussions@mastodon.social",
         },
-        'CompsciDiscu': {
-            'email': 'compsci_discussions@xojoc.pw',
-            'tags': {'compsci'},
-            'description': 'Computer Science discussions',
-            'topic': 'Computer Science',
-            'mastodon_account': '@compsci_discussions@mastodon.social',
+        "CompsciDiscu": {
+            "email": "compsci_discussions@xojoc.pw",
+            "tags": {"compsci"},
+            "description": "Computer Science discussions",
+            "topic": "Computer Science",
+            "mastodon_account": "@compsci_discussions@mastodon.social",
         },
-        'DevopsDiscu': {
-            'email': 'devops_discussions@xojoc.pw',
-            'tags': {'devops', 'docker', 'kubernets'},
-            'description': 'DevOps discussions',
-            'topic': 'DevOps',
-            'mastodon_account': '@devops_discussions@mastodon.social',
+        "DevopsDiscu": {
+            "email": "devops_discussions@xojoc.pw",
+            "tags": {"devops", "docker", "kubernets"},
+            "description": "DevOps discussions",
+            "topic": "DevOps",
+            "mastodon_account": "@devops_discussions@mastodon.social",
         },
-        'ProgDiscussions': {
-            'email': 'programming_discussions@xojoc.pw',
-            'tags': {'programming'},
-            'description': 'Programming discussions',
-            'topic': 'Programming',
-            'mastodon_account': '@programming_discussions@mastodon.social',
+        "ProgDiscussions": {
+            "email": "programming_discussions@xojoc.pw",
+            "tags": {"programming"},
+            "description": "Programming discussions",
+            "topic": "Programming",
+            "mastodon_account": "@programming_discussions@mastodon.social",
         },
-        'HNDiscussions': {
-            'email': 'hn_discussions@xojoc.pw',
-            'tags': {},
-            'description': 'Hacker News discussions',
-            'topic': 'Hacker News',
-            'platform': 'h',
-            'mastodon_account': '@hn_discussions@mastodon.social',
-        }
+        "HNDiscussions": {
+            "email": "hn_discussions@xojoc.pw",
+            "tags": {},
+            "description": "Hacker News discussions",
+            "topic": "Hacker News",
+            "platform": "h",
+            "mastodon_account": "@hn_discussions@mastodon.social",
+        },
     }
 }
 
 
 def __sleep(a, b):
-    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+    if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         return
     time.sleep(random.randint(a, b))
 
 
 def __print(s):
     # logger.info(s)
-    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+    if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         print(s)
 
 
 def tweet(status, username):
-    api_key = configuration['api_key']
-    api_secret_key = configuration['api_secret_key']
-    token = configuration['bots'][username]['token']
-    token_secret = configuration['bots'][username]['token_secret']
+    api_key = configuration["api_key"]
+    api_secret_key = configuration["api_secret_key"]
+    token = configuration["bots"][username]["token"]
+    token_secret = configuration["bots"][username]["token_secret"]
 
     if not api_key or not api_secret_key or not token or not token_secret:
         logger.warn(f"Twitter bot: {username} non properly configured")
         return
 
-    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+    if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         random.seed()
         print(username)
         print(status)
@@ -152,16 +152,16 @@ def tweet(status, username):
 
 
 def retweet(tweet_id, username):
-    api_key = configuration['api_key']
-    api_secret_key = configuration['api_secret_key']
-    token = configuration['bots'][username]['token']
-    token_secret = configuration['bots'][username]['token_secret']
+    api_key = configuration["api_key"]
+    api_secret_key = configuration["api_secret_key"]
+    token = configuration["bots"][username]["token"]
+    token_secret = configuration["bots"][username]["token_secret"]
 
     if not api_key or not api_secret_key or not token or not token_secret:
         logger.warn(f"Twitter bot: {username} non properly configured")
         return
 
-    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+    if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         random.seed()
         print(username)
         print(tweet_id)
@@ -181,9 +181,9 @@ URL_LENGTH = 23
 
 
 def __hashtags(tags):
-    replacements = {'c': 'cprogramming'}
+    replacements = {"c": "cprogramming"}
     tags = (replacements.get(t, t) for t in tags)
-    return sorted(['#' + t for t in tags])
+    return sorted(["#" + t for t in tags])
 
 
 def build_story_status(title, url, tags, author):
@@ -217,24 +217,25 @@ Discussions: {'x' * URL_LENGTH}
         status += f"\n\nvia @{author.twitter_site}"
         status_len += f"\n\nvia @{author.twitter_site}"
 
-    title = unicodedata.normalize('NFC', title)
-    title = ''.join(c for c in title if c.isprintable())
-    title = ' '.join(title.split())
-    status = unicodedata.normalize('NFC', status)
-    status_len = unicodedata.normalize('NFC', status_len)
+    title = unicodedata.normalize("NFC", title)
+    title = "".join(c for c in title if c.isprintable())
+    title = " ".join(title.split())
+    status = unicodedata.normalize("NFC", status)
+    status_len = unicodedata.normalize("NFC", status_len)
 
     left_len = STATUS_MAX_LENGTH - len(status_len)
 
     if len(title) > left_len:
-        status = title[:left_len - 2] + "…" + status
+        status = title[: left_len - 2] + "…" + status
     else:
         status = title + status
 
     return status
 
 
-def tweet_story(title, url, tags, platforms,
-                already_tweeted_by, comment_count):
+def tweet_story(
+    title, url, tags, platforms, already_tweeted_by, comment_count
+):
     resource = models.Resource.by_url(url)
     author = None
     if resource:
@@ -246,12 +247,13 @@ def tweet_story(title, url, tags, platforms,
     tweeted_by = []
     tweet_id = None
 
-    for bot_name, cfg in configuration['bots'].items():
+    for bot_name, cfg in configuration["bots"].items():
         if bot_name in already_tweeted_by:
             continue
 
-        if (cfg.get('tags') and cfg['tags'] & tags) or \
-           (cfg.get('platform') and cfg.get('platform') in platforms):
+        if (cfg.get("tags") and cfg["tags"] & tags) or (
+            cfg.get("platform") and cfg.get("platform") in platforms
+        ):
             if tweet_id:
                 try:
                     __sleep(11, 23)
@@ -262,7 +264,7 @@ def tweet_story(title, url, tags, platforms,
                     sentry_sdk.capture_exception(e)
                     __sleep(7, 13)
             else:
-                if bot_name in ('HNDiscussions'):
+                if bot_name in ("HNDiscussions"):
                     if comment_count < 200:
                         continue
                 try:
@@ -289,20 +291,25 @@ def tweet_discussions():
     min_comment_count = 2
     min_score = 5
 
-    stories = models.Discussion.objects.\
-        filter(created_at__gte=three_days_ago).\
-        filter(comment_count__gte=min_comment_count).\
-        filter(score__gte=min_score).\
-        exclude(schemeless_story_url__isnull=True).\
-        exclude(schemeless_story_url='').\
-        exclude(scheme_of_story_url__isnull=True).\
-        order_by('created_at')
+    stories = (
+        models.Discussion.objects.filter(created_at__gte=three_days_ago)
+        .filter(comment_count__gte=min_comment_count)
+        .filter(score__gte=min_score)
+        .exclude(schemeless_story_url__isnull=True)
+        .exclude(schemeless_story_url="")
+        .exclude(scheme_of_story_url__isnull=True)
+        .order_by("created_at")
+    )
 
     logger.info(f"twitter: potential stories {stories.count()}")
 
     for story in stories:
+        # fixme: skip for now
+        if story.story_url == "https://google.com":
+            continue
         related_discussions, _, _ = models.Discussion.of_url(
-            story.story_url, only_relevant_stories=False)
+            story.story_url, only_relevant_stories=False
+        )
 
         total_comment_count = 0
         for rd in related_discussions:
@@ -330,19 +337,28 @@ def tweet_discussions():
         for rd in related_discussions:
             if rd.comment_count >= min_comment_count and rd.score >= min_score:
                 tags |= set(rd.normalized_tags or [])
-            if rd.comment_count >= min_comment_count and \
-               rd.score >= min_score and \
-               rd.created_at >= five_days_ago:
+            if (
+                rd.comment_count >= min_comment_count
+                and rd.score >= min_score
+                and rd.created_at >= five_days_ago
+            ):
 
                 platforms |= {rd.platform}
 
-        logger.info(f"twitter {story.platform_id}: {already_tweeted_by}: {platforms}: {tags}")
+        logger.info(
+            f"twitter {story.platform_id}: {already_tweeted_by}: {platforms}: {tags}"
+        )
 
         tweet_id = None
         try:
             tweet_id, tweeted_by = tweet_story(
-                story.title, story.story_url, tags,
-                platforms, already_tweeted_by, story.comment_count)
+                story.title,
+                story.story_url,
+                tags,
+                platforms,
+                already_tweeted_by,
+                story.comment_count,
+            )
         except Exception as e:
             logger.warn(f"twitter: {story.platform_id}: {e}")
             sentry_sdk.capture_exception(e)
