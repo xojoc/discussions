@@ -6,7 +6,6 @@ import os
 import logging
 from . import models, util
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -23,14 +22,13 @@ def process_discussion(sender, instance, created, **kwargs):
 
 @shared_task(ignore_result=True)
 def indexnow(url):
-    key = os.getenv('INDEX_NOW_API_KEY', '')
+    key = os.getenv("INDEX_NOW_API_KEY", "")
     if not key:
         return
     if util.is_dev():
         print(f"IndexNow: {url}")
         return
 
-    r = requests.get('https://bing.com/indexnow',
-                     params={'url': url, 'key': key})
+    r = requests.get("https://bing.com/indexnow", params={"url": url, "key": key})
     if not r.ok:
-        logger.error(f'IndeNow failed: {url} {r.status_code} {r.reason}')
+        logger.error(f"IndeNow failed: {url} {r.status_code} {r.reason}")
