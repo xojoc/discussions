@@ -324,6 +324,30 @@ def __process_post(p):
         ).save()
 
 
+def search_urls(url_pattern: str):
+    reddit = client()
+    all = reddit.subreddit("all")
+    urls = (
+        models.Discussion.objects.filter(
+            schemeless_story_url__icontains=url_pattern
+        )
+        .values("schemeless_story_url")
+        .distinct()
+    )
+
+    print(f"reddit search urls: count {urls.count()}")
+
+    c = 0
+    for url in urls:
+        u = url["schemeless_story_url"]
+        submissions = all.search(f'url:"{u}"')
+        for s in submissions:
+            c += 1
+            __process_post(s)
+
+    print(f"reddit search submissions: count {c}")
+
+
 def fetch_discussions(index):
     reddit = client()
     skip_sub_key_prefix = "discussions:reddit:subreddit:skip:"
