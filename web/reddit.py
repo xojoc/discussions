@@ -62,11 +62,15 @@ def __url_from_selftext(selftext):
                 respect_semantics=True,
                 host_remap=False,
             )
+            if not u:
+                continue
             if u.scheme not in ("http", "https", "ftp"):
                 continue
-            if __url_blacklisted(u):
+            if __url_blacklisted(u.schemeless_url):
                 continue
-            if u.startswith("reddit.com") or u.startswith("www.reddit.com"):
+            if u.schemeless_url.startswith(
+                "reddit.com"
+            ) or u.schemeless_url.startswith("www.reddit.com"):
                 continue
 
             return a["href"]

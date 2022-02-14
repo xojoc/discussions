@@ -476,7 +476,7 @@ class Discussion(models.Model):
                 ts = ts.exclude(schemeless_story_url__isnull=True)
                 ts = ts.exclude(schemeless_story_url="")
 
-                ts = ts[:30]
+                ts = ts[:40]
 
         if ts is not None:
             ds = ds.union(ts)
