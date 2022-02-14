@@ -305,7 +305,10 @@ def tweet_discussions():
 
     for story in stories:
         # fixme: skip for now
-        if story.story_url == "https://google.com":
+        if (
+            story.story_url == "https://google.com"
+            or story.story_url == "https://asp.net"
+        ):
             continue
         related_discussions, _, _ = models.Discussion.of_url(
             story.story_url, only_relevant_stories=False
