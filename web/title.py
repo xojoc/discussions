@@ -1,13 +1,14 @@
 import re
+
 # import nltk
 import unicodedata
 
 
 def __lobsters(title):
     return title
-    title = title.removeprefix('show lobsters ')
-    title = title.removeprefix('show lobste.rs ')
-    title = title.removeprefix('show lobste rs ')
+    title = title.removeprefix("show lobsters ")
+    title = title.removeprefix("show lobste.rs ")
+    title = title.removeprefix("show lobste rs ")
 
 
 def __reddit(title):
@@ -16,9 +17,9 @@ def __reddit(title):
 
 def __hacker_news(title):
     return title
-    title = title.removeprefix('show hn ')
-    title = title.removeprefix('ask hn ')
-    title = title.removeprefix('tell hn ')
+    title = title.removeprefix("show hn ")
+    title = title.removeprefix("ask hn ")
+    title = title.removeprefix("tell hn ")
     title = title.strip()
 
 
@@ -27,45 +28,40 @@ def __lambda_the_ultimate(title):
 
 
 def __unicode(title):
-    title = unicodedata.normalize('NFKC', title)
-    table = str.maketrans({
-        "’": "'",
-        '“': '"',
-        '”': '"',
-        "–": "-"
-    })
+    title = unicodedata.normalize("NFKC", title)
+    table = str.maketrans({"’": "'", "“": '"', "”": '"', "–": "-"})
     title = title.translate(table)
     return title
 
 
 def __year(title):
-    if re.search(r'\(1|2\d\d\d\)$', title):
-        title = title[:-len('(1234)')]
+    if re.search(r"\(1|2\d\d\d\)$", title):
+        title = title[: -len("(1234)")]
     title = title.strip()
     return title
 
 
 def __format(title):
-    title = title.removesuffix('[pdf]')
-    title = title.removesuffix('[video]')
+    title = title.removesuffix("[pdf]")
+    title = title.removesuffix("[video]")
     title = title.strip()
     return title
 
 
 def __punctuation(title):
-    title = title.replace("'s ", ' ')
+    title = title.replace("'s ", " ")
     new_title = ""
     for w in title.split():
         while len(w) > 0:
             cat = unicodedata.category(w[0])
-            if cat.startswith('P'):
+            if cat.startswith("P"):
                 w = w[1:]
             else:
                 break
 
         while len(w) > 0:
             cat = unicodedata.category(w[-1])
-            if cat.startswith('P'):
+            if cat.startswith("P"):
                 w = w[:-1]
             else:
                 break
@@ -73,7 +69,7 @@ def __punctuation(title):
         new_title += w
         new_title += " "
 
-    new_title = ' '.join(new_title.split())
+    new_title = " ".join(new_title.split())
     return new_title
 
 
@@ -87,16 +83,16 @@ def __contraction(title):
         elif w == "can't" or w == "cannot":
             new_title += "can not"
         elif w.endswith("'re"):
-            new_title += w.removesuffix("'re") + ' are'
+            new_title += w.removesuffix("'re") + " are"
         elif w.endswith("'d"):
-            new_title += w.removesuffix("'d") + ' had'
+            new_title += w.removesuffix("'d") + " had"
         elif w.endswith("'ll"):
-            new_title += w.removesuffix("'ll") + ' will'
+            new_title += w.removesuffix("'ll") + " will"
         elif w.endswith("i'm"):
-            new_title += 'i am'
+            new_title += "i am"
         else:
             new_title += w
-        new_title += ' '
+        new_title += " "
 
     return new_title.strip()
 
@@ -110,7 +106,7 @@ __synonyms = {
     "python4": "python",
     "python3": "python",
     "python2": "python",
-    "python2.7": "python"
+    "python2.7": "python",
 }
 
 
@@ -121,7 +117,7 @@ def __synonym(title):
             new_title += syn
         else:
             new_title += w
-        new_title += ' '
+        new_title += " "
 
     return new_title.strip()
 
@@ -129,16 +125,16 @@ def __synonym(title):
 def __programming_language_name(title):
     new_title = ""
     for w in title.split():
-        if re.match(r'^\w+[#\-+*]+$', w, flags=re.ASCII):
-            w = w.replace('+', 'p')
-            w = w.replace('#', 'sharp')
-            w = w.replace('-', 'm')
-            w = w.replace('*', 'star')
-        elif re.match(r'^\.\w+$', w, flags=re.ASCII):
-            w = w.replace('.', 'dot')
+        if re.match(r"^\w+[#\-+*]+$", w, flags=re.ASCII):
+            w = w.replace("+", "p")
+            w = w.replace("#", "sharp")
+            w = w.replace("-", "m")
+            w = w.replace("*", "star")
+        elif re.match(r"^\.\w+$", w, flags=re.ASCII):
+            w = w.replace(".", "dot")
 
         new_title += w
-        new_title += ' '
+        new_title += " "
 
     return new_title.strip()
 
@@ -146,13 +142,13 @@ def __programming_language_name(title):
 def __url(title, url):
     new_title = ""
     for w in title.split():
-        if w == 'go' and 'golang' in url:
-            new_title += 'golang'
-        elif w == 'rust' and 'rustlang' in url:
-            new_title += 'rustlang'
+        if w == "go" and "golang" in url:
+            new_title += "golang"
+        elif w == "rust" and "rustlang" in url:
+            new_title += "rustlang"
         else:
             new_title += w
-        new_title += ' '
+        new_title += " "
 
     return new_title.strip()
 
@@ -172,16 +168,16 @@ def __stem(title):
 
 def __duplicate(title):
     prev = object()
-    return ' '.join((prev := v for v in title.split() if prev != v))
+    return " ".join((prev := v for v in title.split() if prev != v))
 
 
 def normalize(title, platform=None, url="", tags=[], stem=True):
-    title = title or ''
-    url = (url or '').lower()
+    title = title or ""
+    url = (url or "").lower()
 
     title = __unicode(title)
 
-    title = ' '.join(title.split())
+    title = " ".join(title.split())
     title = title.lower().strip()
 
     title = __format(title)
@@ -199,13 +195,13 @@ def normalize(title, platform=None, url="", tags=[], stem=True):
     if url:
         title = __url(title, url)
 
-    if platform == 'l':
+    if platform == "l":
         title = __lobsters(title)
-    elif platform == 'r':
+    elif platform == "r":
         title = __reddit(title)
-    elif platform == 'h':
+    elif platform == "h":
         title = __hacker_news(title)
-    elif platform == 'u':
+    elif platform == "u":
         title = __lambda_the_ultimate(title)
 
     title = __duplicate(title)

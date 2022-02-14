@@ -18,8 +18,9 @@ from django_redis import get_redis_connection
 from discussions.settings import APP_CELERY_TASK_MAX_TIME
 from django.core.cache import cache
 from . import celery_util, worker
-from . import http, models, discussions
+from . import http, models
 import markdown
+import cleanurl
 
 
 logger = logging.getLogger(__name__)
@@ -29,14 +30,16 @@ subreddit_blacklist = set()
 subreddit_whitelist = set()
 
 
-def url_blacklisted(url):
+def __url_blacklisted(url):
     if not url:
         return False
 
     if (
         url.startswith("i.imgur.com")
         or url.startswith("imgur.com")
+        or url.startswith("www.imgur.com")
         or url.startswith("gfycat.com")
+        or url.startswith("www.gfycat.com")
     ):
         return True
 
@@ -53,10 +56,15 @@ def __url_from_selftext(selftext):
 
     for a in h.select("a") or []:
         if a and a.get("href"):
-            scheme, u = discussions.split_scheme(a["href"])
-            if scheme not in ("http", "https", "ftp"):
+            u = cleanurl.cleanurl(
+                a["href"],
+                generic=True,
+                respect_semantics=True,
+                host_remap=False,
+            )
+            if u.scheme not in ("http", "https", "ftp"):
                 continue
-            if url_blacklisted(u):
+            if __url_blacklisted(u):
                 continue
             if u.startswith("reddit.com") or u.startswith("www.reddit.com"):
                 continue
@@ -85,17 +93,23 @@ def __process_archive_line(line):
 
     platform_id = "r" + p.get("id")
 
-    scheme, url, story_url, canonical_url = None, None, None, None
+    scheme, url, story_url = None, None, None
     if p.get("is_self"):
         url = __url_from_selftext(p.get("selftext"))
     else:
         url = p.get("url")
 
     if url:
-        scheme, story_url = discussions.split_scheme(url.strip())
-        canonical_url = discussions.canonical_url(story_url)
+        u = cleanurl.cleanurl(
+            url,
+            generic=True,
+            respect_semantics=True,
+            host_remap=False,
+        )
+        scheme = u.scheme
+        story_url = u.schemeless_url
 
-    if url_blacklisted(canonical_url or story_url):
+    if __url_blacklisted(story_url):
         return
 
     created_at = None
@@ -116,7 +130,6 @@ def __process_archive_line(line):
             created_at=created_at,
             scheme_of_story_url=scheme,
             schemeless_story_url=story_url,
-            canonical_story_url=canonical_url,
             title=p.get("title"),
             tags=[subreddit.lower()],
         )
@@ -281,12 +294,18 @@ def __process_post(p):
     else:
         url = p.url
 
-    scheme, story_url, canonical_url = None, None, None
+    scheme, story_url = None, None
     if url:
-        scheme, story_url = discussions.split_scheme(url.strip())
-        canonical_url = discussions.canonical_url(story_url)
+        u = cleanurl.cleanurl(
+            url,
+            generic=True,
+            respect_semantics=True,
+            host_remap=False,
+        )
+        scheme = u.scheme
+        story_url = u.schemeless_url
 
-    if url_blacklisted(canonical_url or story_url):
+    if __url_blacklisted(story_url):
         return
 
     created_utc = p.created_utc
@@ -304,7 +323,6 @@ def __process_post(p):
         discussion.created_at = created_at
         discussion.scheme_of_story_url = scheme
         discussion.schemeless_story_url = story_url
-        discussion.canonical_story_url = canonical_url
         discussion.title = p.title
         discussion.archived = p.archived
         discussion.tags = [subreddit]
@@ -317,7 +335,6 @@ def __process_post(p):
             created_at=created_at,
             scheme_of_story_url=scheme,
             schemeless_story_url=story_url,
-            canonical_story_url=canonical_url,
             title=p.title,
             archived=p.archived,
             tags=[subreddit],
@@ -466,7 +483,7 @@ def worker_update_all_discussions(self):
             if d.subreddit.lower() in subreddit_blacklist:
                 d.delete()
                 continue
-            if url_blacklisted(
+            if __url_blacklisted(
                 d.canonical_story_url or d.schemeless_story_url
             ):
                 d.delete()

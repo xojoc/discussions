@@ -6,64 +6,63 @@ import urllib3
 
 logger = logging.getLogger(__name__)
 
-topics = {'rust':
-          {
-              "tags": ["rustlang"],
-          }
-          }
+topics = {
+    "rust": {
+        "tags": ["rustlang"],
+    }
+}
 
 
 def __category(story):
     u = urllib3.util.parse_url(story.canonical_story_url)
-    path = u.path or ''
+    path = u.path or ""
     title_tokens = story.normalized_title.split()
 
-    if 'programming' in story.normalized_tags:
-        if ('release' in title_tokens or 'released' in title_tokens):
-            return 'release'
+    if "programming" in story.normalized_tags:
+        if "release" in title_tokens or "released" in title_tokens:
+            return "release"
 
-    if u.host in ('github.com', 'gitlab.com',
-                  'bitbucket.org', 'gitea.com'):
-        parts = [p for p in path.split('/') if p]
+    if u.host in ("github.com", "gitlab.com", "bitbucket.org", "gitea.com"):
+        parts = [p for p in path.split("/") if p]
         if len(parts) == 2:
-            return 'project'
+            return "project"
 
-    if u.host in ('savannah.gnu.org', 'savannah.nongnu.org'):
-        if path.startswith('/projects/'):
-            return 'project'
+    if u.host in ("savannah.gnu.org", "savannah.nongnu.org"):
+        if path.startswith("/projects/"):
+            return "project"
 
-    if u.host in ('crates.io'):
-        if path.startswith('/crates/'):
-            return 'project'
+    if u.host in ("crates.io"):
+        if path.startswith("/crates/"):
+            return "project"
 
-    return 'generic'
+    return "generic"
 
 
 def __get(topic, week, year):
     import django
+
     django.db.connections.close_all()
 
     week_start = datetime.date.fromisocalendar(year, week, 1)
-    week_start = datetime.datetime.combine(week_start,
-                                           datetime.time(0, 0))
+    week_start = datetime.datetime.combine(week_start, datetime.time(0, 0))
     week_start = make_aware(week_start)
     week_end = week_start + datetime.timedelta(days=7)
-    week_end = datetime.datetime.combine(week_end,
-                                         datetime.time(0, 0))
+    week_end = datetime.datetime.combine(week_end, datetime.time(0, 0))
     week_end = make_aware(week_end)
 
     logger.debug(f"weekly: date range {topic} {week_start} {week_end}")
 
-    tags = topics[topic]['tags']
+    tags = topics[topic]["tags"]
 
-    stories = models.Discussion.objects.\
-        filter(created_at__gte=week_start).\
-        filter(created_at__lt=week_end).\
-        filter(normalized_tags__overlap=tags).\
-        exclude(schemeless_story_url__isnull=True).\
-        exclude(schemeless_story_url='').\
-        exclude(scheme_of_story_url__isnull=True).\
-        order_by('created_at')
+    stories = (
+        models.Discussion.objects.filter(created_at__gte=week_start)
+        .filter(created_at__lt=week_end)
+        .filter(normalized_tags__overlap=tags)
+        .exclude(schemeless_story_url__isnull=True)
+        .exclude(schemeless_story_url="")
+        .exclude(scheme_of_story_url__isnull=True)
+        .order_by("created_at")
+    )
 
     logger.debug(f"weekly: stories count {stories.count()}")
 

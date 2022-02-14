@@ -1,6 +1,6 @@
 import time
 import urllib3
-from . import models, discussions, http, extract, title, tags
+from . import models, http, extract, title, tags
 from django.utils import timezone
 import datetime
 import logging
@@ -10,16 +10,16 @@ from discussions.settings import APP_CELERY_TASK_MAX_TIME
 from web import celery_util
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
+import cleanurl
 
 logger = logging.getLogger(__name__)
 
-redis_prefix = 'discussions:crawler:'
-redis_queue_name = redis_prefix + 'queue'
-redis_queue_medium_name = redis_prefix + 'queue_medium'
-redis_queue_low_name = redis_prefix + 'queue_low'
-redis_queue_zero_name = redis_prefix + 'queue_zero'
-redis_host_semaphore = redis_prefix + 'semaphore:host'
+redis_prefix = "discussions:crawler:"
+redis_queue_name = redis_prefix + "queue"
+redis_queue_medium_name = redis_prefix + "queue_medium"
+redis_queue_low_name = redis_prefix + "queue_low"
+redis_queue_zero_name = redis_prefix + "queue_zero"
+redis_host_semaphore = redis_prefix + "semaphore:host"
 
 
 @shared_task(ignore_result=True)
@@ -48,7 +48,7 @@ def get_semaphore(url):
 
     r = get_redis_connection()
 
-    s = r.get(redis_host_semaphore + ':' + u.host)
+    s = r.get(redis_host_semaphore + ":" + u.host)
     if s:
         return False
 
@@ -64,27 +64,27 @@ def set_semaphore(url, timeout=60):
 
     r = get_redis_connection()
 
-    r.set(redis_host_semaphore + ':' + u.host, 1, ex=timeout)
+    r.set(redis_host_semaphore + ":" + u.host, 1, ex=timeout)
 
 
 def fetch(url):
     one_week_ago = timezone.now() - datetime.timedelta(days=7)
 
-    scheme, u = discussions.split_scheme(url)
-    cu = discussions.canonical_url(u)
-
-    resource = models.Resource.by_url(u)
+    cu = cleanurl.cleanurl(url)
+    su = cleanurl.cleanurl(
+        url, generic=True, respect_semantics=True, host_remap=False
+    )
+    resource = models.Resource.by_url(url)
 
     if not resource:
         resource = models.Resource(
-            scheme=scheme,
-            url=u,
-            canonical_url=cu)
+            scheme=su.scheme,
+            url=su.schemeless_url,
+            canonical_url=cu.schemeless_url,
+        )
 
-    if resource.last_fetch and\
-       resource.last_fetch >= one_week_ago:
-
-        logger.debug(f'recently fetched: {resource.last_fetch}: {url}')
+    if resource.last_fetch and resource.last_fetch >= one_week_ago:
+        logger.debug(f"recently fetched: {resource.last_fetch}: {url}")
         return resource
 
     response = http.fetch(url, timeout=30, with_retries=False)
@@ -131,15 +131,15 @@ def process_next():
         logger.debug("process_next: no url from queue")
         return True
 
-    url = str(url, 'utf-8')
+    url = str(url, "utf-8")
 
-    if url.startswith('https://streamja.com'):
+    if url.startswith("https://streamja.com"):
         return False
 
-    if url.startswith('https://www.reddit.com/gallery/'):
+    if url.startswith("https://www.reddit.com/gallery/"):
         return False
 
-    if url.startswith('https://www.reddit.com/r/'):
+    if url.startswith("https://www.reddit.com/r/"):
         return False
 
     if not get_semaphore(url):
@@ -151,11 +151,12 @@ def process_next():
 
     timeout = 15
 
-    if url.startswith('https://github.com'):
+    if url.startswith("https://github.com"):
         timeout = 3
 
-    if url.startswith('https://twitter.com') or\
-       url.startswith('https://www.twitter.com'):
+    if url.startswith("https://twitter.com") or url.startswith(
+        "https://www.twitter.com"
+    ):
         timeout = 3
 
     set_semaphore(url, timeout=timeout)
@@ -199,11 +200,12 @@ def process_discussion(sender, instance, created, **kwargs):
 def populate_queue(comment_count=10, score=10, days=3):
     days_ago = timezone.now() - datetime.timedelta(days=days)
 
-    discussions = models.Discussion.objects.\
-        filter(created_at__gte=days_ago).\
-        filter(comment_count__gte=comment_count).\
-        filter(score__gte=score).\
-        exclude(schemeless_story_url__isnull=True)
+    discussions = (
+        models.Discussion.objects.filter(created_at__gte=days_ago)
+        .filter(comment_count__gte=comment_count)
+        .filter(score__gte=score)
+        .exclude(schemeless_story_url__isnull=True)
+    )
 
     for d in discussions:
         add_to_queue(d.story_url, priority=3)
@@ -226,7 +228,7 @@ def extract_html(resource):
 
     resource.links.clear()
     for link in html_structure.outbound_links:
-        href = link.get('href')
+        href = link.get("href")
         if not href:
             continue
 
@@ -238,15 +240,17 @@ def extract_html(resource):
         if to.pk == resource.pk:
             continue
 
-        anchor_title = link.get('title')
+        anchor_title = link.get("title")
         anchor_text = link.text
-        anchor_rel = link.get('rel')
+        anchor_rel = link.get("rel")
 
-        link = models.Link(from_resource=resource,
-                           to_resource=to,
-                           anchor_title=anchor_title,
-                           anchor_text=anchor_text,
-                           anchor_rel=anchor_rel)
+        link = models.Link(
+            from_resource=resource,
+            to_resource=to,
+            anchor_title=anchor_title,
+            anchor_text=anchor_text,
+            anchor_rel=anchor_rel,
+        )
         link.save()
 
     resource.normalized_title = title.normalize(resource.title)

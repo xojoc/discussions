@@ -2,8 +2,9 @@ import logging
 from web import hn, lobsters, reddit, statistics  # noqa F401
 from web import discussions, twitter, mastodon, archiveis  # noqa F401
 from web import ltu, db, crawler, worker  # noqa F401
-from web import echojs, indexnow  # noqa F401
+from web import echojs, indexnow, email  # noqa F401
 from celery import shared_task
+
 # from celery.utils.log import get_task_logger
 from . import celery_util
 
@@ -19,6 +20,7 @@ def test_task(self):
     breakpoint()
 
     import time
+
     time.sleep(30)
 
     raise Exception("test lock")

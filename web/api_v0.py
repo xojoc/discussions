@@ -5,7 +5,7 @@ from typing import List
 from datetime import date
 
 
-api = NinjaAPI(version='v0')
+api = NinjaAPI(version="v0")
 api.title = "Discussions API"
 api.description = """<p>
 API for <a href="https://discu.eu" title="Discussions around the web">discu.eu</a>.
@@ -22,9 +22,7 @@ If you want only to try out the API then use <b>test</b> for the token.
 class AuthBearer(HttpBearer):
     def authenticate(self, request, token):
         try:
-            return models.APIClient.objects.get(
-                token=token,
-                limited=False)
+            return models.APIClient.objects.get(token=token, limited=False)
         except models.APIClient.DoesNotExist:
             return None
 
@@ -35,8 +33,7 @@ auth_bearer = AuthBearer()
 class Discussion(ModelSchema):
     class Config:
         model = models.Discussion
-        model_fields = ['created_at', 'title',
-                        'comment_count', 'score']
+        model_fields = ["created_at", "title", "comment_count", "score"]
 
     platform: str
     id: str
@@ -63,18 +60,22 @@ class Message(Schema):
     message: str
 
 
-@api.get('/discussions/url/{path:url}',
-         response={200: List[Discussion]},
-         auth=auth_bearer)
+@api.get(
+    "/discussions/url/{path:url}",
+    response={200: List[Discussion]},
+    auth=auth_bearer,
+)
 def get_discussions(request, url: str, only_relevant_stories: bool = True):
     """Get all discussions for a given URL."""
     ds, cu, rcu = models.Discussion.of_url(url, only_relevant_stories)
     return ds
 
 
-@api.get('/discussion_counts/url/{path:url}',
-         response={200: DiscussionCounts},
-         auth=auth_bearer)
+@api.get(
+    "/discussion_counts/url/{path:url}",
+    response={200: DiscussionCounts},
+    auth=auth_bearer,
+)
 def get_discussion_counts(request, url: str):
     """Get discussion counts for a given URL."""
     dcs = DiscussionCounts()
@@ -98,13 +99,15 @@ def get_discussion_counts(request, url: str):
         else:
             dcs.last_discussion = max(dcs.last_discussion, d.created_at)
 
-        dcs.comments_by_platform[d.platform] = (dcs.comments_by_platform.get(d.platform, 0) +
-                                                d.comment_count)
+        dcs.comments_by_platform[d.platform] = (
+            dcs.comments_by_platform.get(d.platform, 0) + d.comment_count
+        )
 
-        if d.platform == 'r':
-            platform = d.platform + '/' + d.subreddit
-            dcs.comments_by_platform[platform] = (dcs.comments_by_platform.get(platform, 0) +
-                                                  d.comment_count)
+        if d.platform == "r":
+            platform = d.platform + "/" + d.subreddit
+            dcs.comments_by_platform[platform] = (
+                dcs.comments_by_platform.get(platform, 0) + d.comment_count
+            )
 
     dcs.articles_count = 0
     r = models.Resource.by_url(url)

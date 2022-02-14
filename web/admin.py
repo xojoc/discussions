@@ -8,8 +8,9 @@ class StatisticsAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
-            path('statistics/',
-                 self.admin_site.admin_view(self.statistics_view)),
+            path(
+                "statistics/", self.admin_site.admin_view(self.statistics_view)
+            ),
         ]
         return my_urls + urls
 
@@ -27,14 +28,14 @@ class StatisticsAdmin(admin.ModelAdmin):
 
 class DiscussionAdmin(admin.ModelAdmin):
     list_display = [
-        'platform_id',
-        'created_at',
-        'tags',
-        'normalized_tags',
-        'comment_count',
-        'score',
-        'title',
-        'normalized_title'
+        "platform_id",
+        "created_at",
+        "tags",
+        "normalized_tags",
+        "comment_count",
+        "score",
+        "title",
+        "normalized_title",
     ]
     # list_filter = [
     #     "platform",

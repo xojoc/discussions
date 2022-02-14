@@ -1,28 +1,27 @@
 from urllib.parse import quote
 from difflib import SequenceMatcher
 from discussions import settings
-from . import discussions
 import os
+import cleanurl
 
 
 def discussions_url(q, with_domain=True):
     if not q:
-        q = ''
-    path = '/q/' + quote(q, safe='/:?&=')
+        q = ""
+    path = "/q/" + quote(q, safe="/:?&=")
     if with_domain:
-        return f'https://{settings.APP_DOMAIN}{path}'
+        return f"https://{settings.APP_DOMAIN}{path}"
     else:
         return path
 
 
 def discussions_canonical_url(q, with_domain=True):
     if not q:
-        q = ''
+        q = ""
     q = q.lower()
-    scheme, url = discussions.split_scheme(q)
-    if scheme in ('http', 'https'):
-        cu = discussions.canonical_url(url)
-        q = f"{scheme}://{cu}"
+    cu = cleanurl.cleanurl(q)
+    if cu.scheme in ("http", "https"):
+        q = cu.url
 
     return discussions_url(q, with_domain)
 
@@ -42,4 +41,4 @@ def most_similar(bs, a, key=__noop):
 
 
 def is_dev():
-    return os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true'
+    return os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true"

@@ -12,6 +12,7 @@ class Author:
     mastodon_site = None
     homepage = None
 
+
 # Page type:
 #   Article
 #   ArticleIndex
@@ -38,32 +39,40 @@ def __extract_author(article, h):
     author = Author()
 
     if h:
-        author.twitter_account = (h.select_one('meta[name="twitter:creator"], meta[property="twitter:creator"]') or {}).\
-            get('content', '').removeprefix('@') or None
+        author.twitter_account = (
+            h.select_one(
+                'meta[name="twitter:creator"], meta[property="twitter:creator"]'
+            )
+            or {}
+        ).get("content", "").removeprefix("@") or None
 
-        author.twitter_site = (h.select_one('meta[name="twitter:site"], meta[property="twitter:site"]') or {}).\
-            get('content', '').removeprefix('@') or None
+        author.twitter_site = (
+            h.select_one(
+                'meta[name="twitter:site"], meta[property="twitter:site"]'
+            )
+            or {}
+        ).get("content", "").removeprefix("@") or None
 
     if author.twitter_account:
-        parts = author.twitter_account.split('/')
+        parts = author.twitter_account.split("/")
         parts = [p for p in parts if p]
         author.twitter_account = parts[-1]
         author.twitter_account = author.twitter_account.strip()
 
-        author.twitter_account = author.twitter_account.removeprefix('@')
+        author.twitter_account = author.twitter_account.removeprefix("@")
 
-        if ' ' in author.twitter_account:
+        if " " in author.twitter_account:
             author.twitter_account = None
 
     if author.twitter_site:
-        parts = author.twitter_site.split('/')
+        parts = author.twitter_site.split("/")
         parts = [p for p in parts if p]
         author.twitter_site = parts[-1]
         author.twitter_site = author.twitter_site.strip()
 
-        author.twitter_site = author.twitter_site.removeprefix('@')
+        author.twitter_site = author.twitter_site.removeprefix("@")
 
-        if ' ' in author.twitter_site:
+        if " " in author.twitter_site:
             author.twitter_site = None
 
     # if not author.twitter_account:
@@ -105,7 +114,7 @@ def structure(h):
     s = Structure()
 
     try:
-        articles = h.select('article')
+        articles = h.select("article")
         if len(articles) == 1:
             s.article = articles[0]
     except Exception:
@@ -113,25 +122,25 @@ def structure(h):
 
     if s.article:
         try:
-            s.title = s.article.select_one('h1, h2, h3').get_text().strip()
+            s.title = s.article.select_one("h1, h2, h3").get_text().strip()
         except Exception:
             pass
 
         try:
-            s.outbound_links = s.article.select('a') or []
+            s.outbound_links = s.article.select("a") or []
         except Exception:
             pass
 
     try:
         s.author = __extract_author(s.article, h)
     except Exception as e:
-        print(f'author: {e}')
+        print(f"author: {e}")
         logging.debug(f"author: {e}")
         pass
 
     if not s.title:
         try:
-            s.title = h.select_one('title').get_text().strip()
+            s.title = h.select_one("title").get_text().strip()
         except Exception:
             pass
 

@@ -1,6 +1,6 @@
 import time
 import logging
-from web import models, celery_util, crawler, discussions
+from web import models, celery_util, crawler
 from web import worker
 from celery import shared_task
 from django.utils import timezone
@@ -10,7 +10,7 @@ import datetime
 logger = logging.getLogger(__name__)
 
 
-def timing_iterate_all(chunk_size=10_000):
+def __timing_iterate_all(chunk_size=10_000):
     start_time = time.monotonic()
     stories = models.Discussion.objects.all().order_by()
     for _ in stories.iterator(chunk_size=chunk_size):
@@ -26,20 +26,23 @@ def worker_update_discussions(self):
     count_dirty = 0
     count_dirty_resource = 0
     seven_days_ago = timezone.now() - datetime.timedelta(days=7)
-    stories = models.Discussion.\
-        objects.filter(entry_updated_at__lte=seven_days_ago).order_by()
+    stories = models.Discussion.objects.filter(
+        entry_updated_at__lte=seven_days_ago
+    ).order_by()
 
     logger.info(f"db update: count {stories.count()}")
 
     dirty_stories = []
 
     def __update(dirty_stories):
-        updated_count = models.Discussion.objects.bulk_update(dirty_stories,
-                                                              ['canonical_story_url',
-                                                               'normalized_tags',
-                                                               'normalized_title'])
+        updated_count = models.Discussion.objects.bulk_update(
+            dirty_stories,
+            ["canonical_story_url", "normalized_tags", "normalized_title"],
+        )
         logger.info(f"db update: updated: {updated_count}")
         dirty_stories[:] = []
+
+    last_checkpoint = time.monotonic()
 
     for story in stories.iterator(chunk_size=10_000):
         dirty = False
@@ -48,14 +51,13 @@ def worker_update_discussions(self):
         normalized_title = story.normalized_title
         normalized_tags = story.normalized_tags
 
-        if story.schemeless_story_url:
-            story.canonical_story_url = discussions.canonical_url(story.schemeless_story_url)
-
         story._pre_save()
 
-        if story.canonical_story_url != canonical_story_url or\
-           story.normalized_title != normalized_title or \
-           story.normalized_tags != normalized_tags:
+        if (
+            story.canonical_story_url != canonical_story_url
+            or story.normalized_title != normalized_title
+            or story.normalized_tags != normalized_tags
+        ):
 
             dirty = True
 
@@ -65,6 +67,13 @@ def worker_update_discussions(self):
 
         if len(dirty_stories) >= 1000:
             __update(dirty_stories)
+
+        if time.monotonic() > last_checkpoint + 60:
+            if worker.graceful_exit(self):
+                logger.info("update discussions: graceful exit")
+                break
+
+            last_checkpoint = time.monotonic()
 
     if len(dirty_stories) > 0:
         __update(dirty_stories)

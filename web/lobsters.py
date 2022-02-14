@@ -2,10 +2,11 @@ import datetime
 import logging
 import time
 from celery import shared_task
-from . import http, discussions, models
+from . import http, models
 from . import celery_util, worker
 from django.core.cache import cache
 import django
+import cleanurl
 
 logger = logging.getLogger(__name__)
 
@@ -18,40 +19,47 @@ logger = logging.getLogger(__name__)
 def process_item(item, platform):
     platform_id = f"{platform}{item.get('short_id')}"
 
-    created_at = datetime.datetime.fromisoformat(item.get('created_at'))
+    created_at = datetime.datetime.fromisoformat(item.get("created_at"))
 
-    scheme, url, canonical_url = None, None, None
-    if item.get('url'):
-        scheme, url = discussions.split_scheme(item.get('url').strip())
-        canonical_url = discussions.canonical_url(url)
+    scheme, url = None, None
+    if item.get("url"):
+        u = cleanurl.cleanurl(
+            item.get("url"),
+            generic=True,
+            respect_semantics=True,
+            host_remap=False,
+        )
+        if u:
+            scheme = u.scheme
+            url = u.schemeless_url
 
     try:
         discussion = models.Discussion.objects.get(pk=platform_id)
-        discussion.comment_count = item.get('comment_count') or 0
-        discussion.score = item.get('score') or 0
+        discussion.comment_count = item.get("comment_count") or 0
+        discussion.score = item.get("score") or 0
         discussion.created_at = created_at
         discussion.scheme_of_story_url = scheme
         discussion.schemeless_story_url = url
-        discussion.canonical_story_url = canonical_url
-        discussion.title = item.get('title')
-        discussion.tags = item.get('tags')
+        discussion.title = item.get("title")
+        discussion.tags = item.get("tags")
         discussion.save()
     except models.Discussion.DoesNotExist:
-        models.Discussion(platform_id=platform_id,
-                          comment_count=item.get('comment_count') or 0,
-                          score=item.get('score') or 0,
-                          created_at=created_at,
-                          scheme_of_story_url=scheme,
-                          schemeless_story_url=url,
-                          canonical_story_url=canonical_url,
-                          title=item.get('title'),
-                          tags=item.get('tags')).save()
+        models.Discussion(
+            platform_id=platform_id,
+            comment_count=item.get("comment_count") or 0,
+            score=item.get("score") or 0,
+            created_at=created_at,
+            scheme_of_story_url=scheme,
+            schemeless_story_url=url,
+            title=item.get("title"),
+            tags=item.get("tags"),
+        ).save()
 
 
 def __worker_fetch(task, platform):
     client = http.client(with_cache=False)
     base_url = models.Discussion.platform_url(platform)
-    cache_current_page_key = f'discussions:lobsters:{platform}:current_page'
+    cache_current_page_key = f"discussions:lobsters:{platform}:current_page"
 
     current_page = cache.get(cache_current_page_key) or 1
     current_page = int(current_page)
@@ -90,22 +98,22 @@ def __worker_fetch(task, platform):
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_lobsters(self):
-    __worker_fetch(self, 'l')
+    __worker_fetch(self, "l")
 
 
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_barnacles(self):
-    __worker_fetch(self, 'b')
+    __worker_fetch(self, "b")
 
 
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_tilde_news(self):
-    __worker_fetch(self, 't')
+    __worker_fetch(self, "t")
 
 
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_standard(self):
-    __worker_fetch(self, 's')
+    __worker_fetch(self, "s")

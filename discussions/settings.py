@@ -18,75 +18,82 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
-APP_DOMAIN = os.getenv('DISCUSSIONS_DOMAIN', 'discu.eu')
+APP_DOMAIN = os.getenv("DISCUSSIONS_DOMAIN", "discu.eu")
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1',
-                 os.environ.get('ALLOWED_HOST'), APP_DOMAIN]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    os.environ.get("ALLOWED_HOST"),
+    APP_DOMAIN,
+]
 CSRF_COOKIE_DOMAIN = APP_DOMAIN
-CSRF_TRUSTED_ORIGINS = ['https://*.xojoc.pw',
-                        f'https://{APP_DOMAIN}', 'http://localhost:7777']
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.xojoc.pw",
+    f"https://{APP_DOMAIN}",
+    "http://localhost:7777",
+]
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_celery_beat',
-    'django.contrib.humanize',
-    'django.contrib.postgres',
-    'web.apps.WebConfig',
-    'debug_toolbar',
-    'django.contrib.sitemaps'
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django_celery_beat",
+    "django.contrib.humanize",
+    "django.contrib.postgres",
+    "web.apps.WebConfig",
+    "debug_toolbar",
+    "django.contrib.sitemaps",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
-ROOT_URLCONF = 'discussions.urls'
+ROOT_URLCONF = "discussions.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'discussions.wsgi.application'
+WSGI_APPLICATION = "discussions.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'HOST': os.environ.get('DATABASE_HOST'),
-        'NAME': os.environ.get('DATABASE_NAME'),
-        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-        'USER': os.environ.get('DATABASE_USER'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": os.environ.get("DATABASE_HOST"),
+        "NAME": os.environ.get("DATABASE_NAME"),
+        "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
+        "USER": os.environ.get("DATABASE_USER"),
     }
 }
 
@@ -95,67 +102,61 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME':
-        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME':
-        'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME':
-        'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME':
-        'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
 USE_TZ = True
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_URL = "/static/"
+STATIC_ROOT = STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-USERAGENT = 'Discu.eu bot/0.1'
+USERAGENT = "Discu.eu bot/0.1"
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": os.getenv("REDIS_URL"),
         "KEY_PREFIX": "discussions:django_cache",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient"
-        }
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
     }
 }
 
 APP_CELERY_TASK_MAX_TIME = 30  # seconds
 
-CELERY_BROKER_URL = os.getenv('REDIS_URL')
-CELERY_RESULT_BACKEND = os.getenv('REDIS_URL')
+CELERY_BROKER_URL = os.getenv("REDIS_URL")
+CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
 
 task_ignore_result = True
 
 CELERY_BROKER_TRANSPORT_OPTIONS = {
-    'fanout_patterns': True,
-    'fanout_prefix': True,
-    'visibility_timeout': 43200,
+    "fanout_patterns": True,
+    "fanout_prefix": True,
+    "visibility_timeout": 43200,
     # 'global_keyprefix': 'discussions_celery:',
 }
 
@@ -167,73 +168,69 @@ CELERYD_PREFETCH_MULTIPLIER = 1
 CELERY_WORKER_ENABLE_REMOTE_CONTROL = True
 
 # xojoc: find a way to create default schedules for freshly installed apps
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 
 def change_404_level_to_INFO(record):
     if record.status_code == 404:
-        record.levelname = 'INFO'
+        record.levelname = "INFO"
     return True
 
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'change_404_to_info': {
-            '()': 'django.utils.log.CallbackFilter',
-            'callback': change_404_level_to_INFO,
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {
+        "change_404_to_info": {
+            "()": "django.utils.log.CallbackFilter",
+            "callback": change_404_level_to_INFO,
         },
     },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
-        'null': {
-            'class': 'logging.NullHandler',
+        "null": {
+            "class": "logging.NullHandler",
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-        'formatter': 'simple'
-    },
-    'loggers': {
+    "root": {"handlers": ["console"], "level": "INFO", "formatter": "simple"},
+    "loggers": {
         # 'discussions.web': {
         #     'handlers': ['console'],
         #     'level': 'INFO',
         #     'propagate': False,
         # },
-        'web': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
+        "web": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
         },
-        'django.server': {
-            'handlers': ['console'],
-            'level': 'WARNING',
-            'propagate': False,
+        "django.server": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
         },
-        'django.request': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': False,
-            'filters': ['change_404_to_info']
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+            "filters": ["change_404_to_info"],
         },
-        'daphne': {
-            'handlers': ['console'],
-            'level': 'WARNING',
-            'propagate': False,
+        "daphne": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
         },
-        'requests': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': False,
+        "requests": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
         },
-        'urllib3': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': False,
+        "urllib3": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
         },
         # 'celery': {
         #     'handlers': ['console'],
@@ -243,32 +240,41 @@ LOGGING = {
     },
 }
 
-if os.environ.get('DJANGO_DEVELOPMENT'):
-    LOGGING['loggers']['web']['level'] = 'DEBUG'
+if os.environ.get("DJANGO_DEVELOPMENT"):
+    LOGGING["loggers"]["web"]["level"] = "DEBUG"
     # LOGGING['loggers']['prawcore'] = {'level': 'DEBUG'}
     # LOGGING['loggers']['psycopg2'] = {'level': 'DEBUG'}
     # LOGGING['loggers']['django.db.backends'] = {'level': 'DEBUG'}
 
-if not os.environ.get('DJANGO_DEVELOPMENT'):
+if not os.environ.get("DJANGO_DEVELOPMENT"):
     sentry_logging = LoggingIntegration(
         level=logging.WARNING,
         event_level=logging.ERROR,
     )
 
-    sentry_sdk.init(dsn=os.getenv("SENTRY_DSN"),
-                    integrations=[
-                        DjangoIntegration(),
-                        CeleryIntegration(),
-                        RedisIntegration(), sentry_logging
-    ])
+    sentry_sdk.init(
+        dsn=os.getenv("SENTRY_DSN"),
+        integrations=[
+            DjangoIntegration(),
+            CeleryIntegration(),
+            RedisIntegration(),
+            sentry_logging,
+        ],
+    )
 
-REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID')
-REDDIT_CLIENT_SECRET = os.getenv('REDDIT_CLIENT_SECRET')
+REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID")
+REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET")
 
-en_formats.DATE_FORMAT = 'j/n/Y'
-en_formats.DATETIME_FORMAT = 'H:i:s j/n/Y'
+en_formats.DATE_FORMAT = "j/n/Y"
+en_formats.DATETIME_FORMAT = "H:i:s j/n/Y"
 
-INTERNAL_IPS = ['127.0.0.1']
+INTERNAL_IPS = ["127.0.0.1"]
 
-if os.environ.get('DJANGO_DEVELOPMENT'):
+EMAIL_HOST = "smtp.fastmail.com"
+EMAIL_PORT = "465"
+EMAIL_HOST_USER = os.getenv("EMAIL_SMTP_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_SMTP_PASSWORD")
+EMAIL_USE_SSL = True
+
+if os.environ.get("DJANGO_DEVELOPMENT"):
     from .settings_dev import *  # noqa F401, F403

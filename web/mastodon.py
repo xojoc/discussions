@@ -15,31 +15,31 @@ logger = logging.getLogger(__name__)
 
 
 def __sleep(a, b):
-    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+    if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         return
     time.sleep(random.randint(a, b))
 
 
 def __print(s):
     # logger.info(s)
-    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+    if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         print(s)
 
 
 def profile_url(account):
-    parts = account.split('@')
+    parts = account.split("@")
     return f"https://{parts[2]}/@{parts[1]}"
 
 
 def post(status, username, post_from_dev=False):
-    access_token = configuration['bots'][username].get('mastodon_access_token')
+    access_token = configuration["bots"][username].get("mastodon_access_token")
 
     if not access_token:
         logger.warn(f"Mastodon bot: {username} non properly configured")
         return
 
     if not post_from_dev:
-        if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+        if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
             random.seed()
             print(username)
             print(status)
@@ -47,26 +47,28 @@ def post(status, username, post_from_dev=False):
 
     client = http.client(with_cache=False)
 
-    api_url = 'https://mastodon.social/api/v1/statuses'
-    auth = {'Authorization': f'Bearer {access_token}'}
-    parameters = {'status': status}
+    api_url = "https://mastodon.social/api/v1/statuses"
+    auth = {"Authorization": f"Bearer {access_token}"}
+    parameters = {"status": status}
 
     r = client.post(api_url, data=parameters, headers=auth)
     if r.ok:
-        return int(r.json()['id'])
+        return int(r.json()["id"])
     else:
-        logger.error(f"mastodon post: {username}: {r.status_code} {r.reason}\n{status}")
+        logger.error(
+            f"mastodon post: {username}: {r.status_code} {r.reason}\n{status}"
+        )
         return
 
 
 def repost(post_id, username):
-    access_token = configuration['bots'][username].get('mastodon_access_token')
+    access_token = configuration["bots"][username].get("mastodon_access_token")
 
     if not access_token:
         logger.warn(f"Mastodon bot: {username} non properly configured")
         return
 
-    if os.getenv('DJANGO_DEVELOPMENT', '').lower() == 'true':
+    if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         random.seed()
         print(username)
         print(post_id)
@@ -74,23 +76,25 @@ def repost(post_id, username):
 
     client = http.client(with_cache=False)
 
-    api_url = f'https://mastodon.social/api/v1/statuses/{post_id}/reblog'
+    api_url = f"https://mastodon.social/api/v1/statuses/{post_id}/reblog"
 
-    auth = {'Authorization': f'Bearer {access_token}'}
-    parameters = {'id': post_id}
+    auth = {"Authorization": f"Bearer {access_token}"}
+    parameters = {"id": post_id}
 
     r = client.post(api_url, data=parameters, headers=auth)
     if r.ok:
         return post_id
     else:
-        logger.error(f"mastodon post: {username}: {r.status_code} {r.reason} {post_id}")
+        logger.error(
+            f"mastodon post: {username}: {r.status_code} {r.reason} {post_id}"
+        )
         return
 
 
 def __hashtags(tags):
-    replacements = {'c': 'cprogramming'}
+    replacements = {"c": "cprogramming"}
     tags = (replacements.get(t, t) for t in tags)
-    return sorted(['#' + t for t in tags])
+    return sorted(["#" + t for t in tags])
 
 
 def build_story_post(title, url, tags, author):
@@ -113,18 +117,17 @@ Discussions: {discussions_url}
     elif author.mastodon_site:
         status += f"\n\nvia @{author.mastodon_site}"
 
-    title = unicodedata.normalize('NFC', title)
-    title = ''.join(c for c in title if c.isprintable())
-    title = ' '.join(title.split())
-    status = unicodedata.normalize('NFC', status)
+    title = unicodedata.normalize("NFC", title)
+    title = "".join(c for c in title if c.isprintable())
+    title = " ".join(title.split())
+    status = unicodedata.normalize("NFC", status)
 
     status = title + status
 
     return status
 
 
-def post_story(title, url, tags, platforms,
-               already_posted_by, comment_count):
+def post_story(title, url, tags, platforms, already_posted_by, comment_count):
     resource = models.Resource.by_url(url)
     author = None
     if resource:
@@ -136,15 +139,16 @@ def post_story(title, url, tags, platforms,
     posted_by = []
     post_id = None
 
-    for bot_name, cfg in configuration['bots'].items():
+    for bot_name, cfg in configuration["bots"].items():
         if bot_name in already_posted_by:
             continue
 
-        if not cfg.get('mastodon_account'):
+        if not cfg.get("mastodon_account"):
             continue
 
-        if (cfg.get('tags') and cfg['tags'] & tags) or \
-           (cfg.get('platform') and cfg.get('platform') in platforms):
+        if (cfg.get("tags") and cfg["tags"] & tags) or (
+            cfg.get("platform") and cfg.get("platform") in platforms
+        ):
             if post_id:
                 try:
                     __sleep(11, 23)
@@ -155,7 +159,7 @@ def post_story(title, url, tags, platforms,
                     sentry_sdk.capture_exception(e)
                     __sleep(7, 13)
             else:
-                if bot_name in ('HNDiscussions'):
+                if bot_name in ("HNDiscussions"):
                     if comment_count < 200:
                         continue
                 try:
@@ -180,20 +184,22 @@ def post_discussions():
     min_comment_count = 2
     min_score = 5
 
-    stories = models.Discussion.objects.\
-        filter(created_at__gte=three_days_ago).\
-        filter(comment_count__gte=min_comment_count).\
-        filter(score__gte=min_score).\
-        exclude(schemeless_story_url__isnull=True).\
-        exclude(schemeless_story_url='').\
-        exclude(scheme_of_story_url__isnull=True).\
-        order_by('created_at')
+    stories = (
+        models.Discussion.objects.filter(created_at__gte=three_days_ago)
+        .filter(comment_count__gte=min_comment_count)
+        .filter(score__gte=min_score)
+        .exclude(schemeless_story_url__isnull=True)
+        .exclude(schemeless_story_url="")
+        .exclude(scheme_of_story_url__isnull=True)
+        .order_by("created_at")
+    )
 
     logger.info(f"mastodon: potential stories {stories.count()}")
 
     for story in stories:
         related_discussions, _, _ = models.Discussion.of_url(
-            story.story_url, only_relevant_stories=False)
+            story.story_url, only_relevant_stories=False
+        )
 
         total_comment_count = 0
         for rd in related_discussions:
@@ -219,19 +225,28 @@ def post_discussions():
         for rd in related_discussions:
             if rd.comment_count >= min_comment_count and rd.score >= min_score:
                 tags |= set(rd.normalized_tags or [])
-            if rd.comment_count >= min_comment_count and \
-               rd.score >= min_score and \
-               rd.created_at >= five_days_ago:
+            if (
+                rd.comment_count >= min_comment_count
+                and rd.score >= min_score
+                and rd.created_at >= five_days_ago
+            ):
 
                 platforms |= {rd.platform}
 
-        logger.info(f"mastodon {story.platform_id}: {already_posted_by}: {platforms}: {tags}")
+        logger.info(
+            f"mastodon {story.platform_id}: {already_posted_by}: {platforms}: {tags}"
+        )
 
         post_id = None
         try:
             post_id, posted_by = post_story(
-                story.title, story.story_url, tags,
-                platforms, already_posted_by, story.comment_count)
+                story.title,
+                story.story_url,
+                tags,
+                platforms,
+                already_posted_by,
+                story.comment_count,
+            )
         except Exception as e:
             logger.warn(f"mastodon {story.platform_id}: {e}")
             sentry_sdk.capture_exception(e)

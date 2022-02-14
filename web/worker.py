@@ -8,7 +8,7 @@ from django_redis import get_redis_connection
 
 logger = logging.getLogger(__name__)
 
-cache_graceful_exit_key = 'discussions:worker:graceful_exit'
+cache_graceful_exit_key = "discussions:worker:graceful_exit"
 
 
 @celery.signals.worker_ready.connect
@@ -21,12 +21,13 @@ def celery_worker_ready(signal, sender, **kwargs):
 def __patch_greenlet(f):
     def inner(*args, **kwargs):
         return gevent.spawn(f, *args, **kwargs)
+
     return inner
 
 
 @__patch_greenlet
 def __cache_set():
-    cache.set(cache_graceful_exit_key, 1, timeout=60*4)
+    cache.set(cache_graceful_exit_key, 1, timeout=60 * 4)
 
 
 def __timer(after, repeat, f):
@@ -47,5 +48,5 @@ def graceful_exit(task):
     else:
         k = celery_util.lock_key(task)
         redis = get_redis_connection()
-        redis.expire(k, 60*10)
+        redis.expire(k, 60 * 10)
         return False

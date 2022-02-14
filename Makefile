@@ -44,7 +44,8 @@ shell:
 
 
 lint:
-	@poetry run flake8 --extend-ignore E501,E741 | tac
+	@poetry run flake8 --extend-ignore E501,E741,E203 | tac
+	# @poetry run mypy --install-types --non-interactive .
 
 test:
 	@poetry run python -Wa manage.py test --noinput --keepdb
