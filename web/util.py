@@ -19,7 +19,9 @@ def discussions_canonical_url(q, with_domain=True):
     if not q:
         q = ""
     q = q.lower()
+
     cu = cleanurl.cleanurl(q)
+
     if cu.scheme in ("http", "https"):
         q = cu.url
 
