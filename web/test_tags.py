@@ -1,4 +1,4 @@
-from web import tags, title as web_title
+from web import tags
 import unittest
 
 
@@ -8,7 +8,7 @@ class Tags(unittest.TestCase):
             return tags.normalize(
                 ts,
                 platform,
-                web_title.normalize(title, platform, url, ts, stem=True),
+                title,
                 url,
             )
 
@@ -23,11 +23,15 @@ class Tags(unittest.TestCase):
                     title="Short guide to Linux phone desktops",
                     url="tuxphones.com/mobile-linux-phone-desktop-environments-de-comparison-interfaces/",
                 ),
+                n([], title="The Nintendo Switch has now outsold the Wii"),
+                n([], title="Why is LinkedIn so cringe?"),
             ],
             [
                 ["django", "programming", "python", "webdev"],
                 ["web"],
                 ["webdev"],
                 ["linux", "unix"],
+                ["nintendo"],
+                ["linkedin"],
             ],
         )

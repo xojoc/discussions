@@ -12,6 +12,7 @@ sitemaps_dict = {"discussions": sitemaps.DiscussionsSitemap}
 urlpatterns = [
     path("", include("web.urls")),
     path("admin/", admin.site.urls),
+    path("accounts/", include("allauth.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
     path("api/v0/", api_v0.api.urls),
     path(

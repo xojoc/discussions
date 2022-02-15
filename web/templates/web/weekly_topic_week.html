@@ -1,0 +1,28 @@
+{% extends "web/base.html" %}
+
+{% load humanize %}
+{% load util %}
+
+
+{% block title %}
+Weekly digests about {{ctx.topic.name}} for week {{ctx.week}}/{{ctx.year}} - discussions
+{% endblock title %}
+
+{% block main %}
+
+
+<ul>
+    {% for story in ctx.stories %}
+    <li>
+        <a href="{{story.story_url}}" title="{{story.title}}">{{story.title}}</a>
+        <p>
+            {{story.tags}}
+        </p>
+        <p>
+            {{story.category}}
+        </p>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock main %}

@@ -1,0 +1,16 @@
+{% extends "web/base.html" %}
+
+{% load humanize %}
+{% load util %}
+
+{% block title %}
+Weekly digests - discussions
+{% endblock title %}
+
+{% block main %}
+
+{% for topic_key, topic in ctx.topics.items %}
+<a href="{% url 'web:weekly_topic' topic_key %}" title="{{topic.short_description}}">{{topic.name}}</a>
+{% endfor %}
+
+{% endblock main %}

@@ -44,6 +44,16 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    # "allauth.apple",
+    # "allauth.github",
+    # "allauth.feedly",
+    # "allauth.google",
+    # "allauth.reddit",
+    # "allauth.twitter",
     "django_celery_beat",
     "django.contrib.humanize",
     "django.contrib.postgres",
@@ -63,6 +73,21 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
+
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+SITE_ID = 1
+
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_USERNAME_REQUIRED = False
 
 ROOT_URLCONF = "discussions.urls"
 
@@ -275,6 +300,12 @@ EMAIL_PORT = "465"
 EMAIL_HOST_USER = os.getenv("EMAIL_SMTP_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_SMTP_PASSWORD")
 EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = "hi@discu.eu"
+
+STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_PLAN_PRICE_API_ID = os.getenv("STRIPE_PLAN_PRICE_API_ID")
+
 
 if os.environ.get("DJANGO_DEVELOPMENT"):
     from .settings_dev import *  # noqa F401, F403

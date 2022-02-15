@@ -47,7 +47,7 @@ def __url_blacklisted(url):
     return False
 
 
-def __url_from_selftext(selftext):
+def _url_from_selftext(selftext):
     if not selftext:
         return
 
@@ -67,11 +67,17 @@ def __url_from_selftext(selftext):
                 continue
             if u.scheme not in ("http", "https", "ftp"):
                 continue
+            if not u.parsed_url.netloc:
+                continue
             if __url_blacklisted(u.schemeless_url):
                 continue
             if u.schemeless_url.startswith(
                 "reddit.com"
             ) or u.schemeless_url.startswith("www.reddit.com"):
+                continue
+            if re.match(r"^[0-9\.:]+$", u.parsed_url.netloc):
+                continue
+            if re.match(r"^\[[a-z0-9:]+\](:[0-9]+)?$", u.parsed_url.netloc):
                 continue
 
             return a["href"]
@@ -100,7 +106,7 @@ def __process_archive_line(line):
 
     scheme, url, story_url = None, None, None
     if p.get("is_self"):
-        url = __url_from_selftext(p.get("selftext"))
+        url = _url_from_selftext(p.get("selftext"))
     else:
         url = p.get("url")
 
@@ -295,7 +301,7 @@ def __process_post(p):
     url = None
     if p.is_self:
         if not p.stickied:
-            url = __url_from_selftext(p.selftext)
+            url = _url_from_selftext(p.selftext)
     else:
         url = p.url
 

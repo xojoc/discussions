@@ -1,5 +1,5 @@
-from web import models, discussions, twitter, util, forms
-from . import mastodon
+from . import models, discussions, twitter, util, forms
+from . import mastodon, weekly
 from django.shortcuts import render
 import itertools
 from django.core.cache import cache
@@ -226,6 +226,24 @@ def index(request, path_q=None):
     if ctx["nothing_found"]:
         response.status_code = 404
 
+    return response
+
+
+def weekly_index(request):
+    ctx = weekly.index_context()
+    response = render(request, "web/weekly_index.html", {"ctx": ctx})
+    return response
+
+
+def weekly_topic(request, topic):
+    ctx = weekly.topic_context(topic)
+    response = render(request, "web/weekly_topic.html", {"ctx": ctx})
+    return response
+
+
+def weekly_topic_week(request, topic, year, week):
+    ctx = weekly.topic_week_context(topic, year, week)
+    response = render(request, "web/weekly_topic_week.html", {"ctx": ctx})
     return response
 
 

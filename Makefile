@@ -29,7 +29,7 @@ cp: lint test poetry_export
 	@git push origin main
 
 migrate:
-	@poetry run python manage.py makemigrations web
+	@poetry run python manage.py makemigrations
 	@poetry run python manage.py migrate
 
 d: poetry_export

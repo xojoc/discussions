@@ -15,6 +15,13 @@ def sentry_trigger_error(request):
 urlpatterns = [
     path("", views.index, name="index"),
     path("q/<path:path_q>", views.index, name="index"),
+    path("weekly/", views.weekly_index, name="weekly_index"),
+    path("weekly/<slug:topic>/", views.weekly_topic, name="weekly_topic"),
+    path(
+        "weekly/<slug:topic>/<int:year>/<int:week>/",
+        views.weekly_topic_week,
+        name="weekly_topic_week",
+    ),
     path("sentry-debug/", sentry_trigger_error),
     path("social/", views.social),
     path("twitter/", RedirectView.as_view(url="/social/")),

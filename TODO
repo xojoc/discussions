@@ -4,3 +4,14 @@
 # Dev
 * Find out CapRover/docker's stop timeout and test it (Celery tasks may take minutes to stop)
 * Separate docker for celery with stop-first update (so that tasks don't overlap)
+
+# Weekly
+- add year view
+- breadcrumbs
+- next prev week (next prev year)
+- feed rss (premium)
+
+
+# various
+- fill footer
+
