@@ -21,6 +21,7 @@ from . import celery_util, worker
 from . import http, models
 import markdown
 import cleanurl
+import sentry_sdk
 
 
 logger = logging.getLogger(__name__)
@@ -507,7 +508,14 @@ def worker_update_all_discussions(self):
             cache.set(cache_current_index_key, current_index, timeout=None)
             continue
 
-        for i, p in enumerate(reddit.info(ps)):
+        try:
+            submissions = reddit.info(ps)
+        except Exception as e:
+            logger.error(f"reddit update all: reddit.info: {e}")
+            sentry_sdk.capture_exception(e)
+            submissions = []
+
+        for i, p in enumerate(submissions):
             d = ds[i]
 
             if p.over_18:
