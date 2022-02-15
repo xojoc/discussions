@@ -230,6 +230,7 @@ def __enrich(tags, title):
             "perl",
             "php",
             "python",
+            "racket",
             "ruby",
             "rustlang",
             "scala",
