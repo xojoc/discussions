@@ -42,7 +42,7 @@ def add_to_queue(url, priority=0, low=False):
 def get_semaphore(url):
     try:
         u = urllib3.util.parse_url(url)
-    except:
+    except Exception:
         u = None
 
     if not u or not u.host:
