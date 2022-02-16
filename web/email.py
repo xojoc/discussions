@@ -89,7 +89,10 @@ def worker_fetch_and_dispatch_email(self):
         if message.get_body().get_content_type() == "text/plain":
             body = message.get_body().get_content()
         if message.get_body().get_content_type() == "text/html":
-            body = http.parse_html(message.get_body().get_content()).text
+            breakpoint()
+            body = http.parse_html(message.get_body().get_content()).get_text(
+                " ", strip=True
+            )
 
         if not body or not from_email or not to_email or not subject:
             logger.debug("Email data missing... skipping")

@@ -195,7 +195,6 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
     """
     )
 
-    to_email = to_email.removeprefix(settings.EMAIL_TO_PREFIX)
     try:
         topic_key = re.search(r"weekly_([a-z0-9]+)@discu\.eu", to_email)[1]
     except Exception:
@@ -203,6 +202,12 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
 
     topic = topics.get(topic_key)
     if not topic:
+        return False
+
+    if settings.EMAIL_TO_PREFIX and not to_email.startswith(
+        settings.EMAIL_TO_PREFIX
+    ):
+        logger.debug(f"Weekly email NOT dev: '{topic_key}' '{from_email}'")
         return False
 
     tokens = body.lower().strip().split()
@@ -237,6 +242,9 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
                 topic=topic_key, email=from_email
             )
         except models.Subscriber.DoesNotExist:
+            logger.debug(
+                f"No subscription found for '{topic_key}' '{from_email}'"
+            )
             subscriber = None
 
         if subscriber:
