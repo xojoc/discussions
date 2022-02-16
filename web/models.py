@@ -7,7 +7,7 @@ from django.contrib.postgres.search import SearchVectorField
 # from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models.lookups import PostgresOperatorLookup
 from django.contrib.postgres.search import SearchQuery, SearchRank
-from . import discussions, tags, title, extract
+from . import discussions, tags, title, extract, weekly
 from django.utils import timezone
 import datetime
 from django.core import serializers
@@ -773,3 +773,40 @@ class APIClient(models.Model):
         if not self.token:
             self.token = self.generate_token()
         super(APIClient, self).save(*args, **kwargs)
+
+
+class Subscriber(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["email", "topic"], name="unique_email_topic"
+            )
+        ]
+
+    email = models.EmailField()
+    topic = models.CharField(max_length=255, choices=weekly.topics_choices)
+    verification_code = models.CharField(max_length=15)
+    confirmed = models.BooleanField(default=False)
+    subscribed_from = models.CharField(
+        max_length=2,
+        null=True,
+        choices=[("wf", "Web Form"), ("em", "Email Comand")],
+    )
+    entry_created_at = models.DateTimeField(auto_now_add=True)
+    entry_updated_at = models.DateTimeField(auto_now=True)
+    unsubscribed = models.BooleanField(default=False)
+    unsubscribed_at = models.DateTimeField(null=True)
+
+    def __str__(self):
+        return f"{self.email} {self.topic} ({self.confirmed} confirmed)"
+
+    @classmethod
+    def generate_verification_code(cls):
+        import secrets
+
+        return secrets.token_urlsafe(5)
+
+    def save(self, *args, **kwargs):
+        if not self.verification_code:
+            self.verification_code = self.generate_verification_code()
+        super(Subscriber, self).save(*args, **kwargs)

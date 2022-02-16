@@ -25,6 +25,11 @@ topics = {
     },
 }
 
+for topic_key, topic in topics.items():
+    topic["email"] = f"weekly_{topic_key}@discu.eu"
+
+topics_choices = sorted([(key, item["name"]) for key, item in topics.items()])
+
 
 def __category(story):
     u = urllib3.util.parse_url(story.canonical_story_url)

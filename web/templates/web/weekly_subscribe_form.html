@@ -1,0 +1,6 @@
+<form id="weekly_subscribe_form" method="POST">
+    {% csrf_token %}
+    {{ ctx.weekly_subscribe_form }}
+    <br>
+    <button type="submit">Subscribe!</button>
+</form>

@@ -9,6 +9,8 @@ Digest about {{ctx.topic.name}} for week - discussions
 
 {% block main %}
 
+{% include "web/weekly_subscribe_form.html" %}
+
 <ul>
     {% for yearweek in ctx.yearweeks %}
     <li><a href="{% url 'web:weekly_topic_week' ctx.topic_key yearweek.year yearweek.week %}"

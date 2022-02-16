@@ -503,38 +503,47 @@ footer {
 	padding-bottom: 100vh;
 }
 
-#messages a {
+.messages a, .errorlist a {
 	color: white;
 	text-decoration: underline;
 }
 
-.errorlist, #messages .error {
-	background-color: #ca0505;
+.messages li, .errorlist li {
 	border-radius: 0.3em;
 	color: white;
 	padding: 0.3em;
 	max-width: max-content;
-/*	border: 1px solid #eee; */
-/*	font-weight: bold; */
+	margin-bottom: 0.2em;
+	margin-top: 0;
 }
 
-#messages .success {
+
+.messages .success {
 	background-color: #57b06d;
+	/*
 	border-radius: 0.3em;
 	color: white ;
 	padding: 0.3em;
 	max-width: max-content;
+	*/
 /*	border: 1px solid #eee; */
 /*	font-weight: bold; */
 }
 
-#messages li {
-	margin-bottom: 0.2em;
+.messages .warning {
+	background-color: orange;
 }
 
-#content .errorlist li {
-	margin-top: 0;
+.messages .error, .errorlist {
+	background-color: #ca0505;
+	/*
+	border-radius: 0.3em;
+	color: white;
+	padding: 0.3em;
+	max-width: max-content;
+	*/
 }
+
 
 #dashboard {
 	display: flex;
@@ -639,7 +648,7 @@ pre {
 	white-space: normal;
 }
 
-form ul li, header ul li, .errorlist ul li, #messages ul li  {
+form ul li, header ul li, .errorlist ul li, .messages ul li  {
 	list-style: none;
 }
 

@@ -16,6 +16,11 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("q/<path:path_q>", views.index, name="index"),
     path("weekly/", views.weekly_index, name="weekly_index"),
+    path(
+        "weekly/confirm_email/",
+        views.weekly_confirm_email,
+        name="weekly_confirm_email",
+    ),
     path("weekly/<slug:topic>/", views.weekly_topic, name="weekly_topic"),
     path(
         "weekly/<slug:topic>/<int:year>/<int:week>/",

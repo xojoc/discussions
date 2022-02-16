@@ -37,6 +37,13 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 					<h1 id=site_title><a href="/" title="Discussions around the web">Discussions</a></h1>
 				</div>
 			</header>
+			{% if messages %}
+			<ul class="messages">
+				{% for message in messages %}
+				<li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+					{% endfor %}
+			</ul>
+			{% endif %}
 
 			{% block main_main %}
 

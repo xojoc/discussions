@@ -1,6 +1,7 @@
 from . import models, discussions, twitter, util, forms
-from . import mastodon, weekly
-from django.shortcuts import render
+from . import mastodon, weekly, email
+from django.shortcuts import render, redirect
+from django.urls import reverse
 import itertools
 from django.core.cache import cache
 from django.http import HttpResponsePermanentRedirect
@@ -10,6 +11,9 @@ from urllib.parse import quote
 import logging
 from django_redis import get_redis_connection
 import urllib3
+from django.contrib import messages
+import django.template.loader as template_loader
+import urllib
 
 logger = logging.getLogger(__name__)
 
@@ -235,14 +239,98 @@ def weekly_index(request):
     return response
 
 
+def weekly_confirm_email(request):
+    topic = request.GET.get("topic")
+    email = request.GET.get("email")
+    try:
+        subscriber = models.Subscriber.objects.get(topic=topic, email=email)
+    except models.Subscriber.DoesNotExist:
+        subscriber = None
+
+    if subscriber and subscriber.confirmed:
+        messages.warning(
+            request,
+            f"Email {email} was already confirmed. If it wasn't you please write to hi@discu.eu",
+        )
+    elif subscriber and subscriber.verification_code == request.GET.get(
+        "verification_code"
+    ):
+        subscriber.confirmed = True
+        subscriber.save()
+
+        messages.success(request, f"Email {email} confirmed. Thank you!")
+    else:
+        messages.error(
+            request,
+            f"Something went wrong while trying to confirm email {email}. Write to hi@discu.eu for assistance.",
+        )
+
+    redirect_to = "/"
+    if topic:
+        redirect_to = reverse("web:weekly_topic", args=[topic])
+    else:
+        redirect_to = reverse("web:weekly_index")
+
+    return redirect(redirect_to, permanent=False)
+
+
+def __weekly_topic_subscribe_form(request, topic, ctx):
+    form = forms.SubscriberForm(request.POST or None, initial={"topic": topic})
+
+    if form.is_valid():
+        subscriber = form.save()
+        topic = form.cleaned_data["topic"]
+        subscriber_email = form.cleaned_data["email"]
+        verification_code = subscriber.verification_code
+
+        confirmation_url = (
+            f"https://{settings.APP_DOMAIN}/weekly/confirm_email?"
+            + urllib.parse.urlencode(
+                [
+                    ("topic", topic),
+                    ("email", subscriber_email),
+                    ("verification_code", verification_code),
+                ]
+            )
+        )
+        email.send(
+            f"Confirm subscription to weekly {weekly.topics[topic]['name']} digest",
+            template_loader.render_to_string(
+                "web/weekly_subscribe_confirm.txt",
+                {
+                    "ctx": {
+                        "topic": weekly.topics[topic],
+                        "confirmation_url": confirmation_url,
+                    }
+                },
+            ),
+            weekly.topics[topic]["email"],
+            subscriber_email,
+        )
+
+        messages.success(
+            request,
+            f"Thank you! A confirmation email was sent to {subscriber_email}.",
+        )
+
+    ctx["weekly_subscribe_form"] = form
+    return None
+
+
 def weekly_topic(request, topic):
     ctx = weekly.topic_context(topic)
+    response = __weekly_topic_subscribe_form(request, topic, ctx)
+    if response:
+        return response
     response = render(request, "web/weekly_topic.html", {"ctx": ctx})
     return response
 
 
 def weekly_topic_week(request, topic, year, week):
     ctx = weekly.topic_week_context(topic, year, week)
+    response = __weekly_topic_subscribe_form(request, topic, ctx)
+    if response:
+        return response
     response = render(request, "web/weekly_topic_week.html", {"ctx": ctx})
     return response
 
