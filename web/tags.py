@@ -149,6 +149,8 @@ def __from_title_url(tags, title, url):
     tags = __augment_tags(
         title, tags, "flask", {"python", "webdev", "programming"}
     )
+    tags = __augment_tags(title, tags, "perl", {"programming"})
+    tags = __augment_tags(title, tags, "webassembly")
     tags = __augment_tags(title, tags, "linux")
     tags = __augment_tags(title, tags, "dragonflybsd")
     tags = __augment_tags(title, tags, "freebsd")
@@ -158,8 +160,21 @@ def __from_title_url(tags, title, url):
     tags = __augment_tags(title, tags, "nintendo")
     tags = __augment_tags(title, tags, "linkedin")
 
-    if "swift" in title.split() and ("swift.org" in url or "swiftlang" in url):
+    tokens = title.split()
+
+    if "swift" in tokens and ("swift.org" in url or "swiftlang" in url):
         tags |= {"swiftlang"}
+
+    if "quantum" in tokens and (
+        "language" in tokens
+        or "languages" in tokens
+        or "computer" in tokens
+        or "computers" in tokens
+        or "computing" in tokens
+        or "programming" in tokens
+        or "algorithm" in tokens
+    ):
+        tags |= {"quantumcomputing", "programming"}
 
     return tags
 
@@ -188,6 +203,7 @@ def __rename(tags, title, platform=None):
         ("upliftingnews", "news", "r"),
         ("web_design", "webdesign", "r"),
         ("web", "webdev", "l"),
+        ("wasm", "webassembly", "l"),
         ("worldevents", "news", "r"),
         ("worldnews", "news", "r"),
     ]
@@ -237,6 +253,7 @@ def __enrich(tags, title):
             "scheme",
             "swiftlang",
             "typescript",
+            "webassembly",
             "zig",
         },
         "programming",
