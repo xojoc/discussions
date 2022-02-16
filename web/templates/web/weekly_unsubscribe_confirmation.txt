@@ -1,0 +1,6 @@
+Hi!
+you have been unsubscribed from the weekly {{ctx.topic.name}} digest.
+
+You can subscribe at any time by writing "subscribe" to {{ctx.topic.email|safe}}.
+
+Thank you!

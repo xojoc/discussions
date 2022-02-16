@@ -1,25 +1,32 @@
-from django.db import models
+import datetime
+import json
+import urllib
+
+import cleanurl
+import django.template.loader as template_loader
+from dateutil import parser as dateutil_parser
 from django.contrib.postgres import fields as postgres_fields
 from django.contrib.postgres.indexes import GinIndex, OpClass
-from django.contrib.postgres.search import TrigramWordBase
-from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.search import (
+    SearchQuery,
+    SearchRank,
+    SearchVectorField,
+    TrigramWordBase,
+)
+from django.core import serializers
+from django.db import models
+from django.db.models import OuterRef, Q, Subquery, Sum, Value
+
+# from django.db.models import Func, F
+from django.db.models.functions import Coalesce, Round, Upper
 
 # from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models.lookups import PostgresOperatorLookup
-from django.contrib.postgres.search import SearchQuery, SearchRank
-from . import discussions, tags, title, extract, weekly
 from django.utils import timezone
-import datetime
-from django.core import serializers
-import json
-from dateutil import parser as dateutil_parser
-from django.db.models import Sum, Value, Q
-from django.db.models import Subquery, OuterRef
 
-# from django.db.models import Func, F
-from django.db.models.functions import Round, Coalesce, Upper
+from discussions import settings
 
-import cleanurl
+from . import discussions, email, extract, tags, title, weekly
 
 
 class MyTrigramStrictWordSimilarity(TrigramWordBase):
@@ -798,7 +805,7 @@ class Subscriber(models.Model):
     unsubscribed_at = models.DateTimeField(null=True)
 
     def __str__(self):
-        return f"{self.email} {self.topic} ({self.confirmed} confirmed)"
+        return f"{self.email} {self.topic} ({self.confirmed} confirmed, {self.unsubscribed} unsubscribed)"
 
     @classmethod
     def generate_verification_code(cls):
@@ -810,3 +817,67 @@ class Subscriber(models.Model):
         if not self.verification_code:
             self.verification_code = self.generate_verification_code()
         super(Subscriber, self).save(*args, **kwargs)
+
+    def send_confirmation_email(self):
+        confirmation_url = (
+            f"https://{settings.APP_DOMAIN}/weekly/confirm_email?"
+            + urllib.parse.urlencode(
+                [
+                    ("topic", self.topic),
+                    ("email", self.email),
+                    ("verification_code", self.verification_code),
+                ]
+            )
+        )
+        email.send(
+            f"Confirm subscription to weekly {weekly.topics[self.topic]['name']} digest",
+            template_loader.render_to_string(
+                "web/weekly_subscribe_confirm.txt",
+                {
+                    "ctx": {
+                        "topic": weekly.topics[self.topic],
+                        "confirmation_url": confirmation_url,
+                    }
+                },
+            ),
+            weekly.topics[self.topic]["email"],
+            self.email,
+        )
+
+    def send_subscription_confirmation_email(self):
+        email.send(
+            f"Subscribed to weekly {weekly.topics[self.topic]['name']} digest",
+            template_loader.render_to_string(
+                "web/weekly_subscribe_confirmation.txt",
+                {
+                    "ctx": {
+                        "topic": weekly.topics[self.topic],
+                    }
+                },
+            ),
+            weekly.topics[self.topic]["email"],
+            self.email,
+        )
+
+    def unsubscribe(self):
+        self.unsubscribed = True
+        self.unsubscribed_at = datetime.datetime.now()
+
+    def subscribe(self):
+        self.confirmed = True
+        self.unsubscribed = False
+
+    def send_unsubscribe_confirmation_email(self):
+        email.send(
+            f"Unsubscribed from weekly {weekly.topics[self.topic]['name']} digest",
+            template_loader.render_to_string(
+                "web/weekly_unsubscribe_confirmation.txt",
+                {
+                    "ctx": {
+                        "topic": weekly.topics[self.topic],
+                    }
+                },
+            ),
+            weekly.topics[self.topic]["email"],
+            self.email,
+        )

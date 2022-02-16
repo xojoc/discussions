@@ -79,6 +79,10 @@ def singleton(timeout=APP_CELERY_TASK_MAX_TIME * 5, blocking_timeout=0.1):
                     f"Lock {lock_name} not acquired timeout = {timeout}, blocking_timeout = {blocking_timeout}"
                 )
             except Exception as e:
+                import traceback
+
+                logger.debug(traceback.format_exc())
+
                 logger.warn(f"singleton {lock_name}: {e}")
                 sentry_sdk.capture_exception(e)
 

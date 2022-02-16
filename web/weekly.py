@@ -1,9 +1,15 @@
-from web import models
 import datetime
-from django.utils.timezone import make_aware
-from django.db.models.functions import TruncDay
 import logging
+import re
+
 import urllib3
+import urllib
+from django.db.models.functions import TruncDay
+from django.utils.timezone import make_aware
+
+from discussions import settings
+
+from . import models
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +32,15 @@ topics = {
 }
 
 for topic_key, topic in topics.items():
-    topic["email"] = f"weekly_{topic_key}@discu.eu"
+    topic["email"] = f"{settings.EMAIL_TO_PREFIX}weekly_{topic_key}@discu.eu"
+    topic[
+        "mailto_subscribe"
+    ] = f"mailto:{topic['email']}?" + urllib.parse.urlencode(
+        [
+            ("subject", f"Subscribe to {topic['name']}"),
+            ("body", "subscribe (must be first word)"),
+        ]
+    )
 
 topics_choices = sorted([(key, item["name"]) for key, item in topics.items()])
 
@@ -167,6 +181,74 @@ def topic_week_context(topic, year, week):
     ctx["week_end"] = week_end(year, week)
     ctx["stories"] = __get_stories(topic, year, week)
     return ctx
+
+
+def imap_handler(message, message_id, from_email, to_email, subject, body):
+    logger.debug(
+        f"""
+    Message_id: {message_id}
+    From: {from_email}
+    To: {to_email}
+    Subject: {subject}
+    ---
+    {body}
+    """
+    )
+
+    to_email = to_email.removeprefix(settings.EMAIL_TO_PREFIX)
+    try:
+        topic_key = re.search(r"weekly_([a-z0-9]+)@discu\.eu", to_email)[1]
+    except Exception:
+        return False
+
+    topic = topics.get(topic_key)
+    if not topic:
+        return False
+
+    tokens = body.lower().strip().split()
+    if len(tokens) > 0 and tokens[0] == "subscribe":
+        try:
+            subscriber = models.Subscriber.objects.get(
+                topic=topic_key, email=from_email
+            )
+            if subscriber.confirmed:
+                subscriber = None
+                logger.debug(
+                    f"Subsription exists for {from_email} topic {topic_key}"
+                )
+            else:
+                subscriber.subscribe()
+                subscriber.save()
+        except models.Subscriber.DoesNotExist:
+            subscriber = models.Subscriber(email=from_email, topic=topic_key)
+            subscriber.subscribe()
+            subscriber.save()
+
+        if subscriber:
+            subscriber.send_subscription_confirmation_email()
+            logger.debug(
+                f"Confirmation email sent to {from_email} topic {topic_key}"
+            )
+            return True
+
+    if len(tokens) > 0 and tokens[0] == "unsubscribe":
+        try:
+            subscriber = models.Subscriber.objects.get(
+                topic=topic_key, email=from_email
+            )
+        except models.Subscriber.DoesNotExist:
+            subscriber = None
+
+        if subscriber:
+            subscriber.unsubscribe()
+            subscriber.save()
+            subscriber.send_unsubscribe_confirmation_email()
+            logger.debug(
+                f"Unsubscribtion email sent to {from_email} topic {topic_key}"
+            )
+            return True
+
+    return False
 
 
 # Weekly digests
