@@ -89,7 +89,6 @@ def worker_fetch_and_dispatch_email(self):
         if message.get_body().get_content_type() == "text/plain":
             body = message.get_body().get_content()
         if message.get_body().get_content_type() == "text/html":
-            breakpoint()
             body = http.parse_html(message.get_body().get_content()).get_text(
                 " ", strip=True
             )
