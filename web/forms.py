@@ -1,6 +1,5 @@
 from django import forms
 from . import models
-import secrets
 
 PLATFORM_CHOICES = [("h", "Hacker News"), ("l", "Lobsters")]
 
