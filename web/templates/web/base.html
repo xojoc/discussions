@@ -36,7 +36,12 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 				let customUrl = url.protocol + "//" + url.hostname + url.pathname
 				for (const paramName of params) {
 					const paramValue = queryParams.get(paramName)
-					if (paramValue) customUrl = customUrl + '/' + paramValue
+					if (paramValue) {
+						if (!customUrl.endswith("/")) {
+							customUrl = customUrl + '/'
+						}
+						customUrl = customUrl + paramName + '/' + paramValue
+					}
 				}
 				return customUrl
 			}
