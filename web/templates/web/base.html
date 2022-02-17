@@ -37,7 +37,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 				for (const paramName of params) {
 					const paramValue = queryParams.get(paramName)
 					if (paramValue) {
-						if (!customUrl.endswith("/")) {
+						if (!customUrl.endsWith("/")) {
 							customUrl = customUrl + '/'
 						}
 						customUrl = customUrl + paramName + '/' + paramValue
