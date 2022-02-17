@@ -1,0 +1,25 @@
+{% extends "web/base.html" %}
+
+{% load humanize %}
+{% load util %}
+
+{% block title %}
+Please confirm unsubscription
+{% endblock title %}
+
+{% block main %}
+
+{% if ctx.weekly_unsubscribe_form %}
+<form id="weekly_unsubscribe_form" method="POST">
+    {% csrf_token %}
+    {{ ctx.weekly_unsubscribe_form }}
+    <br>
+    <button type="submit">Confirm</button>
+</form>
+
+<p>You can also unsubscribe by writing <a href="{{ctx.topic.mailto_unsubscribe}}">"unsubscribe"
+        to {{ctx.topic.email}}</a>. To re subscribe at any time reply with "subscribe".</p>
+
+{%endif%}
+
+{% endblock main %}

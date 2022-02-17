@@ -41,6 +41,14 @@ for topic_key, topic in topics.items():
             ("body", "subscribe (must be first word)"),
         ]
     )
+    topic[
+        "mailto_unsubscribe"
+    ] = f"mailto:{topic['email']}?" + urllib.parse.urlencode(
+        [
+            ("subject", f"Unsubscribe from {topic['name']}"),
+            ("body", "unsubscribe (must be first word)"),
+        ]
+    )
 
 topics_choices = sorted([(key, item["name"]) for key, item in topics.items()])
 
@@ -216,9 +224,9 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
             subscriber = models.Subscriber.objects.get(
                 topic=topic_key, email=from_email
             )
-            if subscriber.confirmed:
+            if subscriber.confirmed and not subscriber.unsubscribed:
                 subscriber = None
-                logger.debug(
+                logger.info(
                     f"Subsription exists for {from_email} topic {topic_key}"
                 )
             else:
@@ -231,7 +239,7 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
 
         if subscriber:
             subscriber.send_subscription_confirmation_email()
-            logger.debug(
+            logger.info(
                 f"Confirmation email sent to {from_email} topic {topic_key}"
             )
             return True
@@ -242,7 +250,7 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
                 topic=topic_key, email=from_email
             )
         except models.Subscriber.DoesNotExist:
-            logger.debug(
+            logger.info(
                 f"No subscription found for '{topic_key}' '{from_email}'"
             )
             subscriber = None
@@ -251,7 +259,7 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
             subscriber.unsubscribe()
             subscriber.save()
             subscriber.send_unsubscribe_confirmation_email()
-            logger.debug(
+            logger.info(
                 f"Unsubscribtion email sent to {from_email} topic {topic_key}"
             )
             return True

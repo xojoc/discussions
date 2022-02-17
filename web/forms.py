@@ -20,3 +20,10 @@ class SubscriberForm(forms.ModelForm):
     class Meta:
         model = models.Subscriber
         fields = ["topic", "email"]
+
+
+class UnsubscribeForm(forms.ModelForm):
+    class Meta:
+        model = models.Subscriber
+        fields = ["topic", "email", "verification_code"]
+        widgets = {"verification_code": forms.HiddenInput()}

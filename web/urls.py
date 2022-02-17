@@ -21,6 +21,11 @@ urlpatterns = [
         views.weekly_confirm_email,
         name="weekly_confirm_email",
     ),
+    path(
+        "weekly/confirm_unsubscription/",
+        views.weekly_confirm_unsubscription,
+        name="weekly_confirm_unsubscription",
+    ),
     path("weekly/<slug:topic>/", views.weekly_topic, name="weekly_topic"),
     path(
         "weekly/<slug:topic>/<int:year>/<int:week>/",

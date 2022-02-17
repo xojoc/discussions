@@ -241,11 +241,13 @@ def weekly_confirm_email(request):
     topic = request.GET.get("topic")
     subscriber_email = request.GET.get("email")
     try:
-        subscriber = models.Subscriber.objects.get(topic=topic, email=subscriber_email)
+        subscriber = models.Subscriber.objects.get(
+            topic=topic, email=subscriber_email
+        )
     except models.Subscriber.DoesNotExist:
         subscriber = None
 
-    if subscriber and subscriber.confirmed:
+    if subscriber and subscriber.confirmed and not subscriber.unsubscribed:
         messages.warning(
             request,
             f"Email {subscriber_email} was already confirmed. If it wasn't you please write to hi@discu.eu",
@@ -256,7 +258,9 @@ def weekly_confirm_email(request):
         subscriber.subscribe()
         subscriber.save()
 
-        messages.success(request, f"Email {subscriber_email} confirmed. Thank you!")
+        messages.success(
+            request, f"Email {subscriber_email} confirmed. Thank you!"
+        )
     else:
         messages.error(
             request,
@@ -270,6 +274,55 @@ def weekly_confirm_email(request):
         redirect_to = reverse("web:weekly_index")
 
     return redirect(redirect_to, permanent=False)
+
+
+def weekly_confirm_unsubscription(request):
+    if request.method == "GET":
+        form = forms.UnsubscribeForm(request.GET)
+        topic_key = request.GET.get("topic")
+        ctx = {
+            "weekly_unsubscribe_form": form,
+            "topic": weekly.topics.get(topic_key),
+        }
+        return render(
+            request, "web/weekly_unsubscribe_page.html", {"ctx": ctx}
+        )
+    elif request.method == "POST":
+        topic = request.POST.get("topic")
+        subscriber_email = request.POST.get("email")
+        verification_code = request.POST.get("verification_code")
+
+        try:
+            subscriber = models.Subscriber.objects.get(
+                topic=topic, email=subscriber_email
+            )
+        except models.Subscriber.DoesNotExist:
+            subscriber = None
+
+        if subscriber and subscriber.verification_code != verification_code:
+            messages.error(
+                request,
+                "Something went wrong. Verification code doesn't match. Write to hi@discu.eu for assistance",
+            )
+        elif (
+            subscriber and subscriber.confirmed and not subscriber.unsubscribed
+        ):
+            subscriber.unsubscribe()
+            subscriber.save()
+            messages.success(request, "You're now unsubscribed. Thank you!")
+        else:
+            messages.warning(
+                request,
+                "You were already unsubscribed. Write to hi@discu.eu for assistance.",
+            )
+
+        redirect_to = "/"
+        if topic:
+            redirect_to = reverse("web:weekly_topic", args=[topic])
+        else:
+            redirect_to = reverse("web:weekly_index")
+
+        return redirect(redirect_to, permanent=False)
 
 
 def __weekly_topic_subscribe_form(request, topic, ctx):
