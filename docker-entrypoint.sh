@@ -22,8 +22,12 @@ python manage.py migrate --noinput
 
 echo "Run Celery"
 #  --without-mingle --without-heartbeat --without-gossip
-celery -A discussions multi start 4 --without-mingle --without-heartbeat --without-gossip -E -l INFO -P gevent -c 50 &
-#celery -A discussions worker --without-mingle --without-heartbeat --without-gossip -E -l WARNING -P gevent -c 50 &
+#celery -A discussions multi start 4 --without-mingle --without-heartbeat --without-gossip -E -l info -P gevent -c 50 &
+celery -A discussions worker -n celery_cpu_1@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip  &
+celery -A discussions worker -n celery_cpu_2@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip  &
+celery -A discussions worker -n celery_cpu_3@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip  &
+celery -A discussions worker -n celery_cpu_4@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip  &
+#celery -A discussions worker --without-mingle --without-heartbeat --without-gossip -E -l info -P prefork &
 
 echo "Run Celery Beat"
 celery -A discussions beat -l WARNING &

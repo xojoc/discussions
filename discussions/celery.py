@@ -13,15 +13,11 @@ app = Celery("discussions")
 #   should have a `CELERY_` prefix.
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
+
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
-# @signals.setup_logging.connect
-# def setup_celery_logging(**kwargs):
-#     print("something")
-#     from logging.config import dictConfig
-#     from django.conf import settings
-#     dictConfig(settings.LOGGING)
-#     pass
 
-# app.log.setup()
+# @celery.signals.setup_logging.connect
+# def config_loggers(*args, **kwargs):
+#     pass

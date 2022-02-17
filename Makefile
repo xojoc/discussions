@@ -33,11 +33,16 @@ migrate:
 	@poetry run python manage.py migrate
 
 d: poetry_export
-	@poetry self update
+#	@poetry self update
 	@docker build -t discussions .
 	-docker stop $$(docker ps -a -q)
 	-kill $$(lsof -i:7777 -t -sTCP:LISTEN)
-	@docker run --env-file .env -dp 7777:80 -dp 5555:7778 discussions
+	-kill $$(lsof -i:5555 -t -sTCP:LISTEN)
+	@docker run --rm --name discussions --env-file .env -dp 7777:80 -dp 5555:5555 discussions
+	@docker logs -f $$(docker ps -l -f name=discussions --format '{{.ID}}')
+
+dshell:
+	docker exec -it $$(docker ps -l -f name=discussions -q) bash
 
 shell:
 	poetry run python manage.py shell

@@ -185,7 +185,7 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     # 'global_keyprefix': 'discussions_celery:',
 }
 
-# CELERYD_HIJACK_ROOT_LOGGER = False
+CELERYD_HIJACK_ROOT_LOGGER = False
 CELERY_TASK_ACKS_LATE = False
 celery_task_acks_late = False
 CELERYD_PREFETCH_MULTIPLIER = 1
@@ -204,7 +204,7 @@ def change_404_level_to_INFO(record):
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": True,
     "filters": {
         "change_404_to_info": {
             "()": "django.utils.log.CallbackFilter",
@@ -218,16 +218,20 @@ LOGGING = {
         "null": {
             "class": "logging.NullHandler",
         },
+        "mail_admins": {
+            "level": "ERROR",
+            "class": "django.utils.log.AdminEmailHandler",
+        },
     },
     "root": {"handlers": ["console"], "level": "INFO", "formatter": "simple"},
     "loggers": {
-        # 'discussions.web': {
-        #     'handlers': ['console'],
-        #     'level': 'INFO',
-        #     'propagate': False,
-        # },
+        "celery": {
+            "handlers": ["console", "mail_admins"],
+            "level": "WARNING",
+            # "propagate": True,
+        },
         "web": {
-            "handlers": ["console"],
+            "handlers": ["console", "mail_admins"],
             "level": "INFO",
             "propagate": False,
         },
@@ -257,11 +261,6 @@ LOGGING = {
             "level": "ERROR",
             "propagate": False,
         },
-        # 'celery': {
-        #     'handlers': ['console'],
-        #     'level': 'INFO',
-        #     'propagate': True,
-        # }
     },
 }
 
@@ -294,6 +293,9 @@ en_formats.DATE_FORMAT = "j/n/Y"
 en_formats.DATETIME_FORMAT = "H:i:s j/n/Y"
 
 INTERNAL_IPS = ["127.0.0.1"]
+
+ADMINS = [("xojoc", "hi@xojoc.pw")]
+SERVER_EMAIL = "hi@discu.eu"
 
 EMAIL_HOST = "smtp.fastmail.com"
 EMAIL_PORT = "465"
