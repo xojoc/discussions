@@ -85,7 +85,7 @@ configuration = {
         },
         "DevopsDiscu": {
             "email": "devops_discussions@xojoc.pw",
-            "tags": {"devops", "docker", "kubernets"},
+            "tags": {"devops", "docker", "kubernetes"},
             "description": "DevOps discussions",
             "topic": "DevOps",
             "mastodon_account": "@devops_discussions@mastodon.social",
@@ -260,7 +260,7 @@ def tweet_story(
                     retweet(tweet_id, bot_name)
                     tweeted_by.append(bot_name)
                 except Exception as e:
-                    logger.warn(f"twitter {bot_name}: {e}")
+                    logger.error(f"twitter {bot_name}: {e}")
                     sentry_sdk.capture_exception(e)
                     __sleep(7, 13)
             else:
@@ -271,7 +271,7 @@ def tweet_story(
                     tweet_id = tweet(status, bot_name)
                     tweeted_by.append(bot_name)
                 except Exception as e:
-                    logger.warn(f"twitter {bot_name}: {e}: {status}")
+                    logger.error(f"twitter {bot_name}: {e}: {status}")
                     sentry_sdk.capture_exception(e)
                     __sleep(2, 5)
 
@@ -301,7 +301,7 @@ def tweet_discussions():
         .order_by("created_at")
     )
 
-    logger.info(f"twitter: potential stories {stories.count()}")
+    logger.debug(f"twitter: potential stories {stories.count()}")
 
     for story in stories:
         # fixme: skip for now
@@ -348,7 +348,7 @@ def tweet_discussions():
 
                 platforms |= {rd.platform}
 
-        logger.info(
+        logger.debug(
             f"twitter {story.platform_id}: {already_tweeted_by}: {platforms}: {tags}"
         )
 
@@ -363,10 +363,10 @@ def tweet_discussions():
                 story.comment_count,
             )
         except Exception as e:
-            logger.warn(f"twitter: {story.platform_id}: {e}")
+            logger.error(f"twitter: {story.platform_id}: {e}")
             sentry_sdk.capture_exception(e)
 
-        logger.info(f"twitter {tweet_id}: {tweeted_by}")
+        logger.debug(f"twitter {tweet_id}: {tweeted_by}")
 
         if tweet_id:
             t = models.Tweet(tweet_id=tweet_id, bot_names=tweeted_by)

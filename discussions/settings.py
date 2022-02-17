@@ -241,7 +241,7 @@ LOGGING = {
             "propagate": False,
         },
         "django.request": {
-            "handlers": ["console"],
+            "handlers": ["console", "mail_admins"],
             "level": "ERROR",
             "propagate": False,
             "filters": ["change_404_to_info"],
@@ -295,6 +295,7 @@ en_formats.DATETIME_FORMAT = "H:i:s j/n/Y"
 INTERNAL_IPS = ["127.0.0.1"]
 
 ADMINS = [("xojoc", "hi@xojoc.pw")]
+MANAGERS = ADMINS
 SERVER_EMAIL = "hi@discu.eu"
 
 EMAIL_HOST = "smtp.fastmail.com"

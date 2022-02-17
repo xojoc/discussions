@@ -155,7 +155,7 @@ def post_story(title, url, tags, platforms, already_posted_by, comment_count):
                     repost(post_id, bot_name)
                     posted_by.append(bot_name)
                 except Exception as e:
-                    logger.warn(f"mastodon {bot_name}: {e}")
+                    logger.error(f"mastodon {bot_name}: {e}")
                     sentry_sdk.capture_exception(e)
                     __sleep(7, 13)
             else:
@@ -166,7 +166,7 @@ def post_story(title, url, tags, platforms, already_posted_by, comment_count):
                     post_id = post(status, bot_name)
                     posted_by.append(bot_name)
                 except Exception as e:
-                    logger.warn(f"mastodon {bot_name}: {e}: {status}")
+                    logger.error(f"mastodon {bot_name}: {e}: {status}")
                     sentry_sdk.capture_exception(e)
                     __sleep(2, 5)
 
@@ -194,7 +194,7 @@ def post_discussions():
         .order_by("created_at")
     )
 
-    logger.info(f"mastodon: potential stories {stories.count()}")
+    logger.debug(f"mastodon: potential stories {stories.count()}")
 
     for story in stories:
         related_discussions, _, _ = models.Discussion.of_url(
@@ -233,7 +233,7 @@ def post_discussions():
 
                 platforms |= {rd.platform}
 
-        logger.info(
+        logger.debug(
             f"mastodon {story.platform_id}: {already_posted_by}: {platforms}: {tags}"
         )
 
@@ -248,10 +248,10 @@ def post_discussions():
                 story.comment_count,
             )
         except Exception as e:
-            logger.warn(f"mastodon {story.platform_id}: {e}")
+            logger.error(f"mastodon {story.platform_id}: {e}")
             sentry_sdk.capture_exception(e)
 
-        logger.info(f"mastodon {post_id}: {posted_by}")
+        logger.debug(f"mastodon {post_id}: {posted_by}")
 
         if post_id:
             t = models.MastodonPost(post_id=post_id, bot_names=posted_by)

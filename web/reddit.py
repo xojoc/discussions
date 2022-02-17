@@ -392,8 +392,6 @@ def fetch_discussions(index):
         if cache.get(skip_sub_key_prefix + name):
             continue
 
-        logger.info(f"reddit fetch: subdreddit {name}")
-
         try:
             stories = get_subreddit(name, reddit)
         except Exception as e:

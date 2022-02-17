@@ -276,7 +276,9 @@ def __enrich(tags, title):
         "unix",
     )
 
-    tags = __augment_tags(title, tags, None, {"docker", "kubernets"}, "devops")
+    tags = __augment_tags(
+        title, tags, None, {"docker", "kubernetes"}, "devops"
+    )
 
     return tags
 
