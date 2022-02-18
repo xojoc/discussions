@@ -1,12 +1,15 @@
 {% if ctx.weekly_subscribe_form %}
-<form id="weekly_subscribe_form" method="POST">
-    {% csrf_token %}
-    {{ ctx.weekly_subscribe_form }}
-    <br>
-    <button type="submit">Subscribe!</button>
-</form>
+<div class="weekly-subscribe-form">
+    <form method="POST">
+        {% csrf_token %}
+        {{ ctx.weekly_subscribe_form.as_ul }}
+        <input type="submit" value="Subscribe!">
+    </form>
 
-<p>You can also subscribe by writing <a href="{{ctx.topic.mailto_subscribe}}">"subscribe"
-        to {{ctx.topic.email}}</a>. To unsubscribe at any time reply with "unsubscribe".</p>
-
+    {% if ctx.topic %}
+    <p class="weekly-subscribe-by-email">You can also subscribe by writing <a
+            href="{{ctx.topic.mailto_subscribe}}">"subscribe"
+            to {{ctx.topic.email}}</a>. To unsubscribe at any time reply with "unsubscribe".</p>
+    {% endif %}
+</div>
 {%endif%}

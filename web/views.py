@@ -107,12 +107,12 @@ def discussions_context(q):
     ctx["grouped_discussions"] = [
         (
             platform,
-            models.Discussion.platform_name(platform),
-            models.Discussion.platform_url(
+            models.Discussion.get_platform_name(platform),
+            models.Discussion.get_platform_url(
                 platform,
                 preferred_external_url=discussions.PreferredExternalURL.Standard,
             ),
-            models.Discussion.platform_tag_url(
+            models.Discussion.get_platform_tag_url(
                 platform,
                 preferred_external_url=discussions.PreferredExternalURL.Standard,
             ),
@@ -231,12 +231,6 @@ def index(request, path_q=None):
     return response
 
 
-def weekly_index(request):
-    ctx = weekly.index_context()
-    response = render(request, "web/weekly_index.html", {"ctx": ctx})
-    return response
-
-
 def weekly_confirm_email(request):
     topic = request.GET.get("topic")
     subscriber_email = request.GET.get("email")
@@ -339,6 +333,15 @@ def __weekly_topic_subscribe_form(request, topic, ctx):
 
     ctx["weekly_subscribe_form"] = form
     return None
+
+
+def weekly_index(request):
+    ctx = weekly.index_context()
+    response = __weekly_topic_subscribe_form(request, None, ctx)
+    if response:
+        return response
+    response = render(request, "web/weekly_index.html", {"ctx": ctx})
+    return response
 
 
 def weekly_topic(request, topic):

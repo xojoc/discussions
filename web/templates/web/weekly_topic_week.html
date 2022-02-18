@@ -5,24 +5,73 @@
 
 
 {% block title %}
-Weekly digests about {{ctx.topic.name}} for week {{ctx.week}}/{{ctx.year}} - discussions
+Digest about {{ctx.topic.name}} for week {{ctx.week}}/{{ctx.year}} - discussions
 {% endblock title %}
 
 {% block main %}
 
+<div class="weekly">
 
-<ul>
-    {% for story in ctx.stories %}
-    <li>
-        <a href="{{story.story_url}}" title="{{story.title}}">{{story.title}}</a>
-        <p>
-            {{story.tags}}
-        </p>
-        <p>
-            {{story.category}}
-        </p>
-    </li>
+
+    {% for category, category_name, stories in ctx.digest %}
+
+    <h2 id="weekly-{{category}}">{{category_name}} <a href="#weekly-{{category}}" title="{{category_name}} articles"
+            class="relative-url">#</a> </h2>
+
+    <ul class="weekly-stories">
+        {% for story in stories %}
+        <li>
+            <p>
+                <a href="{{story.story_url}}" title="{{story.title}}">{{story.title}}</a>
+            </p>
+
+            {% if story.total_comments %}
+            <p class="weekly-discussions">
+                <a href="{{story.story_url|discussions_url}}"
+                    title="Discussions for «{{story.title}}»">{{story.total_comments}} comments</a> in
+                {{story.total_discussions}} discussions.
+            </p>
+            {% endif %}
+
+
+
+            <!-- {% if story.discussions %}
+            <ul class=" weekly-discussions">
+                {% for d in story.discussions %}
+        <li>
+            {{d.platform_name}}: <a href=" {{d.discussion_url}}" title="View discussion on {{platform_name}}"><span
+                    class="bold">{{d.comment_count}}</span>
+                comment{{d.comment_count|pluralize:",s"}}</a>, <span class="bold">{{d.score}}</span>
+            {{d.score_label}}
+            [<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
+            {% if d.tags %}
+            {% if platform != 'r' %}
+            Tags:
+            {% endif %}
+            {% for tag in d.tags %}
+            {% if platform_tag_url %}
+            <a href="{{platform_tag_url}}/{{tag}}"
+                title="View tag «{{tag}}» on {{platform_name}}">{{tag}}</a>{% if not forloop.last %},
+            {% endif %}
+            {% else %}
+            {{tag}}{% if not forloop.last %}, {% endif %}
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+
+        
+        </li>
+
+        {% endfor %}
+    </ul>
+    {% endif %} -->
+
+        </li>
+        {% endfor %}
+    </ul>
+
     {% endfor %}
-</ul>
 
+    {% include "web/weekly_subscribe_form.html" %}
+</div>
 {% endblock main %}

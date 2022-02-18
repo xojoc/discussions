@@ -21,6 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 APP_DOMAIN = os.getenv("DISCUSSIONS_DOMAIN", "discu.eu")
+APP_SCHEME = "https"
 
 ALLOWED_HOSTS = [
     "localhost",
@@ -266,6 +267,8 @@ LOGGING = {
 
 if os.environ.get("DJANGO_DEVELOPMENT"):
     LOGGING["loggers"]["web"]["level"] = "DEBUG"
+    LOGGING["loggers"]["web"]["handlers"] = ["console"]
+    LOGGING["loggers"]["django.request"]["handlers"] = ["console"]
     # LOGGING['loggers']['prawcore'] = {'level': 'DEBUG'}
     # LOGGING['loggers']['psycopg2'] = {'level': 'DEBUG'}
     # LOGGING['loggers']['django.db.backends'] = {'level': 'DEBUG'}

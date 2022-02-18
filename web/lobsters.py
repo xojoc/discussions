@@ -58,7 +58,7 @@ def process_item(item, platform):
 
 def __worker_fetch(task, platform):
     client = http.client(with_cache=False)
-    base_url = models.Discussion.platform_url(platform)
+    base_url = models.Discussion.get_platform_url(platform)
     cache_current_page_key = f"discussions:lobsters:{platform}:current_page"
 
     current_page = cache.get(cache_current_page_key) or 1

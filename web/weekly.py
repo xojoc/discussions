@@ -1,15 +1,20 @@
 import datetime
+import itertools
 import logging
 import re
-
-import urllib3
 import urllib
+
+import django.template.loader as template_loader
+import urllib3
+from django.db.models import Count, Sum
 from django.db.models.functions import TruncDay
 from django.utils.timezone import make_aware
 
+from django.urls import reverse
+
 from discussions import settings
 
-from . import models
+from . import models, email
 
 logger = logging.getLogger(__name__)
 
@@ -52,26 +57,46 @@ for topic_key, topic in topics.items():
 
 topics_choices = sorted([(key, item["name"]) for key, item in topics.items()])
 
+categories = {
+    "generic": {
+        "name": "Generic",
+        "sort": 10,
+    },
+    "release": {
+        "name": "Release",
+        "sort": 20,
+    },
+    "project": {
+        "name": "Project",
+        "sort": 30,
+    },
+}
+
 
 def __category(story):
     u = urllib3.util.parse_url(story.canonical_story_url)
-    path = u.path or ""
+    path, host = "", ""
+    if u:
+        path = u.path or ""
+        host = u.host or ""
     title_tokens = story.normalized_title.split()
 
     if "programming" in story.normalized_tags:
         if "release" in title_tokens or "released" in title_tokens:
             return "release"
+    if "release" in story.normalized_tags:
+        return "release"
 
-    if u.host in ("github.com", "gitlab.com", "bitbucket.org", "gitea.com"):
+    if host in ("github.com", "gitlab.com", "bitbucket.org", "gitea.com"):
         parts = [p for p in path.split("/") if p]
         if len(parts) == 2:
             return "project"
 
-    if u.host in ("savannah.gnu.org", "savannah.nongnu.org"):
+    if host in ("savannah.gnu.org", "savannah.nongnu.org"):
         if path.startswith("/projects/"):
             return "project"
 
-    if u.host in ("crates.io"):
+    if host in ("crates.io"):
         if path.startswith("/crates/"):
             return "project"
 
@@ -147,17 +172,86 @@ def __get_stories(topic, year, week):
     for story in stories:
         category = __category(story)
         story.__dict__["category"] = category
-        r = models.Resource.by_url(story.schemeless_story_url)
-        if r:
-            irs = r.inbound_resources()
-            story.__dict__["related_articles"] = irs.values()
+
+        discussions, _, _ = models.Discussion.of_url(
+            story.story_url, only_relevant_stories=True
+        )
+        discussion_counts = (
+            discussions.aggregate(
+                total_comments=Sum("comment_count"),
+                total_discussions=Count("platform_id"),
+            )
+            or {}
+        )
+        story.__dict__["total_comments"] = discussion_counts.get(
+            "total_comments"
+        )
+        story.__dict__["total_discussions"] = discussion_counts.get(
+            "total_discussions"
+        )
+
+        # story.__dict__["discussions"], _, _ = models.Discussion.of_url(
+        #     story.story_url, only_relevant_stories=True
+        # )
+        # r = models.Resource.by_url(story.schemeless_story_url)
+        # if r:
+        #     irs = r.inbound_resources()
+        #     story.__dict__["related_articles"] = irs.values()
 
     return stories
+
+
+def _get_digest(topic, year, week):
+    stories = __get_stories(topic, year, week)
+    stories = sorted(stories, key=lambda x: x.category)
+    digest = [
+        (category, categories[category]["name"], list(stories))
+        for category, stories in itertools.groupby(
+            stories, lambda x: x.category
+        )
+    ]
+    digest = sorted(digest, key=lambda x: categories[x[0]]["sort"])
+    return digest
+
+
+def __generate_breadcrumbs(topic=None, year=None, week=None):
+    breadcrumbs = []
+    breadcrumbs.append({"name": "Home", "url": "/"})
+    breadcrumbs.append(
+        {"name": "Weekly digest", "url": reverse("web:weekly_index")}
+    )
+    if topic:
+        breadcrumbs.append(
+            {
+                "name": topics[topic]["name"],
+                "url": reverse("web:weekly_topic", args=[topic]),
+            }
+        )
+    if topic and year and week:
+        breadcrumbs.append(
+            {
+                "name": f"Week {week}/{year}",
+                "url": reverse(
+                    "web:weekly_topic_week", args=[topic, year, week]
+                ),
+            }
+        )
+
+    # breadcrumbs[-1]["url"] = None
+
+    for breadcrumb in breadcrumbs:
+        if breadcrumb.get("url"):
+            breadcrumb[
+                "url"
+            ] = f'{settings.APP_SCHEME}://{settings.APP_DOMAIN}{breadcrumb["url"]}'
+
+    return breadcrumbs
 
 
 def index_context():
     ctx = {}
     ctx["topics"] = topics
+    ctx["breadcrumbs"] = __generate_breadcrumbs()
     return ctx
 
 
@@ -176,6 +270,7 @@ def topic_context(topic):
                 "week_end": week_end(yearweek),
             }
         )
+    ctx["breadcrumbs"] = __generate_breadcrumbs(topic)
     return ctx
 
 
@@ -187,7 +282,9 @@ def topic_week_context(topic, year, week):
     ctx["week"] = week
     ctx["week_start"] = week_start(year, week)
     ctx["week_end"] = week_end(year, week)
-    ctx["stories"] = __get_stories(topic, year, week)
+    # ctx["stories"] = __get_stories(topic, year, week)
+    ctx["digest"] = _get_digest(topic, year, week)
+    ctx["breadcrumbs"] = __generate_breadcrumbs(topic, year, week)
     return ctx
 
 
@@ -267,18 +364,26 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
     return False
 
 
-# Weekly digests
+def send_mass_mail(topic, year, week, testing=True):
+    subscribers = models.Subscriber.mailing_list(topic)
+    logger.info(
+        f"weekly: sending mail to {subscribers.count()} subscribers for {topic} {week}/{year}"
+    )
+    ctx = topic_week_context(topic, year, week)
 
-# [email] Get future digests straight to your inbox
+    for subscriber in subscribers:
+        ctx["subscriber"] = subscriber
+        body = template_loader.render_to_string(
+            "web/weekly_topic_digest.txt",
+            {"ctx": ctx},
+        )
 
-
-# This week's digest
-
-
-# 01 2019
-# 02 2019
-# 03 2019
-# ...
-
-
-# 01 2018
+        if testing:
+            print(body)
+        else:
+            email.send(
+                f"Weekly {topics[topic]['name']} digest for week {week}-{year}",
+                body,
+                topics[topic]["email"],
+                subscriber.email,
+            )

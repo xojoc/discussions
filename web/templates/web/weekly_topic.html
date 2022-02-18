@@ -4,21 +4,23 @@
 {% load util %}
 
 {% block title %}
-Digest about {{ctx.topic.name}} for week - discussions
+Weekly digest about {{ctx.topic.name}} - discussions
 {% endblock title %}
 
 {% block main %}
+<div class="weekly">
 
-{% include "web/weekly_subscribe_form.html" %}
+    {% include "web/weekly_subscribe_form.html" %}
 
-<ul>
-    {% for yearweek in ctx.yearweeks %}
-    <li><a href="{% url 'web:weekly_topic_week' ctx.topic_key yearweek.year yearweek.week %}"
-            title="Week {{yearweek.week}}/{{yearweek.year}} for {{ctx.topic.name}}">Week starting
-            {{yearweek.week_start|date:"j/n/Y"}} (week {{yearweek.week}}/{{yearweek.year}})</a>
-    </li>
-    {% endfor %}
-</ul>
+    <ul>
+        {% for yearweek in ctx.yearweeks %}
+        <li><a href="{% url 'web:weekly_topic_week' ctx.topic_key yearweek.year yearweek.week %}"
+                title="Week {{yearweek.week}}/{{yearweek.year}} for {{ctx.topic.name}}">Week starting
+                {{yearweek.week_start|date:"j/n/Y"}} (week {{yearweek.week}}/{{yearweek.year}})</a>
+        </li>
+        {% endfor %}
+    </ul>
 
 
+</div>
 {% endblock main %}

@@ -10,7 +10,7 @@ def discussions_url(q, with_domain=True):
         q = ""
     path = "/q/" + quote(q, safe="/:?&=")
     if with_domain:
-        return f"https://{settings.APP_DOMAIN}{path}"
+        return f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}{path}"
     else:
         return path
 

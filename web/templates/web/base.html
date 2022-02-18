@@ -59,6 +59,23 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 					<h1 id=site_title><a href="/" title="Discussions around the web">Discussions</a></h1>
 				</div>
 			</header>
+
+			{% if ctx.breadcrumbs %}
+			<div class="breadcrumbs">
+				<ol vocab="https://schema.org/" typeof="BreadcrumbList">
+					{% for breadcrumb in ctx.breadcrumbs %}
+					<li property="itemListElement" typeof="ListItem">
+						<a property="item" typeof="WebPage" href="{{breadcrumb.url}}" title="{{breadcrumb.name}}">
+							<span property="name">{{breadcrumb.name}}</span>
+						</a>
+						<meta property="position" content="{{forloop.counter}}">
+					</li>
+					{% if not forloop.last %}›{% endif %}
+					{% endfor %}
+				</ol>
+			</div>
+			{% endif %}
+
 			{% if messages %}
 			<ul class="messages">
 				{% for message in messages %}

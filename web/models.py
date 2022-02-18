@@ -185,7 +185,7 @@ class Discussion(models.Model):
         self, preferred_external_url=discussions.PreferredExternalURL.Standard
     ):
         if self.platform == "r":
-            return f"{self.platform_url(self.platform, preferred_external_url)}/r/{self.subreddit}"
+            return f"{self.get_platform_url(self.platform, preferred_external_url)}/r/{self.subreddit}"
 
     @classmethod
     def platform_order(self, platform):
@@ -222,13 +222,13 @@ class Discussion(models.Model):
             key=lambda x: cls.platform_order(x),
         ):
             ps[p] = (
-                cls.platform_name(p),
-                cls.platform_url(p, preferred_external_url),
+                cls.get_platform_name(p),
+                cls.get_platform_url(p, preferred_external_url),
             )
         return ps
 
     @classmethod
-    def platform_name(cls, platform):
+    def get_platform_name(cls, platform):
         if platform == "h":
             return "Hacker News"
         elif platform == "u":
@@ -250,8 +250,11 @@ class Discussion(models.Model):
         elif platform == "a":
             return "Laarc"
 
+    def platform_name(self):
+        return self.get_platform_name(self.platform)
+
     @classmethod
-    def platform_url(
+    def get_platform_url(
         cls,
         platform,
         preferred_external_url=discussions.PreferredExternalURL.Standard,
@@ -288,8 +291,11 @@ class Discussion(models.Model):
         elif platform == "a":
             return "https://www.laarc.io"
 
+    def platform_url(self):
+        return self.get_platform_url(self.platform)
+
     @classmethod
-    def platform_tag_url(cls, platform, preferred_external_url):
+    def get_platform_tag_url(cls, platform, preferred_external_url):
         if platform == "r":
             if (
                 preferred_external_url
@@ -304,9 +310,13 @@ class Discussion(models.Model):
             ):
                 return "https://m.reddit.com/r"
         elif platform in ("l", "b", "g", "t", "s"):
-            return cls.platform_url(platform, preferred_external_url) + "/t"
+            return (
+                cls.get_platform_url(platform, preferred_external_url) + "/t"
+            )
         elif platform in ("a"):
-            return cls.platform_url(platform, preferred_external_url) + "/l"
+            return (
+                cls.get_platform_url(platform, preferred_external_url) + "/l"
+            )
 
         return None
 
@@ -319,7 +329,7 @@ class Discussion(models.Model):
     def discussion_url(
         self, preferred_external_url=discussions.PreferredExternalURL.Standard
     ):
-        bu = self.platform_url(self.platform, preferred_external_url)
+        bu = self.get_platform_url(self.platform, preferred_external_url)
         if self.platform == "r":
             return f"{bu}/r/{self.subreddit}/comments/{self.id}"
         elif self.platform in ("h", "a"):
@@ -808,6 +818,14 @@ class Subscriber(models.Model):
         return f"{self.email} {self.topic} ({self.confirmed} confirmed, {self.unsubscribed} unsubscribed)"
 
     @classmethod
+    def mailing_list(cls, topic):
+        return (
+            cls.objects.filter(topic=topic)
+            .filter(confirmed=True)
+            .filter(unsubscribed=False)
+        )
+
+    @classmethod
     def generate_verification_code(cls):
         import secrets
 
@@ -820,7 +838,7 @@ class Subscriber(models.Model):
 
     def send_confirmation_email(self):
         confirmation_url = (
-            f"https://{settings.APP_DOMAIN}/weekly/confirm_email?"
+            f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}/weekly/confirm_email?"
             + urllib.parse.urlencode(
                 [
                     ("topic", self.topic),
@@ -857,6 +875,18 @@ class Subscriber(models.Model):
             ),
             weekly.topics[self.topic]["email"],
             self.email,
+        )
+
+    def unsubscribe_url(self):
+        return (
+            f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}/weekly/confirm_unsubscription?"
+            + urllib.parse.urlencode(
+                [
+                    ("topic", self.topic),
+                    ("email", self.email),
+                    ("verification_code", self.verification_code),
+                ]
+            )
         )
 
     def unsubscribe(self):

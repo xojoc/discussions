@@ -8,9 +8,27 @@ Weekly digests - discussions
 {% endblock title %}
 
 {% block main %}
+<div class="weekly">
 
-{% for topic_key, topic in ctx.topics.items %}
-<a href="{% url 'web:weekly_topic' topic_key %}" title="{{topic.short_description}}">{{topic.name}}</a>
-{% endfor %}
+    <div class="weekly-main">
+        <ul class="weekly-index-topics">
+            {% for topic_key, topic in ctx.topics.items %}
+            <li class="weekly-index-topic">
+                <a href="{% url 'web:weekly_topic' topic_key %}" title="{{topic.short_description}}">{{topic.name}}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% include "web/weekly_subscribe_form.html" %}
+
+
+    <div class="weekly-footer">
+        <p class="weekly-follow">
+            For daily updates follow one of our <a href="/social" title="Social media bots">accounts on Twitter or
+                Mastodon</a>.
+        </p>
+    </div>
+</div>
 
 {% endblock main %}

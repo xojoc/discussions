@@ -150,7 +150,9 @@ input[type=submit] {
 	width: 100%;
 }
 
-input[type=text], input[type=email], input[type=password] {
+input[type=text], 
+input[type=email], 
+input[type=password] {
 /*	background-color: #eee; */
 	border: 0.1em solid #9B3A2B; /*  #88BD00; */
 	border-radius: 0.2em;
@@ -862,4 +864,92 @@ tbody td {
 
 .bold {
     font-weight: bold;
+}
+
+.weekly .weekly-index-topics {
+	margin-top: 0.4em;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+ 	grid-gap: 0.8em;
+	 margin-bottom: 5em;
+}
+
+.weekly .weekly-index-topic {
+	background: black;
+	color: white;
+	padding: 0.5em;
+	text-align: center;
+	border-radius: 0.6em;
+	border-style: solid;
+	border-width: 0.15em;
+	border-color: #066f8f;
+	list-style: none;
+	box-shadow: 0.1em 0.2em 0.2em 0 #00000037;
+}
+.weekly .weekly-index-topic a {
+	color: white;
+}
+
+.weekly .weekly-stories li {
+	margin-bottom: 1em;
+}
+
+.weekly .weekly-discussions li {
+	margin-bottom: 0.1em;
+}
+
+.weekly .weekly-discussions {
+	font-size: 0.8em;
+}
+
+.weekly-follow {
+	margin-top: 3em;
+}
+
+
+.weekly-subscribe-form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+    flex-wrap: wrap;
+	background-color: lightyellow;
+	padding: 0.5em;
+	max-width: 60vw;
+	margin: auto;
+	border-radius: 0.4em;
+	margin-top: 0.7em;
+	margin-bottom: 2em;
+}
+.weekly-subscribe-form form {
+	/* width: 100%; */
+	flex: 0 0 100%; /* flex-grow, flex-shrink, flex-basis */
+}
+.weekly-subscribe-form li {
+  list-style: none;	
+  margin-bottom: 0.5em;
+}
+
+.weekly-subscribe-by-email {
+	margin-top: 0.7em;
+	font-size: 0.7em;
+}
+
+.relative-url {
+	font-size: 0.6em;
+}
+
+.breadcrumbs {
+	margin-top: 0.4em;
+  margin-left: 0.5em;
+	font-size: 0.7em;
+}
+
+.breadcrumbs ol {
+	display: flex;
+	list-style: none;
+}
+
+.breadcrumbs ol li {
+	margin-left: 0.3em;
+	margin-right: 0.4em;
 }

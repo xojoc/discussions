@@ -26,8 +26,8 @@ def discussions_platform_statistics():
     )
 
     for s in stats:
-        s["platform_name"] = models.Discussion.platform_name(s["platform"])
-        s["platform_url"] = models.Discussion.platform_url(
+        s["platform_name"] = models.Discussion.get_platform_name(s["platform"])
+        s["platform_url"] = models.Discussion.get_platform_url(
             s["platform"],
             preferred_external_url=discussions.PreferredExternalURL.Standard,
         )

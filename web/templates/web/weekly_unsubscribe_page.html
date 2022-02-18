@@ -14,7 +14,7 @@ Please confirm unsubscription
     {% csrf_token %}
     {{ ctx.weekly_unsubscribe_form }}
     <br>
-    <button type="submit">Confirm</button>
+    <input type="submit" value="Confirm">
 </form>
 
 <p>You can also unsubscribe by writing <a href="{{ctx.topic.mailto_unsubscribe}}">"unsubscribe"

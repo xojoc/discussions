@@ -1,0 +1,15 @@
+{% load util %}Hi!
+this week's digest for {{ctx.topic.name}}:
+
+{% for category, category_name, stories in ctx.digest %}# {{category_name}}
+{% for story in stories %}
+ * {{story.title}}
+  -> {{story.story_url}}
+{% if story.total_comments %}      {{story.total_comments}} comments in {{story.total_discussions}} discussions: {{story.story_url|discussions_url_domain}}
+{% endif %}{% endfor %}
+{% endfor %}
+
+Thank you!
+--
+You can unsubscribe any time by replying with "unsubscribe" or
+by visiting: {{ctx.subscriber.unsubscribe_url|safe}}

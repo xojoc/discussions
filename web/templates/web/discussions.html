@@ -41,207 +41,221 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 
 <div id=discussions>
-    <form method="GET" class="discussions_form" action="/">
-	<div class="flex-container">
-	    <div class="flex-container input-submit">
-		<input class="flex-fill-width" id="q" name="q" type="text" autofocus
-		       onfocus="this.selectionStart = this.selectionEnd = this.value.length;"
-		       value="{{ctx.original_query}}" placeholder="URL or title" />
-		<input type="submit" value="Find discussions" />
-	    </div>
-	</div>
-    </form>
+	<form method="GET" class="discussions_form" action="/">
+		<div class="flex-container">
+			<div class="flex-container input-submit">
+				<input class="flex-fill-width" id="q" name="q" type="text" autofocus
+					onfocus="this.selectionStart = this.selectionEnd = this.value.length;"
+					value="{{ctx.original_query}}" placeholder="URL or title" />
+				<input type="submit" value="Find discussions" />
+			</div>
+		</div>
+	</form>
 
 
-    <!--
+	<!--
 	 SQL query:
 
 	 {{ctx.sql_query}}
     -->
 
-    {% if ctx.nothing_found %}
-    <h2>Discussions not found</h2>
-    <p>Sorry, we couldn't find nothing for <span class="bold">{{ctx.url}}</span></p>
-    {% else %}
+	{% if ctx.nothing_found %}
+	<h2>Discussions not found</h2>
+	<p>Sorry, we couldn't find nothing for <span class="bold">{{ctx.url}}</span></p>
+	{% else %}
 
-    {% if ctx.display_discussions %}
+	{% if ctx.display_discussions %}
 
-    {% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
-    <div id="platform_{{platform}}" class="platform_discussions">
-	<h3>{{ platform_name }}</h3>
-    </div>
-    <ul>
-	{% for d in discussions %}
-	<li>
-	    <span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a></span>
-	    <span class="similar-search">(<a href="{{d.story_url|discussions_url}}"
-					     title="Discussions and related articles for this URL">Lookup URL</a>)</span>
-	    <br />
-	    {{d.title}} <span class="similar-search">(<a href="{{d.title|discussions_url}}"
-							 title="Discussions with similar title">Search by title</a>)</span>
-	    <br />
-	    <!--
+	{% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
+	<div id="platform_{{platform}}" class="platform_discussions">
+		<h3>{{ platform_name }}</h3>
+	</div>
+	<ul>
+		{% for d in discussions %}
+		<li>
+			<span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a></span>
+			<span class="similar-search">(<a href="{{d.story_url|discussions_url}}"
+					title="Discussions and related articles for this URL">Lookup URL</a>)</span>
+			<br />
+			{{d.title}} <span class="similar-search">(<a href="{{d.title|discussions_url}}"
+					title="Discussions with similar title">Search by title</a>)</span>
+			<br />
+			<!--
 		 rel="noreferrer noopener" target="_blank"
 	    -->
 
-	    <a href="{{d.discussion_url}}" title="View discussion on {{platform_name}}"><span class="bold">{{d.comment_count}}</span>
-		comment{{d.comment_count|pluralize:",s"}}</a>, <span class="bold">{{d.score}}</span> {{d.score_label}} [<time
-													 datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
-	    {% if d.tags %}
-	    {% if platform != 'r' %}
-	    Tags:
-	    {% endif %}
-	    {% for tag in d.tags %}
-	    {% if platform_tag_url %}
-	    <a href="{{platform_tag_url}}/{{tag}}"
-	       title="View tag «{{tag}}» on {{platform_name}}">{{tag}}</a>{% if not forloop.last %}, {% endif %}
-	    {% else %}
-	    {{tag}}{% if not forloop.last %}, {% endif %}
-	    {% endif %}
-	    {% endfor %}
-	    {% endif %}
+			<a href="{{d.discussion_url}}" title="View discussion on {{platform_name}}" rel="nofollow"><span
+					class="bold">{{d.comment_count}}</span>
+				comment{{d.comment_count|pluralize:",s"}}</a>, <span class="bold">{{d.score}}</span> {{d.score_label}}
+			[<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
+			{% if d.tags %}
+			{% if platform != 'r' %}
+			Tags:
+			{% endif %}
+			{% for tag in d.tags %}
+			{% if platform_tag_url %}
+			<a href="{{platform_tag_url}}/{{tag}}" title="View tag «{{tag}}» on {{platform_name}}"
+				rel="nofollow">{{tag}}</a>{% if not forloop.last %}, {% endif %}
+			{% else %}
+			{{tag}}{% if not forloop.last %}, {% endif %}
+			{% endif %}
+			{% endfor %}
+			{% endif %}
 
-	    <!--Id: {{d.platform_id}}
+			<!--Id: {{d.platform_id}}
 		 Normalized tags: {{d.normalized_tags}}
 		 Normalized title: {{d.normalized_title}}
 		 Canonical url: {{d.canonical_story_url}}
 	    -->
-	</li>
-
-	{% endfor %}
-    </ul>
-    {% endfor %}
-
-    {% else %}
-
-    <br />
-    <h2>What is discu.eu?</h2>
-    <p>Search for discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker
-	News</a>,
-	<a href="https://lobste.rs/" title='Lobsters'>Lobsters</a>, <a href="https://www.reddit.com/"
-								       title='Reddit'>Reddit</a>, <a href="http://lambda-the-ultimate.org" title="Lambda the Ultimate">Lambda the
-	    Ultimate</a>, <a href="https://laarc.io/" title="Laarc">Laarc</a> (and <a href="/statistics#platforms" title="Platforms">others</a>)
-	for a given URL or keyword.
-    </p>
-
-
-    <h2>Examples</h2>
-    Lookup by URL:
-
-    <ul>
-	<li><a href="{{'https://xojoc.pw/blog/focus'|discussions_url}}"
-	       title="Why I'm focusing only on some programming languages">https://xojoc.pw/blog/focus</a></li>
-	<li><a href="{{'https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster'|discussions_url}}" title="How Firefox Got Fast Again">https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster</a>
-	</li>
-    </ul>
-
-    Lookup by title/keyword:
-    <ul>
-	<li><a href="{{'Catala programming language'|discussions_url}}">Catala programming
-	    language</a></li>
-	<li> <a href="{{'Postgres 14'|discussions_url}}">Postgres 14</a></li>
-	<li><a
-		href="{{'Why Most Published Research Findings Are False'|discussions_url}}">Why Most Published Research
-	    Findings Are False</a></a></li>
-    </ul>
-
-    Search for stories on a given site:
-    <ul>
-	<li><a href="{{'site:bellard.org'|discussions_url}}" title="Fabrice Bellard's website">site:bellard.org</a> - Fabrice Bellard's website</li>
-	<li><a href="{{'site:rust-lang.org'|discussions_url}}" title="Rust's website">site:rust-lang.org</a></li>
-	<li><a href="{{'site:arxiv.org programming language'|discussions_url}}" title="Papers about programming languages">site:arxiv.org programming language</a> - papers on arXiv.org about programming languages</li>
-	<li><a href="{{'site:gcc.gnu.org/bugzilla'|discussions_url}}" title="GCC's bug tracker">site:gcc.gnu.org/bugzilla</a> - GCC's bug tracker</li>
-    </ul>
-
-
-    <h2>How to use</h2>
-    <ul>
-	<li>Follow us on <a href="/social" title="Social accounts">Twitter or Mastodon</a> for daily updates on topics you care about</li>
-	<li>Install the <a href="/extension" title="Browser extension">browser extension</a></li>
-	<li>Use the <a href="/bookmarklet" title="Bookmarklet">bookmarklet</a></li>
-	<li>Display comments on your <a href="/website" title="Display comment on your website">website</a></li>
-	<li>Use the <a href="/api/v0/docs" title="Discussions API">API</a></li>
-	<li>Install the search engine. See instructions for <a href="https://support.mozilla.org/en-US/kb/add-or-remove-search-engine-firefox">Firefox</a> and <a href="https://support.google.com/chrome/answer/95426">Chrome</a>.</li>
-    </ul>
-
-    {% endif %}
-
-    {% endif %}
-
-
-
-    <!-- Resource id: {{ctx.resource.id}} -->
-
-    {% if ctx.inbound_resources %}
-
-    <br/>
-    <h3>Related articles</h3>
-
-    <div class="inbound_links">
-	<ul>
-	    {% for inbound_resource in ctx.inbound_resources %}
-	    <!-- Inbound resource id: {{inbound_resource.id}} -->
-	    <li>
-		<span class="discussions_story_url">
-		    <a href="{{inbound_resource.complete_url}}" title="{% firstof inbound_resource.title inbound_resource.complete_url %}">{{inbound_resource.complete_url}}</a>
-		</span>
-		<br/>
-		{{inbound_resource.title}} <span class="similar-search">(<a href="{{inbound_resource.title|discussions_url}}"
-									    title="Discussions with similar title">Search by title</a>)</span>
-
-		<br/>
-		<a href="{{inbound_resource.complete_url | discussions_url}}" title="Discussions for «{% firstof inbound_resource.title inbound_resource.complete_url %}»">{{ inbound_resource.discussions_comment_count }} comments</a>
-
-		<!-- <p>{{inbound_resource.discussions_normalized_tags}}</p> -->
-
-	    </li>
-	    {% endfor %}
-	</ul>
-    </div>
-    {% endif %}
-
-
-
-    {% if ctx.submit_links %}
-    <div class='submit_links'>
-	<br />
-	<details {% if ctx.submit_links_visible %}open{% endif %}>
-	    <summary>Submit link to:</summary>
-	    <ul>
-		{% for submit_platform, submit_link in ctx.submit_links.items %}
-		<li>
-		    <a href="{{submit_link}}" title="Submit to {{submit_platform}}" rel="noreferrer noopener"
-		       target="_blank">{{submit_platform}}</a>
 		</li>
+
 		{% endfor %}
-	    </ul>
+	</ul>
+	{% endfor %}
+
+	{% else %}
+
+	<br />
+	<h2>What is discu.eu?</h2>
+	<p>Search for discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker
+			News</a>,
+		<a href="https://lobste.rs/" title='Lobsters'>Lobsters</a>, <a href="https://www.reddit.com/"
+			title='Reddit'>Reddit</a>, <a href="http://lambda-the-ultimate.org" title="Lambda the Ultimate">Lambda the
+			Ultimate</a>, <a href="https://laarc.io/" title="Laarc">Laarc</a> (and <a href="/statistics#platforms"
+			title="Platforms">others</a>)
+		for a given URL or keyword.
+	</p>
+
+
+	<h2>Examples</h2>
+	Lookup by URL:
+
+	<ul>
+		<li><a href="{{'https://xojoc.pw/blog/focus'|discussions_url}}"
+				title="Why I'm focusing only on some programming languages">https://xojoc.pw/blog/focus</a></li>
+		<li><a href="{{'https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster'|discussions_url}}"
+				title="How Firefox Got Fast Again">https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster</a>
+		</li>
+	</ul>
+
+	Lookup by title/keyword:
+	<ul>
+		<li><a href="{{'Catala programming language'|discussions_url}}">Catala programming
+				language</a></li>
+		<li> <a href="{{'Postgres 14'|discussions_url}}">Postgres 14</a></li>
+		<li><a href="{{'Why Most Published Research Findings Are False'|discussions_url}}">Why Most Published Research
+				Findings Are False</a></a></li>
+	</ul>
+
+	Search for stories on a given site:
+	<ul>
+		<li><a href="{{'site:bellard.org'|discussions_url}}" title="Fabrice Bellard's website">site:bellard.org</a> -
+			Fabrice Bellard's website</li>
+		<li><a href="{{'site:rust-lang.org'|discussions_url}}" title="Rust's website">site:rust-lang.org</a></li>
+		<li><a href="{{'site:arxiv.org programming language'|discussions_url}}"
+				title="Papers about programming languages">site:arxiv.org programming language</a> - papers on arXiv.org
+			about programming languages</li>
+		<li><a href="{{'site:gcc.gnu.org/bugzilla'|discussions_url}}"
+				title="GCC's bug tracker">site:gcc.gnu.org/bugzilla</a> - GCC's bug tracker</li>
+	</ul>
+
+
+	<h2>How to use</h2>
+	<ul>
+		<li>Follow us on <a href="/social" title="Social accounts">Twitter or Mastodon</a> for daily updates on topics
+			you care about</li>
+		<li>Install the <a href="/extension" title="Browser extension">browser extension</a></li>
+		<li>Use the <a href="/bookmarklet" title="Bookmarklet">bookmarklet</a></li>
+		<li>Display comments on your <a href="/website" title="Display comment on your website">website</a></li>
+		<li>Use the <a href="/api/v0/docs" title="Discussions API">API</a></li>
+		<li>Install the search engine. See instructions for <a
+				href="https://support.mozilla.org/en-US/kb/add-or-remove-search-engine-firefox">Firefox</a> and <a
+				href="https://support.google.com/chrome/answer/95426">Chrome</a>.</li>
+	</ul>
+
+	{% endif %}
+
+	{% endif %}
+
+
+
+	<!-- Resource id: {{ctx.resource.id}} -->
+
+	{% if ctx.inbound_resources %}
+
+	<br />
+	<h3>Related articles</h3>
+
+	<div class="inbound_links">
+		<ul>
+			{% for inbound_resource in ctx.inbound_resources %}
+			<!-- Inbound resource id: {{inbound_resource.id}} -->
+			<li>
+				<span class="discussions_story_url">
+					<a href="{{inbound_resource.complete_url}}"
+						title="{% firstof inbound_resource.title inbound_resource.complete_url %}">{{inbound_resource.complete_url}}</a>
+				</span>
+				<br />
+				{{inbound_resource.title}} <span class="similar-search">(<a
+						href="{{inbound_resource.title|discussions_url}}" title="Discussions with similar title">Search
+						by title</a>)</span>
+
+				<br />
+				<a href="{{inbound_resource.complete_url | discussions_url}}"
+					title="Discussions for «{% firstof inbound_resource.title inbound_resource.complete_url %}»">{{ inbound_resource.discussions_comment_count }}
+					comments</a>
+
+				<!-- <p>{{inbound_resource.discussions_normalized_tags}}</p> -->
+
+			</li>
+			{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+
+
+
+	{% if ctx.submit_links %}
+	<div class='submit_links'>
+		<br />
+		<details {% if ctx.submit_links_visible %}open{% endif %}>
+			<summary>Submit link to:</summary>
+			<ul>
+				{% for submit_platform, submit_link in ctx.submit_links.items %}
+				<li>
+					<a href="{{submit_link}}" title="Submit to {{submit_platform}}" rel="noreferrer noopener"
+						target="_blank">{{submit_platform}}</a>
+				</li>
+				{% endfor %}
+			</ul>
+		</details>
+	</div>
+	{% endif %}
+
+	{% if ctx.try_with_site_prefix or ctx.try_with_title %}
+
+	<details {% if ctx.nothing_found %}open{% endif %}>
+		<summary>Related searches:</summary>
+
+		{% if ctx.try_with_site_prefix %}
+		<p>Try searching the whole domain: <a
+				href="{{ctx.try_with_site_prefix|discussions_url}}">{{ctx.try_with_site_prefix}}</a></p>
+		{% endif %}
+
+		{% if ctx.try_with_title %}
+		<p>Try searching with title: <a href="{{ctx.try_with_title|discussions_url}}">{{ctx.try_with_title}}</a></p>
+		{% endif %}
+
 	</details>
-    </div>
-    {% endif %}
 
-    {% if ctx.try_with_site_prefix or ctx.try_with_title %}
-
-    <details {% if ctx.nothing_found %}open{% endif %}>
-	<summary>Related searches:</summary>
-
-	{% if ctx.try_with_site_prefix %}
-	<p>Try searching the whole domain: <a href="{{ctx.try_with_site_prefix|discussions_url}}">{{ctx.try_with_site_prefix}}</a></p>
 	{% endif %}
 
-	{% if ctx.try_with_title %}
-	<p>Try searching with title: <a href="{{ctx.try_with_title|discussions_url}}">{{ctx.try_with_title}}</a></p>
+	{% if not ctx.nothing_found %}
+	<br />
+	<div class="donate">
+		<p><a href="https://xojoc.pw/donate" rel="nofollow" title="Support discu.eu's development">Donate</a></p>
+	</div>
 	{% endif %}
-
-    </details>
-
-    {% endif %}
-
-    {% if not ctx.nothing_found %}
-    <br />
-    <div class="donate">
-	<p><a href="https://xojoc.pw/donate" rel="nofollow" title="Support discu.eu's development">Donate</a></p>
-    </div>
-    {% endif %}
 
 </div>
 {% endblock main %}

@@ -16,6 +16,7 @@ run:
 	echo $$DATABASE_HOST
 	-kill $$(lsof -i:7777 -t -sTCP:LISTEN)
 	-kill $$(lsof -i:5555 -t -sTCP:LISTEN)
+	-kill $$(cat /var/run/celery/*.pid)
 	-killall -KILL celery
 	#@poetry run python3 manage.py runserver 7777&
 	@poetry run ./docker-entrypoint.sh 7777
