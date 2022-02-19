@@ -11,7 +11,7 @@ from django.core.mail import send_mail as django_send_mail
 
 from discussions import settings
 
-from . import celery_util, http, weekly
+from . import celery_util, http, weekly, util
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 def send_task(subject: str, body: str, from_email: str, to_emails: List[str]):
     # if util.is_dev():
     #     to_emails = ["hi@xojoc.pw"]
+    if util.is_dev():
+        subject = "[DEV] " + subject
     django_send_mail(subject, body, from_email, to_emails)
 
 

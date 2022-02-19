@@ -1,20 +1,21 @@
 import datetime
 import itertools
 import logging
+import random
 import re
 import urllib
 
 import django.template.loader as template_loader
 import urllib3
+from celery import shared_task
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncDay
-from django.utils.timezone import make_aware
-
 from django.urls import reverse
+from django.utils.timezone import make_aware
 
 from discussions import settings
 
-from . import models, email
+from . import celery_util, email, models
 
 logger = logging.getLogger(__name__)
 
@@ -150,6 +151,24 @@ def all_yearweeks(topic):
     return sorted(yearweeks, reverse=True)
 
 
+def last_nth_yearweeks(topic, n):
+    days_ago = datetime.datetime.now() - datetime.timedelta(days=(n * 2) * 7)
+    yearweeks = set()
+    stories = (
+        __base_query(topic)
+        .filter(created_at__gte=days_ago)
+        .annotate(created_at_date=TruncDay("created_at"))
+        .values("created_at_date")
+        .distinct()
+        .order_by()
+    )
+    for s in stories.iterator():
+        ic = s["created_at_date"].isocalendar()
+        yearweeks.add((ic.year, ic.week))
+
+    return sorted(yearweeks, reverse=True)[:n]
+
+
 def __get_stories(topic, year, week):
     # import django
 
@@ -260,7 +279,8 @@ def topic_context(topic):
     ctx["topic_key"] = topic
     ctx["topic"] = topics[topic]
     ctx["yearweeks"] = []
-    yearweeks = all_yearweeks(topic)
+    # yearweeks = all_yearweeks(topic)
+    yearweeks = last_nth_yearweeks(topic, 10)
     for yearweek in yearweeks:
         ctx["yearweeks"].append(
             {
@@ -364,12 +384,19 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
     return False
 
 
-def send_mass_mail(topic, year, week, testing=True):
-    subscribers = models.Subscriber.mailing_list(topic)
+@shared_task(ignore_result=True)
+def send_mass_email(topic, year, week, testing=True):
+    subscribers = list(models.Subscriber.mailing_list(topic))
+    random.shuffle(subscribers)
+
     logger.info(
         f"weekly: sending mail to {subscribers.count()} subscribers for {topic} {week}/{year}"
     )
     ctx = topic_week_context(topic, year, week)
+
+    if not ctx.get("digest"):
+        logger.warning(f"weekly: no articles {topic} {week}/{year}")
+        return
 
     for subscriber in subscribers:
         ctx["subscriber"] = subscriber
@@ -387,3 +414,14 @@ def send_mass_mail(topic, year, week, testing=True):
                 topics[topic]["email"],
                 subscriber.email,
             )
+
+
+@shared_task(bind=True, ignore_result=True)
+@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+def worker_send_weekly_email(self):
+    six_days_ago = datetime.datetime.now() - datetime.timedelta(days=6)
+    year = six_days_ago.isocalendar().year
+    week = six_days_ago.isocalendar().week
+
+    for topic in topics:
+        send_mass_email.delay(topic, year, week, testing=False)

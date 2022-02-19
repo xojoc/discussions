@@ -869,22 +869,26 @@ tbody td {
 .weekly .weekly-index-topics {
 	margin-top: 0.4em;
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(8em, 1fr));
  	grid-gap: 0.8em;
-	 margin-bottom: 5em;
+	margin-bottom: 5em;
 }
 
 .weekly .weekly-index-topic {
-	background: black;
+	background: #de5641;
 	color: white;
-	padding: 0.5em;
+	padding: 0.4em;
 	text-align: center;
 	border-radius: 0.6em;
 	border-style: solid;
-	border-width: 0.15em;
-	border-color: #066f8f;
+	border-width: 0.01em;
+	border-color: black;
 	list-style: none;
 	box-shadow: 0.1em 0.2em 0.2em 0 #00000037;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
 }
 .weekly .weekly-index-topic a {
 	color: white;
@@ -914,7 +918,7 @@ tbody td {
     flex-wrap: wrap;
 	background-color: lightyellow;
 	padding: 0.5em;
-	max-width: 60vw;
+	max-width: 30vw;
 	margin: auto;
 	border-radius: 0.4em;
 	margin-top: 0.7em;
@@ -940,8 +944,8 @@ tbody td {
 
 .breadcrumbs {
 	margin-top: 0.4em;
-  margin-left: 0.5em;
-	font-size: 0.7em;
+  	margin-left: 0.5em;
+	font-size: 0.8em;
 }
 
 .breadcrumbs ol {

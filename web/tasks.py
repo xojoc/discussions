@@ -3,23 +3,22 @@ import logging
 from celery import shared_task
 from celery.utils.log import get_task_logger
 
-from web import (  # noqa F401
-    archiveis,  # noqa F401
-    crawler,  # noqa F401
-    db,  # noqa F401
-    discussions,  # noqa F401
-    echojs,  # noqa F401
-    email,  # noqa F401
-    hn,  # noqa F401
-    indexnow,  # noqa F401
-    lobsters,  # noqa F401
-    ltu,  # noqa F401
-    mastodon,  # noqa F401
-    reddit,  # noqa F401
-    statistics,  # noqa F401
-    twitter,  # noqa F401
-    worker,  # noqa F401
-)  # noqa F401
+from web import archiveis  # noqa F401
+from web import crawler  # noqa F401
+from web import db  # noqa F401
+from web import discussions  # noqa F401
+from web import echojs  # noqa F401
+from web import email  # noqa F401
+from web import hn  # noqa F401
+from web import indexnow  # noqa F401
+from web import lobsters  # noqa F401
+from web import ltu  # noqa F401
+from web import mastodon  # noqa F401
+from web import reddit  # noqa F401
+from web import statistics  # noqa F401
+from web import twitter  # noqa F401
+from web import weekly  # noqa F401
+from web import worker  # noqa F401
 
 from . import celery_util
 

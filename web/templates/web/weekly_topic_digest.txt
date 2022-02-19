@@ -1,11 +1,11 @@
 {% load util %}Hi!
-this week's digest for {{ctx.topic.name}}:
+this week's digest for {{ctx.topic.name|safe}}:
 
-{% for category, category_name, stories in ctx.digest %}# {{category_name}}
+{% for category, category_name, stories in ctx.digest %}# {{category_name|safe}}
 {% for story in stories %}
- * {{story.title}}
-  -> {{story.story_url}}
-{% if story.total_comments %}      {{story.total_comments}} comments in {{story.total_discussions}} discussions: {{story.story_url|discussions_url_domain}}
+ * {{story.title|safe}}
+  -> {{story.story_url|safe}}
+{% if story.total_comments %}      {{story.total_comments}} comments in {{story.total_discussions}} discussions: {{story.story_url|discussions_url_domain|safe}}
 {% endif %}{% endfor %}
 {% endfor %}
 
