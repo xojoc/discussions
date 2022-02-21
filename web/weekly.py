@@ -152,7 +152,7 @@ def all_yearweeks(topic):
 
 
 def last_nth_yearweeks(topic, n):
-    days_ago = datetime.datetime.now() - datetime.timedelta(days=(n * 2) * 7)
+    days_ago = datetime.datetime.now() - datetime.timedelta(days=(n * 1.3) * 7)
     yearweeks = set()
     stories = (
         __base_query(topic)
@@ -390,7 +390,7 @@ def send_mass_email(topic, year, week, testing=True):
     random.shuffle(subscribers)
 
     logger.info(
-        f"weekly: sending mail to {subscribers.count()} subscribers for {topic} {week}/{year}"
+        f"weekly: sending mail to {len(subscribers)} subscribers for {topic} {week}/{year}"
     )
     ctx = topic_week_context(topic, year, week)
 

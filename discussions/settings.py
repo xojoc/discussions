@@ -231,6 +231,11 @@ LOGGING = {
             "level": "WARNING",
             # "propagate": True,
         },
+        "celery.task": {
+            "handlers": ["console", "mail_admins"],
+            "level": "INFO",
+            # "propagate": True,
+        },
         "web": {
             "handlers": ["console", "mail_admins"],
             "level": "INFO",
