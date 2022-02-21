@@ -871,6 +871,10 @@ tbody td {
 	margin-bottom: 5em;
 }
 
+.weekly .weekly-index-topics  li {
+	margin-left: 0;
+}
+
 .weekly .weekly-index-topic {
 	background: #de5641;
 	color: white;
@@ -892,7 +896,10 @@ tbody td {
 }
 
 .weekly .weekly-stories li {
-	margin-bottom: 1em;
+	margin-bottom: 0.7em;
+}
+.weekly .weekly-stories p {
+	margin-bottom: 0.2em;
 }
 
 .weekly .weekly-discussions li {
