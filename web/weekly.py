@@ -8,7 +8,7 @@ import django.template.loader as template_loader
 import urllib3
 from celery import shared_task
 from django.db.models import Count, Sum
-from django.db.models.functions import TruncDay
+from django.db.models.functions import TruncDay, Coalesce
 from django.urls import reverse
 from django.utils.timezone import make_aware
 
@@ -148,7 +148,9 @@ def __get_stories(topic, year, week):
         __base_query(topic)
         .filter(created_at__gte=ws)
         .filter(created_at__lt=we)
-        .order_by("created_at")
+        .distinct("canonical_story_url")
+        # .order_by("comment_count")
+        # .order_by("created_at")
     )
 
     logger.debug(f"weekly: stories count {stories.count()}")
@@ -162,8 +164,8 @@ def __get_stories(topic, year, week):
         )
         discussion_counts = (
             discussions.aggregate(
-                total_comments=Sum("comment_count"),
-                total_discussions=Count("platform_id"),
+                total_comments=Coalesce(Sum("comment_count"), 0),
+                total_discussions=Coalesce(Count("platform_id"), 0),
             )
             or {}
         )
@@ -194,7 +196,18 @@ def _get_digest(topic, year, week):
             stories, lambda x: x.category
         )
     ]
+
     digest = sorted(digest, key=lambda x: categories[x[0]]["sort"])
+
+    for category, category_name, stories in digest:
+        stories.sort(key=lambda x: x.total_comments, reverse=True)
+
+        if category == "article":
+            stories[:] = stories[:15]
+        elif category == "project":
+            stories[:] = stories[:10]
+        elif category == "release":
+            stories[:] = stories[:10]
     return digest
 
 
