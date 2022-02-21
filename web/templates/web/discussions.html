@@ -72,8 +72,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	</div>
 	<ul>
 		{% for d in discussions %}
-		<li>
-			<span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a></span>
+		<li><span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a></span>
 			<span class="similar-search">(<a href="{{d.story_url|discussions_url}}"
 					title="Discussions and related articles for this URL">Lookup URL</a>)</span>
 			<br />

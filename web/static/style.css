@@ -65,10 +65,12 @@ body a:hover {
 }
 ul li {
 	list-style: square;
-	list-style-position: inside;
+	list-style-position: outside;
+	margin-left: 1em;
 }
 ol li {
-	list-style-position: inside;
+	list-style-position: outside;
+	margin-left: 1em;
 }
 
 #dashboard #main ul li {
