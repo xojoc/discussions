@@ -60,21 +60,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 				</div>
 			</header>
 
-			{% if ctx.breadcrumbs %}
-			<div class="breadcrumbs">
-				<ol vocab="https://schema.org/" typeof="BreadcrumbList">
-					{% for breadcrumb in ctx.breadcrumbs %}
-					<li property="itemListElement" typeof="ListItem">
-						<a property="item" typeof="WebPage" href="{{breadcrumb.url}}" title="{{breadcrumb.name}}">
-							<span property="name">{{breadcrumb.name}}</span>
-						</a>
-						<meta property="position" content="{{forloop.counter}}">
-					</li>
-					{% if not forloop.last %}›{% endif %}
-					{% endfor %}
-				</ol>
-			</div>
-			{% endif %}
+			{% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
 
 			{% if messages %}
 			<ul class="messages">
@@ -91,6 +77,9 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 			</div>
 
 			{% endblock main_main %}
+
+
+			{% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
 
 			<footer>
 				<p>

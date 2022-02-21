@@ -12,30 +12,36 @@ Digest about {{ctx.topic.name}} for week {{ctx.week}}/{{ctx.year}} - discussions
 
 <div class="weekly">
 
+    <h2>Digest about {{ctx.topic.name}} for week {{ctx.week}}/{{ctx.year}}
+    </h2>
+    <span class="smaller-font">From
+        {{ctx.week_start|date:"j/n/Y"}} to
+        {{ctx.week_end|date:"j/n/Y"}}</span>
 
     {% for category, category_name, stories in ctx.digest %}
 
-    <h2 id="weekly-{{category}}">{{category_name}} <a href="#weekly-{{category}}" title="{{category_name}} articles"
-            class="relative-url">#</a> </h2>
+    <h3 id="weekly-{{category}}">{{category_name}} <a href="#weekly-{{category}}" title="{{category_name}} articles"
+            class="relative-url">#</a>
+        </h2>
 
-    <ul class="weekly-stories">
-        {% for story in stories %}
-        <li>
-            <p>
-                <a href="{{story.story_url}}" title="{{story.title}}">{{story.title}}</a>
-            </p>
+        <ul class="weekly-stories">
+            {% for story in stories %}
+            <li>
+                <p>
+                    <a href="{{story.story_url}}" title="{{story.title}}">{{story.title}}</a>
+                </p>
 
-            {% if story.total_comments %}
-            <p class="weekly-discussions">
-                <a href="{{story.story_url|discussions_url}}"
-                    title="Discussions for «{{story.title}}»">{{story.total_comments}} comments</a> in
-                {{story.total_discussions}} discussions.
-            </p>
-            {% endif %}
+                {% if story.total_comments %}
+                <p class="weekly-discussions">
+                    <a href="{{story.story_url|discussions_url}}"
+                        title="Discussions for «{{story.title}}»">{{story.total_comments}} comments</a> in
+                    {{story.total_discussions}} discussions.
+                </p>
+                {% endif %}
 
 
 
-            <!-- {% if story.discussions %}
+                <!-- {% if story.discussions %}
             <ul class=" weekly-discussions">
                 {% for d in story.discussions %}
         <li>
@@ -66,12 +72,25 @@ Digest about {{ctx.topic.name}} for week {{ctx.week}}/{{ctx.year}} - discussions
     </ul>
     {% endif %} -->
 
-        </li>
+            </li>
+            {% endfor %}
+        </ul>
+
         {% endfor %}
-    </ul>
 
-    {% endfor %}
+        {% include "web/weekly_subscribe_form.html" %}
 
-    {% include "web/weekly_subscribe_form.html" %}
+
+        {% if ctx.twitter_account or ctx.mastodon_account %}
+        <div class="weekly-footer">
+            <p class="weekly-follow">
+                For daily updates follow <a href="https://twitter.com/{{ctx.twitter_account}}"
+                    title="{{ctx.twitter_account}} Twitter bot">{{ctx.twitter_account}}</a> on Twitter or
+                <a href="{{ctx.mastodon_account_url}}"
+                    title="{{ctx.mastodon_account}} Mastodon bot">{{ctx.mastodon_account}}</a> on Mastodon.
+            </p>
+        </div>
+        {% endif %}
+
 </div>
 {% endblock main %}

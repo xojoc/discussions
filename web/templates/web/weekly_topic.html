@@ -10,17 +10,41 @@ Weekly digest about {{ctx.topic.name}} - discussions
 {% block main %}
 <div class="weekly">
 
+    <h2>Weekly digest about {{ctx.topic.name}}</h2>
+    {% if ctx.topic_key == 'hackernews' %}
+    <p>
+        Receive every week a summary of the most interesting articles on Hacker News.
+    </p>
+    {% else %}
+    <p>
+        Receive every week a digest with interesting articles and projects about {{ctx.topic.name}}.
+    </p>
+    {% endif %}
+
     {% include "web/weekly_subscribe_form.html" %}
 
+    <h2>Past issues</h2>
     <ul>
         {% for yearweek in ctx.yearweeks %}
         <li><a href="{% url 'web:weekly_topic_week' ctx.topic_key yearweek.year yearweek.week %}"
-                title="Week {{yearweek.week}}/{{yearweek.year}} for {{ctx.topic.name}}">Week starting
-                {{yearweek.week_start|date:"j/n/Y"}} (week {{yearweek.week}}/{{yearweek.year}})</a>
+                title="Week {{yearweek.week}}/{{yearweek.year}} for {{ctx.topic.name}}">Week
+                {{yearweek.week}}/{{yearweek.year}}</a><span class="smaller-font"> — from
+                {{yearweek.week_start|date:"j/n/Y"}} to
+                {{yearweek.week_end|date:"j/n/Y"}}</span>
         </li>
         {% endfor %}
     </ul>
 
 
+    {% if ctx.twitter_account or ctx.mastodon_account %}
+    <div class="weekly-footer">
+        <p class="weekly-follow">
+            For daily updates follow <a href="https://twitter.com/{{ctx.twitter_account}}"
+                title="{{ctx.twitter_account}} Twitter bot">{{ctx.twitter_account}}</a> on Twitter or
+            <a href="{{ctx.mastodon_account_url}}"
+                title="{{ctx.mastodon_account}} Mastodon bot">{{ctx.mastodon_account}}</a> on Mastodon.
+        </p>
+    </div>
+    {% endif %}
 </div>
 {% endblock main %}

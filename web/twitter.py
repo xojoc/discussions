@@ -1,112 +1,18 @@
-import tweepy
-import os
-from . import util
-import logging
-from celery import shared_task
-from . import models, celery_util, extract
-from django.utils import timezone
 import datetime
+import logging
+import os
 import random
 import time
-import sentry_sdk
 import unicodedata
 
+import sentry_sdk
+import tweepy
+from celery import shared_task
+from django.utils import timezone
+
+from . import celery_util, extract, models, topics, util
+
 logger = logging.getLogger(__name__)
-
-# other parameters filled inside web/apps.py
-# order is important: see tweet_story
-
-configuration = {
-    "bots": {
-        "RustDiscussions": {
-            "email": "rust_discussions@xojoc.pw",
-            "user_id": "1446199026865557510",
-            "tags": {"rustlang"},
-            "description": "Rust discussions",
-            "topic": "Rust",
-            "mastodon_account": "@rust_discussions@mastodon.social",
-        },
-        "GoDiscussions": {
-            "email": "golang_discussions@xojoc.pw",
-            "tags": {"golang"},
-            "description": "Go discussions",
-            "topic": "Golang",
-            "mastodon_account": "@golang_discussions@mastodon.social",
-        },
-        "IntPyDiscu": {
-            "email": "python_discussions@xojoc.pw",
-            "user_id": "1442929661328117760",
-            "tags": {"python"},
-            "description": "Python discussions",
-            "topic": "Python",
-            "mastodon_account": "@python_discussions@mastodon.social",
-        },
-        "CPPDiscussions": {
-            "email": "c_discussions@xojoc.pw",
-            "tags": {"c", "cpp"},
-            "description": "C & C++ discussions",
-            "topic": "C & C++",
-            "mastodon_account": "@c_discussions@mastodon.social",
-        },
-        "HaskellDiscu": {
-            "email": "haskell_discussions@xojoc.pw",
-            "tags": {"haskell"},
-            "description": "Haskell discussions",
-            "topic": "Haskell",
-            "mastodon_account": "@haskell_discussions@mastodon.social",
-        },
-        "LispDiscussions": {
-            "email": "lisp_discussions@xojoc.pw",
-            "tags": {"lisp", "scheme", "racket"},
-            "description": "Lisp & Scheme discussions",
-            "topic": "Lisp & Scheme",
-            "mastodon_account": "@lisp_discussions@mastodon.social",
-        },
-        "ErlangDiscu": {
-            "email": "erlang_discussions@xojoc.pw",
-            "tags": {"erlang", "elixir"},
-            "description": "Erlang & Elixir discussions",
-            "topic": "Erlang & Elixir",
-            "mastodon_account": "@erlang_discussions@mastodon.social",
-        },
-        "RubyDiscussions": {
-            "email": "ruby_discussions@xojoc.pw",
-            "tags": {"ruby"},
-            "description": "Ruby discussions",
-            "topic": "Ruby",
-            "mastodon_account": "@ruby_discussions@mastodon.social",
-        },
-        "CompsciDiscu": {
-            "email": "compsci_discussions@xojoc.pw",
-            "tags": {"compsci"},
-            "description": "Computer Science discussions",
-            "topic": "Computer Science",
-            "mastodon_account": "@compsci_discussions@mastodon.social",
-        },
-        "DevopsDiscu": {
-            "email": "devops_discussions@xojoc.pw",
-            "tags": {"devops", "docker", "kubernetes"},
-            "description": "DevOps discussions",
-            "topic": "DevOps",
-            "mastodon_account": "@devops_discussions@mastodon.social",
-        },
-        "ProgDiscussions": {
-            "email": "programming_discussions@xojoc.pw",
-            "tags": {"programming"},
-            "description": "Programming discussions",
-            "topic": "Programming",
-            "mastodon_account": "@programming_discussions@mastodon.social",
-        },
-        "HNDiscussions": {
-            "email": "hn_discussions@xojoc.pw",
-            "tags": {},
-            "description": "Hacker News discussions",
-            "topic": "Hacker News",
-            "platform": "h",
-            "mastodon_account": "@hn_discussions@mastodon.social",
-        },
-    }
-}
 
 
 def __sleep(a, b):
@@ -115,17 +21,14 @@ def __sleep(a, b):
     time.sleep(random.randint(a, b))
 
 
-def __print(s):
-    # logger.info(s)
-    if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
-        print(s)
-
-
 def tweet(status, username):
-    api_key = configuration["api_key"]
-    api_secret_key = configuration["api_secret_key"]
-    token = configuration["bots"][username]["token"]
-    token_secret = configuration["bots"][username]["token_secret"]
+    api_key = os.getenv("TWITTER_ACCESS_API_KEY")
+    api_secret_key = os.getenv("TWITTER_ACCESS_API_SECRET_KEY")
+
+    account = topics.get_account_configuration("twitter", username)
+
+    token = account["token"]
+    token_secret = account["token_secret"]
 
     if not api_key or not api_secret_key or not token or not token_secret:
         logger.warn(f"Twitter bot: {username} non properly configured")
@@ -152,10 +55,13 @@ def tweet(status, username):
 
 
 def retweet(tweet_id, username):
-    api_key = configuration["api_key"]
-    api_secret_key = configuration["api_secret_key"]
-    token = configuration["bots"][username]["token"]
-    token_secret = configuration["bots"][username]["token_secret"]
+    api_key = os.getenv("TWITTER_ACCESS_API_KEY")
+    api_secret_key = os.getenv("TWITTER_ACCESS_API_SECRET_KEY")
+
+    account = topics.get_account_configuration("twitter", username)
+
+    token = account["token"]
+    token_secret = account["token_secret"]
 
     if not api_key or not api_secret_key or not token or not token_secret:
         logger.warn(f"Twitter bot: {username} non properly configured")
@@ -247,12 +153,18 @@ def tweet_story(
     tweeted_by = []
     tweet_id = None
 
-    for bot_name, cfg in configuration["bots"].items():
+    for topic_key, topic in topics.topics.items():
+        if not topic.get("twitter"):
+            continue
+        bot_name = topic.get("twitter").get("account")
+        if not bot_name:
+            continue
+
         if bot_name in already_tweeted_by:
             continue
 
-        if (cfg.get("tags") and cfg["tags"] & tags) or (
-            cfg.get("platform") and cfg.get("platform") in platforms
+        if (topic.get("tags") and topic["tags"] & tags) or (
+            topic.get("platform") and topic.get("platform") in platforms
         ):
             if tweet_id:
                 try:
@@ -352,7 +264,7 @@ def tweet_discussions():
             f"twitter {story.platform_id}: {already_tweeted_by}: {platforms}: {tags}"
         )
 
-        tweet_id = None
+        tweet_id, tweeted_by = None, []
         try:
             tweet_id, tweeted_by = tweet_story(
                 story.title,

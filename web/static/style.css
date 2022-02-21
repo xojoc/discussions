@@ -505,6 +505,14 @@ footer {
 	padding-bottom: 100vh;
 }
 
+.messages {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	flex-wrap: wrap;
+	font-weight: bold;
+}
+
 .messages a, .errorlist a {
 	color: white;
 	text-decoration: underline;
@@ -513,37 +521,24 @@ footer {
 .messages li, .errorlist li {
 	border-radius: 0.3em;
 	color: white;
-	padding: 0.3em;
+	padding: 0.3em 0.7em;
 	max-width: max-content;
-	margin-bottom: 0.2em;
 	margin-top: 0;
+	list-style: none;
+	margin-bottom: 0.6em;
 }
 
 
 .messages .success {
 	background-color: #57b06d;
-	/*
-	border-radius: 0.3em;
-	color: white ;
-	padding: 0.3em;
-	max-width: max-content;
-	*/
-/*	border: 1px solid #eee; */
-/*	font-weight: bold; */
 }
 
 .messages .warning {
-	background-color: orange;
+	background-color: #db8e00;
 }
 
 .messages .error, .errorlist {
 	background-color: #ca0505;
-	/*
-	border-radius: 0.3em;
-	color: white;
-	padding: 0.3em;
-	max-width: max-content;
-	*/
 }
 
 
@@ -870,7 +865,7 @@ tbody td {
 	margin-top: 0.4em;
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(8em, 1fr));
- 	grid-gap: 0.8em;
+ 	grid-gap: 0.9em 0.8em;
 	margin-bottom: 5em;
 }
 
@@ -908,6 +903,7 @@ tbody td {
 
 .weekly-follow {
 	margin-top: 3em;
+	font-size: 0.85em;
 }
 
 
@@ -949,6 +945,7 @@ tbody td {
 
 .breadcrumbs {
 	margin-top: 0.7em;
+	margin-bottom: 0.7em;
   	margin-left: 0.5em;
 	font-size: 0.8em;
 }
@@ -961,4 +958,8 @@ tbody td {
 .breadcrumbs ol li {
 	margin-left: 0.3em;
 	margin-right: 0.4em;
+}
+
+.smaller-font {
+	font-size: 0.75em;
 }

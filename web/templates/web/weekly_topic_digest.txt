@@ -11,5 +11,7 @@ this week's digest for {{ctx.topic.name|safe}}:
 
 Thank you!
 --
+View digest online: {{ctx.web_link|safe}}
+
 You can unsubscribe any time by replying with "unsubscribe" or
 by visiting: {{ctx.subscriber.unsubscribe_url|safe}}

@@ -26,7 +26,7 @@ from django.utils import timezone
 
 from discussions import settings
 
-from . import discussions, email, extract, tags, title, weekly
+from . import discussions, email, extract, tags, title, topics
 
 
 class MyTrigramStrictWordSimilarity(TrigramWordBase):
@@ -801,7 +801,7 @@ class Subscriber(models.Model):
         ]
 
     email = models.EmailField()
-    topic = models.CharField(max_length=255, choices=weekly.topics_choices)
+    topic = models.CharField(max_length=255, choices=topics.topics_choices)
     verification_code = models.CharField(max_length=15)
     confirmed = models.BooleanField(default=False)
     subscribed_from = models.CharField(
@@ -848,32 +848,32 @@ class Subscriber(models.Model):
             )
         )
         email.send(
-            f"Confirm subscription to weekly {weekly.topics[self.topic]['name']} digest",
+            f"Confirm subscription to weekly {topics.topics[self.topic]['name']} digest",
             template_loader.render_to_string(
                 "web/weekly_subscribe_confirm.txt",
                 {
                     "ctx": {
-                        "topic": weekly.topics[self.topic],
+                        "topic": topics.topics[self.topic],
                         "confirmation_url": confirmation_url,
                     }
                 },
             ),
-            weekly.topics[self.topic]["email"],
+            topics.topics[self.topic]["email"],
             self.email,
         )
 
     def send_subscription_confirmation_email(self):
         email.send(
-            f"Subscribed to weekly {weekly.topics[self.topic]['name']} digest",
+            f"Subscribed to weekly {topics.topics[self.topic]['name']} digest",
             template_loader.render_to_string(
                 "web/weekly_subscribe_confirmation.txt",
                 {
                     "ctx": {
-                        "topic": weekly.topics[self.topic],
+                        "topic": topics.topics[self.topic],
                     }
                 },
             ),
-            weekly.topics[self.topic]["email"],
+            topics.topics[self.topic]["email"],
             self.email,
         )
 
@@ -899,15 +899,15 @@ class Subscriber(models.Model):
 
     def send_unsubscribe_confirmation_email(self):
         email.send(
-            f"Unsubscribed from weekly {weekly.topics[self.topic]['name']} digest",
+            f"Unsubscribed from weekly {topics.topics[self.topic]['name']} digest",
             template_loader.render_to_string(
                 "web/weekly_unsubscribe_confirmation.txt",
                 {
                     "ctx": {
-                        "topic": weekly.topics[self.topic],
+                        "topic": topics.topics[self.topic],
                     }
                 },
             ),
-            weekly.topics[self.topic]["email"],
+            topics.topics[self.topic]["email"],
             self.email,
         )

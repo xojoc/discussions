@@ -1,17 +1,27 @@
-from . import models, discussions, twitter, util, forms
-from . import mastodon, weekly
-from django.shortcuts import render, redirect
-from django.urls import reverse
 import itertools
-from django.core.cache import cache
-from django.http import HttpResponsePermanentRedirect
-from discussions import settings
-from urllib.parse import unquote as url_unquote
-from urllib.parse import quote
 import logging
-from django_redis import get_redis_connection
+from urllib.parse import quote
+from urllib.parse import unquote as url_unquote
+
 import urllib3
 from django.contrib import messages
+from django.core.cache import cache
+from django.http import HttpResponsePermanentRedirect
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django_redis import get_redis_connection
+
+from discussions import settings
+
+from . import (
+    discussions,
+    forms,
+    mastodon,
+    models,
+    topics,
+    util,
+    weekly,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -276,7 +286,7 @@ def weekly_confirm_unsubscription(request):
         topic_key = request.GET.get("topic")
         ctx = {
             "weekly_unsubscribe_form": form,
-            "topic": weekly.topics.get(topic_key),
+            "topic": topics.topics.get(topic_key),
         }
         return render(
             request, "web/weekly_unsubscribe_page.html", {"ctx": ctx}
@@ -341,6 +351,9 @@ def weekly_index(request):
     if response:
         return response
     response = render(request, "web/weekly_index.html", {"ctx": ctx})
+    # messages.success(request, "Test success message")
+    # messages.warning(request, "Test warning message")
+    # messages.error(request, "Test error message")
     return response
 
 
@@ -369,22 +382,32 @@ def statistics(request):
 
 def __social_context(request):
     twitter_bots = []
-    for bot_name, bot_values in twitter.configuration["bots"].items():
+    for topic_key, topic in topics.topics.items():
+        if not topic.get("twitter"):
+            continue
+        bot_name = topic.get("twitter").get("account")
+        if not bot_name:
+            continue
         bot = {
             "link": f"https://twitter.com/{ bot_name }",
-            "link_title": f"{ bot_values['topic'] } Twitter bot",
+            "link_title": f"{ topic['name'] } Twitter bot",
             "nick": f"@{ bot_name }",
-            "description": f"{ bot_values['description'] }",
+            "description": f"{ topic['short_description'] }",
         }
         twitter_bots.append(bot)
 
     mastodon_bots = []
-    for bot_name, bot_values in twitter.configuration["bots"].items():
+    for topic_key, topic in topics.topics.items():
+        if not topic.get("mastodon"):
+            continue
+        bot_name = topic.get("mastodon").get("account")
+        if not bot_name:
+            continue
         bot = {
-            "link": mastodon.profile_url(bot_values["mastodon_account"]),
-            "link_title": f"{ bot_values['topic'] } Mastodon bot",
-            "nick": "@" + bot_values["mastodon_account"].split("@")[1],
-            "description": f"{ bot_values['description'] }",
+            "link": mastodon.profile_url(bot_name),
+            "link_title": f"{ topic['name'] } Mastodon bot",
+            "nick": "@" + bot_name.split("@")[1],
+            "description": f"{ topic['short_description'] }",
         }
         mastodon_bots.append(bot)
 

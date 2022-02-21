@@ -1,15 +1,15 @@
-import os
-from . import util
-import logging
-from celery import shared_task
-from . import models, celery_util, extract, http
-from django.utils import timezone
 import datetime
+import logging
+import os
 import random
 import time
-import sentry_sdk
-from web.twitter import configuration
 import unicodedata
+
+import sentry_sdk
+from celery import shared_task
+from django.utils import timezone
+
+from . import celery_util, extract, http, models, topics, util
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,8 @@ def profile_url(account):
 
 
 def post(status, username, post_from_dev=False):
-    access_token = configuration["bots"][username].get("mastodon_access_token")
+    account = topics.get_account_configuration("mastodon", username)
+    access_token = account.get("access_token")
 
     if not access_token:
         logger.warn(f"Mastodon bot: {username} non properly configured")
@@ -62,7 +63,8 @@ def post(status, username, post_from_dev=False):
 
 
 def repost(post_id, username):
-    access_token = configuration["bots"][username].get("mastodon_access_token")
+    account = topics.get_account_configuration("mastodon", username)
+    access_token = account.get("access_token")
 
     if not access_token:
         logger.warn(f"Mastodon bot: {username} non properly configured")
@@ -139,15 +141,21 @@ def post_story(title, url, tags, platforms, already_posted_by, comment_count):
     posted_by = []
     post_id = None
 
-    for bot_name, cfg in configuration["bots"].items():
+    for topic_key, topic in topics.topics.items():
+        if not topic.get("mastodon"):
+            continue
+        bot_name = topic.get("mastodon").get("account")
+        if not bot_name:
+            continue
+        bot_name = topic.get("twitter").get("account")
+        if not bot_name:
+            continue
+
         if bot_name in already_posted_by:
             continue
 
-        if not cfg.get("mastodon_account"):
-            continue
-
-        if (cfg.get("tags") and cfg["tags"] & tags) or (
-            cfg.get("platform") and cfg.get("platform") in platforms
+        if (topic.get("tags") and topic["tags"] & tags) or (
+            topic.get("platform") and topic.get("platform") in platforms
         ):
             if post_id:
                 try:
@@ -237,7 +245,7 @@ def post_discussions():
             f"mastodon {story.platform_id}: {already_posted_by}: {platforms}: {tags}"
         )
 
-        post_id = None
+        post_id, posted_by = None, []
         try:
             post_id, posted_by = post_story(
                 story.title,

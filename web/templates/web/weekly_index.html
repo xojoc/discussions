@@ -9,8 +9,17 @@ Weekly digests - discussions
 
 {% block main %}
 <div class="weekly">
+    <h2>Weekly digest</h2>
 
     <div class="weekly-main">
+        <p>
+            Keep up with what you care about. Receive a weekly digest every monday with a summary of what's happening on
+            the web.
+        </p>
+        <p class="smaller-font">
+            Choose a topic:
+        </p>
+
         <ul class="weekly-index-topics">
             {% for topic_key, topic in ctx.topics.items %}
             <li class="weekly-index-topic">

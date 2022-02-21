@@ -3,7 +3,6 @@ import itertools
 import logging
 import random
 import re
-import urllib
 
 import django.template.loader as template_loader
 import urllib3
@@ -15,52 +14,13 @@ from django.utils.timezone import make_aware
 
 from discussions import settings
 
-from . import celery_util, email, models
+from . import celery_util, email, mastodon, models, topics
 
 logger = logging.getLogger(__name__)
 
-topics = {
-    "rust": {
-        "name": "Rust language",
-        "short_description": "Rust programming language",
-        "tags": ["rustlang"],
-    },
-    "compsci": {
-        "name": "Computer science",
-        "short_description": "Computer science",
-        "tags": ["compsci"],
-    },
-    "devops": {
-        "name": "DevOps",
-        "short_description": "DevOps",
-        "tags": {"devops", "docker", "kubernets"},
-    },
-}
-
-for topic_key, topic in topics.items():
-    topic["email"] = f"{settings.EMAIL_TO_PREFIX}weekly_{topic_key}@discu.eu"
-    topic[
-        "mailto_subscribe"
-    ] = f"mailto:{topic['email']}?" + urllib.parse.urlencode(
-        [
-            ("subject", f"Subscribe to {topic['name']}"),
-            ("body", "subscribe (must be first word)"),
-        ]
-    )
-    topic[
-        "mailto_unsubscribe"
-    ] = f"mailto:{topic['email']}?" + urllib.parse.urlencode(
-        [
-            ("subject", f"Unsubscribe from {topic['name']}"),
-            ("body", "unsubscribe (must be first word)"),
-        ]
-    )
-
-topics_choices = sorted([(key, item["name"]) for key, item in topics.items()])
-
 categories = {
-    "generic": {
-        "name": "Generic",
+    "article": {
+        "name": "Article",
         "sort": 10,
     },
     "release": {
@@ -101,18 +61,23 @@ def __category(story):
         if path.startswith("/crates/"):
             return "project"
 
-    return "generic"
+    return "article"
 
 
 def __base_query(topic):
-    tags = topics[topic]["tags"]
-    return (
-        models.Discussion.objects.filter(normalized_tags__overlap=tags)
-        .exclude(schemeless_story_url__isnull=True)
+    qs = (
+        models.Discussion.objects.exclude(schemeless_story_url__isnull=True)
         .exclude(schemeless_story_url="")
         .exclude(scheme_of_story_url__isnull=True)
         .exclude(created_at__isnull=True)
     )
+    tags = topics.topics[topic].get("tags")
+    if tags:
+        qs = qs.filter(normalized_tags__overlap=list(tags))
+    if topics.topics[topic].get("platform"):
+        qs = qs.filter(platform=topics.topics[topic].get("platform"))
+
+    return qs
 
 
 def week_start(year, week=None):
@@ -242,7 +207,7 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
     if topic:
         breadcrumbs.append(
             {
-                "name": topics[topic]["name"],
+                "name": topics.topics[topic]["name"],
                 "url": reverse("web:weekly_topic", args=[topic]),
             }
         )
@@ -269,7 +234,7 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
 
 def index_context():
     ctx = {}
-    ctx["topics"] = topics
+    ctx["topics"] = topics.topics
     ctx["breadcrumbs"] = __generate_breadcrumbs()
     return ctx
 
@@ -277,7 +242,7 @@ def index_context():
 def topic_context(topic):
     ctx = {}
     ctx["topic_key"] = topic
-    ctx["topic"] = topics[topic]
+    ctx["topic"] = topics.topics[topic]
     ctx["yearweeks"] = []
     # yearweeks = all_yearweeks(topic)
     yearweeks = last_nth_yearweeks(topic, 10)
@@ -291,13 +256,26 @@ def topic_context(topic):
             }
         )
     ctx["breadcrumbs"] = __generate_breadcrumbs(topic)
+
+    twitter = topics.topics[topic].get("twitter")
+    if twitter.get("account"):
+        ctx["twitter_account"] = "@" + twitter.get("account")
+    mastodon_cfg = topics.topics[topic].get("mastodon")
+    if mastodon_cfg.get("account"):
+        ctx["mastodon_account"] = (
+            "@" + mastodon_cfg.get("account").split("@")[1]
+        )
+        ctx["mastodon_account_url"] = mastodon.profile_url(
+            mastodon_cfg.get("account")
+        )
+
     return ctx
 
 
 def topic_week_context(topic, year, week):
     ctx = {}
     ctx["topic_key"] = topic
-    ctx["topic"] = topics[topic]
+    ctx["topic"] = topics.topics[topic]
     ctx["year"] = year
     ctx["week"] = week
     ctx["week_start"] = week_start(year, week)
@@ -305,6 +283,22 @@ def topic_week_context(topic, year, week):
     # ctx["stories"] = __get_stories(topic, year, week)
     ctx["digest"] = _get_digest(topic, year, week)
     ctx["breadcrumbs"] = __generate_breadcrumbs(topic, year, week)
+    ctx[
+        "web_link"
+    ] = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}" + reverse(
+        "web:weekly_topic_week", args=[topic, year, week]
+    )
+    twitter = topics.topics[topic].get("twitter")
+    if twitter.get("account"):
+        ctx["twitter_account"] = "@" + twitter.get("account")
+    mastodon_cfg = topics.topics[topic].get("mastodon")
+    if mastodon_cfg.get("account"):
+        ctx["mastodon_account"] = (
+            "@" + mastodon_cfg.get("account").split("@")[1]
+        )
+        ctx["mastodon_account_url"] = mastodon.profile_url(
+            mastodon_cfg.get("account")
+        )
     return ctx
 
 
@@ -325,7 +319,7 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
     except Exception:
         return False
 
-    topic = topics.get(topic_key)
+    topic = topics.topics.get(topic_key)
     if not topic:
         return False
 
@@ -409,9 +403,9 @@ def send_mass_email(topic, year, week, testing=True):
             print(body)
         else:
             email.send(
-                f"Weekly {topics[topic]['name']} digest for week {week}-{year}",
+                f"Weekly {topics.topics[topic]['name']} digest for week {week}-{year}",
                 body,
-                topics[topic]["email"],
+                topics.topics[topic]["email"],
                 subscriber.email,
             )
 
@@ -423,5 +417,5 @@ def worker_send_weekly_email(self):
     year = six_days_ago.isocalendar().year
     week = six_days_ago.isocalendar().week
 
-    for topic in topics:
+    for topic in topics.topics:
         send_mass_email.delay(topic, year, week, testing=False)

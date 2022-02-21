@@ -1,5 +1,6 @@
 {% if ctx.weekly_subscribe_form %}
 <div class="weekly-subscribe-form">
+    <p class="smaller-font">Newsletter sent every monday with a digest of the previous week.</p>
     <form method="POST">
         {% csrf_token %}
         {{ ctx.weekly_subscribe_form.as_ul }}

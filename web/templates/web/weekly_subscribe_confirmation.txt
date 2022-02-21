@@ -1,5 +1,5 @@
 Hi!
-you are subscribed to the weekly {{ctx.topic.name}} digest.
+you are subscribed to the weekly {{ctx.topic.name|safe}} digest.
 
 You can unsubscribe any time by writing "unsubscribe" to {{ctx.topic.email|safe}}.
 
