@@ -496,6 +496,8 @@ def worker_update_all_discussions(self):
 
         step = 100
 
+        logger.debug(f"reddit update all: current index {current_index}")
+
         for d in q[current_index : current_index + step].iterator():
             query_has_results = True
 
@@ -524,6 +526,8 @@ def worker_update_all_discussions(self):
 
         try:
             submissions = reddit.info(ps)
+            for s in submissions:
+                s.title  # preload
         except Exception as e:
             logger.error(f"reddit update all: reddit.info: {e}")
             sentry_sdk.capture_exception(e)
