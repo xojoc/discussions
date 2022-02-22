@@ -1,9 +1,10 @@
-from ninja import NinjaAPI, ModelSchema, Schema
-from ninja.security import HttpBearer
-from . import models, util
-from typing import List
 from datetime import date
+from typing import List
 
+from ninja import ModelSchema, NinjaAPI, Schema
+from ninja.security import HttpBearer
+
+from . import models, util
 
 api = NinjaAPI(version="v0")
 api.title = "Discussions API"

@@ -46,8 +46,20 @@ class DiscussionAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(models.Discussion, DiscussionAdmin)
+class SubscriberAdmin(admin.ModelAdmin):
+    list_display = [
+        "topic",
+        "confirmed",
+        "unsubscribed",
+        "unsubscribed_at",
+        "email",
+        "subscribed_from",
+    ]
+    list_filter = ["confirmed", "unsubscribed", "topic"]
+    ordering = ["topic", "confirmed", "-unsubscribed", "email"]
 
-admin.site.register(
-    [models.Subscriber, models.APIClient, models.Tweet, models.Statistics]
-)
+
+admin.site.register(models.Discussion, DiscussionAdmin)
+admin.site.register(models.Subscriber, SubscriberAdmin)
+
+admin.site.register([models.APIClient, models.Tweet, models.Statistics])

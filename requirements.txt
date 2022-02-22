@@ -12,11 +12,11 @@ celery==5.2.3; python_version >= "3.7"
 certifi==2021.10.8; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6"
 cffi==1.15.0
 charset-normalizer==2.0.12; python_full_version >= "3.6.0" and python_version >= "3.6"
-cleanurl==0.1.4; python_version >= "3.9" and python_version < "4.0"
+cleanurl==0.1.6; python_version >= "3.9" and python_version < "4.0"
 click-didyoumean==0.3.0; python_full_version >= "3.6.2" and python_full_version < "4.0.0" and python_version >= "3.7"
 click-plugins==1.1.1; python_version >= "3.7"
 click-repl==0.2.0; python_version >= "3.7"
-click==8.0.3; python_full_version >= "3.6.2" and python_full_version < "4.0.0" and python_version >= "3.7"
+click==8.0.4; python_full_version >= "3.6.2" and python_full_version < "4.0.0" and python_version >= "3.7"
 colorama==0.4.4; python_version >= "3.7" and python_full_version < "3.0.0" and platform_system == "Windows" or platform_system == "Windows" and python_version >= "3.7" and python_full_version >= "3.5.0"
 constantly==15.1.0; python_full_version >= "3.6.7" and python_version >= "3.6"
 cryptography==36.0.1
@@ -41,7 +41,7 @@ importlib-metadata==4.11.1; python_version >= "3.7"
 incremental==21.3.0; python_full_version >= "3.6.7" and python_version >= "3.6"
 joblib==1.1.0; python_version >= "3.7"
 kombu==5.2.3; python_version >= "3.7"
-lxml==4.7.1; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
+lxml==4.8.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
 markdown==3.3.6; python_version >= "3.6"
 msgpack==1.0.3; python_version >= "3.6"
 nltk==3.7; python_version >= "3.7"

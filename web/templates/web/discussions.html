@@ -72,12 +72,12 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	</div>
 	<ul>
 		{% for d in discussions %}
-		<li><span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a></span>
-			<span class="similar-search">(<a href="{{d.story_url|discussions_url}}"
-					title="Discussions and related articles for this URL">Lookup URL</a>)</span>
-			<br />
-			{{d.title}} <span class="similar-search">(<a href="{{d.title|discussions_url}}"
+		<li>{{d.title}} <span class="similar-search">(<a href="{{d.title|discussions_url}}"
 					title="Discussions with similar title">Search by title</a>)</span>
+			<br />
+			<span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a>
+				<span class="similar-search">(<a href="{{d.story_url|discussions_url}}"
+						title="Discussions and related articles for this URL">Lookup URL</a>)</span></span>
 			<br />
 			<!--
 		 rel="noreferrer noopener" target="_blank"
@@ -190,16 +190,14 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 		<ul>
 			{% for inbound_resource in ctx.inbound_resources %}
 			<!-- Inbound resource id: {{inbound_resource.id}} -->
-			<li>
+			<li>{{inbound_resource.title}} <span class="similar-search">(<a
+						href="{{inbound_resource.title|discussions_url}}" title="Discussions with similar title">Search
+						by title</a>)</span>
+				<br />
 				<span class="discussions_story_url">
 					<a href="{{inbound_resource.complete_url}}"
 						title="{% firstof inbound_resource.title inbound_resource.complete_url %}">{{inbound_resource.complete_url}}</a>
 				</span>
-				<br />
-				{{inbound_resource.title}} <span class="similar-search">(<a
-						href="{{inbound_resource.title|discussions_url}}" title="Discussions with similar title">Search
-						by title</a>)</span>
-
 				<br />
 				<a href="{{inbound_resource.complete_url | discussions_url}}"
 					title="Discussions for «{% firstof inbound_resource.title inbound_resource.complete_url %}»">{{ inbound_resource.discussions_comment_count }}

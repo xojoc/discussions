@@ -834,7 +834,11 @@ tbody td {
 }
 
 .discussions_story_url {
-	font-size: 0.65em;
+	font-size: 0.7em;
+	vertical-align: top;
+}
+.discussions_story_url .similar-search {
+	font-size: 0.8em;
 }
 .discussions_story_url a, .discussions_story_url a:visited {
 	color: black;

@@ -349,13 +349,13 @@ class Discussion(models.Model):
         seven_days_ago = timezone.now() - datetime.timedelta(days=7)
         min_comments = 2
 
+        cu = cleanurl.cleanurl(url).schemeless_url
         url = cleanurl.cleanurl(
             url,
             generic=True,
             respect_semantics=True,
             host_remap=False,
         ).schemeless_url
-        cu = cleanurl.cleanurl(url).schemeless_url
 
         ds = (
             cls.objects.filter(schemeless_story_url__iexact=url)
