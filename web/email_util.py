@@ -64,7 +64,7 @@ def worker_fetch_and_dispatch_email(self):
         message_id = __get_imap_field(message, "Message-Id")
         from_email = __get_imap_field(message, "From")
         try:
-            address = re.search(r"<([ @a-z\.0-9]+)>", from_email)[1]
+            address = re.search(r"<([ @a-zA-Z\.0-9_\-\+]+)>", from_email)[1]
             from_email = address
         except Exception:
             pass
@@ -72,7 +72,7 @@ def worker_fetch_and_dispatch_email(self):
 
         to_email = __get_imap_field(message, "To")
         try:
-            address = re.search(r"<([ @a-z\.0-9]+)>", to_email)[1]
+            address = re.search(r"<([ @a-zA-Z\.0-9_\-\+]+)>", to_email)[1]
             to_email = address
         except Exception:
             pass
