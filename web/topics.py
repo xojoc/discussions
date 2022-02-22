@@ -88,6 +88,17 @@ topics = {
             "account": "@ruby_discussions@mastodon.social",
         },
     },
+    "unix": {
+        "name": "Unix",
+        "short_description": "Unix and Unix-like operating systems",
+        "tags": {"unix"},
+        "twitter": {
+            "account": "UnixDiscussions",
+        },
+        "mastodon": {
+            "account": "@unix_discussions@mastodon.social",
+        },
+    },
     "compsci": {
         "name": "Computer science",
         "short_description": "Computer science",

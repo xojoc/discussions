@@ -272,7 +272,15 @@ def __enrich(tags, title):
         title,
         tags,
         None,
-        {"linux", "dragonflybsd", "freebsd", "netbsd", "openbsd"},
+        {
+            "dragonflybsd",
+            "freebsd",
+            "linux",
+            "netbsd",
+            "openbsd_gaming",
+            "openbsd",
+            "plan9",
+        },
         "unix",
     )
 

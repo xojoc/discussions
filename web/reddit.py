@@ -5,24 +5,25 @@ import logging
 import os
 import re
 import shutil
-import time
 import statistics
+import time
+
+import cleanurl
+import markdown
 import praw
 import prawcore
+import sentry_sdk
 import zstandard
 from celery import shared_task
 from django.conf import settings
+from django.core.cache import cache
 from django.db import IntegrityError
 from django.utils.timezone import make_aware
 from django_redis import get_redis_connection
-from discussions.settings import APP_CELERY_TASK_MAX_TIME
-from django.core.cache import cache
-from . import celery_util, worker
-from . import http, models
-import markdown
-import cleanurl
-import sentry_sdk
 
+from discussions.settings import APP_CELERY_TASK_MAX_TIME
+
+from . import celery_util, http, models, worker
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ def _url_from_selftext(selftext):
                 continue
             if u.scheme not in ("http", "https", "ftp"):
                 continue
-            if not u.parsed_url.netloc:
+            if not u.parsed_url.netloc or not u.parsed_url.hostname:
                 continue
             if __url_blacklisted(u.schemeless_url):
                 continue
@@ -79,6 +80,15 @@ def _url_from_selftext(selftext):
                 continue
             if re.match(r"^\[[a-z0-9:]+\](:[0-9]+)?$", u.parsed_url.netloc):
                 continue
+            if u.parsed_url.hostname.lower() == "localhost":
+                continue
+
+            lower_netloc = u.parsed_url.netloc.lower()
+            if (
+                lower_netloc.endswith(".py") or lower_netloc.endswith(".rs")
+            ) and not u.parsed_url.path:
+                if lower_netloc == a.text.lower():
+                    continue
 
             return a["href"]
 

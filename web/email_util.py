@@ -7,11 +7,10 @@ import re
 from typing import List
 
 from celery import shared_task
+from django.conf import settings
 from django.core.mail import send_mail as django_send_mail
 
-from discussions import settings
-
-from . import celery_util, http, weekly, util
+from . import celery_util, http, util, weekly
 
 logger = logging.getLogger(__name__)
 

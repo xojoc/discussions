@@ -14,7 +14,7 @@ from django.utils.timezone import make_aware
 
 from discussions import settings
 
-from . import celery_util, email, mastodon, models, topics
+from . import celery_util, email_util, mastodon, models, topics
 
 logger = logging.getLogger(__name__)
 
@@ -415,7 +415,7 @@ def send_mass_email(topic, year, week, testing=True):
         if testing:
             print(body)
         else:
-            email.send(
+            email_util.send(
                 f"Weekly {topics.topics[topic]['name']} digest for week {week}-{year}",
                 body,
                 topics.topics[topic]["email"],

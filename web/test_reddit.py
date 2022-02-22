@@ -15,6 +15,12 @@ class Reddit(unittest.TestCase):
             "https://mastodon.social",
             "[IPv6](http://[2001:db8::1]:80)",
             None,
+            "[Localhost](http://localhost:3000)",
+            None,
+            "[Views.py](https://views.py)",
+            None,
+            "[build.rs](https://build.rs)",
+            None,
         ]
         for h, u in zip(tests[0::2], tests[1::2]):
             hu = reddit._url_from_selftext(h)

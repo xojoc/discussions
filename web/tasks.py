@@ -8,7 +8,7 @@ from web import crawler  # noqa F401
 from web import db  # noqa F401
 from web import discussions  # noqa F401
 from web import echojs  # noqa F401
-from web import email  # noqa F401
+from web import email_util  # noqa F401
 from web import hn  # noqa F401
 from web import indexnow  # noqa F401
 from web import lobsters  # noqa F401

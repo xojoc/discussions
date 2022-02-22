@@ -5,6 +5,7 @@ import urllib
 import cleanurl
 import django.template.loader as template_loader
 from dateutil import parser as dateutil_parser
+from django.conf import settings
 from django.contrib.postgres import fields as postgres_fields
 from django.contrib.postgres.indexes import GinIndex, OpClass
 from django.contrib.postgres.search import (
@@ -24,9 +25,7 @@ from django.db.models.functions import Coalesce, Round, Upper
 from django.db.models.lookups import PostgresOperatorLookup
 from django.utils import timezone
 
-from discussions import settings
-
-from . import discussions, email, extract, tags, title, topics
+from . import discussions, email_util, extract, tags, title, topics
 
 
 class MyTrigramStrictWordSimilarity(TrigramWordBase):
@@ -847,7 +846,7 @@ class Subscriber(models.Model):
                 ]
             )
         )
-        email.send(
+        email_util.send(
             f"Confirm subscription to weekly {topics.topics[self.topic]['name']} digest",
             template_loader.render_to_string(
                 "web/weekly_subscribe_confirm.txt",
@@ -863,7 +862,7 @@ class Subscriber(models.Model):
         )
 
     def send_subscription_confirmation_email(self):
-        email.send(
+        email_util.send(
             f"Subscribed to weekly {topics.topics[self.topic]['name']} digest",
             template_loader.render_to_string(
                 "web/weekly_subscribe_confirmation.txt",
@@ -898,7 +897,7 @@ class Subscriber(models.Model):
         self.unsubscribed = False
 
     def send_unsubscribe_confirmation_email(self):
-        email.send(
+        email_util.send(
             f"Unsubscribed from weekly {topics.topics[self.topic]['name']} digest",
             template_loader.render_to_string(
                 "web/weekly_unsubscribe_confirmation.txt",

@@ -58,7 +58,6 @@ def worker_update_discussions(self):
             or story.normalized_title != normalized_title
             or story.normalized_tags != normalized_tags
         ):
-
             dirty = True
 
         if dirty:

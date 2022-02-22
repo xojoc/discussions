@@ -2,7 +2,7 @@ import functools
 import logging
 from django_redis import get_redis_connection
 from redis.exceptions import LockError
-from discussions.settings import APP_CELERY_TASK_MAX_TIME
+from django.conf import settings
 import sentry_sdk
 
 logger = logging.getLogger(__name__)
@@ -57,7 +57,9 @@ def lock_key(f):
     return "discussions:lock:" + f_path
 
 
-def singleton(timeout=APP_CELERY_TASK_MAX_TIME * 5, blocking_timeout=0.1):
+def singleton(
+    timeout=settings.APP_CELERY_TASK_MAX_TIME * 5, blocking_timeout=0.1
+):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
