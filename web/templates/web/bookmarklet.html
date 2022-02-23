@@ -9,12 +9,22 @@ Bookmarklets - discussions
 
 <p>Use the following bookmarklet to find discussions anywhere you go:</p>
 <p>
-    <a href="{% include "web/discussions_bookmarklet.js" %}" title="Discussions Bookmarklet">Discussions around the web</a>
+    <a href="{% include 'web/discussions_bookmarklet.js' %}" title="Discussions by url bookmarklet">Discussions</a>
 </p>
 <p>Bookmark the above link and click on it on any page to be redirected here. For more information about
-    bookmarklets see <a
-			 href="https://support.mozilla.org/en-US/kb/bookmarklets-perform-common-web-page-tasks">Firefox's
-    help pages</a>.</p>
+    bookmarklets see <a href="https://support.mozilla.org/en-US/kb/bookmarklets-perform-common-web-page-tasks">Firefox's
+        help pages</a>.</p>
 
+<p>The above bookmarklet searches by url. To search discussions by title, use the following bookmarklet:</p>
+<p>
+    <a href="{% include 'web/discussions_title_bookmarklet.js' %}"
+        title="Discussions by title bookmarklet">Discussions</a>
+</p>
+
+<br />
+
+<p>Alternatively you can install the <a href="{% url 'web:extension' %}" title="Browser extensions">browser
+        extension</a>.
+</p>
 
 {% endblock main %}

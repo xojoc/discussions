@@ -244,6 +244,10 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 		<p>Try searching with title: <a href="{{ctx.try_with_title|discussions_url}}">{{ctx.try_with_title}}</a></p>
 		{% endif %}
 
+		{% if ctx.try_with_url %}
+		<p>Try searching with url: <a href="{{ctx.try_with_url|discussions_url}}">{{ctx.try_with_url}}</a></p>
+		{% endif %}
+
 	</details>
 
 	{% endif %}

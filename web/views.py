@@ -159,12 +159,14 @@ def discussions_context(q):
 
 def get_submit_links(request, ctx):
     q = ctx["original_query"]
-    if not (
-        q.lower().startswith("http://") or q.lower().startswith("https://")
-    ):
-        return
+    url = None
+    if q.lower().startswith("http://") or q.lower().startswith("https://"):
+        url = quote(q)
+    else:
+        url = request.GET.get("submit_url")
 
-    url = quote(q)
+    if not url:
+        return
 
     ctx["submit_title"] = request.GET.get("submit_title") or ctx["title"] or ""
     t = quote(ctx.get("submit_title"))
@@ -191,6 +193,7 @@ def index(request, path_q=None):
         if (
             host != "localhost"
             and host != "127.0.0.1"
+            and host != "testserver"
             and host != settings.APP_DOMAIN
         ):
             r = "https://" + settings.APP_DOMAIN + request.get_full_path()
@@ -214,11 +217,19 @@ def index(request, path_q=None):
         u = urllib3.util.parse_url(url)
         if u.host:
             ctx["try_with_site_prefix"] = "site:" + u.host
+
     if ctx.get("submit_title") and not (
         ctx.get("submit_title").startswith("http://")
         or ctx.get("submit_title").startswith("https://")
     ):
         ctx["try_with_title"] = ctx.get("submit_title")
+
+    if request.GET.get("submit_url") and (
+        request.GET.get("submit_url").lower().startswith("http://")
+        or request.GET.get("submit_url").lower().startswith("https://")
+        or request.GET.get("submit_url").lower().startswith("ftp://")
+    ):
+        ctx["try_with_url"] = request.GET.get("submit_url")
 
     ctx["form"] = forms.QueryForm(request.GET)
     ctx["form"].fields["tags"].choices = [
