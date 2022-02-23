@@ -13,15 +13,7 @@ from django_redis import get_redis_connection
 
 from discussions import settings
 
-from . import (
-    discussions,
-    forms,
-    mastodon,
-    models,
-    topics,
-    util,
-    weekly,
-)
+from . import discussions, forms, mastodon, models, topics, util, weekly
 
 logger = logging.getLogger(__name__)
 
