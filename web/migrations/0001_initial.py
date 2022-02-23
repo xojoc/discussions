@@ -8,9 +8,7 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ("web", "0000_create_extensions"),
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
