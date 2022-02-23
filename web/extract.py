@@ -1,4 +1,5 @@
 from . import http
+import urllib
 import logging
 
 logger = logging.getLogger(__name__)
@@ -152,3 +153,55 @@ def _fetch_parse_extract(u):
     h = http.parse_html(r)
     s = structure(h)
     return s
+
+
+def get_github_user_twitter(url):
+    if not url:
+        return
+
+    u = None
+    try:
+        u = urllib.parse.urlparse(url)
+    except Exception:
+        return
+
+    if not u:
+        return
+
+    if u.netloc != "github.com" and u.netloc != "www.github.com":
+        return
+
+    if not u.path:
+        return
+
+    parts = u.path.split("/")
+
+    if len(parts) < 3:
+        return
+
+    api_url = f"https://api.github.com/repos/{parts[1]}/{parts[2]}"
+
+    response = http.fetch(
+        api_url, timeout=30, with_retries=False, with_cache=True
+    )
+
+    if not response or not response.ok:
+        return
+
+    js = response.json()
+    if not js.get("owner"):
+        return
+
+    if not js.get("owner").get("url"):
+        return
+
+    response = http.fetch(
+        js.get("owner").get("url"),
+        timeout=30,
+        with_retries=False,
+        with_cache=True,
+    )
+    if not response or not response.ok:
+        return
+
+    return response.json().get("twitter_username")

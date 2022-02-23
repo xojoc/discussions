@@ -1,14 +1,14 @@
-from django.conf import settings
-from django_redis import get_redis_connection
-import requests
-import cachecontrol
-from cachecontrol import CacheControl
-from cachecontrol.cache import BaseCache
-import datetime
+import logging
 import time
+
+import cachecontrol
+import requests
 import urllib3
 from bs4 import BeautifulSoup
-import logging
+from cachecontrol import CacheControl
+from cachecontrol.cache import BaseCache
+from django.conf import settings
+from django_redis import get_redis_connection
 
 logger = logging.getLogger(__name__)
 
@@ -22,10 +22,8 @@ class _CustomRedisCache(BaseCache):
         if not expires:
             self.conn.setex(self.prefix + key, 60 * 60 * 24 * 5, value)
         else:
-            expires = expires - datetime.utcnow()
-            self.conn.setex(
-                self.prefix + key, int(expires.total_seconds()), value
-            )
+            expires = max(expires, 60 * 60 * 24 * 5)
+            self.conn.setex(self.prefix + key, expires, value)
 
     def get(self, key):
         return self.conn.get(self.prefix + key)
@@ -90,6 +88,7 @@ def fetch(
     rate_limiting=True,
     timeout=30,
     with_retries=True,
+    with_cache=False,
 ):
     url = cachecontrol.CacheController.cache_url(url)
     request = requests.Request(
@@ -98,7 +97,7 @@ def fetch(
         headers=_default_headers(),
         hooks=requests.hooks.default_hooks(),
     )
-    c = client(with_retries=with_retries)
+    c = client(with_retries=with_retries, with_cache=with_cache)
 
     # r = get_redis_connection("default")
     # adapter = c.get_adapter(url=request.url)

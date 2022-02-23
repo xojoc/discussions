@@ -733,14 +733,33 @@ class Resource(models.Model):
         return ils
 
     @property
-    def author(self):
-        # for now extract at runtime. In the future possibly add to the model
-        if self.clean_html:
-            s = extract.structure(self.clean_html)
-            if s:
-                return s.author
+    def story_url(self):
+        if not self.scheme or not self.url:
+            return None
 
-        return extract.Author()
+        return f"{self.scheme}://{self.url}"
+
+    @property
+    def author(self):
+        # todo: for now extract at runtime. In the future possibly add to the model
+        author = extract.Author()
+        if self.clean_html:
+            try:
+                s = extract.structure(self.clean_html)
+                if s and s.author:
+                    author = s.author
+            except Exception:
+                pass
+
+        if not author.twitter_account:
+            try:
+                author.twitter_account = extract.get_github_user_twitter(
+                    self.story_url
+                )
+            except Exception:
+                pass
+
+        return author
 
 
 class Link(models.Model):

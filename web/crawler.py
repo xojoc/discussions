@@ -1,16 +1,19 @@
-import time
-import urllib3
-from . import models, http, extract, title, tags
-from django.utils import timezone
 import datetime
 import logging
-from django_redis import get_redis_connection
+import time
+
+import cleanurl
+import urllib3
 from celery import shared_task
-from discussions.settings import APP_CELERY_TASK_MAX_TIME
-from web import celery_util
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-import cleanurl
+from django.utils import timezone
+from django_redis import get_redis_connection
+
+from discussions.settings import APP_CELERY_TASK_MAX_TIME
+from web import celery_util
+
+from . import extract, http, models, tags, title
 
 logger = logging.getLogger(__name__)
 
