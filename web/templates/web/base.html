@@ -4,8 +4,8 @@
 <html lang="en">
 
 	<head>
-		<meta charset=utf-8>
-		<meta name=viewport content="width=device-width, initial-scale=1">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet"> -->
 		<link rel="stylesheet" href="{% static "style.css" %}" />
 		<link rel="icon" type="image/png" href="{% static "favicon-32x32.png" %}">
@@ -53,10 +53,10 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	</head>
 
 	<body>
-		<div id=wrapper>
+		<div id="wrapper">
 			<header>
-				<div id=title>
-					<h1 id=site_title><a href="/" title="Discussions around the web">Discussions</a></h1>
+				<div id="title">
+					<h1 id="site_title"><a href="/" title="Discussions around the web">Discussions</a></h1>
 				</div>
 			</header>
 
@@ -82,12 +82,24 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 			{% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
 
 			<footer>
-				<p>
-					<a href="/social" title="Social accounts and bots">Social accounts/bots</a> — <a href="/statistics"
-						title="Discussions statistics">Statistics</a> — Made by <a href="https://xojoc.pw"
-						title="My home page">Alexandru Cojocaru</a> (<a class="u-email email" href="mailto:hi@xojoc.pw"
-						title="Contact me">hi@xojoc.pw</a>)
-				</p>
+				<div class="footer-wrapper">
+					<ul>
+						<li><a href="/social" title="Social accounts and bots">Social accounts/bots</a></li>
+						<li><a href="/weekly" title="Weekly digest">Weekly newsletter</a></li>
+					</ul>
+					<ul>
+						<li><a href="/extension" title="Browser extensions">Browser extension</a></li>
+						<li><a href="/bookmarklet" title="Bookmarklets">Bookmarklet</a></li>
+						<li>Comments on your <a href="/website" title="Display discussions on your website">Website</a>
+						</li>
+						<li><a href="/api/v0/docs" title="Discussions API">API</a></li>
+					</ul>
+					<ul>
+						<li><a href="/statistics" title="Discussions statistics">Statistics</a></li>
+						<li>Made by <a href="https://xojoc.pw" title="My home page">Alexandru Cojocaru</a></li>
+						<li><a class="u-email email" href="mailto:hi@discu.eu" title="Contact us">hi@discu.eu</a></li>
+					</ul>
+				</div>
 			</footer>
 		</div>
 	</body>

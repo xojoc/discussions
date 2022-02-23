@@ -1,8 +1,44 @@
 from django.contrib.sitemaps import Sitemap
-from .models import Discussion
+from django.urls import reverse
 
 # from django.db.models import Sum, Count, Max
-from . import util
+from . import topics, util, weekly
+from .models import Discussion
+
+
+class StaticViewSitemap(Sitemap):
+    def items(self):
+        return [
+            "web:bookmarklet",
+            "web:extension",
+            "web:social",
+            "web:statistics",
+            "web:website",
+            "web:weekly_index",
+            "api-v0:openapi-swagger",
+        ]
+
+    def location(self, item):
+        return reverse(item)
+
+
+class WeeklySitemap(Sitemap):
+    def items(self):
+        its = []
+        for topic_key in topics.topics:
+            its.append(("web:weekly_topic", [topic_key]))
+            for yearweek in weekly.last_nth_yearweeks(topic_key, 10):
+                its.append(
+                    (
+                        "web:weekly_topic_week",
+                        [topic_key, yearweek[0], yearweek[1]],
+                    )
+                )
+
+        return its
+
+    def location(self, item):
+        return reverse(item[0], args=item[1])
 
 
 class DiscussionsSitemap(Sitemap):

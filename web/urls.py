@@ -1,9 +1,8 @@
 from django.urls import path
-from django.views.generic.base import RedirectView
-from . import views
 from django.views.generic import TemplateView
+from django.views.generic.base import RedirectView
 
-# from .api import api
+from . import views
 
 app_name = "web"
 
@@ -33,16 +32,23 @@ urlpatterns = [
         name="weekly_topic_week",
     ),
     path("sentry-debug/", sentry_trigger_error),
-    path("social/", views.social),
+    path("social/", views.social, name="social"),
     path("twitter/", RedirectView.as_view(url="/social/")),
-    path("statistics/", views.statistics),
+    path("statistics/", views.statistics, name="statistics"),
     path(
-        "extension/", TemplateView.as_view(template_name="web/extension.html")
+        "extension/",
+        TemplateView.as_view(template_name="web/extension.html"),
+        name="extension",
     ),
-    path("website/", TemplateView.as_view(template_name="web/website.html")),
+    path(
+        "website/",
+        TemplateView.as_view(template_name="web/website.html"),
+        name="website",
+    ),
     path(
         "bookmarklet/",
         TemplateView.as_view(template_name="web/bookmarklet.html"),
+        name="bookmarklet",
     ),
     path(
         "opensearch.xml",
