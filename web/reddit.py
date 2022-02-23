@@ -105,8 +105,8 @@ def __process_archive_line(line):
         return
     if p.get("hidden"):
         return
-    if p.get("media"):
-        return
+    # if p.get("media"):
+    #     return
     if (p.get("score") or 0) < 1:
         return
     if (p.get("num_comments") or 0) <= 2:
@@ -305,8 +305,8 @@ def __process_post(p):
     if p.hidden:
         return
 
-    if p.media:
-        return
+    # if p.media:
+    #     return
 
     url = None
     if p.is_self:
@@ -436,7 +436,7 @@ def fetch_discussions(index):
 
         logger.debug(f"reddit update: {name}: median {delay}")
 
-        delay = max(60 * 15, min(delay, 60 * 60 * 24 * 7))
+        delay = max(60 * 15, min(delay, 60 * 60 * 24 * 3))
 
         td = datetime.timedelta(seconds=delay)
         logger.debug(f"reddit update: {name}: delay {td}")
