@@ -444,7 +444,7 @@ footer {
 	padding-left: 0.5em;
 	padding-right: 0.5em;
 	padding-top: 0.4em;
-	padding-bottom: 0.5em;
+	padding-bottom: 0.8em;
 /*	font-weight: bold; */
 	background-color: #f9f9f9;
 	box-shadow: 0 -0.05em 1em 0.1em #00000010;
@@ -463,6 +463,7 @@ footer .footer-wrapper {
 
 footer ul li {
 	list-style: none;
+	padding-top: 0.15em;
 }
 
 footer a, footer a:visited {
