@@ -220,6 +220,7 @@ def tweet_discussions():
         if (
             story.story_url == "https://google.com"
             or story.story_url == "https://asp.net"
+            or story.story_url == "https://www.privacytools.io/#photos"
         ):
             continue
         related_discussions, _, _ = models.Discussion.of_url(
