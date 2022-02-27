@@ -205,6 +205,17 @@ def post_discussions():
     logger.debug(f"mastodon: potential stories {stories.count()}")
 
     for story in stories:
+        # fixme: skip for now
+        if (
+            story.story_url == "https://google.com"
+            or story.story_url == "https://google.com/"
+            or story.story_url == "https://asp.net"
+            or story.story_url == "https://www.privacytools.io/#photos"
+            or story.story_url == "https://example.com"
+            or story.story_url == "https://www.example.com"
+        ):
+            continue
+
         related_discussions, _, _ = models.Discussion.of_url(
             story.story_url, only_relevant_stories=False
         )
