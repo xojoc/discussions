@@ -31,6 +31,10 @@ categories = {
         "name": "Project",
         "sort": 30,
     },
+    "video": {
+        "name": "Video",
+        "sort": 40,
+    },
 }
 
 
@@ -61,6 +65,10 @@ def __category(story):
         if path.startswith("/crates/"):
             return "project"
 
+    # fixme: look for parameters too
+    if host in ("youtu.be", "youtube.com", "vimeo.com"):
+        return "video"
+
     return "article"
 
 
@@ -69,6 +77,7 @@ def __base_query(topic):
         models.Discussion.objects.exclude(schemeless_story_url__isnull=True)
         .exclude(schemeless_story_url="")
         .exclude(scheme_of_story_url__isnull=True)
+        .exclude(scheme_of_story_url="")
         .exclude(created_at__isnull=True)
     )
     tags = topics.topics[topic].get("tags")
@@ -208,6 +217,8 @@ def _get_digest(topic, year, week):
             stories[:] = stories[:10]
         elif category == "release":
             stories[:] = stories[:10]
+        elif category == "video":
+            stories[:] = stories[:7]
     return digest
 
 
@@ -416,7 +427,7 @@ def send_mass_email(topic, year, week, testing=True):
             print(body)
         else:
             email_util.send(
-                f"Weekly {topics.topics[topic]['name']} digest for week {week}-{year}",
+                f"Weekly {topics.topics[topic]['name']} digest for week {week}/{year}",
                 body,
                 topics.topics[topic]["email"],
                 subscriber.email,

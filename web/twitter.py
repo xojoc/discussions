@@ -218,12 +218,10 @@ def tweet_discussions():
     for story in stories:
         # fixme: skip for now
         if (
-            story.story_url == "https://google.com"
-            or story.story_url == "https://google.com/"
-            or story.story_url == "https://asp.net"
+            story.canonical_story_url == "google.com"
+            or story.canonical_story_url == "asp.net"
             or story.story_url == "https://www.privacytools.io/#photos"
-            or story.story_url == "https://example.com"
-            or story.story_url == "https://www.example.com"
+            or story.canonical_story_url == "example.com"
         ):
             continue
 
