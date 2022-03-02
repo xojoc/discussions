@@ -211,6 +211,8 @@ def post_discussions():
             or story.canonical_story_url == "asp.net"
             or story.story_url == "https://www.privacytools.io/#photos"
             or story.canonical_story_url == "example.com"
+            or story.canonical_story_url == "itch.io"
+            or story.canonical_story_url == "crates.io"
         ):
             continue
 
