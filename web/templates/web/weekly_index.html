@@ -36,7 +36,8 @@ Free weekly newsletter with articles, tutorials, projects and releases about top
         <ul class="weekly-index-topics">
             {% for topic_key, topic in ctx.topics.items %}
             <li class="weekly-index-topic">
-                <a href="{% url 'web:weekly_topic' topic_key %}" title="{{topic.short_description}}">{{topic.name}}</a>
+                <a href="{% url 'web:weekly_topic' topic_key %}"
+                    title="{{topic.short_description}} newsletter">{{topic.name}}</a>
             </li>
             {% endfor %}
         </ul>
