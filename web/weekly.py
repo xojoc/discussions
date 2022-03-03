@@ -20,19 +20,19 @@ logger = logging.getLogger(__name__)
 
 categories = {
     "article": {
-        "name": "Article",
+        "name": "Articles",
         "sort": 10,
     },
     "release": {
-        "name": "Release",
+        "name": "Releases",
         "sort": 20,
     },
     "project": {
-        "name": "Project",
+        "name": "Projects",
         "sort": 30,
     },
     "video": {
-        "name": "Video",
+        "name": "Videos",
         "sort": 40,
     },
 }
@@ -226,7 +226,11 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
     breadcrumbs = []
     breadcrumbs.append({"name": "Home", "url": "/"})
     breadcrumbs.append(
-        {"name": "Weekly digest", "url": reverse("web:weekly_index")}
+        {
+            "name": "Weekly newsletter",
+            "url": reverse("web:weekly_index"),
+            # "classes": "bold",
+        }
     )
     if topic:
         breadcrumbs.append(

@@ -1,22 +1,35 @@
 {% extends "web/base.html" %}
 
+{% load static %}
 {% load humanize %}
 {% load util %}
 
 {% block title %}
-Weekly digests - discussions
+Weekly newsletter - discussions
 {% endblock title %}
+
+{% block meta_description %}
+Free weekly newsletter with articles, tutorials, projects and releases about topics you care about.
+{% endblock meta_description %}
 
 {% block main %}
 <div class="weekly">
-    <h2>Weekly digest</h2>
+    <h2>Free weekly newsletter with the latest from the web</h2>
+    <p>Easily get the latest content, from around the web, automatically collated, filtered and delivered straight to
+        you each monday.</p>
 
-    <div class="weekly-main">
-        <p>
-            Keep up with what you care about. Receive a weekly digest every monday with a summary of what's happening on
-            the web.
-        </p>
-        <p class="smaller-font">
+    <figure>
+        <figcaption>Example email of <a href="{% url 'web:weekly_topic_week' 'compsci' '2022' '8' %}">issue
+                8/2022</a> for
+            Computer Science</figcaption>
+        <img class="screenshot" src="{% static 'weekly_compsci_screenshot_light.png' %}"
+            alt="Screenshot of issue 8/2022 for Computer Science" />
+
+    </figure>
+
+
+    <div class=" weekly-main">
+        <p class="smaller-font text-center bold">
             Choose a topic:
         </p>
 
@@ -30,6 +43,43 @@ Weekly digests - discussions
     </div>
 
     {% include "web/weekly_subscribe_form.html" %}
+
+    <h3>Frequently asked questions</h3>
+    <h4>Will I receive spam?</h4>
+    <p>
+        Emails are sent only once a week, every monday. They are always on topic and contain the latest articles,
+        tutorials and projects.</p>
+    <p>
+        You can unsubscribe at any time, by replying "unsubscribe" or following the link at the bottom of each email.
+    </p>
+
+    <h4>How much does it cost?</h4>
+    <p>
+        The newsletter is free. Each issue may have a promoted and relevant link from one of our partners to help us
+        keep
+        this going.
+    </p>
+    <p>
+        We'll introduce a premium plan in the future to remove ads and enable more features.
+    </p>
+    <h4>How do I get in touch?</h4>
+    <p>
+        Drop us an email at: hi@discu.eu. And we'll get back as soon as possible.
+    </p>
+
+    <div class="about-me">
+        <img src="{% static 'profile_pic.jpg' %}" alt="Profile picture of Alexandru Cojocaru" width="200" />
+
+        <p class="font-italic">
+            As a software developer I need to costantly keep up with what's going on in my field and community.
+            Feeling overwhelmed with costant updates and failing to find relevant blogs to add to my feed reader,
+            I decided to build something to keep me updated and find discussions happening on Hacker News, Lobsters,
+            Reddit, etc.
+        </p>
+        <p class="text-right font-italic">
+            — Alexandru Cojocaru
+        </p>
+    </div>
 
 
     <div class="weekly-footer">

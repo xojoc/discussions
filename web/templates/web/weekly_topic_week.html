@@ -5,14 +5,14 @@
 
 
 {% block title %}
-Digest about {{ctx.topic.name}} for week {{ctx.week}}/{{ctx.year}} - discussions
+{{ctx.topic.name}} newsletter: issue for week {{ctx.week}}/{{ctx.year}} - discussions
 {% endblock title %}
 
 {% block main %}
 
 <div class="weekly">
 
-    <h2>Digest about {{ctx.topic.name}} for week {{ctx.week}}/{{ctx.year}}
+    <h2>{{ctx.topic.name}} newsletter: issue for week {{ctx.week}}/{{ctx.year}}
     </h2>
     <span class="smaller-font">From
         {{ctx.week_start|date:"j/n/Y"}} to
@@ -39,39 +39,6 @@ Digest about {{ctx.topic.name}} for week {{ctx.week}}/{{ctx.year}} - discussions
                 </p>
                 {% endif %}
 
-
-
-                <!-- {% if story.discussions %}
-            <ul class=" weekly-discussions">
-                {% for d in story.discussions %}
-        <li>
-            {{d.platform_name}}: <a href=" {{d.discussion_url}}" title="View discussion on {{platform_name}}"><span
-                    class="bold">{{d.comment_count}}</span>
-                comment{{d.comment_count|pluralize:",s"}}</a>, <span class="bold">{{d.score}}</span>
-            {{d.score_label}}
-            [<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
-            {% if d.tags %}
-            {% if platform != 'r' %}
-            Tags:
-            {% endif %}
-            {% for tag in d.tags %}
-            {% if platform_tag_url %}
-            <a href="{{platform_tag_url}}/{{tag}}"
-                title="View tag «{{tag}}» on {{platform_name}}">{{tag}}</a>{% if not forloop.last %},
-            {% endif %}
-            {% else %}
-            {{tag}}{% if not forloop.last %}, {% endif %}
-            {% endif %}
-            {% endfor %}
-            {% endif %}
-
-        
-        </li>
-
-        {% endfor %}
-    </ul>
-    {% endif %} -->
-
             </li>
             {% endfor %}
         </ul>
@@ -80,14 +47,18 @@ Digest about {{ctx.topic.name}} for week {{ctx.week}}/{{ctx.year}} - discussions
 
         {% include "web/weekly_subscribe_form.html" %}
 
+        <br />
+        <p>
+            For more, see <a href="{% url 'web:weekly_index' %}" title="Weekly newsletters">all newsletters</a>.
+        </p>
 
         {% if ctx.twitter_account or ctx.mastodon_account %}
         <div class="weekly-footer">
             <p class="weekly-follow">
                 For daily updates follow <a href="https://twitter.com/{{ctx.twitter_account}}"
-                    title="{{ctx.twitter_account}} Twitter bot">{{ctx.twitter_account}}</a> on Twitter or
+                    title="{{ctx.topic.name}} Twitter bot">{{ctx.twitter_account}}</a> on Twitter or
                 <a href="{{ctx.mastodon_account_url}}"
-                    title="{{ctx.mastodon_account}} Mastodon bot">{{ctx.mastodon_account}}</a> on Mastodon.
+                    title="{{ctx.topic.name}} Mastodon bot">{{ctx.mastodon_account}}</a> on Mastodon.
             </p>
         </div>
         {% endif %}

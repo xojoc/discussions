@@ -5,7 +5,7 @@ this week's digest for {{ctx.topic.name|safe}}:
 {% for story in stories %}
  * {{story.title|safe}}
   -> {{story.story_url|safe}}
-{% if story.total_comments %}      {{story.total_comments}} comments in {{story.total_discussions}} discussions: {{story.story_url|discussions_url_domain|safe}}
+{% if story.total_comments %}      {{story.total_comments}} comment{{story.total_comments|pluralize}} in {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}: {{story.story_url|discussions_url_domain|safe}}
 {% endif %}{% endfor %}
 {% endfor %}
 

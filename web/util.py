@@ -11,6 +11,7 @@ def discussions_url(q, with_domain=True):
     path = "/q/" + quote(q, safe="/:?&=")
     if with_domain:
         return f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}{path}"
+        # return f"{settings.APP_SCHEME}://discu.eu{path}"
     else:
         return path
 

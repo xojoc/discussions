@@ -2,7 +2,8 @@
 <div class="breadcrumbs">
     <ol vocab="https://schema.org/" typeof="BreadcrumbList">
         {% for breadcrumb in breadcrumbs %}
-        <li property="itemListElement" typeof="ListItem">
+        <li property="itemListElement" typeof="ListItem" {% if breadcrumb.classes %}class="{{breadcrumb.classes}}"
+            {% endif %}>
             <a property="item" typeof="WebPage" href="{{breadcrumb.url}}" title="{{breadcrumb.name}}">
                 <span property="name">{{breadcrumb.name}}</span>
             </a>
