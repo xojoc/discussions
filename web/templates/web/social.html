@@ -8,13 +8,13 @@ Social accounts/bots - discussions
 
 <h2>Mastodon Bots</h2>
 <p>
-    The following bots post regularly the most interesting discussions about some particular topic:
+	The following bots post regularly the most interesting discussions about some particular topic:
 </p>
 
 {% for bot in ctx.mastodon_bots %}
 
 <ul>
-    <li><a href="{{bot.link}}" title="{{bot.link_title}}">{{bot.nick}}</a> - {{bot.description}}</li>
+	<li><a href="{{bot.link}}" title="{{bot.link_title}}" rel="me">{{bot.nick}}</a> - {{bot.description}}</li>
 </ul>
 
 {% endfor %}
@@ -22,12 +22,13 @@ Social accounts/bots - discussions
 <br />
 
 <p>
-    You can find me at <a href="https://mastodon.social/@xojoc"
-				title="Mastodon profile of Alexandru Cojocaru">@xojoc</a>.
+	You can find me at <a href="https://mastodon.social/@xojoc"
+		title="Mastodon profile of Alexandru Cojocaru">@xojoc</a>.
 </p>
 
 <h3>What people say</h3>
-<iframe src="https://mastodon.technology/@musicmatze/107625490791412949/embed" class="mastodon-embed" style="max-width: 100%; border: 0" width="100%" height="200em"></iframe>
+<iframe src="https://mastodon.technology/@musicmatze/107625490791412949/embed" class="mastodon-embed"
+	style="max-width: 100%; border: 0" width="100%" height="200em"></iframe>
 
 
 <h2>Twitter Bots</h2>
@@ -38,7 +39,7 @@ Social accounts/bots - discussions
 {% for bot in ctx.twitter_bots %}
 
 <ul>
-	<li><a href="{{bot.link}}" title="{{bot.link_title}}">{{bot.nick}}</a> - {{bot.description}}</li>
+	<li><a href="{{bot.link}}" title="{{bot.link_title}}" rel="me">{{bot.nick}}</a> - {{bot.description}}</li>
 </ul>
 
 {% endfor %}
@@ -53,11 +54,11 @@ Social accounts/bots - discussions
 
 <h2>Coming soon</h2>
 <p>
-Coming soon Telegram and Tumblr (maybe) bots.
+	Coming soon Telegram and Tumblr (maybe) bots.
 </p>
 
 <p>
-If you would like to see a bot for some other topic, drop me an email: hi@xojoc.pw
+	If you would like to see a bot for some other topic, drop me an email: hi@xojoc.pw
 </p>
 
 
