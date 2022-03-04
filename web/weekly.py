@@ -126,18 +126,25 @@ def all_yearweeks(topic):
 
 
 def last_nth_yearweeks(topic, n):
-    days_ago = datetime.datetime.now() - datetime.timedelta(days=(n * 1.3) * 7)
+    # days_ago = datetime.datetime.now() - datetime.timedelta(days=(n * 1.3) * 7)
+    # yearweeks = set()
+    # stories = (
+    #     __base_query(topic)
+    #     .filter(created_at__gte=days_ago)
+    #     .annotate(created_at_date=TruncDay("created_at"))
+    #     .values("created_at_date")
+    #     .distinct()
+    #     .order_by()
+    # )
+    # for s in stories.iterator():
+    #     ic = s["created_at_date"].isocalendar()
+    #     yearweeks.add((ic.year, ic.week))
+
     yearweeks = set()
-    stories = (
-        __base_query(topic)
-        .filter(created_at__gte=days_ago)
-        .annotate(created_at_date=TruncDay("created_at"))
-        .values("created_at_date")
-        .distinct()
-        .order_by()
-    )
-    for s in stories.iterator():
-        ic = s["created_at_date"].isocalendar()
+    d = datetime.datetime.now()
+    for _ in range(n):
+        d -= datetime.timedelta(days=7)
+        ic = d.isocalendar()
         yearweeks.add((ic.year, ic.week))
 
     return sorted(yearweeks, reverse=True)[:n]
