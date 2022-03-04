@@ -159,7 +159,7 @@ def post_story(title, url, tags, platforms, already_posted_by, comment_count):
         ):
             if post_id:
                 try:
-                    __sleep(11, 23)
+                    __sleep(23, 47)
                     repost(post_id, bot_name)
                     posted_by.append(bot_name)
                 except Exception as e:

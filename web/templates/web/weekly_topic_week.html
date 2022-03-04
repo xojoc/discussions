@@ -34,8 +34,9 @@
                 {% if story.total_comments %}
                 <p class="weekly-discussions">
                     <a href="{{story.story_url|discussions_url}}"
-                        title="Discussions for «{{story.title}}»">{{story.total_comments}} comments</a> in
-                    {{story.total_discussions}} discussions.
+                        title="Discussions for «{{story.title}}»">{{story.total_comments}}
+                        comment{{story.total_comments|pluralize}}</a> in
+                    {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}
                 </p>
                 {% endif %}
 

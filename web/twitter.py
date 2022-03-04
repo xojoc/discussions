@@ -168,7 +168,7 @@ def tweet_story(
         ):
             if tweet_id:
                 try:
-                    __sleep(11, 23)
+                    __sleep(23, 47)
                     retweet(tweet_id, bot_name)
                     tweeted_by.append(bot_name)
                 except Exception as e:
