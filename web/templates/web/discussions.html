@@ -66,6 +66,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	{% if ctx.display_discussions %}
 
+	{% comment %}
 	{% if ctx.is_url %}
 
 	<h2>{{ctx.title}}</h2>
@@ -97,6 +98,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	</ul>
 
 	{% else %}
+	{% endcomment %}
+
 	{% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
 	<div id="platform_{{platform}}" class="platform_discussions">
 		<h3>{{ platform_name }}</h3>
@@ -116,22 +119,26 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 			<a href="{{d.discussion_url}}" title="View discussion on {{platform_name}}" rel="nofollow"><span
 					class="bold">{{d.comment_count}}</span>
-				comment{{d.comment_count|pluralize:",s"}}</a>, <span class="bold">{{d.score}}</span>
+				comment{{d.comment_count|pluralize:",s"}}</a>, {{d.score}}
 			{{d.score_label}}
 			[<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
-			{% if d.tags %}
-			{% if platform != 'r' %}
-			Tags:
-			{% endif %}
-			{% for tag in d.tags %}
-			{% if platform_tag_url %}
-			<a href="{{platform_tag_url}}/{{tag}}" title="View tag «{{tag}}» on {{platform_name}}"
-				rel="nofollow">{{tag}}</a>{% if not forloop.last %}, {% endif %}
-			{% else %}
-			{{tag}}{% if not forloop.last %}, {% endif %}
-			{% endif %}
-			{% endfor %}
-			{% endif %}
+			<span class="smaller-font">
+				{% if d.tags %}
+				{% if platform != 'r' %}
+				Tags:
+				{% endif %}
+				{% for tag in d.tags %}
+				{% comment %}
+				{% if platform_tag_url %}
+				<a href="{{platform_tag_url}}/{{tag}}" title="View tag «{{tag}}» on {{platform_name}}"
+					rel="nofollow">{{tag}}</a>{% if not forloop.last %}, {% endif %}
+				{% else %}
+				{% endcomment %}
+				{{tag}}{% if not forloop.last %}, {% endif %}
+
+				{% endfor %}
+				{% endif %}
+			</span>
 
 			<!--Id: {{d.platform_id}}
 		 Normalized tags: {{d.normalized_tags}}
@@ -144,7 +151,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	</ul>
 	{% endfor %}
 
-	{% endif %}
+
 
 	{% else %}
 
