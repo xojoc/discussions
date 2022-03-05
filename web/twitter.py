@@ -168,13 +168,13 @@ def tweet_story(
         ):
             if tweet_id:
                 try:
-                    __sleep(23, 47)
+                    __sleep(35, 47)
                     retweet(tweet_id, bot_name)
                     tweeted_by.append(bot_name)
                 except Exception as e:
                     logger.error(f"twitter {bot_name}: {e}")
                     sentry_sdk.capture_exception(e)
-                    __sleep(7, 13)
+                    __sleep(13, 27)
             else:
                 if bot_name in ("HNDiscussions"):
                     if comment_count < 200:
@@ -185,7 +185,7 @@ def tweet_story(
                 except Exception as e:
                     logger.error(f"twitter {bot_name}: {e}: {status}")
                     sentry_sdk.capture_exception(e)
-                    __sleep(2, 5)
+                    __sleep(13, 27)
 
             __sleep(4, 7)
 

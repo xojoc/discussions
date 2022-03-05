@@ -159,13 +159,13 @@ def post_story(title, url, tags, platforms, already_posted_by, comment_count):
         ):
             if post_id:
                 try:
-                    __sleep(23, 47)
+                    __sleep(35, 47)
                     repost(post_id, bot_name)
                     posted_by.append(bot_name)
                 except Exception as e:
                     logger.error(f"mastodon {bot_name}: {e}")
                     sentry_sdk.capture_exception(e)
-                    __sleep(7, 13)
+                    __sleep(13, 27)
             else:
                 if bot_name in ("HNDiscussions"):
                     if comment_count < 200:
@@ -176,7 +176,7 @@ def post_story(title, url, tags, platforms, already_posted_by, comment_count):
                 except Exception as e:
                     logger.error(f"mastodon {bot_name}: {e}: {status}")
                     sentry_sdk.capture_exception(e)
-                    __sleep(2, 5)
+                    __sleep(13, 27)
 
             __sleep(4, 7)
 
