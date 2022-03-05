@@ -172,7 +172,12 @@ def tweet_story(
                     retweet(tweet_id, bot_name)
                     tweeted_by.append(bot_name)
                 except Exception as e:
-                    logger.error(f"twitter {bot_name}: {e}")
+                    response = ""
+                    if e.response:
+                        response = e.response.content or ""
+                    logger.error(
+                        f"twitter: tweet: {bot_name}: {e}\n\n{response}"
+                    )
                     sentry_sdk.capture_exception(e)
                     __sleep(13, 27)
             else:
@@ -183,7 +188,12 @@ def tweet_story(
                     tweet_id = tweet(status, bot_name)
                     tweeted_by.append(bot_name)
                 except Exception as e:
-                    logger.error(f"twitter {bot_name}: {e}: {status}")
+                    response = ""
+                    if e.response:
+                        response = e.response.content or ""
+                    logger.error(
+                        f"twitter: retweet: {bot_name}: {e}: {status}\n\n{response}"
+                    )
                     sentry_sdk.capture_exception(e)
                     __sleep(13, 27)
 

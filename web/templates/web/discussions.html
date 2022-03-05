@@ -66,6 +66,37 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	{% if ctx.display_discussions %}
 
+	{% if ctx.is_url %}
+
+	<h2>{{ctx.title}}</h2>
+	<span class="discussions_story_url"><a href="{{ctx.absolute_url}}" title="{{ctx.title}}"
+			rel="nofollow">{{ctx.absolute_url}}</a>
+	</span>
+	<ul class="list-no-style">
+		{% for d in ctx.discussions %}
+		<li><span class="bold">{{d.platform_name}}</span>: <a href="{{d.discussion_url}}"
+				title="{{d.platform_name}}: {{d.title}}" rel="nofollow"><span class="bold">{{d.comment_count}}</span>
+				comment{{d.comment_count|pluralize:",s"}}</a> <span class="smaller-font">{{d.score}}
+				{{d.score_label}}
+				[<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
+				{% if d.tags %}
+				{% for tag in d.tags %}
+				{{tag}}{% if not forloop.last %}, {% endif %}
+				{% endfor %}
+				{% endif %}
+			</span>
+
+			<!--Id: {{d.platform_id}}
+	 Normalized tags: {{d.normalized_tags}}
+	 Normalized title: {{d.normalized_title}}
+	 Canonical url: {{d.canonical_story_url}}
+	-->
+		</li>
+
+		{% endfor %}
+	</ul>
+
+	{% else %}
 	{% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
 	<div id="platform_{{platform}}" class="platform_discussions">
 		<h3>{{ platform_name }}</h3>
@@ -85,7 +116,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 			<a href="{{d.discussion_url}}" title="View discussion on {{platform_name}}" rel="nofollow"><span
 					class="bold">{{d.comment_count}}</span>
-				comment{{d.comment_count|pluralize:",s"}}</a>, <span class="bold">{{d.score}}</span> {{d.score_label}}
+				comment{{d.comment_count|pluralize:",s"}}</a>, <span class="bold">{{d.score}}</span>
+			{{d.score_label}}
 			[<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
 			{% if d.tags %}
 			{% if platform != 'r' %}
@@ -112,6 +144,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	</ul>
 	{% endfor %}
 
+	{% endif %}
+
 	{% else %}
 
 	<br />
@@ -119,7 +153,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	<p>Search for discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker
 			News</a>,
 		<a href="https://lobste.rs/" title='Lobsters'>Lobsters</a>, <a href="https://www.reddit.com/"
-			title='Reddit'>Reddit</a>, <a href="http://lambda-the-ultimate.org" title="Lambda the Ultimate">Lambda the
+			title='Reddit'>Reddit</a>, <a href="http://lambda-the-ultimate.org" title="Lambda the Ultimate">Lambda
+			the
 			Ultimate</a>, <a href="https://laarc.io/" title="Laarc">Laarc</a> (and <a href="/statistics#platforms"
 			title="Platforms">others</a>)
 		for a given URL or keyword.
@@ -142,17 +177,20 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 		<li><a href="{{'Catala programming language'|discussions_url}}">Catala programming
 				language</a></li>
 		<li><a href="{{'Postgres 14'|discussions_url}}">Postgres 14</a></li>
-		<li><a href="{{'Why Most Published Research Findings Are False'|discussions_url}}">Why Most Published Research
+		<li><a href="{{'Why Most Published Research Findings Are False'|discussions_url}}">Why Most Published
+				Research
 				Findings Are False</a></li>
 	</ul>
 
 	Search for stories on a given site:
 	<ul>
-		<li><a href="{{'site:bellard.org'|discussions_url}}" title="Fabrice Bellard's website">site:bellard.org</a> -
+		<li><a href="{{'site:bellard.org'|discussions_url}}" title="Fabrice Bellard's website">site:bellard.org</a>
+			-
 			Fabrice Bellard's website</li>
 		<li><a href="{{'site:rust-lang.org'|discussions_url}}" title="Rust's website">site:rust-lang.org</a></li>
 		<li><a href="{{'site:arxiv.org programming language'|discussions_url}}"
-				title="Papers about programming languages">site:arxiv.org programming language</a> - papers on arXiv.org
+				title="Papers about programming languages">site:arxiv.org programming language</a> - papers on
+			arXiv.org
 			about programming languages</li>
 		<li><a href="{{'site:gcc.gnu.org/bugzilla'|discussions_url}}"
 				title="GCC's bug tracker">site:gcc.gnu.org/bugzilla</a> - GCC's bug tracker</li>
@@ -161,7 +199,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	<h2>How to use</h2>
 	<ul>
-		<li>Follow us on <a href="/social" title="Social accounts">Twitter or Mastodon</a> for daily updates on topics
+		<li>Follow us on <a href="/social" title="Social accounts">Twitter or Mastodon</a> for daily updates on
+			topics
 			you care about</li>
 		<li>Subscribe to the <a href="/weekly" title="Weekly newsletter">weekly newsletter</a> to get the latest on
 			topics you

@@ -75,7 +75,14 @@ def discussions_context(q):
 
     ctx["original_query"] = q
     ctx["url"] = url
-    ctx["is_url"] = url.startswith("http://") or url.startswith("https://")
+    if (
+        (url.startswith("http://") or url.startswith("https://"))
+        and " " not in url
+        and len(url) >= 10
+    ):
+        ctx["is_url"] = True
+    else:
+        ctx["is_url"] = False
     ctx["display_discussions"] = False
     ctx["nothing_found"] = False
     ctx["title"] = ""

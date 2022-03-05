@@ -294,7 +294,11 @@ class Discussion(models.Model):
         return self.get_platform_url(self.platform)
 
     @classmethod
-    def get_platform_tag_url(cls, platform, preferred_external_url):
+    def get_platform_tag_url(
+        cls,
+        platform,
+        preferred_external_url=discussions.PreferredExternalURL.Standard,
+    ):
         if platform == "r":
             if (
                 preferred_external_url
@@ -318,6 +322,10 @@ class Discussion(models.Model):
             )
 
         return None
+
+    @property
+    def platform_tag_url(self):
+        return self.get_platform_tag_url(self.platform)
 
     def score_label(self):
         if self.platform == "u":
