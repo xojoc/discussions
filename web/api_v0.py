@@ -113,7 +113,7 @@ def get_discussion_counts(request, url: str):
                 dcs.comments_by_platform.get(platform, 0) + d.comment_count
             )
 
-        dcs.tags.append(d.normalized_tags or [])
+        dcs.tags.extend(d.normalized_tags or [])
 
     dcs.tags = sorted(set(dcs.tags))
 
