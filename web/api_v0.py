@@ -55,6 +55,7 @@ class DiscussionCounts(Schema):
     discussions_url: str = None
     articles_count: int = 0
     comments_by_platform: dict[str, int] = {}
+    tags: list[str] = []
 
 
 class Message(Schema):
@@ -86,6 +87,8 @@ def get_discussion_counts(request, url: str):
     dcs.story_url = url
     dcs.discussions_url = util.discussions_url(url)
 
+    dcs.tags = []
+
     for d in ds:
         dcs.total_comments += d.comment_count
         dcs.total_score += d.score
@@ -110,10 +113,15 @@ def get_discussion_counts(request, url: str):
                 dcs.comments_by_platform.get(platform, 0) + d.comment_count
             )
 
+        dcs.tags.append(d.normalized_tags or [])
+
+    dcs.tags = sorted(set(dcs.tags))
+
     dcs.articles_count = 0
     r = models.Resource.by_url(url)
     if r is not None:
         ir = r.inbound_resources()
         if ir is not None:
             dcs.articles_count = ir.count()
+
     return dcs
