@@ -3,12 +3,13 @@ import itertools
 import logging
 import random
 import re
+import time
 
 import django.template.loader as template_loader
 import urllib3
 from celery import shared_task
 from django.db.models import Count, Sum
-from django.db.models.functions import TruncDay, Coalesce
+from django.db.models.functions import Coalesce, TruncDay
 from django.urls import reverse
 from django.utils.timezone import make_aware
 
@@ -414,8 +415,12 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
 
 
 @shared_task(ignore_result=True)
-def send_mass_email(topic, year, week, testing=True):
-    subscribers = list(models.Subscriber.mailing_list(topic))
+def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
+    if only_subscribers:
+        subscribers = only_subscribers
+    else:
+        subscribers = list(models.Subscriber.mailing_list(topic))
+
     random.shuffle(subscribers)
 
     logger.info(
@@ -443,6 +448,7 @@ def send_mass_email(topic, year, week, testing=True):
                 topics.topics[topic]["email"],
                 subscriber.email,
             )
+            time.sleep(0.1)
 
 
 @shared_task(bind=True, ignore_result=True)

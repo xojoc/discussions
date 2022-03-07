@@ -15,10 +15,15 @@ from . import celery_util, http, util, weekly
 logger = logging.getLogger(__name__)
 
 
-@shared_task(ignore_result=True)
+@shared_task(
+    ignore_result=True,
+    rate_limit=3,
+    autoretry_for=(Exception,),
+    retry_backoff=2 * 60,
+    retry_backoff_max=60 * 60,
+    retry_kwargs={"max_retries": 5},
+)
 def send_task(subject: str, body: str, from_email: str, to_emails: List[str]):
-    # if util.is_dev():
-    #     to_emails = ["hi@xojoc.pw"]
     if util.is_dev():
         subject = "[DEV] " + subject
     django_send_mail(subject, body, from_email, to_emails)
