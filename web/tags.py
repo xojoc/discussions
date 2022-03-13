@@ -120,14 +120,24 @@ def __hacker_news(tags, title):
 
 
 def __lambda_the_ultimate(tags, title):
-    return tags - {
-        "previously",
-        "general",
-        "recent discussion",
-        "previously on ltu",
+    new_tags = set()
+    for t in tags:
+        t = t.replace(" ", "-")
+        t = t.replace("/", "-")
+        new_tags.add(t)
+
+    return new_tags - {
+        "admin",
         "discussion",
-        "recently",
+        "general",
+        "guest-bloggers",
         "here",
+        "ltu-forum",
+        "previously-on-ltu",
+        "previously",
+        "recent-discussion",
+        "recently",
+        "site-discussion",
     }
 
 
@@ -206,6 +216,11 @@ def __rename(tags, title, platform=None):
         ("wasm", "webassembly", "l"),
         ("worldevents", "news", "r"),
         ("worldnews", "news", "r"),
+        ("lc", "lambda-calculus", "u"),
+        ("logic-declerative", "logic-declarative", "u"),
+        ("misc-books", "book", "u"),
+        ("software-eng", "software-engineering", "u"),
+        ("teaching-&-learning", "teaching/learning", "u"),
     ]
     for p in to_replace:
         if len(p) == 3 and p[2] != platform:

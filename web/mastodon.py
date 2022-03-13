@@ -208,11 +208,14 @@ def post_discussions():
         # fixme: skip for now
         if (
             story.canonical_story_url == "google.com"
+            or story.canonical_story_url == "google.com/trends/explore"
             or story.canonical_story_url == "asp.net"
             or story.story_url == "https://www.privacytools.io/#photos"
             or story.canonical_story_url == "example.com"
             or story.canonical_story_url == "itch.io"
             or story.canonical_story_url == "crates.io"
+            or story.canonical_story_url == "amazon.com"
+            or story.canonical_story_url == "github.com"
         ):
             continue
 
