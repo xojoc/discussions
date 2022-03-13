@@ -285,11 +285,13 @@ def tweet_discussions():
                 story.comment_count,
             )
         except tweepy.errors.Forbidden as e:
-            logger.warning(f"twitter: skip story {story.platform_id}: {e}")
+            logger.error(f"twitter: skip story {story.platform_id}: {e}")
             cache.set(key_prefix + story.platform_id, 1, timeout=60 * 5)
+            continue
         except Exception as e:
             logger.error(f"twitter: {story.platform_id}: {e}")
             sentry_sdk.capture_exception(e)
+            continue
 
         logger.debug(f"twitter {tweet_id}: {tweeted_by}")
 
