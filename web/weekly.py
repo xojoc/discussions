@@ -40,7 +40,12 @@ categories = {
 
 
 def __category(story):
-    u = urllib3.util.parse_url(story.canonical_story_url)
+    u = None
+    try:
+        u = urllib3.util.parse_url(story.canonical_story_url)
+    except Exception as e:
+        logger.error(f"weekly: url parsing failed: {e}")
+
     path, host = "", ""
     if u:
         path = u.path or ""
