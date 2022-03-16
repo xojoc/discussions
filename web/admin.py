@@ -54,9 +54,16 @@ class SubscriberAdmin(admin.ModelAdmin):
         "unsubscribed_at",
         "email",
         "subscribed_from",
+        "entry_created_at",
     ]
     list_filter = ["confirmed", "unsubscribed", "topic"]
-    ordering = ["topic", "confirmed", "-unsubscribed", "email"]
+    ordering = [
+        "topic",
+        "confirmed",
+        "-unsubscribed",
+        "email",
+        "-entry_created_at",
+    ]
 
 
 admin.site.register(models.Discussion, DiscussionAdmin)
