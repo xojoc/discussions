@@ -287,7 +287,7 @@ def tweet_discussions():
                 already_tweeted_by,
                 story.comment_count,
             )
-        except tweepy.errors.Forbidden as e:
+        except tweepy.errors.Forbidden:
             cache.set(key_prefix + story.platform_id, 1, timeout=60 * 60 * 5)
             continue
         except Exception as e:

@@ -216,6 +216,7 @@ def post_discussions():
             or story.canonical_story_url == "crates.io"
             or story.canonical_story_url == "amazon.com"
             or story.canonical_story_url == "github.com"
+            or story.story_url == "https://github.com/ToolJet/ToolJet"
         ):
             continue
 
