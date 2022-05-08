@@ -7,7 +7,7 @@ import urllib3
 from django.contrib import messages
 from django.core.cache import cache
 from django.http import HttpResponsePermanentRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django_redis import get_redis_connection
 
@@ -249,6 +249,12 @@ def index(request, path_q=None):
         response.status_code = 404
 
     return response
+
+
+def short_url(request, platform_id):
+    d = get_object_or_404(models.Discussion, pk=platform_id)
+    redirect_to = reverse("web:index", args=[d.story_url])
+    return redirect(redirect_to, permanent=False)
 
 
 def weekly_confirm_email(request):

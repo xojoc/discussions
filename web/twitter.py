@@ -289,7 +289,6 @@ def tweet_discussions():
             )
         except tweepy.errors.Forbidden as e:
             cache.set(key_prefix + story.platform_id, 1, timeout=60 * 60 * 5)
-            logger.error(f"twitter: skip story {story.platform_id}: {e}")
             continue
         except Exception as e:
             logger.error(f"twitter: {story.platform_id}: {e}")
