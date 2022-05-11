@@ -11,16 +11,18 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=models.Discussion)
 def process_discussion(sender, instance, created, **kwargs):
-    if not instance.story_url:
-        return
+    # todo: disabled for now
+    return
+    # if not instance.story_url:
+    #     return
 
-    if not created:
-        return
+    # if not created:
+    #     return
 
-    if instance.comment_count < 100:
-        return
+    # if instance.comment_count < 100:
+    #     return
 
-    indexnow.delay(util.discussions_canonical_url(instance.story_url))
+    # indexnow.delay(util.discussions_canonical_url(instance.story_url))
 
 
 @shared_task(ignore_result=True)
