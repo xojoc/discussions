@@ -144,6 +144,18 @@ topics = {
             "account": "@hn_discussions@mastodon.social",
         },
     },
+    "laarc": {
+        "name": "Laarc",
+        "short_description": "Laarc",
+        "tags": set(),
+        "platform": "a",
+        "twitter": {
+            "account": "LaarcDiscu",
+        },
+        "mastodon": {
+            "account": "@laarc_discussions@mastodon.social",
+        },
+    }
 }
 
 topics_choices = sorted([(key, item["name"]) for key, item in topics.items()])
