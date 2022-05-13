@@ -8,7 +8,7 @@ Weekly newsletter about {{ctx.topic.name}} - discussions
 {% endblock title %}
 
 {% block meta_description %}
-Free weekly newsletter about {{ctx.topic.name}} with articles, tutorials, projects and releases.
+Free weekly newsletter about {{ctx.topic.name}} with articles, projects and tutorials.
 {% endblock meta_description %}
 
 {% block main %}
@@ -18,6 +18,10 @@ Free weekly newsletter about {{ctx.topic.name}} with articles, tutorials, projec
     {% if ctx.topic_key == 'hackernews' %}
     <p>
         Get every monday a summary of the most interesting articles on Hacker News.
+    </p>
+    {% elif ctx.topic_key == 'laarc' %}
+    <p>
+        Get every monday a summary of the most interesting articles on Laarc.
     </p>
     {% else %}
     <p>
