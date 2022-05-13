@@ -7,6 +7,8 @@ from .models import Discussion
 
 
 class StaticViewSitemap(Sitemap):
+    protocol = "https"
+
     def items(self):
         return [
             "web:bookmarklet",
@@ -23,6 +25,8 @@ class StaticViewSitemap(Sitemap):
 
 
 class WeeklySitemap(Sitemap):
+    protocol = "https"
+
     def items(self):
         its = []
         for topic_key in topics.topics:
