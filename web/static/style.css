@@ -563,6 +563,7 @@ footer ul li {
 	list-style: none;
 	margin-left: 0em;
 	padding-top: 0.3em;
+	padding-bottom: 0.3em;
 }
 
 footer a,
@@ -629,6 +630,13 @@ footer a:visited {
 	align-items: center;
 	flex-wrap: wrap;
 	font-weight: bold;
+
+	margin-left: 0.2em;
+	margin-right: 0.2em;
+	/* margin-left: auto; */
+	/* margin-right: auto;
+	padding-left: 0.2em;
+	padding-right: 0.2em; */
 }
 
 .messages a,
@@ -642,10 +650,16 @@ footer a:visited {
 	border-radius: 0.3em;
 	color: white;
 	padding: 0.3em 0.7em;
-	max-width: max-content;
-	margin-top: 0;
+	/* max-width: max-content; */
+	overflow-wrap: break-word;
+	margin: 0;
 	list-style: none;
 	margin-bottom: 0.6em;
+}
+
+.messages li {
+	max-width: 65ch;
+	width: 60vw;
 }
 
 

@@ -109,7 +109,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 		<li>{{d.title}} <span class="similar-search">(<a href="{{d.title|discussions_url}}"
 					title="Discussions with similar title">Search by title</a>)</span>
 			<br />
-			<span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a>
+			<span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}"
+					rel="nofollow">{{d.story_url}}</a>
 				<span class="similar-search">(<a href="{{d.story_url|discussions_url}}"
 						title="Discussions and related articles for this URL">Lookup URL</a>)</span></span>
 			<br />
@@ -199,7 +200,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 				<br />
 				<span class="discussions_story_url">
 					<a href="{{inbound_resource.complete_url}}"
-						title="{% firstof inbound_resource.title inbound_resource.complete_url %}">{{inbound_resource.complete_url}}</a>
+						title="{% firstof inbound_resource.title inbound_resource.complete_url %}"
+						rel="nofollow">{{inbound_resource.complete_url}}</a>
 				</span>
 				<br />
 				<a href="{{inbound_resource.complete_url | discussions_url}}"
@@ -224,7 +226,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 			<ul>
 				{% for submit_platform, submit_link in ctx.submit_links.items %}
 				<li>
-					<a href="{{submit_link}}" title="Submit to {{submit_platform}}" rel="noreferrer noopener"
+					<a href="{{submit_link}}" title="Submit to {{submit_platform}}" rel="nofollow noreferrer noopener"
 						target="_blank">{{submit_platform}}</a>
 				</li>
 				{% endfor %}

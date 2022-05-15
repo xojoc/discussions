@@ -42,6 +42,7 @@ def __url_blacklisted(url):
         or url.startswith("www.imgur.com")
         or url.startswith("gfycat.com")
         or url.startswith("www.gfycat.com")
+        or url.startswith("i.redd.it")
     ):
         return True
 

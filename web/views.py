@@ -175,6 +175,8 @@ def get_submit_links(request, ctx):
         "Hacker News": f"https://news.ycombinator.com/submitlink?u={url}&t={t}",
         "Reddit": f"https://www.reddit.com/submit?url={url}&title={t}",
         "Lobsters": f"https://lobste.rs/stories/new?url={url}&title={t}",
+        "Twitter": f"https://twitter.com/intent/tweet?url={url}&text={t}",
+        "Mastodon": f"https://mastodon.social/share?text={t}%0A{url}",
         "Laarc": f"https://www.laarc.io/submitlink?u={url}&t={t}",
         "Barnacles": f"https://barnacl.es/stories/new?url={url}&title={t}",
         "Gambero": f"https://gambe.ro/stories/new?url={url}&title={t}",
@@ -299,7 +301,16 @@ def weekly_confirm_email(request):
 
 def weekly_confirm_unsubscription(request):
     if request.method == "GET":
-        form = forms.UnsubscribeForm(request.GET)
+        topic = request.GET.get("topic")
+        subscriber_email = request.GET.get("email")
+        try:
+            subscriber = models.Subscriber.objects.get(
+                topic=topic, email=subscriber_email
+            )
+        except models.Subscriber.DoesNotExist:
+            subscriber = None
+
+        form = forms.UnsubscribeForm(request.GET, instance=subscriber)
         topic_key = request.GET.get("topic")
         ctx = {
             "weekly_unsubscribe_form": form,
@@ -347,7 +358,16 @@ def weekly_confirm_unsubscription(request):
 
 
 def __weekly_topic_subscribe_form(request, topic, ctx):
-    form = forms.SubscriberForm(request.POST or None, initial={"topic": topic})
+    subscriber = None
+    if request.POST:
+        try:
+            subscriber = models.Subscriber.objects.get(
+                topic=request.POST.get("topic"), email=request.POST.get("email")
+            )
+        except models.Subscriber.DoesNotExist:
+            subscriber = None
+
+    form = forms.SubscriberForm(request.POST or None, instance=subscriber, initial={"topic": topic})
 
     if form.is_valid():
         subscriber = form.save()
@@ -362,7 +382,6 @@ def __weekly_topic_subscribe_form(request, topic, ctx):
     return None
 
 
-@cache_page(60 * 60, key_prefix='weekly:')
 def weekly_index(request):
     ctx = weekly.index_context()
     response = __weekly_topic_subscribe_form(request, None, ctx)
@@ -375,7 +394,6 @@ def weekly_index(request):
     return response
 
 
-@cache_page(60 * 60, key_prefix='weekly:')
 def weekly_topic(request, topic):
     ctx = weekly.topic_context(topic)
     response = __weekly_topic_subscribe_form(request, topic, ctx)
