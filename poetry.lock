@@ -788,11 +788,11 @@ pyparsing = ">=2.0.2,<3.0.5 || >3.0.5"
 
 [[package]]
 name = "praw"
-version = "7.5.0"
-description = "PRAW, an acronym for `Python Reddit API Wrapper`, is a python package that allows for simple access to reddit's API."
+version = "7.6.0"
+description = "PRAW, an acronym for `Python Reddit API Wrapper`, is a python package that allows for simple access to  Reddit's API."
 category = "main"
 optional = false
-python-versions = "~=3.6"
+python-versions = "~=3.7"
 
 [package.dependencies]
 prawcore = ">=2.1,<3"
@@ -801,10 +801,10 @@ websocket-client = ">=0.54.0"
 
 [package.extras]
 ci = ["coveralls"]
-dev = ["packaging", "pre-commit", "sphinx", "sphinx-rtd-theme", "betamax (>=0.8,<0.9)", "betamax-matchers (>=0.3.0,<0.5)", "pytest (>=2.7.3)"]
+dev = ["packaging", "pre-commit", "sphinx", "sphinx-rtd-theme", "betamax (>=0.8,<0.9)", "betamax-matchers (>=0.3.0,<0.5)", "pytest (>=2.7.3)", "requests (>=2.20.1,<3)"]
 lint = ["pre-commit", "sphinx", "sphinx-rtd-theme"]
 readthedocs = ["sphinx", "sphinx-rtd-theme"]
-test = ["betamax (>=0.8,<0.9)", "betamax-matchers (>=0.3.0,<0.5)", "pytest (>=2.7.3)"]
+test = ["betamax (>=0.8,<0.9)", "betamax-matchers (>=0.3.0,<0.5)", "pytest (>=2.7.3)", "requests (>=2.20.1,<3)"]
 
 [[package]]
 name = "prawcore"
@@ -913,7 +913,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "pyjwt"
-version = "2.3.0"
+version = "2.4.0"
 description = "JSON Web Token implementation in Python"
 category = "main"
 optional = false
@@ -945,7 +945,7 @@ test = ["flaky", "pretend", "pytest (>=3.0.1)"]
 
 [[package]]
 name = "pyparsing"
-version = "3.0.8"
+version = "3.0.9"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
 category = "main"
 optional = false
@@ -1005,7 +1005,7 @@ python-versions = "*"
 
 [[package]]
 name = "redis"
-version = "4.2.2"
+version = "4.3.1"
 description = "Python client for Redis database and key-value store"
 category = "main"
 optional = false
@@ -1063,7 +1063,7 @@ rsa = ["oauthlib[signedtoken] (>=3.0.0)"]
 
 [[package]]
 name = "sentry-sdk"
-version = "1.5.11"
+version = "1.5.12"
 description = "Python client for Sentry (https://sentry.io)"
 category = "main"
 optional = false
@@ -1905,8 +1905,8 @@ packaging = [
     {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
 ]
 praw = [
-    {file = "praw-7.5.0-py3-none-any.whl", hash = "sha256:28f66a750ffb2aa5c46378942037dfbf9640bc02cd132d4da8a0e9b836581a8e"},
-    {file = "praw-7.5.0.tar.gz", hash = "sha256:f91bfc827ddd0718a6ec24f16f5cad0ea9279de82144e1afcbe47694d1e70cdb"},
+    {file = "praw-7.6.0-py3-none-any.whl", hash = "sha256:0d8a75c8c9f78c0101f31653b68d23d0d9cee9a6ada7910f809610edcd905090"},
+    {file = "praw-7.6.0.tar.gz", hash = "sha256:3eeebe093f2d905b6c99e18aa8c8f64071b2e7a05e60b618166ee53397cdae72"},
 ]
 prawcore = [
     {file = "prawcore-2.3.0-py3-none-any.whl", hash = "sha256:48c17db447fa06a13ca3e722201f443031437708daa736c05a1df895fbcceff5"},
@@ -2058,16 +2058,16 @@ pyflakes = [
     {file = "pyflakes-2.3.1.tar.gz", hash = "sha256:f5bc8ecabc05bb9d291eb5203d6810b49040f6ff446a756326104746cc00c1db"},
 ]
 pyjwt = [
-    {file = "PyJWT-2.3.0-py3-none-any.whl", hash = "sha256:e0c4bb8d9f0af0c7f5b1ec4c5036309617d03d56932877f2f7a0beeb5318322f"},
-    {file = "PyJWT-2.3.0.tar.gz", hash = "sha256:b888b4d56f06f6dcd777210c334e69c737be74755d3e5e9ee3fe67dc18a0ee41"},
+    {file = "PyJWT-2.4.0-py3-none-any.whl", hash = "sha256:72d1d253f32dbd4f5c88eaf1fdc62f3a19f676ccbadb9dbc5d07e951b2b26daf"},
+    {file = "PyJWT-2.4.0.tar.gz", hash = "sha256:d42908208c699b3b973cbeb01a969ba6a96c821eefb1c5bfe4c390c01d67abba"},
 ]
 pyopenssl = [
     {file = "pyOpenSSL-22.0.0-py2.py3-none-any.whl", hash = "sha256:ea252b38c87425b64116f808355e8da644ef9b07e429398bfece610f893ee2e0"},
     {file = "pyOpenSSL-22.0.0.tar.gz", hash = "sha256:660b1b1425aac4a1bea1d94168a85d99f0b3144c869dd4390d27629d0087f1bf"},
 ]
 pyparsing = [
-    {file = "pyparsing-3.0.8-py3-none-any.whl", hash = "sha256:ef7b523f6356f763771559412c0d7134753f037822dad1b16945b7b846f7ad06"},
-    {file = "pyparsing-3.0.8.tar.gz", hash = "sha256:7bf433498c016c4314268d95df76c81b842a4cb2b276fa3312cfb1e1d85f6954"},
+    {file = "pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"},
+    {file = "pyparsing-3.0.9.tar.gz", hash = "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"},
 ]
 python-crontab = [
     {file = "python-crontab-2.6.0.tar.gz", hash = "sha256:1e35ed7a3cdc3100545b43e196d34754e6551e7f95e4caebbe0e1c0ca41c2f1b"},
@@ -2085,8 +2085,8 @@ pytz = [
     {file = "pytz-2022.1.tar.gz", hash = "sha256:1e760e2fe6a8163bc0b3d9a19c4f84342afa0a2affebfaa84b01b978a02ecaa7"},
 ]
 redis = [
-    {file = "redis-4.2.2-py3-none-any.whl", hash = "sha256:4e95f4ec5f49e636efcf20061a5a9110c20852f607cfca6865c07aaa8a739ee2"},
-    {file = "redis-4.2.2.tar.gz", hash = "sha256:0107dc8e98a4f1d1d4aa00100e044287f77121a1e6d2085545c4b7fa94a7a27f"},
+    {file = "redis-4.3.1-py3-none-any.whl", hash = "sha256:84316970995a7adb907a56754d2b92d88fc2d252963dc5ac34c88f0f1a22c25d"},
+    {file = "redis-4.3.1.tar.gz", hash = "sha256:94b617b4cd296e94991146f66fc5559756fbefe9493604f0312e4d3298ac63e9"},
 ]
 regex = [
     {file = "regex-2022.4.24-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:f86aef546add4ff1202e1f31e9bb54f9268f17d996b2428877283146bf9bc013"},
@@ -2173,8 +2173,8 @@ requests-oauthlib = [
     {file = "requests_oauthlib-1.3.1-py2.py3-none-any.whl", hash = "sha256:2577c501a2fb8d05a304c09d090d6e47c306fef15809d102b327cf8364bddab5"},
 ]
 sentry-sdk = [
-    {file = "sentry-sdk-1.5.11.tar.gz", hash = "sha256:6c01d9d0b65935fd275adc120194737d1df317dce811e642cbf0394d0d37a007"},
-    {file = "sentry_sdk-1.5.11-py2.py3-none-any.whl", hash = "sha256:c17179183cac614e900cbd048dab03f49a48e2820182ec686c25e7ce46f8548f"},
+    {file = "sentry-sdk-1.5.12.tar.gz", hash = "sha256:259535ba66933eacf85ab46524188c84dcb4c39f40348455ce15e2c0aca68863"},
+    {file = "sentry_sdk-1.5.12-py2.py3-none-any.whl", hash = "sha256:778b53f0a6c83b1ee43d3b7886318ba86d975e686cb2c7906ccc35b334360be1"},
 ]
 service-identity = [
     {file = "service-identity-21.1.0.tar.gz", hash = "sha256:6e6c6086ca271dc11b033d17c3a8bea9f24ebff920c587da090afc9519419d34"},

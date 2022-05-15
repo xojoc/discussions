@@ -122,10 +122,10 @@ def structure(h):
         pass
 
     if s.article:
-        try:
-            s.title = s.article.select_one("h1, h2, h3").get_text().strip()
-        except Exception:
-            pass
+        # try:
+        #     s.title = s.article.select_one("h1, h2, h3").get_text().strip()
+        # except Exception:
+        #     pass
 
         try:
             s.outbound_links = s.article.select("a") or []
