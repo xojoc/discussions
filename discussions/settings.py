@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "web.apps.WebConfig",
     "debug_toolbar",
     "django.contrib.sitemaps",
+    'ninja'
 ]
 
 MIDDLEWARE = [
