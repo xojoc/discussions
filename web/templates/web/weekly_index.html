@@ -28,7 +28,7 @@ Free weekly newsletter with articles, tutorials, projects and releases about top
     </figure>
 
 
-    <div class=" weekly-main">
+    <div class="weekly-main">
         <p class="smaller-font text-center bold">
             Choose a topic:
         </p>
@@ -45,42 +45,9 @@ Free weekly newsletter with articles, tutorials, projects and releases about top
 
     {% include "web/weekly_subscribe_form.html" %}
 
-    <h3>Frequently asked questions</h3>
-    <h4>Will I receive spam?</h4>
-    <p>
-        Emails are sent only once a week, every monday. They are always on topic and contain the latest articles,
-        tutorials and projects.</p>
-    <p>
-        You can unsubscribe at any time, by replying "unsubscribe" or following the link at the bottom of each email.
-    </p>
+    {% include "web/weekly_faq.html" %}
 
-    <h4>How much does it cost?</h4>
-    <p>
-        The newsletter is free. Each issue may have a promoted and relevant link from one of our partners to help us
-        keep
-        this going.
-    </p>
-    <p>
-        We'll introduce a premium plan in the future to remove ads and enable more features.
-    </p>
-    <h4>How do I get in touch?</h4>
-    <p>
-        Drop us an email at: hi@discu.eu. And we'll get back as soon as possible.
-    </p>
-
-    <div class="about-me">
-        <img src="{% static 'profile_pic.jpg' %}" alt="Profile picture of Alexandru Cojocaru" width="200" />
-
-        <p class="font-italic">
-            As a software developer I need to costantly keep up with what's going on in my field and community.
-            Feeling overwhelmed with costant updates and failing to find relevant blogs to add to my feed reader,
-            I decided to build something to keep me updated and find discussions happening on Hacker News, Lobsters,
-            Reddit, etc.
-        </p>
-        <p class="text-right font-italic">
-            — Alexandru Cojocaru
-        </p>
-    </div>
+    {% include "web/weekly_about_me.html" %}
 
 
     <div class="weekly-footer">

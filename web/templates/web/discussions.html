@@ -157,68 +157,23 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	<br />
 	<h2>What is discu.eu?</h2>
-	<p>Search for discussions on <a href="https://news.ycombinator.com/" title='Hacker News'>Hacker
-			News</a>,
-		<a href="https://lobste.rs/" title='Lobsters'>Lobsters</a>, <a href="https://www.reddit.com/"
-			title='Reddit'>Reddit</a>, <a href="http://lambda-the-ultimate.org" title="Lambda the Ultimate">Lambda
-			the
-			Ultimate</a>, <a href="https://laarc.io/" title="Laarc">Laarc</a> (and <a href="/statistics#platforms"
-			title="Platforms">others</a>)
-		for a given URL or keyword.
+	<p>discu.eu tracks and makes accessible discussions on Hacker News, Lobsters, Reddit, Lambda the
+		Ultimate and <a href="/statistics#platforms" title="Platforms">others</a>.
 	</p>
-
-
-	<h2>Examples</h2>
-	Lookup by URL:
-
-	<ul>
-		<li><a href="{{'https://xojoc.pw/blog/focus'|discussions_url}}"
-				title="Why I'm focusing only on some programming languages">https://xojoc.pw/blog/focus</a></li>
-		<li><a href="{{'https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster'|discussions_url}}"
-				title="How Firefox Got Fast Again">https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster</a>
-		</li>
-	</ul>
-
-	Lookup by title/keyword:
-	<ul>
-		<li><a href="{{'Catala programming language'|discussions_url}}">Catala programming
-				language</a></li>
-		<li><a href="{{'Postgres 14'|discussions_url}}">Postgres 14</a></li>
-		<li><a href="{{'Why Most Published Research Findings Are False'|discussions_url}}">Why Most Published
-				Research
-				Findings Are False</a></li>
-	</ul>
-
-	Search for stories on a given site:
-	<ul>
-		<li><a href="{{'site:bellard.org'|discussions_url}}" title="Fabrice Bellard's website">site:bellard.org</a>
-			-
-			Fabrice Bellard's website</li>
-		<li><a href="{{'site:rust-lang.org'|discussions_url}}" title="Rust's website">site:rust-lang.org</a></li>
-		<li><a href="{{'site:arxiv.org programming language'|discussions_url}}"
-				title="Papers about programming languages">site:arxiv.org programming language</a> - papers on
-			arXiv.org
-			about programming languages</li>
-		<li><a href="{{'site:gcc.gnu.org/bugzilla'|discussions_url}}"
-				title="GCC's bug tracker">site:gcc.gnu.org/bugzilla</a> - GCC's bug tracker</li>
-	</ul>
-
 
 	<h2>How to use</h2>
 	<ul>
+		<li><a href="{% url 'web:search' %}" title="How to search">Search by url or keyword</a></li>
 		<li>Follow us on <a href="/social" title="Social accounts">Twitter or Mastodon</a> for daily updates on
 			topics
 			you care about</li>
 		<li>Subscribe to the <a href="/weekly" title="Weekly newsletter">weekly newsletter</a> to get the latest on
 			topics you
 			care about</li>
-		<li>Install the <a href="/extension" title="Browser extension">browser extension</a></li>
-		<li>Use the <a href="/bookmarklet" title="Bookmarklet">bookmarklet</a></li>
+		<li>Install the <a href="/extension" title="Browser extension">browser extension</a> to view discussions for the
+			pages you visit (or use the <a href="/bookmarklet" title="Bookmarklet">bookmarklet</a>)</li>
 		<li>Display comments on your <a href="/website" title="Display comments on your website">website</a></li>
 		<li>Use the <a href="/api/v0/docs" title="Discussions API">API</a></li>
-		<li>Install the search engine. See instructions for <a
-				href="https://support.mozilla.org/en-US/kb/add-or-remove-search-engine-firefox">Firefox</a> or <a
-				href="https://support.google.com/chrome/answer/95426">Chrome</a>.</li>
 	</ul>
 
 	{% endif %}
@@ -300,7 +255,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	{% endif %}
 
-	{% if not ctx.nothing_found %}
+	{% if ctx.display_discussions and not ctx.nothing_found %}
 	<br />
 	<div class="donate">
 		<p><a href="https://xojoc.pw/donate" rel="nofollow" title="Support discu.eu's development">Donate</a></p>

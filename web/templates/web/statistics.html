@@ -55,6 +55,7 @@ Discussions statistics
         </tbody>
     </table>
 
+    <!--
     <h2>Most discussed stories</h2>
     <ol>
         {% for story in ctx.statistics.top_stories %}
@@ -63,7 +64,8 @@ Discussions statistics
                     datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></span>
         </li>
         {% endfor %}
-    </ol>
+    </ol> -->
+
 </div>
 
 {% endblock main %}

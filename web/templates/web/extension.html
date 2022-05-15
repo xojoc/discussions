@@ -1,25 +1,27 @@
 {% extends "web/base.html" %}
 
 {% block title %}
-Browser extensions - discussions
+Browser extension - discussions
 {% endblock title %}
 
 {% block main %}
 
-<h2>Firefox</h2>
+<h2>Browser extension</h2>
+<p>This extension shows if the page you're visiting has been discussed on Hacker News, Lobsters, Reddit, etc.</p>
+
+<h3>Firefox</h3>
 <p>
     <a href="https://addons.mozilla.org/en-US/firefox/addon/discussions/"
         title="Discussions around the web extension">Get the Firefox extension</a>.
 </p>
 
-<h2>Chrome and Chromium</h2>
+<h3>Chrome and Chromium</h3>
 <p>
     <a href="https://chrome.google.com/webstore/detail/mihejilgifecplfpdfhjghfmhbhajcke"
         title="Discussions around the web extension">Get the Chrome/Chromium extension</a>.
 </p>
 
-<br />
-
+<h3>Bookmarklet</h3>
 <p>Alternatively you can use the <a href="{% url 'web:bookmarklet' %}" title="Bookmarklets">bookmarklet</a>.
 </p>
 

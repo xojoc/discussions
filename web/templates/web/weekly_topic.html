@@ -30,9 +30,11 @@ Free weekly newsletter about {{ctx.topic.name}} with articles, projects and tuto
     </p>
     {% endif %}
 
+    <br />
+
     {% include "web/weekly_subscribe_form.html" %}
 
-    <h2>See past issues to see what you'll get</h2>
+    <h3>See past issues to see what you'll get</h3>
     <ul>
         {% for yearweek in ctx.yearweeks %}
         <li><a href="{% url 'web:weekly_topic_week' ctx.topic_key yearweek.year yearweek.week %}"
@@ -44,22 +46,20 @@ Free weekly newsletter about {{ctx.topic.name}} with articles, projects and tuto
         {% endfor %}
     </ul>
 
+
+    <br />
+
+    {% include "web/weekly_faq.html" %}
+
+
     <br />
     <p>
-        For more, see <a href="{% url 'web:weekly_index' %}" title="Weekly newsletters">all newsletters</a>.
+        Discover <a href="{% url 'web:weekly_index' %}" title="Weekly newsletters">all the newsletters</a>.
     </p>
 
 
-    {% if ctx.twitter_account or ctx.mastodon_account %}
-    <div class="weekly-footer">
-        <p class="weekly-follow">
-            For daily updates follow <a href="https://twitter.com/{{ctx.twitter_account}}"
-                title="{{ctx.topic.name}} Twitter bot" rel="me">{{ctx.twitter_account}}</a> on Twitter or
-            <a href="{{ctx.mastodon_account_url}}" title="{{ctx.topic.name}} Mastodon bot"
-                rel="me">{{ctx.mastodon_account}}</a>
-            on Mastodon.
-        </p>
-    </div>
-    {% endif %}
+
+    {% include "web/weekly_fragment_follow.html" %}
+
 </div>
 {% endblock main %}

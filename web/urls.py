@@ -52,6 +52,11 @@ urlpatterns = [
         name="bookmarklet",
     ),
     path(
+        "search/",
+        TemplateView.as_view(template_name="web/search.html"),
+        name="search",
+    ),
+    path(
         "opensearch.xml",
         TemplateView.as_view(
             template_name="web/opensearch.xml",

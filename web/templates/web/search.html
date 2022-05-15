@@ -1,0 +1,69 @@
+{% extends "web/base.html" %}
+
+{% load util %}
+
+{% block title %}
+Search - discussions
+{% endblock title %}
+
+{% block main %}
+<h2>Lookup by URL or keyword</h2>
+
+<h3>Lookup by URL</h3>
+<p>
+<ul>
+    <li><a href="{{'https://xojoc.pw/blog/focus'|discussions_url}}"
+            title="Why I'm focusing only on some programming languages">https://xojoc.pw/blog/focus</a></li>
+    <li><a href="{{'https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster'|discussions_url}}"
+            title="How Firefox Got Fast Again">https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster</a>
+    </li>
+</ul>
+</p>
+
+<p>
+    Use the <a href="{% url 'web:extension' %}" title="Browser extensions">browser
+        extension</a> or <a href="{% url 'web:bookmarklet' %}" title="Bookmarklets">bookmarklet</a> to more easily
+    lookup
+    urls.
+</p>
+
+<h3>Lookup by title/keyword</h3>
+<p>
+<ul>
+    <li><a href="{{'Catala programming language'|discussions_url}}">Catala programming
+            language</a></li>
+    <li><a href="{{'Postgres 14'|discussions_url}}">Postgres 14</a></li>
+    <li><a href="{{'Why Most Published Research Findings Are False'|discussions_url}}">Why Most Published
+            Research
+            Findings Are False</a></li>
+</ul>
+</p>
+
+<h3>Search for stories on a given site</h3>
+<p>
+<ul>
+    <li><a href="{{'site:bellard.org'|discussions_url}}" title="Fabrice Bellard's website">site:bellard.org</a>
+        -
+        Fabrice Bellard's website</li>
+    <li><a href="{{'site:rust-lang.org'|discussions_url}}" title="Rust's website">site:rust-lang.org</a></li>
+    <li><a href="{{'site:arxiv.org programming language'|discussions_url}}"
+            title="Papers about programming languages">site:arxiv.org programming language</a> - papers on
+        arXiv.org
+        about programming languages</li>
+    <li><a href="{{'site:gcc.gnu.org/bugzilla'|discussions_url}}"
+            title="GCC's bug tracker">site:gcc.gnu.org/bugzilla</a> - GCC's bug tracker</li>
+</ul>
+</p>
+
+<h2>Search engine</h2>
+<p>To install discu.eu's search engine on your browser follow the instructions for <a
+        href="https://support.mozilla.org/en-US/kb/add-or-remove-search-engine-firefox">Firefox</a> or <a
+        href="https://support.google.com/chrome/answer/95426">Chrome</a>.
+
+<p>If you install the <a href="{% url 'web:extension' %}" title="Browser extensions">browser
+        extension</a> on Firefox you'll be able to search on discu.eu by prefixing your query with <b>discu</b>.
+    Example:
+    "discu haskell".
+</p>
+
+{% endblock main %}

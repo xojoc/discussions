@@ -11,13 +11,14 @@ class StaticViewSitemap(Sitemap):
 
     def items(self):
         return [
+            "api-v0:openapi-swagger",
             "web:bookmarklet",
             "web:extension",
+            "web:search",
             "web:social",
             "web:statistics",
             "web:website",
             "web:weekly_index",
-            "api-v0:openapi-swagger",
         ]
 
     def location(self, item):
