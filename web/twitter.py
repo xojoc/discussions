@@ -117,9 +117,9 @@ Discussions: {'x' * URL_LENGTH}
     status = status.rstrip()
     status_len = status_len.rstrip()
 
-    # if author.twitter_account:
-    #     status += f"\n\nby @{author.twitter_account}"
-    #     status_len += f"\n\nby @{author.twitter_account}"
+    if author.twitter_account:
+        status += f"\n\nby @{author.twitter_account}"
+        status_len += f"\n\nby @{author.twitter_account}"
     # elif author.twitter_site:
     #     status += f"\n\nvia @{author.twitter_site}"
     #     status_len += f"\n\nvia @{author.twitter_site}"

@@ -13,7 +13,7 @@ Discussions around the Web
 
 {% block meta_description %}
 {% if ctx.title or ctx.original_query %}
-Discussions and related articles about {% firstof ctx.title ctx.original_query %}
+Discussions and related articles for {% firstof ctx.title ctx.original_query %}
 {% else %}
 Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL, title or keyword
 {% endif %}
@@ -258,10 +258,12 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	{% endif %}
 
 	{% if ctx.display_discussions and not ctx.nothing_found %}
-	<br />
-	<div class="donate">
-		<p><a href="https://xojoc.pw/donate" rel="nofollow" title="Support discu.eu's development">Donate</a></p>
-	</div>
+	<aside>
+		<br />
+		<div class="donate">
+			<p><a href="https://xojoc.pw/donate" rel="nofollow" title="Support discu.eu's development">Donate</a></p>
+		</div>
+	</aside>
 	{% endif %}
 
 </div>
