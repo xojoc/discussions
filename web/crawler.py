@@ -229,7 +229,7 @@ def extract_html(resource):
         return
 
     html = http.parse_html(resource.clean_html, safe_html=True)
-    html_structure = extract.structure(html, resource.url)
+    html_structure = extract.structure(html, resource.story_url)
     resource.title = html_structure.title
 
     resource.links.clear()
