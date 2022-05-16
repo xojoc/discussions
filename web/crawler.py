@@ -223,6 +223,8 @@ def extract_html(resource):
         resource = models.Resource.objects.get(pk=resource)
 
     if resource.status_code != 200:
+        if resource.status_code // 100 != 2 and resource.clean_html:
+            resource.save()
         return
 
     if not resource.clean_html:

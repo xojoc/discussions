@@ -28,7 +28,7 @@
             {% for story in stories %}
             <li>
                 <p>
-                    <a href="{{story.story_url}}" title="{{story.title}}">{{story.title}}</a>
+                    <a href="{{story.story_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
                 </p>
 
                 {% if story.total_comments %}
