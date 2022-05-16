@@ -1,6 +1,7 @@
 from . import http
 import urllib
 import logging
+import cleanurl
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +109,49 @@ def __extract_author(article, h):
     return author
 
 
-def structure(h):
+def __extract_title(h, s, url):
+    if not s.title:
+        try:
+            s.title = h.select_one("title").get_text().strip()
+        except Exception:
+            pass
+
+    nt = (s.title or '').strip(' -:~').lower()
+
+    u = cleanurl.cleanurl(url)
+
+    if u:
+        if u.hostname == 'youtu.be' and nt == 'youtube':
+            s.title = None
+
+        if u.hostname == 'godbolt.org':
+            s.title = None
+
+        if u.hostname == 'v.fodder.gg':
+            s.title = None
+
+        if u.hostname == 'streamff.com':
+            s.title = None
+
+        if u.hostname == 'streamgg.com':
+            s.title = None
+
+        if u.hostname == 'clips.twitch.tv' or u.hostname == 'twitch.tv':
+            s.title = None
+
+        # fixme: blocked in EU. Skip for now
+        if u.hostname == 'nydailynews.com':
+            s.title = None
+
+        # fixme: requires login
+        if u.hostname == 'instagram.com':
+            s.title = None
+
+        if u.hostname == 'reddit-stream.com':
+            s.title = None
+
+
+def structure(h, url=None):
     if type(h) == str:
         h = http.parse_html(h, safe_html=True)
 
@@ -139,11 +182,7 @@ def structure(h):
         logging.debug(f"author: {e}")
         pass
 
-    if not s.title:
-        try:
-            s.title = h.select_one("title").get_text().strip()
-        except Exception:
-            pass
+    __extract_title(h, s, url)
 
     return s
 
@@ -151,7 +190,7 @@ def structure(h):
 def _fetch_parse_extract(u):
     r = http.fetch(u)
     h = http.parse_html(r)
-    s = structure(h)
+    s = structure(h, u)
     return s
 
 

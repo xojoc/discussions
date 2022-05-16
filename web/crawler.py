@@ -103,7 +103,7 @@ def fetch(url):
     if resource.status_code == 200:
         html = http.parse_html(response, safe_html=True)
         resource.clean_html = str(html)
-        html_structure = extract.structure(html)
+        html_structure = extract.structure(html, url)
         resource.title = html_structure.title
 
     resource.last_fetch = timezone.now()
@@ -229,7 +229,7 @@ def extract_html(resource):
         return
 
     html = http.parse_html(resource.clean_html, safe_html=True)
-    html_structure = extract.structure(html)
+    html_structure = extract.structure(html, resource.url)
     resource.title = html_structure.title
 
     resource.links.clear()

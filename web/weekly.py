@@ -293,7 +293,7 @@ def topic_context(topic):
                 "year": yearweek[0],
                 "week": yearweek[1],
                 "week_start": week_start(yearweek),
-                "week_end": week_end(yearweek),
+                "week_end": week_end(yearweek) - datetime.timedelta(days=1),
             }
         )
     ctx["breadcrumbs"] = __generate_breadcrumbs(topic)
@@ -320,7 +320,7 @@ def topic_week_context(topic, year, week):
     ctx["year"] = year
     ctx["week"] = week
     ctx["week_start"] = week_start(year, week)
-    ctx["week_end"] = week_end(year, week)
+    ctx["week_end"] = week_end(year, week) - datetime.timedelta(days=1)
     # ctx["stories"] = __get_stories(topic, year, week)
     ctx["digest"] = _get_digest(topic, year, week)
     ctx["breadcrumbs"] = __generate_breadcrumbs(topic, year, week)

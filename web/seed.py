@@ -34,7 +34,7 @@ def this_week_in_rust():
         r = crawler.fetch(href)
         if r:
             h = http.parse_html(r.clean_html, safe_html=True)
-            hs = extract.structure(h)
+            hs = extract.structure(h, href)
             for link in hs.outbound_links:
                 if not link.get("href"):
                     continue

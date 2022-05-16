@@ -43,6 +43,40 @@ def __url_blacklisted(url):
         or url.startswith("gfycat.com")
         or url.startswith("www.gfycat.com")
         or url.startswith("i.redd.it")
+        or url.startswith("reddit.com/live")
+        or url.startswith("www.reddit.com/live")
+    ):
+        return True
+
+    return False
+
+
+def __url_blacklisted_selftext(url):
+    if not url:
+        return False
+
+    if (
+        url
+        in (
+            "www.google.com",
+            "google.com",
+            "google.com/trends/explore",
+            "asp.net",
+            "www.privacytools.io/#photos",
+            "example.com",
+            "itch.io",
+            "amazon.com",
+            "github.com",
+        )
+        or url == "crates.io"
+        or url == "crates.io/"
+        or url == "inventwithpython.com/bigbookpython/"
+        or url == "inventwithpython.com/bigbookpython"
+        or url == "learnopengl.com"
+        or url == "learnopengl.com/"
+        or url.startswith("discord.gg/python")
+        or url.startswith("reddit.com")
+        or url.startswith("old.reddit.com")
     ):
         return True
 
@@ -72,6 +106,8 @@ def _url_from_selftext(selftext):
             if not u.parsed_url.netloc or not u.parsed_url.hostname:
                 continue
             if __url_blacklisted(u.schemeless_url):
+                continue
+            if __url_blacklisted_selftext(u.schemeless_url):
                 continue
             if u.schemeless_url.startswith(
                 "reddit.com"

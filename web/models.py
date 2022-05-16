@@ -753,7 +753,7 @@ class Resource(models.Model):
         author = extract.Author()
         if self.clean_html:
             try:
-                s = extract.structure(self.clean_html)
+                s = extract.structure(self.clean_html, self.story_url)
                 if s and s.author:
                     author = s.author
             except Exception:
