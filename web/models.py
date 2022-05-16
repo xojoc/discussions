@@ -838,7 +838,7 @@ class Subscriber(models.Model):
     entry_created_at = models.DateTimeField(auto_now_add=True)
     entry_updated_at = models.DateTimeField(auto_now=True)
     unsubscribed = models.BooleanField(default=False)
-    unsubscribed_at = models.DateTimeField(null=True)
+    unsubscribed_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.email} {self.topic} ({self.confirmed} confirmed, {self.unsubscribed} unsubscribed)"
