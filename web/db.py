@@ -30,7 +30,7 @@ def worker_update_discussions(self):
         entry_updated_at__lte=seven_days_ago
     ).order_by()
 
-    logger.info(f"db update: count {stories.count()}")
+    logger.info(f"db update discussions: count {stories.count()}")
 
     dirty_stories = []
 
@@ -86,11 +86,14 @@ def worker_update_discussions(self):
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_update_resources(self):
     start_time = time.monotonic()
-    resources = models.Resource.objects.all().order_by()
+    last_checkpoint = time.monotonic()
+
+    seven_days_ago = timezone.now() - datetime.timedelta(days=7)
+    resources = models.Resource.objects.filter(
+        last_processed__lte=seven_days_ago
+    ).order_by()
 
     logger.info(f"db update resources: count {resources.count()}")
-
-    last_checkpoint = time.monotonic()
 
     for resource in resources.iterator(chunk_size=10):
         crawler.extract_html(resource)

@@ -222,12 +222,17 @@ def extract_html(resource):
     if type(resource) == int:
         resource = models.Resource.objects.get(pk=resource)
 
+    resource.last_processed = timezone.now()
+
     if resource.status_code != 200:
         if resource.status_code // 100 != 2 and resource.clean_html:
-            resource.save()
+            resource.clean_html = None
+
+        resource.save()
         return
 
     if not resource.clean_html:
+        resource.save()
         return
 
     html = http.parse_html(resource.clean_html, safe_html=True)
@@ -263,7 +268,5 @@ def extract_html(resource):
 
     resource.normalized_title = title.normalize(resource.title)
     resource.normalized_tags = tags.normalize(resource.tags)
-
-    resource.last_processed = timezone.now()
 
     resource.save()
