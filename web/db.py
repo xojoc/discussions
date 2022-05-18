@@ -95,8 +95,9 @@ def worker_update_resources(self):
 
     logger.info(f"db update resources: count {resources.count()}")
 
-    for resource in resources.iterator(chunk_size=10):
+    for resource in resources[:100]:
         crawler.extract_html(resource)
+
         if time.monotonic() > last_checkpoint + 60:
             if worker.graceful_exit(self):
                 logger.info("update resources: graceful exit")
