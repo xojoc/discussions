@@ -223,6 +223,7 @@ def __rename(tags, title, platform=None):
         ("worldevents", "news", "r"),
         ("worldnews", "news", "r"),
         ("zig", "ziglang", "l"),
+        ("zig", "ziglang", "r"),
     ]
     for p in to_replace:
         if len(p) == 3 and p[2] != platform:
