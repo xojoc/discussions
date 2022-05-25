@@ -8,7 +8,7 @@ topics = {
             "account": "NimDiscussions",
         },
         "mastodon": {
-            "account": "nim_discussions@mastodon.social",
+            "account": "@nim_discussions@mastodon.social",
         },
     },
     "zig": {
@@ -19,7 +19,7 @@ topics = {
             "account": "ZigDiscussions",
         },
         "mastodon": {
-            "account": "zig_discussions@mastodon.social",
+            "account": "@zig_discussions@mastodon.social",
         },
     },
     "java": {
@@ -30,7 +30,7 @@ topics = {
             "account": "JavaDiscussions",
         },
         "mastodon": {
-            "account": "java_discussions@mastodon.social",
+            "account": "@java_discussions@mastodon.social",
         },
     },
     "php": {
@@ -41,7 +41,7 @@ topics = {
             "account": "PHPDiscussions",
         },
         "mastodon": {
-            "account": "php_discussions@mastodon.social",
+            "account": "@php_discussions@mastodon.social",
         },
     },
     "apl": {
@@ -52,7 +52,7 @@ topics = {
             "account": "APLDiscussions",
         },
         "mastodon": {
-            "account": "apl_discussions@mastodon.social",
+            "account": "@apl_discussions@mastodon.social",
         },
     },
     "rust": {
