@@ -25,7 +25,7 @@ topics = {
     "java": {
         "name": "Java",
         "short_description": "Java programming language",
-        "tags": {"java"},
+        "tags": {"java", "kotlin"},
         "twitter": {
             "account": "JavaDiscussions",
         },
