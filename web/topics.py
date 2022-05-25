@@ -1,5 +1,60 @@
 # other parameters filled inside web/apps.py
 topics = {
+    "nim": {
+        "name": "Nim",
+        "short_description": "Nim programming language",
+        "tags": {"nimlang"},
+        "twitter": {
+            "account": "NimDiscussions",
+        },
+        "mastodon": {
+            "account": "nim_discussions@mastodon.social",
+        },
+    },
+    "zig": {
+        "name": "Zig",
+        "short_description": "Zig programming language",
+        "tags": {"ziglang"},
+        "twitter": {
+            "account": "ZigDiscussions",
+        },
+        "mastodon": {
+            "account": "zig_discussions@mastodon.social",
+        },
+    },
+    "java": {
+        "name": "Java",
+        "short_description": "Java programming language",
+        "tags": {"java"},
+        "twitter": {
+            "account": "JavaDiscussions",
+        },
+        "mastodon": {
+            "account": "java_discussions@mastodon.social",
+        },
+    },
+    "php": {
+        "name": "PHP",
+        "short_description": "PHP programming language",
+        "tags": {"php"},
+        "twitter": {
+            "account": "PHPDiscussions",
+        },
+        "mastodon": {
+            "account": "php_discussions@mastodon.social",
+        },
+    },
+    "apl": {
+        "name": "APL",
+        "short_description": "APL programming language",
+        "tags": {"apl"},
+        "twitter": {
+            "account": "APLDiscussions",
+        },
+        "mastodon": {
+            "account": "apl_discussions@mastodon.social",
+        },
+    },
     "rust": {
         "name": "Rust",
         "short_description": "Rust programming language",
@@ -155,7 +210,7 @@ topics = {
         "mastodon": {
             "account": "@laarc_discussions@mastodon.social",
         },
-    }
+    },
 }
 
 topics_choices = sorted([(key, item["name"]) for key, item in topics.items()])
