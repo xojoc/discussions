@@ -391,13 +391,15 @@ def tweet_discussions_scheduled():
                 f"twitter scheduled platform {topic.get('platform')}: topic {topic_key} potential stories {topic_stories.count()}"
             )
 
+        # print(topic_stories.query)
+
         for story in topic_stories:
             if cache.get(key_prefix + story.platform_id):
                 continue
 
-            if topic_key == "hackernews":
-                if story.comment_count < 200:
-                    continue
+            # if topic_key == "hackernews":
+            #     if story.comment_count < 200:
+            #         continue
 
             related_discussions, _, _ = models.Discussion.of_url(
                 story.story_url, only_relevant_stories=False

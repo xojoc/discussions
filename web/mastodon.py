@@ -375,9 +375,9 @@ def post_discussions_scheduled():
             if cache.get(key_prefix + story.platform_id):
                 continue
 
-            if topic_key == "hackernews":
-                if story.comment_count < 200:
-                    continue
+            # if topic_key == "hackernews":
+            #     if story.comment_count < 200:
+            #         continue
 
             related_discussions, _, _ = models.Discussion.of_url(
                 story.story_url, only_relevant_stories=False

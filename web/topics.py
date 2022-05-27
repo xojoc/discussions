@@ -176,6 +176,17 @@ topics = {
             "account": "@devops_discussions@mastodon.social",
         },
     },
+    "webdev": {
+        "name": "Web Development",
+        "short_description": "Web Development",
+        "tags": {"webdev", "webassembly", "javascript", "css"},
+        "twitter": {
+            "account": "WebdevDiscu",
+        },
+        "mastodon": {
+            "account": "@webdev_discussions@mastodon.social",
+        },
+    },
     "programming": {
         "name": "Software Development",
         "short_description": "Software Development",
