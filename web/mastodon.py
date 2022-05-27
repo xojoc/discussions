@@ -371,8 +371,6 @@ def post_discussions_scheduled():
                 f"mastodon scheduled platform {topic.get('platform')}: topic {topic_key} potential stories {topic_stories.count()}"
             )
 
-        # print(topic_stories.query)
-
         for story in topic_stories:
             if cache.get(key_prefix + story.platform_id):
                 continue

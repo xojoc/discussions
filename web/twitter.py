@@ -344,7 +344,6 @@ def tweet_discussions():
 def tweet_discussions_scheduled():
     __sleep(10, 20)
 
-    # three_days_ago = timezone.now() - datetime.timedelta(days=3)
     five_days_ago = timezone.now() - datetime.timedelta(days=5)
     seven_days_ago = timezone.now() - datetime.timedelta(days=7)
 
@@ -392,8 +391,6 @@ def tweet_discussions_scheduled():
                 f"twitter scheduled platform {topic.get('platform')}: topic {topic_key} potential stories {topic_stories.count()}"
             )
 
-        # print(topic_stories.query)
-
         for story in topic_stories:
             if cache.get(key_prefix + story.platform_id):
                 continue
@@ -409,14 +406,6 @@ def tweet_discussions_scheduled():
             related_discussions = related_discussions.order_by(
                 "-comment_count", "-score", "created_at"
             )
-
-            # print(
-            #     related_discussions.filter(
-            #         tweet__bot_names__contains=[
-            #             topic.get("twitter").get("account")
-            #         ]
-            #     ).query
-            # )
 
             if (
                 related_discussions.filter(
