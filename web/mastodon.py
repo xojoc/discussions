@@ -7,6 +7,7 @@ import unicodedata
 
 import sentry_sdk
 from celery import shared_task
+from django.core.cache import cache
 from django.utils import timezone
 
 from . import celery_util, extract, http, models, topics, util
@@ -43,7 +44,7 @@ def post(status, username, post_from_dev=False):
         if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
             random.seed()
             print(username)
-            print(status)
+            # print(status)
             return random.randint(1, 1_000_000)
 
     client = http.client(with_cache=False)
@@ -183,6 +184,36 @@ def post_story(title, url, tags, platforms, already_posted_by, comment_count):
     return post_id, posted_by
 
 
+def post_story_topic(story, tags, topic, existing_toot):
+    resource = models.Resource.by_url(story.story_url)
+    author = None
+    if resource:
+        author = resource.author
+    author = author or extract.Author()
+
+    status = build_story_post(story.title, story.story_url, tags, author)
+
+    post_id = None
+
+    bot_name = topic.get("mastodon").get("account")
+
+    try:
+        if existing_toot:
+            __sleep(35, 47)
+            post_id = repost(existing_toot.post_id, bot_name)
+        else:
+            post_id = post(status, bot_name)
+    except Exception as e:
+        logger.error(f"mastodon: post: {bot_name}: {e}: {status}: {post_id=}")
+        sentry_sdk.capture_exception(e)
+        __sleep(13, 27)
+        raise e
+
+    __sleep(4, 7)
+
+    return post_id
+
+
 @shared_task(ignore_result=True)
 @celery_util.singleton(blocking_timeout=0.1)
 def post_discussions():
@@ -284,3 +315,141 @@ def post_discussions():
 
         if post_id:
             break
+
+
+@shared_task(ignore_result=True)
+@celery_util.singleton(blocking_timeout=0.1)
+def post_discussions_scheduled():
+    __sleep(10, 20)
+
+    five_days_ago = timezone.now() - datetime.timedelta(days=5)
+    seven_days_ago = timezone.now() - datetime.timedelta(days=7)
+
+    key_prefix = "mastodon:skip_story:"
+    min_comment_count = 2
+    min_score = 5
+
+    stories = (
+        models.Discussion.objects.filter(created_at__gte=five_days_ago)
+        .filter(comment_count__gte=min_comment_count)
+        .filter(score__gte=min_score)
+        .exclude(schemeless_story_url__isnull=True)
+        .exclude(schemeless_story_url="")
+        .exclude(scheme_of_story_url__isnull=True)
+        .exclude(scheme_of_story_url="")
+        .order_by("-comment_count", "-score", "created_at")
+    )
+
+    logger.debug(f"mastodon scheduled: potential stories {stories.count()}")
+
+    for topic_key, topic in topics.topics.items():
+        if not topic.get("mastodon"):
+            continue
+
+        topic_stories = stories
+
+        if topic.get("tags"):
+            topic_stories = stories.filter(
+                normalized_tags__overlap=list(topic["tags"])
+            )
+
+        topic_stories = topic_stories.exclude(
+            mastodonpost__bot_names__contains=[
+                topic.get("mastodon").get("account")
+            ]
+        )
+
+        logger.debug(
+            f"mastodon scheduled: topic {topic_key} potential stories {topic_stories.count()}"
+        )
+
+        if topic.get("platform"):
+            topic_stories = topic_stories.filter(
+                platform=topic.get("platform")
+            )
+            logger.debug(
+                f"mastodon scheduled platform {topic.get('platform')}: topic {topic_key} potential stories {topic_stories.count()}"
+            )
+
+        # print(topic_stories.query)
+
+        for story in topic_stories:
+            if cache.get(key_prefix + story.platform_id):
+                continue
+
+            if topic_key == "hackernews":
+                if story.comment_count < 200:
+                    continue
+
+            related_discussions, _, _ = models.Discussion.of_url(
+                story.story_url, only_relevant_stories=False
+            )
+
+            related_discussions = related_discussions.order_by(
+                "-comment_count", "-score", "created_at"
+            )
+
+            if (
+                related_discussions.filter(
+                    mastodonpost__created_at__gte=seven_days_ago
+                )
+                .filter(
+                    mastodonpost__bot_names__contains=[
+                        topic.get("mastodon").get("account")
+                    ]
+                )
+                .exists()
+            ):
+                continue
+
+            existing_post = story.mastodonpost_set.order_by(
+                "-created_at"
+            ).first()
+
+            tags = set(story.normalized_tags or [])
+            for rd in related_discussions[:5]:
+                if (
+                    rd.comment_count >= min_comment_count
+                    and rd.score >= min_score
+                ):
+                    tags |= set(rd.normalized_tags or [])
+
+                if not existing_post:
+                    existing_post = rd.mastodonpost_set.order_by(
+                        "-created_at"
+                    ).first()
+
+            logger.debug(f"mastodon {story.platform_id}: {tags}")
+
+            post_id = None
+            try:
+                post_id = post_story_topic(story, tags, topic, existing_post)
+            except Exception as e:
+                cache.set(
+                    key_prefix + story.platform_id, 1, timeout=60 * 60 * 5
+                )
+                logger.error(f"mastodon: {story.platform_id}: {e}")
+                sentry_sdk.capture_exception(e)
+                continue
+
+            logger.debug(f"mastodon {topic_key} {post_id} {existing_post}")
+
+            if post_id:
+                p = None
+                if existing_post:
+                    existing_post.bot_names.append(
+                        topic.get("mastodon").get("account")
+                    )
+                    p = existing_post
+                else:
+                    p = models.MastodonPost(
+                        post_id=post_id,
+                        bot_names=[topic.get("mastodon").get("account")],
+                    )
+
+                p.save()
+                p.discussions.add(story)
+                p.save()
+
+            if post_id:
+                break
