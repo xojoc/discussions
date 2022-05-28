@@ -46,7 +46,7 @@ topics = {
     },
     "apl": {
         "name": "APL",
-        "short_description": "APL programming language",
+        "short_description": "Array Programming Languages",
         "tags": {"apl"},
         "twitter": {
             "account": "APLDiscussions",

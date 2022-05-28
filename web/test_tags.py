@@ -38,6 +38,19 @@ class Tags(unittest.TestCase):
                     "Nim Version 1.6.6 Released",
                     url="https://nim-lang.org/blog/2022/05/05/version-166-released.html",
                 ),
+                n(
+                    [],
+                    None,
+                    "Zig self hosted compiler is now capable of building itself",
+                    url="https://github.com/ziglang/zig/pull/11442",
+                ),
+                n(
+                    [],
+                    None,
+                    "Zig 0.9.1 Released",
+                    url="https://ziglang.org/download/0.9.1/release-notes.html",
+                ),
+                n(["rust_gamedev"], platform="r"),
             ],
             [
                 [],
@@ -49,5 +62,8 @@ class Tags(unittest.TestCase):
                 ["linkedin"],
                 ["nimlang", "programming"],
                 ["nimlang", "programming"],
+                ["programming", "ziglang"],
+                ["programming", "ziglang"],
+                ["gamedev", "programming", "rustlang"],
             ],
         )

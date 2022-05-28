@@ -124,7 +124,7 @@ def __synonym(title):
 
 def __programming_language_name(title):
     new_title = ""
-    for w in title.split():
+    for w in title.rstrip("?").split():
         if re.match(r"^\w+[#\-+*]+$", w, flags=re.ASCII):
             w = w.replace("+", "p")
             w = w.replace("#", "sharp")

@@ -90,15 +90,16 @@ def __reddit(tags, title):
         tags,
         None,
         {
-            "soccer",
-            "nfl",
-            "chess",
-            "nba",
-            "hockey",
-            "formula1",
             "baseball",
-            "wrestling",
+            "chess",
+            "formula1",
+            "hockey",
             "mma",
+            "nba",
+            "nfl",
+            "soccer",
+            "tennis",
+            "wrestling",
         },
         "sport",
     )
@@ -107,6 +108,14 @@ def __reddit(tags, title):
     tags = __augment_tags(title, tags, None, {"apple"}, "technology")
     tags = __augment_tags(title, tags, None, {"spacex"}, "space")
     tags = __augment_tags(title, tags, None, {"laravel"}, "php")
+
+    tags = __augment_tags(
+        title,
+        tags,
+        None,
+        {"compilers", "emudev"},
+        "compsci",
+    )
     return tags
 
 
@@ -126,6 +135,12 @@ def __lambda_the_ultimate(tags, title):
         t = t.replace(" ", "-")
         t = t.replace("/", "-")
         new_tags.add(t)
+
+    new_tags = __augment_tags(title, new_tags, "haskell")
+    new_tags = __augment_tags(title, new_tags, "java")
+    new_tags = __augment_tags(title, new_tags, "lisp")
+    new_tags = __augment_tags(title, new_tags, "python")
+    new_tags = __augment_tags(title, new_tags, "scheme")
 
     return new_tags - {
         "admin",
@@ -147,20 +162,29 @@ def __laarc(tags, title):
 
 
 def __from_title_url(tags, title, url):
+    tags = __augment_tags(
+        title, tags, "python", {"programming", "webdev", "gamedev", "compsci"}
+    )
     tags = __augment_tags(title, tags, "golang")
     tags = __augment_tags(title, tags, "rustlang")
-    tags = __augment_tags(title, tags, "rust", {"programming"}, "rustlang")
+    tags = __augment_tags(
+        title, tags, "rust", {"programming", "gamedev", "compsci"}, "rustlang"
+    )
     tags = __augment_tags(title, tags, "cpp")
     tags = __augment_tags(title, tags, "csharp")
     tags = __augment_tags(title, tags, "haskell")
-    tags = __augment_tags(title, tags, "java", {"programming"})
     tags = __augment_tags(
         title, tags, "django", {"python", "webdev", "programming"}
     )
     tags = __augment_tags(
         title, tags, "flask", {"python", "webdev", "programming"}
     )
-    tags = __augment_tags(title, tags, "perl", {"programming"})
+
+    tags = __augment_tags(
+        title, tags, "rails", {"python", "webdev", "programming"}
+    )
+
+    tags = __augment_tags(title, tags, "perl", {"programming", "gamedev"})
     tags = __augment_tags(title, tags, "webassembly")
     tags = __augment_tags(title, tags, "linux")
     tags = __augment_tags(title, tags, "dragonflybsd")
@@ -172,6 +196,9 @@ def __from_title_url(tags, title, url):
     tags = __augment_tags(title, tags, "linkedin")
 
     tokens = title.split()
+
+    if "metaprogramming" in tokens:
+        tags |= {"programming"}
 
     if (
         url
@@ -192,7 +219,9 @@ def __from_title_url(tags, title, url):
         tags |= {"quantumcomputing", "programming"}
 
     tags = __augment_tags(title, tags, "nimlang")
-    tags = __augment_tags(title, tags, "nim", {"programming"}, "nimlang")
+    tags = __augment_tags(
+        title, tags, "nim", {"programming", "gamedev"}, "nimlang"
+    )
     if (
         url
         and "nim" in tokens
@@ -205,6 +234,50 @@ def __from_title_url(tags, title, url):
         )
     ):
         tags |= {"nimlang"}
+
+    tags = __augment_tags(title, tags, "ziglang")
+    tags = __augment_tags(
+        title, tags, "zig", {"programming", "gamedev"}, "ziglang"
+    )
+    if (
+        url
+        and "zig" in tokens
+        and (
+            "ziglang.org" in url.hostname
+            or (
+                url.hostname == "github.com"
+                and (url.path or "").startswith("/ziglang")
+            )
+        )
+    ):
+        tags |= {"ziglang"}
+
+    tags = __augment_tags(
+        title, tags, "java", {"programming", "gamedev", "webdev"}
+    )
+
+    tags = __augment_tags(title, tags, "kotlin", {"programming", "gamedev"})
+
+    tags = __augment_tags(
+        title, tags, "php", {"programming", "gamedev", "webdev"}
+    )
+
+    tags = __augment_tags(title, tags, "apl", {"programming"})
+    if (
+        url
+        and "j" in tokens
+        and (
+            "jsoftware.com" in url.hostname
+            or (
+                url.hostname == "github.com"
+                and (url.path or "").startswith("/jsoftware")
+            )
+        )
+    ):
+        tags |= {"apl"}
+
+    if url and "apl" in tokens and ("github.com" in url.hostname):
+        tags |= {"apl"}
 
     return tags
 
@@ -230,12 +303,15 @@ def __rename(tags, title, platform=None):
         ("moderatepolitics", "politics", "r"),
         ("nim", "nimlang", "r"),
         ("reddit.com", "reddit", "r"),
+        ("rust_gamedev", ["gamedev", "rustlang"], "r"),
         ("rust", "rustlang"),
-        ("software-eng", "software-engineering", "u"),
+        ("rubylang", "ruby", "r"),
+        ("software-eng", "programming", "u"),
         ("sports", "sport", "r"),
         ("squaredcircle", "wrestling", "r"),
         ("swift", "swiftlang"),
         ("teaching-&-learning", "teaching/learning", "u"),
+        ("theory", ["plt", "compsci"], "u"),
         ("upliftingnews", "news", "r"),
         ("wasm", "webassembly", "l"),
         ("web_design", "webdesign", "r"),
@@ -248,7 +324,13 @@ def __rename(tags, title, platform=None):
     for p in to_replace:
         if len(p) == 3 and p[2] != platform:
             continue
-        tags = __replace_tag(tags, p[0], p[1])
+        if p[0] not in tags:
+            continue
+        tags -= {p[0]}
+        if type(p[1]) is list:
+            tags |= set(p[1])
+        else:
+            tags |= {p[1]}
 
     return tags
 
@@ -265,11 +347,13 @@ def __enrich(tags, title):
             "clojure",
             "cpp",
             "cprogramming",
+            "csharp",
             "dlang",
             "dotnet",
             "elixir",
             "elm",
             "erlang",
+            "forth",
             "fortran",
             "golang",
             "haskell",
@@ -303,9 +387,11 @@ def __enrich(tags, title):
         title,
         tags,
         None,
-        {"django", "flask", "javascript", "typescript"},
+        {"django", "flask", "javascript", "typescript", "rails"},
         "webdev",
     )
+
+    tags = __augment_tags(title, tags, None, {"rails"}, "ruby")
 
     tags = __augment_tags(
         title,
