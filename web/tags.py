@@ -1,4 +1,5 @@
 from web import title as web_title
+import cleanurl
 
 
 def __augment_tags(title, tags, keyword, atleast_tags=None, new_tag=None):
@@ -172,7 +173,9 @@ def __from_title_url(tags, title, url):
 
     tokens = title.split()
 
-    if "swift" in tokens and ("swift.org" in url or "swiftlang" in url):
+    if "swift" in tokens and (
+        url.hostname == "swift.org" or "swiftlang" in url.path
+    ):
         tags |= {"swiftlang"}
 
     if "quantum" in tokens and (
@@ -185,6 +188,17 @@ def __from_title_url(tags, title, url):
         or "algorithm" in tokens
     ):
         tags |= {"quantumcomputing", "programming"}
+
+    tags = __augment_tags(title, tags, "nimlang")
+    tags = __augment_tags(title, tags, "nim", {"programming"}, "nimlang")
+    if "nim" in tokens and (
+        "nim-lang.org" in url.hostname
+        or (
+            url.hostname == "github.com"
+            and (url.path or "").startswith("/nim-lang")
+        )
+    ):
+        tags |= {"nimlang"}
 
     return tags
 
@@ -314,10 +328,11 @@ def normalize(tags, platform=None, title="", url=""):
     tags = tags or []
     tags = set(t.lower().strip() for t in tags)
     title = web_title.normalize(title, platform, url, tags, stem=False)
-    url = url.lower()
+    url = (url or "").lower()
+    curl = cleanurl.cleanurl(url)
 
     for _ in range(3):
-        tags = __from_title_url(tags, title, url)
+        tags = __from_title_url(tags, title, curl)
 
         if platform == "l":
             tags = __lobsters(tags, title)

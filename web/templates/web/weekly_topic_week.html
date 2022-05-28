@@ -8,6 +8,12 @@
 {{ctx.topic.name}} newsletter: issue for week {{ctx.week}}/{{ctx.year}} - discussions
 {% endblock title %}
 
+
+{% block meta_description %}
+Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials about {{ctx.topic.name}}.
+{% endblock meta_description %}
+
+
 {% block main %}
 
 <div class="weekly">
@@ -22,43 +28,43 @@
 
     <h3 id="weekly-{{category}}">{{category_name}} <a href="#weekly-{{category}}" title="{{category_name}} articles"
             class="relative-url">#</a>
-        </h2>
+    </h3>
 
-        <ul class="weekly-stories">
-            {% for story in stories %}
-            <li>
-                <p>
-                    <a href="{{story.story_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
-                </p>
+    <ul class="weekly-stories">
+        {% for story in stories %}
+        <li>
+            <p>
+                <a href="{{story.story_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
+            </p>
 
-                {% if story.total_comments %}
-                <p class="weekly-discussions">
-                    <a href="{{story.story_url|discussions_url}}"
-                        title="Discussions for «{{story.title}}»">{{story.total_comments}}
-                        comment{{story.total_comments|pluralize}}</a> in
-                    {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}
-                </p>
-                {% endif %}
+            {% if story.total_comments %}
+            <p class="weekly-discussions">
+                <a href="{{story.story_url|discussions_url}}"
+                    title="Discussions for «{{story.title}}»">{{story.total_comments}}
+                    comment{{story.total_comments|pluralize}}</a> in
+                {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}
+            </p>
+            {% endif %}
 
-            </li>
-            {% endfor %}
-        </ul>
-
+        </li>
         {% endfor %}
+    </ul>
 
-        <br />
+    {% endfor %}
 
-        {% include "web/weekly_subscribe_form.html" %}
+    <br />
 
-        <br />
-        <p>
-            This is an archived issue from the <a href="{% url 'web:weekly_topic' ctx.topic_key %}"
-                title="Weekly {{ctx.topic.name}} newsletter">{{ctx.topic.name}}
-                newsletter</a>.
-        </p>
+    {% include "web/weekly_subscribe_form.html" %}
+
+    <br />
+    <p>
+        This is an archived issue from the <a href="{% url 'web:weekly_topic' ctx.topic_key %}"
+            title="Weekly {{ctx.topic.name}} newsletter">{{ctx.topic.name}}
+            newsletter</a>.
+    </p>
 
 
-        {% include "web/weekly_fragment_follow.html" %}
+    {% include "web/weekly_fragment_follow.html" %}
 
 </div>
 {% endblock main %}

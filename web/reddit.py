@@ -76,6 +76,7 @@ def __url_blacklisted_selftext(url):
         or url == "learnopengl.com/"
         or url.startswith("discord.gg/python")
         or url.startswith("reddit.com")
+        or url.startswith("www.reddit.com")
         or url.startswith("old.reddit.com")
     ):
         return True

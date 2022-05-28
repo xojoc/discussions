@@ -141,10 +141,17 @@ class Discussion(models.Model):
         ):
             self.canonical_redirect_url = None
 
+        if self.schemeless_story_url and len(self.schemeless_story_url) > 2700:
+            self.schemeless_story_url = None
+        if self.canonical_story_url and len(self.canonical_story_url) > 2700:
+            self.canonical_story_url = None
+        if not self.schemeless_story_url and not self.canonical_story_url:
+            self.scheme_of_story_url = None
+
         self.normalized_title = title.normalize(
             self.title,
             self.platform,
-            (self.schemeless_story_url or ""),
+            (self.story_url or ""),
             self.tags,
             stem=False,
         )
@@ -153,15 +160,8 @@ class Discussion(models.Model):
             self.tags,
             self.platform,
             self.title,
-            (self.schemeless_story_url or ""),
+            (self.story_url or ""),
         )
-
-        if self.schemeless_story_url and len(self.schemeless_story_url) > 2700:
-            self.schemeless_story_url = None
-        if self.canonical_story_url and len(self.canonical_story_url) > 2700:
-            self.canonical_story_url = None
-        if not self.schemeless_story_url and not self.canonical_story_url:
-            self.scheme_of_story_url = None
 
     def save(self, *args, **kwargs):
         self._pre_save()

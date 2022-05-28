@@ -267,6 +267,8 @@ def extract_html(resource):
         link.save()
 
     resource.normalized_title = title.normalize(resource.title)
-    resource.normalized_tags = tags.normalize(resource.tags)
+    resource.normalized_tags = tags.normalize(
+        resource.tags, url=resource.story_url
+    )
 
     resource.save()

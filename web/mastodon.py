@@ -44,7 +44,7 @@ def post(status, username, post_from_dev=False):
         if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
             random.seed()
             print(username)
-            # print(status)
+            print(status)
             return random.randint(1, 1_000_000)
 
     client = http.client(with_cache=False)
@@ -94,14 +94,14 @@ def repost(post_id, username):
         return
 
 
-def __hashtags(tags):
+def build_hashtags(tags):
     replacements = {"c": "cprogramming"}
     tags = (replacements.get(t, t) for t in tags)
     return sorted(["#" + t for t in tags])
 
 
 def build_story_post(title, url, tags, author):
-    hashtags = __hashtags(tags)
+    hashtags = build_hashtags(tags)
 
     discussions_url = util.discussions_url(url)
 

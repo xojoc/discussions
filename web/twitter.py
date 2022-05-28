@@ -37,8 +37,8 @@ def tweet(status, username):
 
     if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         random.seed()
-        # print(username)
-        # print(status)
+        print(username)
+        print(status)
 
         # print(api_key)
         # print(api_secret_key)
@@ -88,14 +88,14 @@ STATUS_MAX_LENGTH = 280
 URL_LENGTH = 23
 
 
-def __hashtags(tags):
+def build_hashtags(tags):
     replacements = {"c": "cprogramming"}
     tags = (replacements.get(t, t) for t in tags)
     return sorted(["#" + t for t in tags])
 
 
 def build_story_status(title, url, tags, author):
-    hashtags = __hashtags(tags)
+    hashtags = build_hashtags(tags)
 
     discussions_url = util.discussions_url(url)
 

@@ -15,7 +15,7 @@ from django.utils.timezone import make_aware
 
 from discussions import settings
 
-from . import celery_util, email_util, mastodon, models, topics
+from . import celery_util, email_util, mastodon, models, tags, topics, twitter
 
 logger = logging.getLogger(__name__)
 
@@ -465,3 +465,42 @@ def worker_send_weekly_email(self):
 
     for topic in topics.topics:
         send_mass_email.delay(topic, year, week, testing=False)
+
+
+@shared_task(bind=True, ignore_result=True)
+def share_weekly_issue(self):
+    d = datetime.datetime.now() - datetime.timedelta(days=7)
+    ic = d.isocalendar()
+    year, week = ic.year, ic.week
+
+    for topic_key, topic in topics.topics.items():
+        issue_url = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}" + reverse(
+            "web:weekly_topic_week", args=[topic_key, year, week]
+        )
+        topic_url = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}" + reverse(
+            "web:weekly_topic", args=[topic_key]
+        )
+
+        htags = tags.normalize(topic.get("tags"))
+
+        status = f"""Issue for week {week}/{year} is out 🎉
+
+{issue_url}
+
+Subscribe by going to {topic_url} or write "subscribe" to {topic.get("email")}!
+"""
+
+        twitter_status = status
+        mastodon_status = status
+
+        if htags:
+            twitter_status += f"\n{' '.join(twitter.build_hashtags(htags))}"
+            mastodon_status += f"\n{' '.join(mastodon.build_hashtags(htags))}"
+
+        if topic.get("twitter"):
+            twitter.tweet(twitter_status, topic.get("twitter").get("account"))
+
+        if topic.get("mastodon"):
+            mastodon.post(
+                mastodon_status, topic.get("mastodon").get("account")
+            )

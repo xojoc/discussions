@@ -179,7 +179,7 @@ topics = {
     "webdev": {
         "name": "Web Development",
         "short_description": "Web Development",
-        "tags": {"webdev", "webassembly", "javascript", "css"},
+        "tags": {"webdev", "webassembly", "javascript", "typescript", "css"},
         "twitter": {
             "account": "WebdevDiscu",
         },
