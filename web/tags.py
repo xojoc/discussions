@@ -173,8 +173,10 @@ def __from_title_url(tags, title, url):
 
     tokens = title.split()
 
-    if "swift" in tokens and (
-        url.hostname == "swift.org" or "swiftlang" in url.path
+    if (
+        url
+        and "swift" in tokens
+        and (url.hostname == "swift.org" or "swiftlang" in url.path)
     ):
         tags |= {"swiftlang"}
 
@@ -191,11 +193,15 @@ def __from_title_url(tags, title, url):
 
     tags = __augment_tags(title, tags, "nimlang")
     tags = __augment_tags(title, tags, "nim", {"programming"}, "nimlang")
-    if "nim" in tokens and (
-        "nim-lang.org" in url.hostname
-        or (
-            url.hostname == "github.com"
-            and (url.path or "").startswith("/nim-lang")
+    if (
+        url
+        and "nim" in tokens
+        and (
+            "nim-lang.org" in url.hostname
+            or (
+                url.hostname == "github.com"
+                and (url.path or "").startswith("/nim-lang")
+            )
         )
     ):
         tags |= {"nimlang"}

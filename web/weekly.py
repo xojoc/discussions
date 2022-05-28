@@ -504,3 +504,5 @@ Subscribe by going to {topic_url} or write "subscribe" to {topic.get("email")}!
             mastodon.post(
                 mastodon_status, topic.get("mastodon").get("account")
             )
+
+        time.sleep(random.randint(10, 30))
