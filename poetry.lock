@@ -274,7 +274,7 @@ unicode_backport = ["unicodedata2"]
 
 [[package]]
 name = "cleanurl"
-version = "0.1.9"
+version = "0.1.10"
 description = "Remove clutter from URLs and return a canonicalized version"
 category = "main"
 optional = false
@@ -1602,8 +1602,8 @@ charset-normalizer = [
     {file = "charset_normalizer-2.0.12-py3-none-any.whl", hash = "sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df"},
 ]
 cleanurl = [
-    {file = "cleanurl-0.1.9-py3-none-any.whl", hash = "sha256:9461422b387a43854e461e76fd2907b1c889d80ef145a3f1eb94ca97f21b45e0"},
-    {file = "cleanurl-0.1.9.tar.gz", hash = "sha256:7a587fa1ff757719ada4fc7ac796351006a11230238d123bbd41907fcd71b873"},
+    {file = "cleanurl-0.1.10-py3-none-any.whl", hash = "sha256:f31ed17fd50ff5eb05cd07334db4a00a42518dff7f32722df4e21023e73bd243"},
+    {file = "cleanurl-0.1.10.tar.gz", hash = "sha256:fa89f36ffe6b62adb9395baf839b09b8bddb3534836fc830c0e8333c49c56105"},
 ]
 click = [
     {file = "click-8.1.3-py3-none-any.whl", hash = "sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48"},

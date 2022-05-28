@@ -157,10 +157,6 @@ def last_nth_yearweeks(topic, n):
 
 
 def __get_stories(topic, year, week):
-    # import django
-
-    # django.db.connections.close_all()
-
     ws = week_start(year, week)
     we = week_end(year, week)
 
@@ -222,7 +218,10 @@ def _get_digest(topic, year, week):
     digest = sorted(digest, key=lambda x: categories[x[0]]["sort"])
 
     for category, category_name, stories in digest:
-        stories.sort(key=lambda x: x.total_comments, reverse=True)
+        if topic == "hackernews":
+            stories.sort(key=lambda x: x.comment_count, reverse=True)
+        else:
+            stories.sort(key=lambda x: x.total_comments, reverse=True)
 
         if category == "article":
             stories[:] = stories[:15]

@@ -38,6 +38,7 @@ class WebConfig(AppConfig):
             )
 
         for topic_key, topic in topics.topics.items():
+            topic["topic_key"] = topic_key
             twitter = topic.get("twitter")
             if not twitter:
                 continue

@@ -41,6 +41,12 @@ class Tags(unittest.TestCase):
                 n(
                     [],
                     None,
+                    "Zig Programming Language",
+                    url="https://ziglang.org/",
+                ),
+                n(
+                    [],
+                    None,
                     "Zig self hosted compiler is now capable of building itself",
                     url="https://github.com/ziglang/zig/pull/11442",
                 ),
@@ -62,6 +68,7 @@ class Tags(unittest.TestCase):
                 ["linkedin"],
                 ["nimlang", "programming"],
                 ["nimlang", "programming"],
+                ["programming", "ziglang"],
                 ["programming", "ziglang"],
                 ["programming", "ziglang"],
                 ["gamedev", "programming", "rustlang"],

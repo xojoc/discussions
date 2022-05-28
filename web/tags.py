@@ -113,19 +113,20 @@ def __reddit(tags, title):
         title,
         tags,
         None,
-        {"compilers", "emudev"},
+        {"compilers", "emudev", "crypto"},
         "compsci",
     )
     return tags
 
 
 def __hacker_news(tags, title):
-    tags = __augment_tags(title, tags, "python")
     tags = __augment_tags(title, tags, "docker")
     tags = __augment_tags(title, tags, "javascript")
-    tags = __augment_tags(title, tags, "typescript")
     tags = __augment_tags(title, tags, "lisp")
+    tags = __augment_tags(title, tags, "python")
     tags = __augment_tags(title, tags, "rust", None, "rustlang")
+    tags = __augment_tags(title, tags, "typescript")
+    tags = __augment_tags(title, tags, "zig", None, "ziglang")
     return tags
 
 
@@ -141,6 +142,7 @@ def __lambda_the_ultimate(tags, title):
     new_tags = __augment_tags(title, new_tags, "lisp")
     new_tags = __augment_tags(title, new_tags, "python")
     new_tags = __augment_tags(title, new_tags, "scheme")
+    new_tags = __augment_tags(title, new_tags, "zig", None, "ziglang")
 
     return new_tags - {
         "admin",
@@ -278,6 +280,11 @@ def __from_title_url(tags, title, url):
 
     if url and "apl" in tokens and ("github.com" in url.hostname):
         tags |= {"apl"}
+
+    if "programming" in tokens and (
+        "language" in tokens or "languages" in tokens
+    ):
+        tags |= {"programming"}
 
     return tags
 
