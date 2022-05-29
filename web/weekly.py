@@ -473,6 +473,14 @@ def share_weekly_issue(self):
     year, week = ic.year, ic.week
 
     for topic_key, topic in topics.topics.items():
+        ctx = topic_week_context(topic_key, year, week)
+
+        if not ctx.get("digest"):
+            logger.warning(
+                f"weekly share issue: no articles {topic_key} {week}/{year}"
+            )
+            continue
+
         issue_url = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}" + reverse(
             "web:weekly_topic_week", args=[topic_key, year, week]
         )

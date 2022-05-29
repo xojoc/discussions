@@ -21,6 +21,14 @@ class Reddit(unittest.TestCase):
             None,
             "[build.rs](https://build.rs)",
             None,
+            "Do anyone know from where can i learn [ASP.NET](https://ASP.NET)? (i already know c#)",
+            None,
+            "like the [readme.md](https://readme.md) to be self-explanatory",
+            None,
+            "[Single link](https://discu.eu/)",
+            "https://discu.eu/",
+            "[more than](https://discu.eu) two [links](https://xojoc.pw/)",
+            None,
         ]
         for h, u in zip(tests[0::2], tests[1::2]):
             hu = reddit._url_from_selftext(h)

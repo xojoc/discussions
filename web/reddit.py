@@ -61,7 +61,6 @@ def __url_blacklisted_selftext(url):
             "www.google.com",
             "google.com",
             "google.com/trends/explore",
-            "asp.net",
             "www.privacytools.io/#photos",
             "example.com",
             "itch.io",
@@ -91,6 +90,8 @@ def _url_from_selftext(selftext):
     h = http.parse_html(markdown.markdown(selftext))
     if not h:
         return
+
+    links = []
 
     for a in h.select("a") or []:
         if a and a.get("href"):
@@ -123,12 +124,20 @@ def _url_from_selftext(selftext):
 
             lower_netloc = u.parsed_url.netloc.lower()
             if (
-                lower_netloc.endswith(".py") or lower_netloc.endswith(".rs")
+                lower_netloc.endswith(".py")
+                or lower_netloc.endswith(".rs")
+                or lower_netloc.endswith(".net")
+                or lower_netloc.endswith(".md")
             ) and not u.parsed_url.path:
                 if lower_netloc == a.text.lower():
                     continue
 
-            return a["href"]
+            links.append(a["href"])
+
+    if len(links) == 1:
+        return links[0]
+
+    return None
 
 
 def __process_archive_line(line):
@@ -547,9 +556,9 @@ def worker_update_all_discussions(self):
             ):
                 d.delete()
                 continue
-            if d.subreddit not in subreddit_whitelist:
-                d.delete()
-                continue
+            # if d.subreddit not in subreddit_whitelist:
+            #     d.delete()
+            #     continue
 
             ps.append(f"t3_{d.id}")
             ds.append(d)
@@ -578,11 +587,35 @@ def worker_update_all_discussions(self):
                 d.delete()
                 continue
 
+            if p.is_self:
+                if not p.stickied:
+                    url = _url_from_selftext(p.selftext)
+            else:
+                url = p.url
+
+            scheme, story_url = None, None
+            if url:
+                u = cleanurl.cleanurl(
+                    url,
+                    generic=True,
+                    respect_semantics=True,
+                    host_remap=False,
+                )
+                scheme = u.scheme
+                story_url = u.schemeless_url
+
+            if __url_blacklisted(story_url):
+                d.delete()
+                continue
+
             d.comment_count = p.num_comments or 0
             d.score = p.score or 0
             d.title = p.title
             # d.tags = [(p.subreddit.display_name or '').lower()]
             d.archived = p.archived
+            d.scheme_of_story_url = scheme
+            d.schemeless_story_url = story_url
+
             d.save()
 
         current_index += step
