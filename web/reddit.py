@@ -128,7 +128,7 @@ def _url_from_selftext(selftext):
                 or lower_netloc.endswith(".rs")
                 or lower_netloc.endswith(".net")
                 or lower_netloc.endswith(".md")
-            ) and not u.parsed_url.path:
+            ) and (not u.parsed_url.path or u.parsed_url.path == "/"):
                 if lower_netloc == a.text.lower():
                     continue
 

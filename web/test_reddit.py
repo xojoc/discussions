@@ -21,7 +21,7 @@ class Reddit(unittest.TestCase):
             None,
             "[build.rs](https://build.rs)",
             None,
-            "Do anyone know from where can i learn [ASP.NET](https://ASP.NET)? (i already know c#)",
+            "Do anyone know from where can i learn [ASP.NET](https://ASP.NET/)? (i already know c#)",
             None,
             "like the [readme.md](https://readme.md) to be self-explanatory",
             None,
