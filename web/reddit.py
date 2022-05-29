@@ -45,6 +45,8 @@ def __url_blacklisted(url):
         or url.startswith("i.redd.it")
         or url.startswith("reddit.com/live")
         or url.startswith("www.reddit.com/live")
+        or url
+        in ("reddit.com", "reddit.com/", "www.reddit.com", "www.reddit.com/")
     ):
         return True
 

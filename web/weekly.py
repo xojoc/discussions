@@ -8,7 +8,7 @@ import time
 import django.template.loader as template_loader
 import urllib3
 from celery import shared_task
-from django.db.models import Count, Sum
+from django.db.models import Count, OuterRef, Subquery, Sum, Value
 from django.db.models.functions import Coalesce, TruncDay
 from django.urls import reverse
 from django.utils.timezone import make_aware
@@ -160,8 +160,6 @@ def __get_stories(topic, year, week):
     ws = week_start(year, week)
     we = week_end(year, week)
 
-    logger.debug(f"weekly: date range {topic} {ws} {we}")
-
     stories = (
         __base_query(topic)
         .filter(created_at__gte=ws)
@@ -171,28 +169,84 @@ def __get_stories(topic, year, week):
         # .order_by("created_at")
     )
 
-    logger.debug(f"weekly: stories count {stories.count()}")
+    min_comments = 2
+
+    stories = stories.annotate(
+        total_comments=Coalesce(
+            Subquery(
+                (
+                    models.Discussion.objects.filter(
+                        canonical_story_url=OuterRef("canonical_story_url")
+                    )
+                    | models.Discussion.objects.filter(
+                        schemeless_story_url__iexact=OuterRef(
+                            "schemeless_story_url"
+                        )
+                    )
+                    | models.Discussion.objects.filter(
+                        schemeless_story_url__iexact=OuterRef(
+                            "canonical_story_url"
+                        )
+                    )
+                )
+                .filter(comment_count__gte=min_comments)
+                .values("canonical_story_url")
+                .annotate(total_comments=Sum("comment_count"))
+                .values("total_comments")
+            ),
+            Value(0),
+        )
+    )
+
+    stories = stories.annotate(
+        total_discussions=Coalesce(
+            Subquery(
+                (
+                    models.Discussion.objects.filter(
+                        canonical_story_url=OuterRef("canonical_story_url")
+                    )
+                    | models.Discussion.objects.filter(
+                        schemeless_story_url__iexact=OuterRef(
+                            "schemeless_story_url"
+                        )
+                    )
+                    | models.Discussion.objects.filter(
+                        schemeless_story_url__iexact=OuterRef(
+                            "canonical_story_url"
+                        )
+                    )
+                )
+                .filter(comment_count__gte=min_comments)
+                .values("canonical_story_url")
+                .annotate(total_discussions=Count("platform_id"))
+                .values("total_discussions")
+            ),
+            Value(0),
+        )
+    )
+
+    logger.debug(f"weekly: {topic} {ws} {we}: stories count {stories.count()}")
 
     for story in stories:
         category = __category(story)
         story.__dict__["category"] = category
 
-        discussions, _, _ = models.Discussion.of_url(
-            story.story_url, only_relevant_stories=True
-        )
-        discussion_counts = (
-            discussions.aggregate(
-                total_comments=Coalesce(Sum("comment_count"), 0),
-                total_discussions=Coalesce(Count("platform_id"), 0),
-            )
-            or {}
-        )
-        story.__dict__["total_comments"] = discussion_counts.get(
-            "total_comments"
-        )
-        story.__dict__["total_discussions"] = discussion_counts.get(
-            "total_discussions"
-        )
+        # discussions, _, _ = models.Discussion.of_url(
+        #     story.story_url, only_relevant_stories=True
+        # )
+        # discussion_counts = (
+        #     discussions.aggregate(
+        #         total_comments=Coalesce(Sum("comment_count"), 0),
+        #         total_discussions=Coalesce(Count("platform_id"), 0),
+        #     )
+        #     or {}
+        # )
+        # story.__dict__["total_comments"] = discussion_counts.get(
+        #     "total_comments"
+        # )
+        # story.__dict__["total_discussions"] = discussion_counts.get(
+        #     "total_discussions"
+        # )
 
         # story.__dict__["discussions"], _, _ = models.Discussion.of_url(
         #     story.story_url, only_relevant_stories=True
