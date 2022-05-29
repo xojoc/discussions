@@ -164,7 +164,7 @@ def __get_stories(topic, year, week):
         __base_query(topic)
         .filter(created_at__gte=ws)
         .filter(created_at__lt=we)
-        # .distinct("canonical_story_url")
+        .distinct("canonical_story_url")
         # .order_by("comment_count")
         # .order_by("created_at")
     )

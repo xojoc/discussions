@@ -217,9 +217,12 @@ def index(request, path_q=None):
 
     if ctx.get("is_url"):
         url = ctx.get("url", "")
-        u = urllib3.util.parse_url(url)
-        if u.host:
-            ctx["try_with_site_prefix"] = "site:" + u.host
+        try:
+            u = urllib3.util.parse_url(url)
+            if u.host:
+                ctx["try_with_site_prefix"] = "site:" + u.host
+        except Exception as e:
+            logger.info(e)
 
     if ctx.get("submit_title") and not (
         ctx.get("submit_title").startswith("http://")
