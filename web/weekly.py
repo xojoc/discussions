@@ -164,30 +164,17 @@ def __get_stories(topic, year, week):
         __base_query(topic)
         .filter(created_at__gte=ws)
         .filter(created_at__lt=we)
-        .distinct("canonical_story_url")
+        # .distinct("canonical_story_url")
         # .order_by("comment_count")
         # .order_by("created_at")
     )
 
     min_comments = 2
-
     stories = stories.annotate(
         total_comments=Coalesce(
             Subquery(
-                (
-                    models.Discussion.objects.filter(
-                        canonical_story_url=OuterRef("canonical_story_url")
-                    )
-                    | models.Discussion.objects.filter(
-                        schemeless_story_url__iexact=OuterRef(
-                            "schemeless_story_url"
-                        )
-                    )
-                    | models.Discussion.objects.filter(
-                        schemeless_story_url__iexact=OuterRef(
-                            "canonical_story_url"
-                        )
-                    )
+                models.Discussion.objects.filter(
+                    canonical_story_url=OuterRef("canonical_story_url")
                 )
                 .filter(comment_count__gte=min_comments)
                 .values("canonical_story_url")
@@ -201,20 +188,8 @@ def __get_stories(topic, year, week):
     stories = stories.annotate(
         total_discussions=Coalesce(
             Subquery(
-                (
-                    models.Discussion.objects.filter(
-                        canonical_story_url=OuterRef("canonical_story_url")
-                    )
-                    | models.Discussion.objects.filter(
-                        schemeless_story_url__iexact=OuterRef(
-                            "schemeless_story_url"
-                        )
-                    )
-                    | models.Discussion.objects.filter(
-                        schemeless_story_url__iexact=OuterRef(
-                            "canonical_story_url"
-                        )
-                    )
+                models.Discussion.objects.filter(
+                    canonical_story_url=OuterRef("canonical_story_url")
                 )
                 .filter(comment_count__gte=min_comments)
                 .values("canonical_story_url")
@@ -224,6 +199,60 @@ def __get_stories(topic, year, week):
             Value(0),
         )
     )
+
+    # stories = stories.annotate(
+    #     total_comments=Coalesce(
+    #         Subquery(
+    #             (
+    #                 models.Discussion.objects.filter(
+    #                     canonical_story_url=OuterRef("canonical_story_url")
+    #                 )
+    #                 | models.Discussion.objects.filter(
+    #                     schemeless_story_url__iexact=OuterRef(
+    #                         "schemeless_story_url"
+    #                     )
+    #                 )
+    #                 | models.Discussion.objects.filter(
+    #                     schemeless_story_url__iexact=OuterRef(
+    #                         "canonical_story_url"
+    #                     )
+    #                 )
+    #             )
+    #             .filter(comment_count__gte=min_comments)
+    #             .values("canonical_story_url")
+    #             .annotate(total_comments=Sum("comment_count"))
+    #             .values("total_comments")
+    #         ),
+    #         Value(0),
+    #     )
+    # )
+
+    # stories = stories.annotate(
+    #     total_discussions=Coalesce(
+    #         Subquery(
+    #             (
+    #                 models.Discussion.objects.filter(
+    #                     canonical_story_url=OuterRef("canonical_story_url")
+    #                 )
+    #                 | models.Discussion.objects.filter(
+    #                     schemeless_story_url__iexact=OuterRef(
+    #                         "schemeless_story_url"
+    #                     )
+    #                 )
+    #                 | models.Discussion.objects.filter(
+    #                     schemeless_story_url__iexact=OuterRef(
+    #                         "canonical_story_url"
+    #                     )
+    #                 )
+    #             )
+    #             .filter(comment_count__gte=min_comments)
+    #             .values("canonical_story_url")
+    #             .annotate(total_discussions=Count("platform_id"))
+    #             .values("total_discussions")
+    #         ),
+    #         Value(0),
+    #     )
+    # )
 
     logger.debug(f"weekly: {topic} {ws} {we}: stories count {stories.count()}")
 
