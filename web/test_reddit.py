@@ -29,6 +29,8 @@ class Reddit(unittest.TestCase):
             "https://discu.eu/",
             "[more than](https://discu.eu) two [links](https://xojoc.pw/)",
             None,
+            "'task_id'\n\n[**urls. py**](https://urls.py)**:**\n\n",
+            None,
         ]
         for h, u in zip(tests[0::2], tests[1::2]):
             hu = reddit._url_from_selftext(h)

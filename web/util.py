@@ -1,8 +1,11 @@
-from urllib.parse import quote
-from difflib import SequenceMatcher
-from discussions import settings
 import os
+import unicodedata
+from difflib import SequenceMatcher
+from urllib.parse import quote
+
 import cleanurl
+
+from discussions import settings
 
 
 def discussions_url(q, with_domain=True):
@@ -45,3 +48,21 @@ def most_similar(bs, a, key=__noop):
 
 def is_dev():
     return os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true"
+
+
+def strip_punctuation(w):
+    while len(w) > 0:
+        cat = unicodedata.category(w[0])
+        if cat.startswith("P"):
+            w = w[1:]
+        else:
+            break
+
+    while len(w) > 0:
+        cat = unicodedata.category(w[-1])
+        if cat.startswith("P"):
+            w = w[:-1]
+        else:
+            break
+
+    return w

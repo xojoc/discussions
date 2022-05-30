@@ -80,6 +80,11 @@ def __category(story):
         if path.startswith("/crates/"):
             return "project"
 
+    if host in ("docs.rs"):
+        parts = [p for p in path.split("/") if p]
+        if len(parts) == 1:
+            return "project"
+
     # fixme: look for parameters too
     if host in ("youtu.be", "youtube.com", "vimeo.com"):
         return "video"
@@ -179,12 +184,15 @@ def __get_stories(topic, year, week):
     )
 
     min_comments = 2
+    min_score = 1
+
     stories = stories.annotate(
         total_comments=Coalesce(
             Subquery(
                 models.Discussion.objects.filter(
                     canonical_story_url=OuterRef("canonical_story_url")
                 )
+                .filter(score__gte=min_score)
                 .filter(comment_count__gte=min_comments)
                 .values("canonical_story_url")
                 .annotate(total_comments=Sum("comment_count"))
@@ -200,6 +208,7 @@ def __get_stories(topic, year, week):
                 models.Discussion.objects.filter(
                     canonical_story_url=OuterRef("canonical_story_url")
                 )
+                .filter(score__gte=min_score)
                 .filter(comment_count__gte=min_comments)
                 .values("canonical_story_url")
                 .annotate(total_discussions=Count("platform_id"))
@@ -208,6 +217,8 @@ def __get_stories(topic, year, week):
             Value(0),
         )
     )
+
+    stories = stories.filter(total_discussions__lt=20)
 
     # stories = stories.annotate(
     #     total_comments=Coalesce(

@@ -2,6 +2,7 @@ import re
 
 # import nltk
 import unicodedata
+from . import util
 
 
 def __lobsters(title):
@@ -52,19 +53,7 @@ def __punctuation(title):
     title = title.replace("'s ", " ")
     new_title = ""
     for w in title.split():
-        while len(w) > 0:
-            cat = unicodedata.category(w[0])
-            if cat.startswith("P"):
-                w = w[1:]
-            else:
-                break
-
-        while len(w) > 0:
-            cat = unicodedata.category(w[-1])
-            if cat.startswith("P"):
-                w = w[:-1]
-            else:
-                break
+        w = util.strip_punctuation(w)
 
         new_title += w
         new_title += " "

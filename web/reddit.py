@@ -23,7 +23,7 @@ from django_redis import get_redis_connection
 
 from discussions.settings import APP_CELERY_TASK_MAX_TIME
 
-from . import celery_util, http, models, worker
+from . import celery_util, http, models, util, worker
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +131,9 @@ def _url_from_selftext(selftext):
                 or lower_netloc.endswith(".net")
                 or lower_netloc.endswith(".md")
             ) and (not u.parsed_url.path or u.parsed_url.path == "/"):
-                if lower_netloc == a.text.lower():
+                if lower_netloc == util.strip_punctuation(
+                    a.text.lower().replace(" ", "")
+                ):
                     continue
 
             links.append(a["href"])

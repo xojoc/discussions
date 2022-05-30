@@ -77,6 +77,7 @@ def __lobsters(tags, title):
             "networking",
             "osdev",
             "plt",
+            "cryptography",
         },
         "compsci",
     )
@@ -113,7 +114,7 @@ def __reddit(tags, title):
         title,
         tags,
         None,
-        {"compilers", "emudev", "crypto"},
+        {"compilers", "emudev", "cryptography"},
         "compsci",
     )
     return tags
@@ -300,6 +301,7 @@ def __rename(tags, title, platform=None):
         ("c#", "csharp"),
         ("c++", "cpp"),
         ("coding", "programming", "r"),
+        ("crypto", "cryptography", "r"),
         ("d_language", "dlang", "r"),
         ("d", "dlang", "l"),
         ("economics", "economy", "r"),

@@ -683,6 +683,9 @@ class Resource(models.Model):
             url, generic=True, respect_semantics=True, host_remap=False
         )
 
+        if not cu or not su:
+            return None
+
         r = (
             cls.objects.filter(url=su.schemeless_url)
             | cls.objects.filter(url=cu.schemeless_url)
