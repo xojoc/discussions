@@ -49,6 +49,10 @@ def process_item(platform, item, redis=None, skip_timeout=0):
         models.Discussion.objects.filter(pk=platform_id).delete()
         return
 
+    if not item.get("title") and not item.get("time") and not item.get("url"):
+        models.Discussion.objects.filter(pk=platform_id).delete()
+        return
+
     if item.get("type") != "story":
         if item.get("type") == "comment":
             redis.sadd(__redis_comment_set_key(platform), item.get("id"))

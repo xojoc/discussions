@@ -15,7 +15,16 @@ from django.utils.timezone import make_aware
 
 from discussions import settings
 
-from . import celery_util, email_util, mastodon, models, tags, topics, twitter
+from . import (
+    celery_util,
+    email_util,
+    mastodon,
+    models,
+    tags,
+    topics,
+    twitter,
+    util,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -588,11 +597,20 @@ Subscribe by going to {topic_url} or write "subscribe" to {topic.get("email")}!
             mastodon_status += f"\n{' '.join(mastodon.build_hashtags(htags))}"
 
         if topic.get("twitter"):
-            twitter.tweet(twitter_status, topic.get("twitter").get("account"))
+            try:
+                twitter.tweet(
+                    twitter_status, topic.get("twitter").get("account")
+                )
+            except Exception as e:
+                logger.error(f"weekly share: {e}")
 
         if topic.get("mastodon"):
-            mastodon.post(
-                mastodon_status, topic.get("mastodon").get("account")
-            )
+            try:
+                mastodon.post(
+                    mastodon_status, topic.get("mastodon").get("account")
+                )
+            except Exception as e:
+                logger.error(f"weekly share: {e}")
 
-        time.sleep(random.randint(10, 30))
+        if not util.is_dev():
+            time.sleep(random.randint(30, 60))
