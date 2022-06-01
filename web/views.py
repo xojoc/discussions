@@ -10,7 +10,7 @@ from django.http import HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-# from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import cache_page
 from django_redis import get_redis_connection
 
 from discussions import settings
@@ -410,7 +410,7 @@ def weekly_topic(request, topic):
     return response
 
 
-# @cache_page(3 * 60 * 60, key_prefix='weekly:')
+@cache_page(3 * 60 * 60, key_prefix="weekly:")
 def weekly_topic_week(request, topic, year, week):
     ctx = weekly.topic_week_context(topic, year, week)
     response = __weekly_topic_subscribe_form(request, topic, ctx)
