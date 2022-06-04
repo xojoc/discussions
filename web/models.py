@@ -848,11 +848,12 @@ class Subscriber(models.Model):
 
     @classmethod
     def mailing_list(cls, topic):
-        return (
-            cls.objects.filter(topic=topic)
-            .filter(confirmed=True)
-            .filter(unsubscribed=False)
-        )
+        q = cls.objects.filter(confirmed=True).filter(unsubscribed=False)
+
+        if topic:
+            q = q.filter(topic=topic)
+
+        return q
 
     @classmethod
     def generate_verification_code(cls):

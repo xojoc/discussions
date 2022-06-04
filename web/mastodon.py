@@ -451,3 +451,30 @@ def post_discussions_scheduled():
 
             if post_id:
                 break
+
+
+def get_followers_count(usernames):
+    followers_count = {}
+
+    access_token = os.getenv("MASTODON_DISCUSSIONS_ACCESS_TOKEN")
+
+    client = http.client(with_cache=False)
+
+    api_url = "https://mastodon.social/api/v2/search"
+    auth = {"Authorization": f"Bearer {access_token}"}
+    parameters = {"limit": 5, "resolve": True, "type": "accounts"}
+
+    for username in usernames:
+        parameters["q"] = username
+        res = client.get(api_url, data=parameters, headers=auth)
+
+        if not res.ok:
+            continue
+
+        for user in res.json()["accounts"]:
+            if user["username"].lower() != username:
+                continue
+
+            followers_count[username] = user["followers_count"]
+
+    return followers_count

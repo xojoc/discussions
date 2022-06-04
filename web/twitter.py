@@ -475,3 +475,17 @@ def tweet_discussions_scheduled():
 
             if tweet_id:
                 break
+
+
+def get_followers_count(usernames):
+    followers_count = {}
+    auth = tweepy.OAuth2BearerHandler(os.getenv("TWITTER_BEARER_TOKEN"))
+    api = tweepy.API(auth)
+    for username in usernames:
+        try:
+            user = api.get_user(screen_name=username)
+            followers_count[username] = user.followers_count
+        except Exception as e:
+            logger.warn(f"twitter followers count: {e}")
+
+    return followers_count

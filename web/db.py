@@ -1,11 +1,21 @@
-import time
-import logging
-from web import models, celery_util, crawler
-from web import worker
-from celery import shared_task
-from django.utils import timezone
 import datetime
+import logging
+import time
 
+from celery import shared_task
+from django.conf import settings
+from django.utils import timezone
+
+from web import (
+    celery_util,
+    crawler,
+    email_util,
+    mastodon,
+    models,
+    topics,
+    twitter,
+    worker,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -106,3 +116,60 @@ def worker_update_resources(self):
             last_checkpoint = time.monotonic()
 
     logger.info(f"db update resources: {time.monotonic() - start_time}")
+
+
+@shared_task(ignore_result=True, bind=True)
+def admin_send_recap_email(self):
+
+    subscribers = (
+        models.Subscriber.mailing_list(None).distinct("email").count()
+    )
+    unconfirmed = (
+        models.Subscriber.objects.filter(confirmed=False)
+        .filter(unsubscribed=False)
+        .count()
+    )
+    unsubscribed = models.Subscriber.objects.filter(unsubscribed=True).count()
+
+    sorted_topics = dict(sorted(topics.topics.items()))
+    twitter_usernames = []
+    mastodon_usernames = []
+
+    for topic in sorted_topics.values():
+        if topic.get("twitter"):
+            twitter_usernames.append(topic["twitter"]["account"])
+        if topic.get("mastodon"):
+            user = topic["mastodon"]["account"].split("@")[1]
+            mastodon_usernames.append(user)
+
+    twitter_followers_count = twitter.get_followers_count(twitter_usernames)
+    mastodon_followers_count = mastodon.get_followers_count(mastodon_usernames)
+
+    body = f"""
+Subscribers: {subscribers}
+Unconfirmed: {unconfirmed}
+Unsubscribed: {unsubscribed}
+    """
+
+    if twitter_followers_count:
+        body += "\nTwitter followers:\n"
+
+        for user, count in twitter_followers_count.items():
+            body += f"{user:25} => {count:9,}\n"
+
+        body += "\n"
+
+    if mastodon_followers_count:
+        body += "\nMastodon followers:\n"
+
+        for user, count in mastodon_followers_count.items():
+            body += f"{user:25} => {count:9,}\n"
+
+        body += "\n"
+
+    email_util.send(
+        "[discu.eu] Weekly overview",
+        body,
+        settings.SERVER_EMAIL,
+        settings.ADMINS[0][1],
+    )
