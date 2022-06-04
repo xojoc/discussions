@@ -149,23 +149,41 @@ def admin_send_recap_email(self):
 Subscribers: {subscribers}
 Unconfirmed: {unconfirmed}
 Unsubscribed: {unsubscribed}
-    """
 
-    if twitter_followers_count:
-        body += "\nTwitter followers:\n"
+"""
 
-        for user, count in twitter_followers_count.items():
-            body += f"{user:25} => {count:9,}\n"
+    # if twitter_followers_count:
+    #     body += "\nTwitter followers:\n"
 
-        body += "\n"
+    #     for user, count in twitter_followers_count.items():
+    #         body += f"{user:25} => {count:9,}\n"
 
-    if mastodon_followers_count:
-        body += "\nMastodon followers:\n"
+    #     body += "\n"
 
-        for user, count in mastodon_followers_count.items():
-            body += f"{user:25} => {count:9,}\n"
+    # if mastodon_followers_count:
+    #     body += "\nMastodon followers:\n"
 
-        body += "\n"
+    #     for user, count in mastodon_followers_count.items():
+    #         body += f"{user:25} => {count:9,}\n"
+
+    #     body += "\n"
+
+    for topic_key, topic in sorted_topics.items():
+        twitter_count = 0
+        mastodon_count = 0
+        if topic.get("twitter"):
+            twitter_count = twitter_followers_count.get(
+                topic["twitter"]["account"]
+            )
+        if topic.get("mastodon"):
+            user = topic["mastodon"]["account"].split("@")[1]
+            mastodon_count = mastodon_followers_count.get(user)
+
+        topic_subscribers = models.Subscriber.mailing_list(topic_key).count()
+
+        body += f"{topic_key:20} => {topic_subscribers:9,} {mastodon_count:9,} {twitter_count:9,}\n"
+
+    body += "\n"
 
     email_util.send(
         "[discu.eu] Weekly overview",
