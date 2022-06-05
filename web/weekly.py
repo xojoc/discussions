@@ -99,6 +99,8 @@ def __base_query(topic):
         .exclude(scheme_of_story_url__isnull=True)
         .exclude(scheme_of_story_url="")
         .exclude(created_at__isnull=True)
+        # .filter(comment_count__gte=1)
+        .filter(score__gte=2)
     )
     tags = topics.topics[topic].get("tags")
     if tags:
