@@ -15,6 +15,7 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("q/<path:path_q>", views.index, name="index"),
     path("s/<str:platform_id>", views.short_url, name="short_url"),
+    path("u/<str:platform_id>", views.story_short_url, name="story_short_url"),
     path("weekly/", views.weekly_index, name="weekly_index"),
     path(
         "weekly/confirm_email/",

@@ -66,3 +66,35 @@ def strip_punctuation(w):
             break
 
     return w
+
+
+def url_root(url):
+    """Return the *root* of the page"""
+
+    if type(url) is str:
+        url = cleanurl.cleanurl(
+            url, generic=True, respect_semantics=True, host_remap=False
+        )
+
+    if url.hostname in (
+        "www.github.com",
+        "github.com",
+        "gitlab.com",
+        "www.gitlab.com",
+    ):
+        parts = (url.path or "").split("/")
+        parts = [p for p in parts if p]
+        if len(parts) >= 2:
+            return url.hostname + "/" + parts[0]
+
+    if url.hostname in (
+        "www.twitter.com",
+        "twitter.com",
+        "mobile.twitter.com",
+    ):
+        parts = (url.path or "").split("/")
+        parts = [p for p in parts if p]
+        if len(parts) >= 3 and parts[1] == "status":
+            return url.hostname + "/" + parts[0]
+
+    return url.hostname

@@ -264,6 +264,11 @@ def short_url(request, platform_id):
     return redirect(redirect_to, permanent=False)
 
 
+def story_short_url(request, platform_id):
+    d = get_object_or_404(models.Discussion, pk=platform_id)
+    return redirect(d.story_url, permanent=False)
+
+
 def weekly_confirm_email(request):
     topic = request.GET.get("topic")
     subscriber_email = request.GET.get("email")
@@ -410,7 +415,7 @@ def weekly_topic(request, topic):
     return response
 
 
-@cache_page(3 * 60 * 60, key_prefix="weekly:")
+@cache_page(6 * 60 * 60, key_prefix="weekly:")
 def weekly_topic_week(request, topic, year, week):
     ctx = weekly.topic_week_context(topic, year, week)
     response = __weekly_topic_subscribe_form(request, topic, ctx)

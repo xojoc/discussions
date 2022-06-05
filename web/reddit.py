@@ -549,9 +549,7 @@ def worker_update_all_discussions(self):
 
         logger.debug(f"reddit update all: current index {current_index}")
 
-        for d in q[current_index : current_index + step].iterator():
-            query_has_results = True
-
+        for d in q[current_index : current_index + step]:
             if d.subreddit.lower() in subreddit_blacklist:
                 d.delete()
                 continue
@@ -560,10 +558,8 @@ def worker_update_all_discussions(self):
             ):
                 d.delete()
                 continue
-            # if d.subreddit not in subreddit_whitelist:
-            #     d.delete()
-            #     continue
 
+            query_has_results = True
             ps.append(f"t3_{d.id}")
             ds.append(d)
 
@@ -590,6 +586,8 @@ def worker_update_all_discussions(self):
             if p.over_18:
                 d.delete()
                 continue
+
+            url = None
 
             if p.is_self:
                 if not p.stickied:
@@ -626,4 +624,4 @@ def worker_update_all_discussions(self):
 
         cache.set(cache_current_index_key, current_index, timeout=None)
 
-        time.sleep(10)
+        time.sleep(5)

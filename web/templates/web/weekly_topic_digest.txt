@@ -1,17 +1,18 @@
-{% load util %}Hi!
-this week's digest for {{ctx.topic.name|safe}}:
+{% load util %}Hey 👋
+here's a recap about {{ctx.topic.name|safe}} for last week:
 
 {% for category, category_name, stories in ctx.digest %}# {{category_name|safe}}
 {% for story in stories %}
- * {{story.title|safe}}
-  -> {{story.story_url|safe}}
-{% if story.total_comments %}      {{story.total_comments}} comment{{story.total_comments|pluralize}} in {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}: {{story|short_url|safe}}
+  -> {{story.title|safe}}
+     {{story|story_short_url|safe}}  [{{story.story_url|url_root|safe}}]
+{% if story.total_comments %}     {{story.total_comments}} comment{{story.total_comments|pluralize}} in {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}: {{story|short_url|safe}}
 {% endif %}{% endfor %}
-{% endfor %}
 
-Thank you!
+{% endfor %}Thanks for reading, see you next time!
 --
-View digest online: {{ctx.web_link|safe}}
+View issue online: {{ctx.web_link|safe}}
+
+If you have any friends or colleagues that could find this issue useful, please share with them.
 
 You can unsubscribe any time by replying with "unsubscribe" or
 by visiting: {{ctx.subscriber.unsubscribe_url|safe}}

@@ -20,3 +20,14 @@ def discussions_url_domain(q):
 def short_url(d):
     path = reverse("web:short_url", args=[d.platform_id])
     return f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}{path}"
+
+
+@register.filter(name="story_short_url")
+def story_short_url(d):
+    path = reverse("web:story_short_url", args=[d.platform_id])
+    return f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}{path}"
+
+
+@register.filter(name="url_root")
+def url_root(u):
+    return util.url_root(u)

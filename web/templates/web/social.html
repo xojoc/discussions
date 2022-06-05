@@ -14,7 +14,7 @@ Social accounts/bots - discussions
 {% for bot in ctx.mastodon_bots %}
 
 <ul>
-	<li><a href="{{bot.link}}" title="{{bot.link_title}}" rel="me">{{bot.nick}}</a> - {{bot.description}}</li>
+	<li><a href="{{bot.link}}" title="{{bot.link_title}}" rel="me nofollow">{{bot.nick}}</a> - {{bot.description}}</li>
 </ul>
 
 {% endfor %}
@@ -22,7 +22,7 @@ Social accounts/bots - discussions
 <br />
 
 <p>
-	You can find me at <a href="https://mastodon.social/@xojoc"
+	You can find me at <a href="https://mastodon.social/@xojoc" rel="nofollow"
 		title="Mastodon profile of Alexandru Cojocaru">@xojoc</a>.
 </p>
 
@@ -39,7 +39,7 @@ Social accounts/bots - discussions
 {% for bot in ctx.twitter_bots %}
 
 <ul>
-	<li><a href="{{bot.link}}" title="{{bot.link_title}}" rel="me">{{bot.nick}}</a> - {{bot.description}}</li>
+	<li><a href="{{bot.link}}" title="{{bot.link_title}}" rel="me nofollow">{{bot.nick}}</a> - {{bot.description}}</li>
 </ul>
 
 {% endfor %}
@@ -47,8 +47,8 @@ Social accounts/bots - discussions
 <br />
 
 <p>
-	You can find me at <a href="https://twitter.com/XojocXojoc"
-		title="Twitter profile of Alexandru Cojocaru">@XojocXojoc</a>.
+	You can find me at <a href="https://twitter.com/XojocXojoc" title="Twitter profile of Alexandru Cojocaru"
+		rel="nofollow">@XojocXojoc</a>.
 </p>
 
 
