@@ -878,7 +878,7 @@ class Subscriber(models.Model):
             )
         )
         email_util.send(
-            f"Confirm subscription to weekly {topics.topics[self.topic]['name']} digest",
+            f"Confirm subscription to weekly {topics.topics[self.topic]['name']} newsletter",
             template_loader.render_to_string(
                 "web/weekly_subscribe_confirm.txt",
                 {
@@ -894,7 +894,7 @@ class Subscriber(models.Model):
 
     def send_subscription_confirmation_email(self):
         email_util.send(
-            f"Subscribed to weekly {topics.topics[self.topic]['name']} digest",
+            f"Subscribed to weekly {topics.topics[self.topic]['name']} newsletter",
             template_loader.render_to_string(
                 "web/weekly_subscribe_confirmation.txt",
                 {
@@ -929,7 +929,7 @@ class Subscriber(models.Model):
 
     def send_unsubscribe_confirmation_email(self):
         email_util.send(
-            f"Unsubscribed from weekly {topics.topics[self.topic]['name']} digest",
+            f"Unsubscribed from weekly {topics.topics[self.topic]['name']} newsletter",
             template_loader.render_to_string(
                 "web/weekly_unsubscribe_confirmation.txt",
                 {

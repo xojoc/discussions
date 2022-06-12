@@ -14,7 +14,7 @@ View issue online: {{ctx.web_link|safe}}
 
 If you have any friends or colleagues that could find this issue useful, please share with them.
 
-Discover the extension, bookmarklet, bots and more on: https://discu.eu
+Check out the extension, bookmarklet, bots and more on: https://discu.eu
 
 You can unsubscribe any time by replying with "unsubscribe" or
 by visiting: {{ctx.subscriber.unsubscribe_url|safe}}

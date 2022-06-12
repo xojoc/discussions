@@ -1,5 +1,5 @@
-Hi!
-thanks for subscribing to the weekly {{ctx.topic.name|safe}} digest.
+Hey 👋
+thanks for subscribing to the weekly {{ctx.topic.name|safe}} newsletter.
 
 To confirm please visit the following url:
 

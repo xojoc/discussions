@@ -98,6 +98,7 @@ def __base_query(topic):
         .exclude(schemeless_story_url="")
         .exclude(scheme_of_story_url__isnull=True)
         .exclude(scheme_of_story_url="")
+        .exclude(canonical_story_url__startswith="discu.eu/weekly")
         .exclude(created_at__isnull=True)
         # .filter(comment_count__gte=1)
         .filter(score__gte=2)
@@ -276,7 +277,10 @@ def __get_stories(topic, year, week):
     #     )
     # )
 
-    logger.debug(f"weekly: {topic} {ws} {we}: stories count {stories.count()}")
+    if util.is_dev():
+        logger.debug(
+            f"weekly: {topic} {ws} {we}: stories count {stories.count()}"
+        )
 
     for story in stories:
         category = __category(story)
@@ -626,4 +630,4 @@ Subscribe by going to {topic_url} or write "subscribe" to {topic.get("email")}!
                 logger.error(f"weekly share: {e}")
 
         if not util.is_dev():
-            time.sleep(random.randint(30, 60))
+            time.sleep(random.randint(50, 80))
