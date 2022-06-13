@@ -1,16 +1,11 @@
 {% if ctx.weekly_subscribe_form %}
 <div class="weekly-subscribe-form">
-    <p class="smaller-font">Newsletter sent every monday with a digest of the previous week.</p>
+    <p class="smaller-font">Newsletter sent every monday with a recap of articles, projects and tutorials from previous
+        week.</p>
     <form method="POST">
         {% csrf_token %}
         {{ ctx.weekly_subscribe_form.as_ul }}
         <input type="submit" value="Subscribe for Free!">
     </form>
-
-    {% if ctx.topic %}
-    <p class="weekly-subscribe-by-email">You can also subscribe by writing <a
-            href="{{ctx.topic.mailto_subscribe}}">"subscribe"
-            to {{ctx.topic.email}}</a>. To unsubscribe at any time reply with "unsubscribe".</p>
-    {% endif %}
 </div>
 {%endif%}

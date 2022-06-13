@@ -1,5 +1,5 @@
 {% load util %}Hey 👋
-here's a recap about {{ctx.topic.name|safe}} for last week:
+here's a recap {% if ctx.topic.topic_key == 'hackernews' or ctx.topic.topic_key == 'laarc' %}for{% else %}about{% endif %} {{ctx.topic.name|safe}} for last week:
 
 {% for category, category_name, stories in ctx.digest %}# {{category_name|safe}}
 {% for story in stories %}
@@ -8,13 +8,15 @@ here's a recap about {{ctx.topic.name|safe}} for last week:
 {% if story.total_comments %}     {{story.total_comments}} comment{{story.total_comments|pluralize}} in {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}: {{story|short_url|safe}}
 {% endif %}{% endfor %}
 
-{% endfor %}Thanks for reading, see you next time!
+{% endfor %}Thanks for reading,
+see you next week!
+
 --
+
 View issue online: {{ctx.web_link|safe}}
 
-If you have any friends or colleagues that could find this issue useful, please share with them.
+If you have any friends or colleagues that could find this issue useful, please forward it to them.
 
 Check out the extension, bookmarklet, bots and more on: https://discu.eu
 
-You can unsubscribe any time by replying with "unsubscribe" or
-by visiting: {{ctx.subscriber.unsubscribe_url|safe}}
+To unsubscribe visit: {{ctx.subscriber.unsubscribe_url|safe}}

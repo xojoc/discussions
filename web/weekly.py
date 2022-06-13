@@ -603,7 +603,7 @@ def share_weekly_issue(self):
 
 {issue_url}
 
-Subscribe by going to {topic_url} or write "subscribe" to {topic.get("email")}!
+Subscribe by going to {topic_url}
 """
 
         twitter_status = status

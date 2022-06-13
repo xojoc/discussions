@@ -220,10 +220,10 @@ input[type=submit] {
 	/* margin-top: 0.4em; */
 	font-size: 0.8em;
 	text-rendering: optimizelegibility;
-	/*
+
 	padding-left: 0.6em;
 	padding-right: 0.6em;
-   */
+
 }
 
 .input-submit {
@@ -1106,6 +1106,7 @@ tbody td {
 .weekly-subscribe-form select,
 .weekly-subscribe-form input[type=email] {
 	width: 20em;
+	padding: 0.4em !important;
 }
 
 .weekly-subscribe-by-email {
