@@ -113,7 +113,7 @@ topics = {
     "lisp": {
         "name": "Lisp & Scheme",
         "short_description": "Lisp & Scheme",
-        "tags": {"lisp", "scheme", "racket"},
+        "tags": {"lisp", "scheme", "racket", "clojure"},
         "twitter": {
             "account": "LispDiscussions",
         },
