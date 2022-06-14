@@ -8,6 +8,7 @@ import time
 import django.template.loader as template_loader
 import urllib3
 from celery import shared_task
+from django.core.cache import cache
 from django.db.models import Count, OuterRef, Subquery, Sum, Value
 from django.db.models.functions import Coalesce, TruncDay
 from django.urls import reverse
@@ -448,6 +449,23 @@ def topic_week_context(topic, year, week):
         ctx["mastodon_account_url"] = mastodon.profile_url(
             mastodon_cfg.get("account")
         )
+    return ctx
+
+
+def topic_week_context_cached(topic, year, week):
+    if util.is_dev():
+        return topic_week_context(topic, year, week)
+
+    key = f"weekly:{topic}:{year}:{week}"
+    ctx = cache.get(key)
+
+    if ctx:
+        return ctx
+
+    ctx = topic_week_context(topic, year, week)
+    if ctx:
+        cache.set(key, ctx, 24 * 60 * 60)
+
     return ctx
 
 

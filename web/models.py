@@ -122,6 +122,9 @@ class Discussion(models.Model):
         return url.split("/")[0]
 
     def _pre_save(self):
+        if self.title:
+            self.title = self.title.replace("\x00", "")
+
         if not self.platform:
             self.platform = self.platform_id[0]
 
