@@ -4,7 +4,7 @@
 {% load util %}
 
 {% block title %}
-Weekly newsletter about {{ctx.topic.name}} - discussions
+{{ctx.topic.name}} weekly newsletter - discussions
 {% endblock title %}
 
 {% block meta_description %}
@@ -13,8 +13,7 @@ Free weekly newsletter about {{ctx.topic.name}} with articles, projects and tuto
 
 {% block main %}
 <div class="weekly">
-
-    <h2>Free weekly newsletter about {{ctx.topic.name}}</h2>
+    <h2>Free weekly {{ctx.topic.name}} newsletter</h2>
     {% if ctx.topic_key == 'hackernews' %}
     <p>
         Get every monday a summary of the most interesting articles on Hacker News.
@@ -60,6 +59,5 @@ Free weekly newsletter about {{ctx.topic.name}} with articles, projects and tuto
 
 
     {% include "web/weekly_fragment_follow.html" %}
-
 </div>
 {% endblock main %}

@@ -2,6 +2,7 @@ import logging
 import os
 import random
 import urllib
+from email.utils import formataddr
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -20,6 +21,12 @@ class WebConfig(AppConfig):
             topic[
                 "email"
             ] = f"{settings.EMAIL_TO_PREFIX}weekly_{topic_key}@discu.eu"
+            topic["from_email"] = formataddr(
+                (
+                    f"{topic['name']} Weekly",
+                    topic["email"],
+                )
+            )
             topic[
                 "mailto_subscribe"
             ] = f"mailto:{topic['email']}?" + urllib.parse.urlencode(

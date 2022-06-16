@@ -881,7 +881,7 @@ class Subscriber(models.Model):
             )
         )
         email_util.send(
-            f"Confirm subscription to weekly {topics.topics[self.topic]['name']} newsletter",
+            f"Confirm subscription to Weekly {topics.topics[self.topic]['name']} newsletter",
             template_loader.render_to_string(
                 "web/weekly_subscribe_confirm.txt",
                 {
@@ -891,13 +891,13 @@ class Subscriber(models.Model):
                     }
                 },
             ),
-            topics.topics[self.topic]["email"],
+            topics.topics[self.topic]["from_email"],
             self.email,
         )
 
     def send_subscription_confirmation_email(self):
         email_util.send(
-            f"Subscribed to weekly {topics.topics[self.topic]['name']} newsletter",
+            f"Subscribed to Weekly {topics.topics[self.topic]['name']} newsletter",
             template_loader.render_to_string(
                 "web/weekly_subscribe_confirmation.txt",
                 {
@@ -906,7 +906,7 @@ class Subscriber(models.Model):
                     }
                 },
             ),
-            topics.topics[self.topic]["email"],
+            topics.topics[self.topic]["from_email"],
             self.email,
         )
 
@@ -932,7 +932,7 @@ class Subscriber(models.Model):
 
     def send_unsubscribe_confirmation_email(self):
         email_util.send(
-            f"Unsubscribed from weekly {topics.topics[self.topic]['name']} newsletter",
+            f"Unsubscribed from Weekly {topics.topics[self.topic]['name']} newsletter",
             template_loader.render_to_string(
                 "web/weekly_unsubscribe_confirmation.txt",
                 {
@@ -941,6 +941,6 @@ class Subscriber(models.Model):
                     }
                 },
             ),
-            topics.topics[self.topic]["email"],
+            topics.topics[self.topic]["from_email"],
             self.email,
         )

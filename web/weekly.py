@@ -570,13 +570,15 @@ def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
             {"ctx": ctx},
         )
 
+        from_email = topics.topics[topic]["from_email"]
+
         if testing:
             print(body)
         else:
             email_util.send(
                 f"Weekly {topics.topics[topic]['name']} digest for week {week}/{year}",
                 body,
-                topics.topics[topic]["email"],
+                from_email,
                 subscriber.email,
             )
             time.sleep(0.1)
