@@ -1,6 +1,6 @@
 Hi!
-you have been unsubscribed from the weekly {{ctx.topic.name|safe}} digest.
+you have been unsubscribed from the weekly {{ctx.topic.name|safe}} newsletter.
 
-You can subscribe at any time by writing "subscribe" to {{ctx.topic.email|safe}}.
+You can resubscribe at any time by writing "subscribe" to {{ctx.topic.email|safe}}.
 
 Thank you!

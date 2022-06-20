@@ -120,7 +120,6 @@ def worker_update_resources(self):
 
 @shared_task(ignore_result=True, bind=True)
 def admin_send_recap_email(self):
-
     subscribers = (
         models.Subscriber.mailing_list(None).distinct("email").count()
     )
@@ -151,22 +150,6 @@ Unconfirmed: {unconfirmed}
 Unsubscribed: {unsubscribed}
 
 """
-
-    # if twitter_followers_count:
-    #     body += "\nTwitter followers:\n"
-
-    #     for user, count in twitter_followers_count.items():
-    #         body += f"{user:25} => {count:9,}\n"
-
-    #     body += "\n"
-
-    # if mastodon_followers_count:
-    #     body += "\nMastodon followers:\n"
-
-    #     for user, count in mastodon_followers_count.items():
-    #         body += f"{user:25} => {count:9,}\n"
-
-    #     body += "\n"
 
     for topic_key, topic in sorted_topics.items():
         twitter_count = 0
