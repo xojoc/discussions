@@ -114,7 +114,13 @@ def __reddit(tags, title):
         title,
         tags,
         None,
-        {"compilers", "emudev", "cryptography"},
+        {
+            "compilers",
+            "emudev",
+            "cryptography",
+            "machinelearning",
+            "languagetechnology",
+        },
         "compsci",
     )
     return tags
@@ -295,6 +301,7 @@ def __from_title_url(tags, title, url):
 def __rename(tags, title, platform=None):
     to_replace = [
         (".net", "dotnet"),
+        ("ai", "machinelearning", "l"),
         ("apljk", "apl", "r"),
         ("btc", "bitcoin", "r"),
         ("c_programming", "c", "r"),
@@ -308,8 +315,10 @@ def __rename(tags, title, platform=None):
         ("europes", "europe", "r"),
         ("go", "golang"),
         ("internationalpolitics", "politics", "r"),
+        ("languagetechnology", "nlp", "r"),
         ("lc", "lambda-calculus", "u"),
         ("logic-declerative", "logic-declarative", "u"),
+        ("machinelearningnews", "machinelearning", "r"),
         ("misc-books", "book", "u"),
         ("ml", "ocaml", "l"),
         ("moderatepolitics", "politics", "r"),
