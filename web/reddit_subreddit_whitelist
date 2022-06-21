@@ -64,6 +64,7 @@ commandline
 common_lisp
 compilers
 compsci
+computervision
 concatenative
 coq
 cpp
@@ -78,8 +79,10 @@ d_language
 dartlang
 database
 datalog
+datascience
 datastructures
 debian
+deeplearning
 degoogle
 delphi
 devops
@@ -113,9 +116,9 @@ fedora
 filesystems
 financialindependence
 fire
-fireit
 firefox
 firefoxos
+fireit
 flask
 formula1
 forth
@@ -181,10 +184,12 @@ kotlin
 krita
 kubernetes
 ladybusiness
+languagetechnology
 laravel
 latex
 law
 learnlisp
+learnmachinelearning
 learnprogramming
 libreoffice
 libri
@@ -290,6 +295,7 @@ reddit.com
 redhat
 redox
 regex
+reinforcementlearning
 rethinkdb
 retirement
 reverseengineering
@@ -331,6 +337,7 @@ sre
 ssh
 stallmanwasright
 startups
+statistics
 stocks
 suckless
 surface
