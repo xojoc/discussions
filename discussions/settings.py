@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     "web.apps.WebConfig",
     "debug_toolbar",
     "django.contrib.sitemaps",
-    'ninja'
+    "ninja",
 ]
 
 MIDDLEWARE = [
@@ -82,14 +82,21 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
-SITE_ID = 1
-
-LOGIN_REDIRECT_URL = "/"
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "/"
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+# ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
+ACCOUNT_PRESERVE_USERNAME_CASING = False
+ACCOUNT_USERNAME_MIN_LENGTH = 5
 ACCOUNT_USERNAME_REQUIRED = False
+LOGIN_URL = "/account/login/"
+LOGIN_REDIRECT_URL = "/dashboard"
+
+SITE_ID = 1
+
 
 ROOT_URLCONF = "discussions.urls"
 
@@ -141,6 +148,9 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+# AUTH_USER_MODEL = "web.CustomUser"
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/

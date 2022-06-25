@@ -6,6 +6,7 @@ import cleanurl
 import django.template.loader as template_loader
 from dateutil import parser as dateutil_parser
 from django.conf import settings
+from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres import fields as postgres_fields
 from django.contrib.postgres.indexes import GinIndex, OpClass
 from django.contrib.postgres.search import (
@@ -944,3 +945,40 @@ class Subscriber(models.Model):
             topics.topics[self.topic]["from_email"],
             self.email,
         )
+
+
+# class CustomUser(AbstractUser):
+#     premium_active = models.BooleanField(default=False)
+#     premium_active_from = models.DateTimeField(blank=True, null=True)
+#     premium_cancelled = models.BooleanField(default=False)
+#     premium_cancelled_on = models.DateTimeField(blank=True, null=True)
+
+#     api_token = models.TextField(null=True, blank=True)
+#     api_limited = models.BooleanField(default=False)
+
+#     @classmethod
+#     def generate_token(cls):
+#         import secrets
+
+#         return secrets.token_urlsafe(32)
+
+#     def save(self, *args, **kwargs):
+#         if not self.api_token:
+#             self.api_token = self.generate_token()
+#         super(CustomUser, self).save(*args, **kwargs)
+
+#     def trial_length_days(self):
+#         return 14
+
+#     def trial_remaining_days(self):
+#         return max(
+#             0,
+#             self.trial_length_days()
+#             - (timezone.now() - self.date_joined).days,
+#         )
+
+#     def __str__(self):
+#         if self.username:
+#             return self.username
+#         else:
+#             return self.email

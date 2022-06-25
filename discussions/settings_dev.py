@@ -16,3 +16,6 @@ CSRF_COOKIE_SECURE = False
 MESSAGE_LEVEL = message_constants.DEBUG
 
 EMAIL_TO_PREFIX = "dev__"
+
+
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"

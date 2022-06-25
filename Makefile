@@ -54,3 +54,21 @@ lint:
 
 test:
 	@poetry run python -Wa manage.py test --shuffle --noinput --keepdb
+
+
+account:
+	# poetry run python manage.py makemigrations web
+	# poetry run python manage.py migrate web
+
+	poetry run python manage.py migrate socialaccount zero
+	poetry run python manage.py migrate admin zero
+	poetry run python manage.py migrate sessions zero
+	poetry run python manage.py migrate contenttypes zero
+	poetry run python manage.py migrate auth zero
+	# poetry run python manage.py makemigrations auth
+	# poetry run python manage.py migrate auth
+	poetry run python manage.py showmigrations
+
+
+superuser:
+	poetry run python manage.py createsuperuser
