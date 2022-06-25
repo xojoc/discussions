@@ -149,7 +149,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# AUTH_USER_MODEL = "web.CustomUser"
+AUTH_USER_MODEL = "web.CustomUser"
 
 
 # Internationalization
