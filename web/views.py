@@ -1,4 +1,5 @@
 import itertools
+import random
 import logging
 from urllib.parse import quote
 from urllib.parse import unquote as url_unquote
@@ -30,6 +31,10 @@ def __log_query(q):
         r.zincrby("discussions:stats:query:url", 1, q)
     else:
         r.zincrby("discussions:stats:query:search", 1, q)
+
+    if random.randint(1, 100) == 1:
+        r.zremrangebyrank("discussions:stats:query:url", 0, -10)
+        r.zremrangebyrank("discussions:stats:query:search", 0, -10)
 
 
 def discussions_context_cached(q):

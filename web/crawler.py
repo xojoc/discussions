@@ -101,7 +101,7 @@ def fetch(url):
         resource.status_code = response.status_code
 
     if resource.status_code == 200:
-        html = http.parse_html(response, safe_html=True)
+        html = http.parse_html(response, safe_html=True, clean=True)
         resource.clean_html = str(html)
         html_structure = extract.structure(html, url)
         resource.title = html_structure.title
@@ -235,7 +235,7 @@ def extract_html(resource):
         resource.save()
         return
 
-    html = http.parse_html(resource.clean_html, safe_html=True)
+    html = http.parse_html(resource.clean_html, safe_html=True, clean=True)
     html_structure = extract.structure(html, resource.story_url)
     resource.title = html_structure.title
 

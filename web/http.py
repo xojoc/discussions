@@ -1,7 +1,10 @@
 import logging
 import time
 
+import bs4
 import cachecontrol
+
+import minify_html
 import requests
 import urllib3
 from bs4 import BeautifulSoup
@@ -133,7 +136,7 @@ def fetch(
     return resp
 
 
-def parse_html(res, safe_html=False):
+def parse_html(res, safe_html=False, clean=False):
     html = None
     if type(res) == str:
         html = res
@@ -143,14 +146,39 @@ def parse_html(res, safe_html=False):
     if not html:
         return None
 
+    if clean:
+        safe_html = True
+
+    if clean:
+        html = minify_html.minify(
+            html,
+            minify_js=True,
+            minify_css=True,
+            ensure_spec_compliant_unquoted_attribute_values=True,
+            keep_spaces_between_attributes=True,
+            remove_processing_instructions=True,
+        )
+
     h = BeautifulSoup(html, "lxml")
     if safe_html:
-        if h.script:
+        while h.script:
             h.script.decompose()
-        if h.form:
+        while h.form:
             h.form.decompose()
-        if h.iframe:
+        while h.iframe:
             h.iframe.decompose()
-        if h.frameset:
+        while h.frameset:
             h.frameset.decompose()
+
+    if clean:
+        while h.style:
+            h.style.decompose()
+        while h.svg:
+            h.svg.decompose()
+        while h.link:
+            h.link.decompose()
+        comments = h.findAll(text=lambda text: isinstance(text, bs4.Comment))
+        for comment in comments:
+            comment.extract()
+
     return h

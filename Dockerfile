@@ -4,6 +4,7 @@ FROM python:3.9-slim
 #    apk add --no-cache make g++ bash git openssh postgresql-dev curl libffi-dev
 
 RUN apt-get update \
+   && apt-get upgrade -y \
    && apt-get install -y wget
 
 RUN mkdir -p /usr/src/app
