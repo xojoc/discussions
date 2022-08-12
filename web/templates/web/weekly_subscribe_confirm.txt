@@ -5,6 +5,4 @@ To confirm please visit the following url:
 
    {{ctx.confirmation_url|safe}}
 
-You can unsubscribe any time by writing "unsubscribe" to {{ctx.topic.email|safe}}.
-
 Thank you!
