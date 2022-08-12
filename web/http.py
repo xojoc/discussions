@@ -141,7 +141,7 @@ def parse_html(res, safe_html=False, clean=False):
     if type(res) == str:
         html = res
     else:
-        html = res.content
+        html = res.text
 
     if not html:
         return None
