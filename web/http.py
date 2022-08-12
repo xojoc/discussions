@@ -150,14 +150,17 @@ def parse_html(res, safe_html=False, clean=False):
         safe_html = True
 
     if clean:
-        html = minify_html.minify(
-            html,
-            minify_js=True,
-            minify_css=True,
-            ensure_spec_compliant_unquoted_attribute_values=True,
-            keep_spaces_between_attributes=True,
-            remove_processing_instructions=True,
-        )
+        try:
+            html = minify_html.minify(
+                html,
+                minify_js=True,
+                minify_css=True,
+                ensure_spec_compliant_unquoted_attribute_values=True,
+                keep_spaces_between_attributes=True,
+                remove_processing_instructions=True,
+            )
+        except Exception as e:
+            logger.warning(f"minify_html failed: {e}")
 
     h = BeautifulSoup(html, "lxml")
     if safe_html:
