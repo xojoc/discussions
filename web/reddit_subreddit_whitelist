@@ -58,6 +58,7 @@ chrome
 chromeos
 chromiumextensiondev
 cli
+climate
 clojure
 cobol
 coding
@@ -109,8 +110,10 @@ elixir
 elm
 emacs
 emudev
+energy
 entrepreneur
 entrepreneurridealong
+environment
 erlang
 ethereum
 eupersonalfinance
@@ -161,6 +164,7 @@ guix
 haikuos
 hardware
 haskell
+health
 heroku
 history
 hockey
@@ -237,6 +241,7 @@ mono
 mumps
 mysql
 nato
+nature
 navy
 nba
 neovim
@@ -274,6 +279,7 @@ personalfinance
 philosophy
 php
 piet
+pltr
 pkgoftheday
 plan9
 poker
@@ -302,6 +308,7 @@ redhat
 redox
 regex
 reinforcementlearning
+renewableenergy
 rethinkdb
 retirement
 reverseengineering
@@ -322,6 +329,7 @@ sdl
 securityanalysis
 selfhosted
 semanticweb
+senseonics
 shell
 shopify
 sideproject
