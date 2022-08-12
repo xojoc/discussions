@@ -159,7 +159,7 @@ def parse_html(res, safe_html=False, clean=False):
                 keep_spaces_between_attributes=True,
                 remove_processing_instructions=True,
             )
-        except Exception as e:
+        except BaseException as e:
             logger.warning(f"minify_html failed: {e}")
 
     h = BeautifulSoup(html, "lxml")
