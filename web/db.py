@@ -105,7 +105,7 @@ def worker_update_resources(self):
 
     logger.info(f"db update resources: count {resources.count()}")
 
-    for resource in resources[:2000]:
+    for resource in resources[:1000]:
         crawler.extract_html(resource)
 
         if time.monotonic() > last_checkpoint + 60:

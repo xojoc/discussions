@@ -153,7 +153,7 @@ def parse_html(res, safe_html=False, clean=False):
         try:
             html = minify_html.minify(
                 html,
-                minify_js=True,
+                minify_js=False,
                 minify_css=True,
                 ensure_spec_compliant_unquoted_attribute_values=True,
                 keep_spaces_between_attributes=True,
