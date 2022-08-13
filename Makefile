@@ -47,7 +47,6 @@ dshell:
 shell:
 	poetry run python manage.py shell
 
-
 lint:
 	@poetry run flake8 --extend-ignore E501,E741,E203 | tac
 	# @poetry run mypy --install-types --non-interactive .
