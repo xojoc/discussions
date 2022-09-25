@@ -257,14 +257,15 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	{% endif %}
 
-	<!-- {% if ctx.display_discussions and not ctx.nothing_found %}
-	<aside>
-		<br />
-		<div class="donate">
-			<p><a href="https://xojoc.pw/donate" rel="nofollow" title="Support discu.eu's development">Donate</a></p>
-		</div>
-	</aside>
-	{% endif %} -->
-
 </div>
+
+{% if ctx.display_discussions and not ctx.nothing_found %}
+<aside>
+	<br />
+	<div class="donate">
+		<p>Support discu.eu's development by <a href="https://ko-fi.com/xojoc" rel="nofollow"
+				title="Support discu.eu's development">donating ❤️</a></p>
+	</div>
+</aside>
+{% endif %}
 {% endblock main %}

@@ -31,6 +31,8 @@ class Reddit(unittest.TestCase):
             None,
             "'task_id'\n\n[**urls. py**](https://urls.py)**:**\n\n",
             None,
+            "`&MyStruct { data: &`[`self.data`](https://self.data)`[3..8] }`",
+            None,
         ]
         for h, u in zip(tests[0::2], tests[1::2]):
             hu = reddit._url_from_selftext(h)

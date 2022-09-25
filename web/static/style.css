@@ -1004,6 +1004,12 @@ tbody td {
 }
 */
 
+.donate {
+	font-size: 0.8em;
+	text-align: center;
+	margin-top: 1em;
+}
+
 .donate a,
 .donate a:visited {
 	color: #2C8C00;

@@ -113,7 +113,7 @@ def fetch(
 
 def parse_html(res, safe_html=False, clean=False):
     html = None
-    if type(res) == str:
+    if type(res) == str or type(res) == bytes:
         html = res
     else:
         html = res.text

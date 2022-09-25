@@ -52,8 +52,7 @@ lint:
 	# @poetry run mypy --install-types --non-interactive .
 
 test:
-	@echo 'tests skipped'
-	# @poetry run python -Wa manage.py test --shuffle --noinput --keepdb
+	@poetry run python -Wa manage.py test --shuffle --keepdb
 
 
 account:

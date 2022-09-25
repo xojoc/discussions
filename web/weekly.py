@@ -54,7 +54,7 @@ def __category(story):
     try:
         u = urllib3.util.parse_url(story.canonical_story_url)
     except Exception as e:
-        logger.error(f"weekly: url parsing failed: {e}")
+        logger.warning(f"weekly: url parsing failed: {e}")
 
     path, host = "", ""
     if u:

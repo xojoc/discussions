@@ -68,6 +68,7 @@ def __url_blacklisted_selftext(url):
             "itch.io",
             "amazon.com",
             "github.com",
+            "self.data",
         )
         or url == "crates.io"
         or url == "crates.io/"

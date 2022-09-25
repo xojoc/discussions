@@ -34,6 +34,6 @@ class LookupTestCase(TestCase):
             "/", {"q": "https://example.com", "submit_title": "Submit Title"}
         )
         qu = urllib.parse.quote("https://example.com")
-        h = http.parse_html(response)
+        h = http.parse_html(response.content)
         submit_links = h.select(f".submit_links details ul li a[href*='{qu}']")
         self.assertTrue(len(submit_links) >= 1)
