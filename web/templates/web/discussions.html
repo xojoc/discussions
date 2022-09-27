@@ -67,39 +67,6 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	{% if ctx.display_discussions %}
 
-	{% comment %}
-	{% if ctx.is_url %}
-
-	<h2>{{ctx.title}}</h2>
-	<span class="discussions_story_url"><a href="{{ctx.absolute_url}}" title="{{ctx.title}}"
-			rel="nofollow">{{ctx.absolute_url}}</a>
-	</span>
-	<ul class="list-no-style">
-		{% for d in ctx.discussions %}
-		<li><span class="bold">{{d.platform_name}}</span>: <a href="{{d.discussion_url}}"
-				title="{{d.platform_name}}: {{d.title}}" rel="nofollow"><span class="bold">{{d.comment_count}}</span>
-				comment{{d.comment_count|pluralize:",s"}}</a> <span class="smaller-font">{{d.score}}
-				{{d.score_label}}
-				[<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
-				{% if d.tags %}
-				{% for tag in d.tags %}
-				{{tag}}{% if not forloop.last %}, {% endif %}
-				{% endfor %}
-				{% endif %}
-			</span>
-
-			<!--Id: {{d.platform_id}}
-	 Normalized tags: {{d.normalized_tags}}
-	 Normalized title: {{d.normalized_title}}
-	 Canonical url: {{d.canonical_story_url}}
-	-->
-		</li>
-
-		{% endfor %}
-	</ul>
-
-	{% else %}
-	{% endcomment %}
 
 	{% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
 	<div id="platform_{{platform}}" class="platform_discussions">
@@ -259,18 +226,6 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 <aside>
 	<br />
 	<div class="donate">
-		<!-- 		<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
-		<script>
-			kofiWidgetOverlay.draw('xojoc', {
-				'type': 'floating-chat',
-				'floating-chat.donateButton.text': 'Support me',
-				'floating-chat.donateButton.background-color': '#5bc0de',
-				'floating-chat.donateButton.text-color': '#323842'
-			});
-		</script> -->
-		<!-- <a href='https://ko-fi.com/xojoc' target='_blank'><img style='border:0px;height:36px;'
-				src='{% static "kofi_bg_tag_white.webp" %}' alt='Buy Me a Coffee at ko-fi.com' /></a> -->
-
 		<p>Support discu.eu's development by <a href="https://ko-fi.com/xojoc" rel="nofollow"
 				title="Support discu.eu's development">donating ❤️</a></p>
 	</div>
