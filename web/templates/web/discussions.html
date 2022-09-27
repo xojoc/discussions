@@ -2,6 +2,7 @@
 
 {% load humanize %}
 {% load util %}
+{% load static %}
 
 {% block title %}
 {% if ctx.title or ctx.original_query %}
@@ -106,37 +107,32 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	</div>
 	<ul>
 		{% for d in discussions %}
-		<li>{{d.title}} <span class="similar-search">(<a href="{{d.title|discussions_url}}"
-					title="Discussions with similar title">Search by title</a>)</span>
+		<li>{{d.title}} <span class="similar-search">[<a href="{{d.title|discussions_url}}"
+					title="Discussions with title «{{d.title}}»">Search by title</a>]</span>
 			<br />
-			<span class="discussions_story_url"><a href="{{d.story_url}}" title="{{d.title}}"
-					rel="nofollow">{{d.story_url}}</a>
-				<span class="similar-search">(<a href="{{d.story_url|discussions_url}}"
-						title="Discussions and related pages for this URL">Lookup URL</a>)</span></span>
-			<br />
+			<div class="discussions_story_url">
+				<p class="discussions_story_url_url">
+					<a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a>
+				</p>
+				<span class="similar-search">[<a href="{{d.story_url|discussions_url}}"
+						title="Discussions and related pages for url «{{d.story_url}}»">Lookup URL</a>]</span>
+			</div>
+			<!-- <br /> -->
 			<!--
 		 rel="noreferrer noopener" target="_blank"
 	    -->
 
-			<a href="{{d.discussion_url}}" title="View discussion on {{platform_name}}" rel="nofollow"><span
-					class="bold">{{d.comment_count}}</span>
-				comment{{d.comment_count|pluralize:",s"}}</a>, {{d.score}}
-			{{d.score_label}}
-			[<time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time>]
+			<a href="{{d.discussion_url}}"
+				title="View discussion with {{d.score}} {{d.score_label}} on {{platform_name}}" rel="nofollow"><span
+					class="bold">{{d.comment_count}}
+					comment{{d.comment_count|pluralize:",s"}}</span></a> <span class="date"><time
+					datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time></span>
 			<span class="smaller-font">
 				{% if d.tags %}
 				{% if platform != 'r' %}
-				Tags:
 				{% endif %}
 				{% for tag in d.tags %}
-				{% comment %}
-				{% if platform_tag_url %}
-				<a href="{{platform_tag_url}}/{{tag}}" title="View tag «{{tag}}» on {{platform_name}}"
-					rel="nofollow">{{tag}}</a>{% if not forloop.last %}, {% endif %}
-				{% else %}
-				{% endcomment %}
 				{{tag}}{% if not forloop.last %}, {% endif %}
-
 				{% endfor %}
 				{% endif %}
 			</span>
@@ -237,7 +233,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	{% if ctx.try_with_site_prefix or ctx.try_with_title %}
 
-	<details {% if ctx.nothing_found %}open{% endif %}>
+	<details {% if ctx.nothing_found %}open{% endif %} class="related-searches">
 		<summary>Related searches:</summary>
 
 		{% if ctx.try_with_site_prefix %}
@@ -263,6 +259,18 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 <aside>
 	<br />
 	<div class="donate">
+		<!-- 		<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+		<script>
+			kofiWidgetOverlay.draw('xojoc', {
+				'type': 'floating-chat',
+				'floating-chat.donateButton.text': 'Support me',
+				'floating-chat.donateButton.background-color': '#5bc0de',
+				'floating-chat.donateButton.text-color': '#323842'
+			});
+		</script> -->
+		<!-- <a href='https://ko-fi.com/xojoc' target='_blank'><img style='border:0px;height:36px;'
+				src='{% static "kofi_bg_tag_white.webp" %}' alt='Buy Me a Coffee at ko-fi.com' /></a> -->
+
 		<p>Support discu.eu's development by <a href="https://ko-fi.com/xojoc" rel="nofollow"
 				title="Support discu.eu's development">donating ❤️</a></p>
 	</div>
