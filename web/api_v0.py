@@ -1,6 +1,7 @@
 from datetime import date
 from typing import List
 
+from django.core.cache import cache
 from ninja import ModelSchema, NinjaAPI, Schema
 from ninja.security import HttpBearer
 
@@ -18,6 +19,8 @@ To get a Bearer token please drop me an email: hi@xojoc.pw
 If you want only to try out the API then use <b>test</b> for the token.
 </p>
 """
+
+cache_prefix = "api"
 
 
 class AuthBearer(HttpBearer):
@@ -69,7 +72,24 @@ class Message(Schema):
 )
 def get_discussions(request, url: str, only_relevant_stories: bool = True):
     """Get all discussions for a given URL."""
-    ds, cu, rcu = models.Discussion.of_url(url, only_relevant_stories)
+
+    suffix = (url or "").lower().strip()
+    key = f"{cache_prefix}:get_discussions:{only_relevant_stories}:{suffix}"
+    touch_key = "touch:" + key
+
+    ds = cache.get(key)
+
+    if ds:
+        if cache.get(touch_key):
+            cache.touch(key, 30)
+        return ds
+
+    ds, _, _ = models.Discussion.of_url(url, only_relevant_stories)
+
+    if ds:
+        cache.set(key, ds, 60)
+        cache.set(touch_key, 1, timeout=60 * 3)
+
     return ds
 
 
@@ -80,9 +100,21 @@ def get_discussions(request, url: str, only_relevant_stories: bool = True):
 )
 def get_discussion_counts(request, url: str):
     """Get discussion counts for a given URL."""
+
+    suffix = (url or "").lower().strip()
+    key = f"{cache_prefix}:get_discussion_counts:{suffix}"
+    touch_key = "touch:" + key
+
+    dcs = cache.get(key)
+
+    if dcs:
+        if cache.get(touch_key):
+            cache.touch(key, 30)
+        return dcs
+
     dcs = DiscussionCounts()
 
-    ds, cu, rcu = models.Discussion.of_url(url, True)
+    ds, _, _ = models.Discussion.of_url(url, True)
 
     dcs.story_url = url
     dcs.discussions_url = util.discussions_url(url)
@@ -123,5 +155,9 @@ def get_discussion_counts(request, url: str):
         ir = r.inbound_resources()
         if ir is not None:
             dcs.articles_count = ir.count()
+
+    if dcs:
+        cache.set(key, dcs, 60)
+        cache.set(touch_key, 1, timeout=60 * 3)
 
     return dcs

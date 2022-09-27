@@ -28,17 +28,6 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 
 {% block main %}
-<!--
-     "{{ctx.title}}"
-     "{{ctx.original_query}}"
--->
-
-<!--
-     <form method="GET" class="discussions_form" action="/">
-     {{ ctx.form.as_ul }}
-     <input type="submit" value="Find discussions" />
-     </form>
--->
 
 
 <div id=discussions>
@@ -75,7 +64,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	<ul>
 		{% for d in discussions %}
 		<li>{{d.title}} <span class="similar-search">[<a href="{{d.title|discussions_url}}"
-					title="Discussions with title «{{d.title}}»">Search by title</a>]</span>
+					title="Discussions with title «{{d.title}}»">Search title</a>]</span>
 			<br />
 			<div class="discussions_story_url">
 				<p class="discussions_story_url_url">
