@@ -3,29 +3,28 @@
 {% load humanize %}
 {% load util %}
 
-
 {% block title %}
-{{ctx.topic.name}} newsletter: issue for week {{ctx.week}}/{{ctx.year}} - discussions
+{{ctx.topic.name}} newsletter: issue for week {{ctx.week}}/{{ctx.year}} - discu.eu
 {% endblock title %}
-
 
 {% block meta_description %}
 Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials about {{ctx.topic.name}}.
 {% endblock meta_description %}
 
-
 {% block main %}
 
 <div class="weekly">
-
     <h2>{{ctx.topic.name}} newsletter: issue for week {{ctx.week}}/{{ctx.year}}</h2>
     <span class="smaller-font">From
         {{ctx.week_start|date:"j/n/Y"}} to
         {{ctx.week_end|date:"j/n/Y"}}</span>
 
+
+    {% include "web/weekly_subscribe_form.html" %}
+
     {% for category, category_name, stories in ctx.digest %}
 
-    <h3 id="weekly-{{category}}">{{category_name}} <a href="#weekly-{{category}}" title="{{category_name}} articles"
+    <h3 id="weekly-{{category}}">{{category_name}} <a href="#weekly-{{category}}" title="{{category_name}}"
             class="relative-url">#</a>
     </h3>
 
@@ -33,15 +32,15 @@ Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials a
         {% for story in stories %}
         <li>
             <p>
-                <a href="{{story.story_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
+                <a href="{{story.story_url}}" title="{{story.title}}">{{story.title}}</a>
             </p>
 
             {% if story.total_comments %}
             <p class="weekly-discussions">
-                <a href="{{story.story_url|discussions_url}}"
-                    title="Discussions for «{{story.title}}»">{{story.total_comments}}
-                    comment{{story.total_comments|pluralize}}</a> in
-                {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}
+                <a href="{{story.story_url|discussions_url}}" title="Discussions for «{{story.title}}»"
+                    class="bold">{{story.total_comments}}
+                    comment{{story.total_comments|pluralize}}</a> <span class="weekly-discussions-count">in
+                    {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</span>
             </p>
             {% endif %}
 
@@ -51,9 +50,7 @@ Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials a
 
     {% endfor %}
 
-    <br />
 
-    {% include "web/weekly_subscribe_form.html" %}
 
     <br />
     <p>

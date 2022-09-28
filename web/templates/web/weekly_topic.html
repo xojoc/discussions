@@ -4,16 +4,16 @@
 {% load util %}
 
 {% block title %}
-{{ctx.topic.name}} weekly newsletter - discussions
+{{ctx.topic.name}} weekly newsletter - discu.eu
 {% endblock title %}
 
 {% block meta_description %}
-Free weekly newsletter about {{ctx.topic.name}} with articles, projects and tutorials.
+Weekly newsletter about {{ctx.topic.name}} with articles, projects and tutorials.
 {% endblock meta_description %}
 
 {% block main %}
 <div class="weekly">
-    <h2>Free weekly {{ctx.topic.name}} newsletter</h2>
+    <h2>{{ctx.topic.name}} weekly newsletter</h2>
     {% if ctx.topic_key == 'hackernews' %}
     <p>
         Get every monday a summary of the most interesting articles on Hacker News.
@@ -24,7 +24,7 @@ Free weekly newsletter about {{ctx.topic.name}} with articles, projects and tuto
     </p>
     {% else %}
     <p>
-        Get the latest articles, projects and tutorials about {{ctx.topic.name}} automatically collated, filtered and
+        Get the latest articles, projects and tutorials about {{ctx.topic.name}}. Collated, filtered and
         delivered straight to you each monday.
     </p>
     {% endif %}
@@ -33,11 +33,11 @@ Free weekly newsletter about {{ctx.topic.name}} with articles, projects and tuto
 
     {% include "web/weekly_subscribe_form.html" %}
 
-    <h3>See past issues to see what you'll get</h3>
+    <h3>Past issues</h3>
     <ul>
         {% for yearweek in ctx.yearweeks %}
         <li><a href="{% url 'web:weekly_topic_week' ctx.topic_key yearweek.year yearweek.week %}"
-                title="Week {{yearweek.week}}/{{yearweek.year}} for {{ctx.topic.name}}">Week
+                title="{{ctx.topic.name}} recap for week {{yearweek.week}}/{{yearweek.year}}">Week
                 {{yearweek.week}}/{{yearweek.year}}</a><span class="smaller-font"> — from
                 {{yearweek.week_start|date:"j/n/Y"}} to
                 {{yearweek.week_end|date:"j/n/Y"}}</span>
