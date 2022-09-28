@@ -63,15 +63,21 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	</div>
 	<ul>
 		{% for d in discussions %}
-		<li>{{d.title}} <span class="similar-search">[<a href="{{d.title|discussions_url}}"
-					title="Discussions with title «{{d.title}}»">Search title</a>]</span>
+		<li>{{d.title}}
+			{% if not ctx.is_url %}
+			<span class="similar-search">
+				[<a href="{{d.title|discussions_url}}" title="Discussions with title «{{d.title}}»">Search
+					title</a>]</span>
+			{% endif %}
 			<br />
 			<div class="discussions_story_url">
 				<p class="discussions_story_url_url">
 					<a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a>
 				</p>
+				{% if not ctx.is_url %}
 				<span class="similar-search">[<a href="{{d.story_url|discussions_url}}"
 						title="Discussions and related pages for url «{{d.story_url}}»">Lookup URL</a>]</span>
+				{% endif %}
 			</div>
 			<!-- <br /> -->
 			<!--
@@ -192,16 +198,18 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 		<summary>Related searches:</summary>
 
 		{% if ctx.try_with_site_prefix %}
-		<p>Try searching the whole domain: <a
-				href="{{ctx.try_with_site_prefix|discussions_url}}">{{ctx.try_with_site_prefix}}</a></p>
+		<p>Try searching the whole domain: <a href="{{ctx.try_with_site_prefix|discussions_url}}"
+				title="Discussions for «{{ctx.try_with_site_prefix}}»">{{ctx.try_with_site_prefix}}</a></p>
 		{% endif %}
 
 		{% if ctx.try_with_title %}
-		<p>Try searching with title: <a href="{{ctx.try_with_title|discussions_url}}">{{ctx.try_with_title}}</a></p>
+		<p>Try searching with title: <a href="{{ctx.try_with_title|discussions_url}}"
+				title="Discussions for «{{ctx.try_with_title}}»">{{ctx.try_with_title}}</a></p>
 		{% endif %}
 
 		{% if ctx.try_with_url %}
-		<p>Try searching with url: <a href="{{ctx.try_with_url|discussions_url}}">{{ctx.try_with_url}}</a></p>
+		<p>Try searching with url: <a href="{{ctx.try_with_url|discussions_url}}"
+				title="Discussions for «{{ctx.try_with_url}}»">{{ctx.try_with_url}}</a></p>
 		{% endif %}
 
 	</details>
