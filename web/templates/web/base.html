@@ -6,12 +6,13 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="stylesheet" href="{% static "style.css" %}" />
-		<link rel="icon" type="image/png" href="{% static "favicon-32x32.png" %}" />
+		<link rel="stylesheet" href="{% static 'style.css' %}" />
+		<script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
 
+		<link rel="icon" type="image/png" href="{% static 'favicon-32x32.png' %}" />
 
 		<title>{% spaceless %}
-			{% block title %}Discussions around the Web{% endblock %}
+			{% block title %}Discussions around the Web - discu.eu{% endblock %}
 			{% endspaceless %}</title>
 
 		{% block extra_head %}{% endblock %}
@@ -47,73 +48,101 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 			}
 			plausible('pageview', { u: prepareUrl(["q", "url"]) })
 		</script> -->
-
-		<!-- Matomo -->
-		<!-- <script type="text/javascript">
-			var _paq = window._paq = window._paq || [];
-			/* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-			_paq.push(['trackPageView']);
-			_paq.push(['enableLinkTracking']);
-			(function () {
-				var u = "//matomo.xojoc.pw/";
-				_paq.push(['setTrackerUrl', u + 'matomo.php']);
-				_paq.push(['setSiteId', '1']);
-				var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
-				g.type = 'text/javascript'; g.async = true; g.src = u + 'matomo.js'; s.parentNode.insertBefore(g, s);
-			})();
-		</script> -->
-		<!-- End Matomo Code -->
 	</head>
 
-	<body>
-		<div id="wrapper">
-			<header>
-				<div id="title">
-					<h1 id="site_title"><a href="/" title="Discussions around the web">discu.eu</a></h1>
+	<body class="d-flex flex-column">
+		<header class="mb-3">
+			<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-2">
+				<div class="container-fluid">
+					<a href="/" title="Discussions around the web" class="navbar-brand">
+						<img src="{% static 'favicon-32x32.png' %}" alt="Logo" width="32" height="32"
+							class="d-inline-block align-top">
+						<strong>discu.eu</strong>
+					</a>
+
+					<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+						data-bs-target="#header-navbar" aria-controls="header-navbar" aria-expanded="false"
+						aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+
+					<div class="collapse navbar-collapse" id="header-navbar">
+						<ul class="navbar-nav container-fluid me-1">
+							<li class="nav-item">
+								<a class="nav-link" href="{% url 'web:weekly_index' %}">Newsletters</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="{% url 'web:social' %}">Social bots</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="{% url 'web:extension' %}">Browser extension</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="/api/v0/docs">API</a>
+							</li>
+
+							<li class="ms-auto"></li>
+
+							{% if user.is_authenticated %}
+							<li class="nav-item me-1 my-1"><a href="{% url 'account_logout' %}"
+									class="btn btn-secondary">Log
+									out</a>
+							</li>
+							<li class="nav-item me-1 my-1"><a href="{% url 'web:dashboard' %}"
+									class="btn btn-primary">Dashboard</a>
+							</li>
+							{% else %}
+							<li class="nav-item me-1 my-1"><a href="{% url 'account_login' %}"
+									class="btn btn-secondary">Log
+									in</a></li>
+							<li class="nav-item me-1 my-1"><a href="{% url 'account_signup' %}"
+									class="btn btn-primary">Sign
+									up</a>
+							</li>
+							{% endif %}
+						</ul>
+					</div>
 				</div>
-			</header>
+			</nav>
+		</header>
 
-			{% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
+		{% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
 
+		<div id="main_content" class="mt-2 mx-auto flex-grow-1">
 			{% if messages %}
-			<ul class="messages">
+			<ul class="list-unstyled">
 				{% for message in messages %}
-				<li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
-					{% endfor %}
+				<li class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %} alert-dismissible fade show"
+					role="alert">
+					<span>{{ message }}</span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</li>
+				{% endfor %}
 			</ul>
 			{% endif %}
 
-			{% block main_main %}
-
-			<div id="content">
-				{% block main %}{% endblock %}
-			</div>
-
-			{% endblock main_main %}
-
-
-			{% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
-
-			<footer>
-				<div class="footer-wrapper">
-					<ul>
-						<li><a href="/social" title="Social accounts and bots">Social accounts/bots</a></li>
-						<li><a href="/weekly" title="Weekly newsletter">Weekly newsletter</a></li>
-					</ul>
-					<ul>
-						<li><a href="/extension" title="Browser extensions">Browser extension</a></li>
-						<li><a href="/bookmarklet" title="Bookmarklets">Bookmarklet</a></li>
-						<li>Comments on your <a href="/website" title="Display discussions on your website">Website</a>
-						</li>
-						<li><a href="/api/v0/docs" title="Discussions API">API</a></li>
-					</ul>
-					<ul>
-						<li>Made by <a href="https://xojoc.pw" title="My home page">Alexandru Cojocaru</a></li>
-						<li><a class="u-email email" href="mailto:hi@discu.eu" title="Contact us">hi@discu.eu</a></li>
-					</ul>
-				</div>
-			</footer>
+			{% block main %}{% endblock %}
 		</div>
+
+		{% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
+
+		<footer class="d-flex mx-auto pt-5 pb-2 px-2 flex-row flex-wrap gap-4">
+			<ul class="list-unstyled">
+				<li><a href="/social" title="Social accounts and bots">Social accounts/bots</a></li>
+				<li><a href="/weekly" title="Weekly newsletter">Weekly newsletter</a></li>
+			</ul>
+			<ul class="list-unstyled">
+				<li><a href="/extension" title="Browser extensions">Browser extension</a></li>
+				<li><a href="/bookmarklet" title="Bookmarklets">Bookmarklet</a></li>
+				<li>Comments on your <a href="/website" title="Display discussions on your website">Website</a>
+				</li>
+				<li><a href="/api/v0/docs" title="Discussions API">API</a></li>
+			</ul>
+			<ul class="list-unstyled">
+				<li>Made by <a href="https://xojoc.pw" title="My home page">Alexandru Cojocaru</a></li>
+				<li><a class="u-email email" href="mailto:hi@discu.eu" title="Contact us">hi@discu.eu</a></li>
+			</ul>
+		</footer>
 	</body>
 
 </html>

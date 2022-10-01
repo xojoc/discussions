@@ -1,7 +1,6 @@
 from pathlib import Path
 from django.contrib.messages import constants as message_constants
 
-
 DEBUG = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 APP_DOMAIN = "localhost:7777"
@@ -17,5 +16,5 @@ MESSAGE_LEVEL = message_constants.DEBUG
 
 EMAIL_TO_PREFIX = "dev__"
 
-
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = APP_SCHEME
+CRISPY_FAIL_SILENTLY = False

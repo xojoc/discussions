@@ -1,0 +1,123 @@
+@import 'bootstrap/scss/functions';
+
+// $enable-grid-classes: false;
+// $enable-cssgrid: true;
+
+
+$body-bg: #f1f1f1;
+$body-color: #333333;
+
+$font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+$font-size-base: 1.2rem;
+
+$h1-font-size: $font-size-base * 2;
+$h2-font-size: $font-size-base * 1.75;
+$h3-font-size: $font-size-base * 1.50;
+$h4-font-size: $font-size-base * 1.25;
+$h5-font-size: $font-size-base * 1.25;
+$h6-font-size: $font-size-base;
+
+
+$enable-shadows: true;
+$primary: #4786f1;
+$secondary: #88BD00;
+// $success;
+$info: #49afcd;
+// $warning;
+$danger: #DE5641;
+// $light;
+// $dark;
+
+$link-color: #066f8f;
+$link-decoration: none;
+$link-hover-decoration: underline;
+
+$btn-font-weight: bold;
+$alert-padding-y: 0.5rem;
+$alert-padding-x: 0.5rem;
+
+$input-bg: white;
+
+$custom-max-width: 65ch;
+
+@import 'bootstrap/scss/bootstrap';
+
+body {
+    min-height: 100vh;
+}
+
+.btn {
+    color: #F1F1F1 !important;
+    text-rendering: optimizelegibility;
+
+    &:hover {
+        color: #F1F1F1 !important;
+        text-rendering: optimizelegibility;
+    }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: $font-weight-semibold;
+}
+
+p {
+    margin-bottom: 0.8rem !important;
+}
+
+#main_content {
+    max-width: $custom-max-width;
+    overflow-wrap: break-word;
+    width: 95vw;
+}
+
+footer {
+    max-width: 78ch;
+
+}
+
+.smaller-font {
+    font-size: 0.6em;
+}
+
+.smaller-font-1 {
+    font-size: 0.9em;
+}
+
+.smaller-font-2 {
+    font-size: 0.8em;
+}
+
+.smaller-font-3 {
+    font-size: 0.7em;
+}
+
+.smaller-font-4 {
+    font-size: 0.6em;
+}
+
+.w-min-content {
+    width: min-content;
+}
+
+.url-max-width {
+    max-width: $custom-max-width - 5ch;
+}
+
+.w-max-5em {
+    max-width: 5em;
+}
+
+.w-max-30em {
+    max-width: 30em;
+}
+
+.weekly-index-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(8em, 1fr)) !important;
+    grid-gap: 0.9em 0.8em !important;
+}

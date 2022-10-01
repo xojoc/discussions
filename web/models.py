@@ -953,18 +953,27 @@ class CustomUser(AbstractUser):
     premium_cancelled = models.BooleanField(default=False)
     premium_cancelled_on = models.DateTimeField(blank=True, null=True)
 
-    api_token = models.TextField(null=True, blank=True)
-    api_limited = models.BooleanField(default=False)
+    complete_name = models.TextField(
+        blank=True,
+        verbose_name="Preferred name",
+        help_text="How would you like to be called?",
+    )
 
-    @classmethod
-    def generate_token(cls):
-        import secrets
+    generic_ads = models.BooleanField(
+        default=False,
+        help_text="Show generic ads even if subscribed to premium",
+    )
+    job_ads = models.BooleanField(
+        default=False, help_text="Show job ads even if subscribed to premium"
+    )
 
-        return secrets.token_urlsafe(32)
+    api = models.OneToOneField(APIClient, on_delete=models.SET_NULL, null=True)
+
+    stripe_customer_id = models.TextField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if not self.api_token:
-            self.api_token = self.generate_token()
+        if not self.api:
+            self.api = APIClient.objects.create(name=f"User {self.pk}")
         super(CustomUser, self).save(*args, **kwargs)
 
     def trial_length_days(self):
@@ -977,8 +986,9 @@ class CustomUser(AbstractUser):
             - (timezone.now() - self.date_joined).days,
         )
 
+    @property
+    def is_premium(self):
+        return self.premium_active and not self.premium_cancelled
+
     def __str__(self):
-        if self.username:
-            return self.username
-        else:
-            return self.email
+        return self.email

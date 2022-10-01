@@ -102,9 +102,14 @@ class WebConfig(AppConfig):
         # nltk.download('punkt')
         # nltk.download('stopwords')
 
+    def __set_up_signals(self):
+        from . import indexnow  # noqa F401
+        from . import stripe_util  # noqa F401
+
     def ready(self):
         random.seed()
         self.__topics()
         self.__reddit_configuration()
         self.__set_database_parameters()
         self.__nltk_download_data()
+        self.__set_up_signals()

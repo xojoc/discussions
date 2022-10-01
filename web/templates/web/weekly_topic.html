@@ -33,12 +33,12 @@ Weekly newsletter about {{ctx.topic.name}} with articles, projects and tutorials
 
     {% include "web/weekly_subscribe_form.html" %}
 
-    <h3>Past issues</h3>
+    <h4>Past few issues</h4>
     <ul>
         {% for yearweek in ctx.yearweeks %}
         <li><a href="{% url 'web:weekly_topic_week' ctx.topic_key yearweek.year yearweek.week %}"
                 title="{{ctx.topic.name}} recap for week {{yearweek.week}}/{{yearweek.year}}">Week
-                {{yearweek.week}}/{{yearweek.year}}</a><span class="smaller-font"> — from
+                {{yearweek.week}}/{{yearweek.year}}</a><span class="smaller-font-3"> — from
                 {{yearweek.week_start|date:"j/n/Y"}} to
                 {{yearweek.week_end|date:"j/n/Y"}}</span>
         </li>

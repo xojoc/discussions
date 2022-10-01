@@ -1,11 +1,10 @@
-from pathlib import Path
-import os
-
-from django.conf.locale.en import formats as en_formats
-
 import logging
+import os
+from pathlib import Path
 
 import sentry_sdk
+from django.conf.locale.en import formats as en_formats
+from django.contrib.messages import constants as messages
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
@@ -50,6 +49,8 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django.contrib.postgres",
     "web.apps.WebConfig",
+    "crispy_forms",
+    "crispy_bootstrap5",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -63,6 +64,13 @@ INSTALLED_APPS = [
     "django.contrib.sitemaps",
     "ninja",
 ]
+
+if os.environ.get("DJANGO_DEVELOPMENT"):
+    INSTALLED_APPS.append("django_sass")
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -86,7 +94,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "/"
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = APP_SCHEME
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 # ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
 ACCOUNT_PRESERVE_USERNAME_CASING = False
@@ -332,7 +340,12 @@ EMAIL_TO_PREFIX = ""
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PLAN_PRICE_API_ID = os.getenv("STRIPE_PLAN_PRICE_API_ID")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
+
+MESSAGE_TAGS = {
+    messages.ERROR: "danger",
+}
 
 if os.environ.get("DJANGO_DEVELOPMENT"):
     from .settings_dev import *  # noqa F401, F403

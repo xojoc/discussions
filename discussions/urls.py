@@ -51,4 +51,5 @@ urlpatterns = [
             content_type="text/plain",
         ),
     ),
+    path("account/", include("allauth.urls")),
 ]

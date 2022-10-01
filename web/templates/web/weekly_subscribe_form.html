@@ -1,11 +1,18 @@
+{% load crispy_forms_tags %}
+
 {% if ctx.weekly_subscribe_form %}
-<div class="weekly-subscribe-form">
-    <p class="smaller-font">Newsletter sent every monday with a recap of articles, projects and tutorials from previous
-        week.</p>
-    <form method="POST">
-        {% csrf_token %}
-        {{ ctx.weekly_subscribe_form.as_ul }}
-        <input type="submit" value="Subscribe for Free!">
-    </form>
+<div class="card text-bg-light w-min-content mx-auto px-2 py-3">
+    <div class="card-body">
+        <p class="card-text smaller-font-2">Newsletter sent every monday with a recap of articles, projects
+            and tutorials
+            from previous
+            week.</p>
+        <form method="POST">
+            {% csrf_token %}
+            {{ ctx.weekly_subscribe_form | crispy }}
+            <input type="submit" value="Subscribe for Free!" class="btn btn-primary">
+        </form>
+    </div>
 </div>
+<div class="my-5"></div>
 {%endif%}

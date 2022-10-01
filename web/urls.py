@@ -64,4 +64,26 @@ urlpatterns = [
             content_type="application/opensearchdescription+xml",
         ),
     ),
+    path("dashboard/", views.dashboard, name="dashboard"),
+    path(
+        "stripe/checkout/",
+        views.stripe_checkout,
+        name="stripe_checkout",
+    ),
+    path(
+        "stripe/create-customer-portal-session/",
+        views.stripe_create_customer_portal_session,
+        name="stripe_create_customer_portal_session",
+    ),
+    path(
+        "stripe/subscribe/success/",
+        views.stripe_subscribe_success,
+        name="stripe_subscribe_success",
+    ),
+    path(
+        "stripe/subscribe/cancel/",
+        views.stripe_subscribe_cancel,
+        name="stripe_subscribe_cancel",
+    ),
+    path("stripe/webhook/", views.stripe_webhook, name="stripe_webhook"),
 ]

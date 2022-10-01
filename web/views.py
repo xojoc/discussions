@@ -1,17 +1,23 @@
 import itertools
-import random
 import logging
+import random
 from urllib.parse import quote
 from urllib.parse import unquote as url_unquote
 
+import stripe
 import urllib3
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.http import HttpResponsePermanentRedirect
+from django.http import HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from django_redis import get_redis_connection
+
+from allauth.account import forms as account_forms
 
 from discussions import settings
 
@@ -259,6 +265,12 @@ def index(request, path_q=None):
     if ctx["nothing_found"]:
         response.status_code = 404
 
+    # messages.debug(request, "debug")
+    # messages.info(request, "info")
+    # messages.success(request, "success")
+    # messages.warning(request, "warning")
+    # messages.error(request, "error")
+
     return response
 
 
@@ -471,3 +483,131 @@ def __social_context(request):
 def social(request):
     ctx = __social_context(request)
     return render(request, "web/social.html", {"ctx": ctx})
+
+
+@login_required
+def dashboard(request):
+    ctx = {}
+    profile_form = None
+    email_form = None
+    if request.method == "GET":
+        profile_form = forms.ProfileForm(instance=request.user)
+        email_form = account_forms.AddEmailForm()
+    elif request.method == "POST":
+        if "submit-update-user-profile" in request.POST:
+            profile_form = forms.ProfileForm(
+                request.POST, instance=request.user
+            )
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, "Profile updated successfully!")
+
+    ctx["profile_form"] = profile_form
+    ctx["email_form"] = email_form
+
+    user_emails = request.user.emailaddress_set.filter(
+        verified=True
+    ).values_list("email", flat=True)
+    subscriptions = models.Subscriber.objects.filter(
+        email__in=user_emails
+    ).order_by("topic")
+    ctx["subscriptions"] = subscriptions
+
+    ctx["user_verified_email"] = (
+        request.user.emailaddress_set.filter(primary=True)
+        .filter(verified=True)
+        .exists()
+    )
+
+    if not ctx["user_verified_email"]:
+        messages.warning(
+            request, "Please verify your email to access all the features."
+        )
+
+    return render(request, "web/dashboard.html", {"ctx": ctx})
+
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
+    event = None
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError:
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError:
+        return HttpResponse(status=400)
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        user = models.CustomUser.objects.get(pk=session.client_reference_id)
+        user.premium_active = True
+        user.premium_active_from = timezone.now()
+        user.premium_cancelled = False
+        user.premium_cancelled_on = None
+        user.stripe_customer_id = session.customer
+        user.save()
+
+    if event["type"] == "customer.subscription.deleted":
+        subscription = event["data"]["object"]
+        user = models.CustomUser.objects.get(
+            stripe_customer_id=subscription.customer
+        )
+        user.premium_active = False
+        user.premium_cancelled = True
+        user.premium_cancelled_on = timezone.now()
+        user.save()
+
+    return HttpResponse(status=200)
+
+
+@login_required
+@require_http_methods(["POST"])
+def stripe_create_customer_portal_session(request):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    return_url = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}{reverse('web:dashboard')}"
+    session = stripe.billing_portal.Session.create(
+        customer=request.user.stripe_customer_id,
+        return_url=return_url,
+    )
+    return redirect(session.url, permanent=False)
+
+
+@login_required
+@require_http_methods(["POST"])
+def stripe_checkout(request):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    price_id = settings.STRIPE_PLAN_PRICE_API_ID
+    session = stripe.checkout.Session.create(
+        mode="subscription",
+        line_items=[{"price": price_id, "quantity": 1}],
+        automatic_tax={"enabled": True},
+        client_reference_id=request.user.id,
+        customer=request.user.stripe_customer_id,
+        customer_update={"address": "auto", "name": "auto"},
+        success_url=f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}/stripe/subscribe/success/?stripe_session_id="
+        + "{{CHECKOUT_SESSION_ID}}",
+        cancel_url=f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}/stripe/subscribe/cancel/",
+    )
+    return redirect(session.url, permanent=False)
+
+
+def stripe_subscribe_success(request):
+    messages.success(request, "Thank you! You're now a premium user!")
+    return redirect("web:dashboard", permanent=False)
+
+
+def stripe_subscribe_cancel(request):
+    messages.warning(
+        request,
+        "Oops. Something went wrong. No worries you can retry later or write to hi@discu.eu for support",
+    )
+    logger.error(
+        f"Stripe subscribe cancelled. User {request.user.pk} stripe id {request.user.stripe_customer_id}"
+    )
+    return redirect("web:dashboard", permanent=False)

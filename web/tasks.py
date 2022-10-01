@@ -16,6 +16,7 @@ from web import ltu  # noqa F401
 from web import mastodon  # noqa F401
 from web import reddit  # noqa F401
 from web import statistics  # noqa F401
+from web import stripe_util  # noqa F401
 from web import twitter  # noqa F401
 from web import weekly  # noqa F401
 from web import worker  # noqa F401

@@ -8,7 +8,7 @@
 {% if ctx.title or ctx.original_query %}
 {% firstof ctx.title ctx.original_query %} - discu.eu
 {% else %}
-Discussions around the Web
+Discussions around the Web - discu.eu
 {% endif %}
 {% endblock title %}
 
@@ -32,15 +32,15 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 <div id=discussions>
 	<form method="GET" class="discussions_form" action="/">
-		<div class="flex-container">
-			<div class="flex-container input-submit">
-				<input class="flex-fill-width" id="q" name="q" type="text" autofocus
-					onfocus="this.selectionStart = this.selectionEnd = this.value.length;"
-					value="{{ctx.original_query}}" placeholder="URL or title" />
-				<input type="submit" value="Find discussions" />
-			</div>
+		<div class="d-flex flex-row flex-wrap gap-2">
+			<input class="flex-fill" id="q" name="q" type="text" autofocus
+				onfocus="this.selectionStart = this.selectionEnd = this.value.length;" value="{{ctx.original_query}}"
+				placeholder="URL or title" />
+			<input type="submit" value="Lookup" class="btn btn-primary" />
 		</div>
 	</form>
+
+	<div class="my-4"></div>
 
 
 	<!--
@@ -50,7 +50,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
     -->
 
 	{% if ctx.nothing_found %}
-	<h2>Discussions not found</h2>
+	<h4>Discussions not found</h4>
 	<p>Sorry, we couldn't find nothing for <span class="bold">{{ctx.url}}</span></p>
 	{% else %}
 
@@ -59,35 +59,19 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	{% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
 	<div id="platform_{{platform}}" class="platform_discussions">
-		<h3>{{ platform_name }}</h3>
+		<h6>{{ platform_name }}</h6>
 	</div>
-	<ul>
+	<ul class="list-unstyled">
 		{% for d in discussions %}
-		<li>{{d.title}}
-			{% if not ctx.is_url %}
-			<span class="similar-search">
-				[<a href="{{d.title|discussions_url}}" title="Discussions with title «{{d.title}}»">Search
-					title</a>]</span>
-			{% endif %}
-			<br />
-			<div class="discussions_story_url">
-				<p class="discussions_story_url_url">
-					<a href="{{d.story_url}}" title="{{d.title}}">{{d.story_url}}</a>
-				</p>
-				{% if not ctx.is_url %}
-				<span class="similar-search">[<a href="{{d.story_url|discussions_url}}"
-						title="Discussions and related pages for url «{{d.story_url}}»">Lookup URL</a>]</span>
-				{% endif %}
-			</div>
-			<!-- <br /> -->
-			<!--
-		 rel="noreferrer noopener" target="_blank"
-	    -->
-
+		<li class="mb-2">
+			<a href="{{d.story_url}}" title="{{d.title}}" class="d-flex flex-column text-body">
+				{{d.title}}
+				<span class="d-inline-block smaller-font url-max-width text-truncate">{{d.story_url}}</span></a>
 			<a href="{{d.discussion_url}}"
-				title="View discussion with {{d.score}} {{d.score_label}} on {{platform_name}}" rel="nofollow"><span
-					class="bold">{{d.comment_count}}
-					comment{{d.comment_count|pluralize:",s"}}</span></a> <span class="date"><time
+				title="View discussion with {{d.score}} {{d.score_label}} on {{platform_name}}"
+				rel="nofollow"><strong>{{d.comment_count}}
+					comment{{d.comment_count|pluralize:",s"}}</strong></a>
+			<span class="smaller-font"><time
 					datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time></span>
 			<span class="smaller-font">
 				{% if d.tags %}
@@ -114,13 +98,12 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	{% else %}
 
-	<br />
-	<h2>What is discu.eu?</h2>
+	<h5 class="mt-5">What is discu.eu?</h5>
 	<p>discu.eu tracks and makes accessible discussions on Hacker News, Lobsters, Reddit, Lambda the
 		Ultimate and <a href="/statistics#platforms" title="Platforms">others</a>.
 	</p>
 
-	<h2>How to use</h2>
+	<h5>How to use</h5>
 	<ul>
 		<li><a href="{% url 'web:search' %}" title="How to search">Search by url or keyword</a></li>
 		<li>Follow us on <a href="/social" title="Social accounts">Twitter or Mastodon</a> for daily updates on
@@ -144,29 +127,31 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	<!-- Resource id: {{ctx.resource.id}} -->
 
 	{% if ctx.inbound_resources %}
-
-	<br />
-	<h3>Related pages</h3>
+	<div class="my-5"></div>
+	<h6>Related pages</h6>
 
 	<div class="inbound_links">
-		<ul>
+		<ul class="list-unstyled">
 			{% for inbound_resource in ctx.inbound_resources %}
 			<!-- Inbound resource id: {{inbound_resource.id}} -->
-			<li>{{inbound_resource.title}} <span class="similar-search">[<a
-						href="{{inbound_resource.title|discussions_url}}" title="Discussions with similar title">Search
-						title</a>]</span>
-				<br />
-				<span class="discussions_story_url">
-					<a href="{{inbound_resource.complete_url}}"
-						title="{% firstof inbound_resource.title inbound_resource.complete_url %}"
-						rel="nofollow">{{inbound_resource.complete_url}}</a>
-				</span>
+			<li class="mb-2"><a href="{{inbound_resource.complete_url}}"
+					title="{% firstof inbound_resource.title inbound_resource.complete_url %}" rel="nofollow"
+					class="d-flex flex-column text-body">
+					{{inbound_resource.title}}
+					<span
+						class="d-inline-block smaller-font url-max-width text-truncate">{{inbound_resource.complete_url}}</span>
+				</a>
+
+				<a href="{{d.discussion_url}}"
+					title="View discussion with {{d.score}} {{d.score_label}} on {{platform_name}}"
+					rel="nofollow"><strong>{{d.comment_count}}
+						comment{{d.comment_count|pluralize:",s"}}</strong></a>
+
 				<a href="{{inbound_resource.complete_url | discussions_url}}"
-					title="Discussions for «{% firstof inbound_resource.title inbound_resource.complete_url %}»">{{ inbound_resource.discussions_comment_count }}
-					comments</a>
-
-				<!-- <p>{{inbound_resource.discussions_normalized_tags}}</p> -->
-
+					title="Discussions for «{% firstof inbound_resource.title inbound_resource.complete_url %}»">
+					<strong>{{ inbound_resource.discussions_comment_count }}
+						comment{{inbound_resource.discussions_comment_count|pluralize:",s"}}</strong>
+				</a>
 			</li>
 			{% endfor %}
 		</ul>
@@ -176,8 +161,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 
 	{% if ctx.submit_links %}
-	<div class='submit_links'>
-		<br />
+	<div class='submit_links mt-5'>
 		<details {% if ctx.submit_links_visible %}open{% endif %}>
 			<summary>Submit link to:</summary>
 			<ul>
@@ -198,17 +182,17 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 		<summary>Related searches:</summary>
 
 		{% if ctx.try_with_site_prefix %}
-		<p>Try searching the whole domain: <a href="{{ctx.try_with_site_prefix|discussions_url}}"
+		<p class="mb-1 ms-3">Try searching the whole domain: <a href="{{ctx.try_with_site_prefix|discussions_url}}"
 				title="Discussions for «{{ctx.try_with_site_prefix}}»">{{ctx.try_with_site_prefix}}</a></p>
 		{% endif %}
 
 		{% if ctx.try_with_title %}
-		<p>Try searching with title: <a href="{{ctx.try_with_title|discussions_url}}"
+		<p class="mb-1 ms-3">Try searching with title: <a href="{{ctx.try_with_title|discussions_url}}"
 				title="Discussions for «{{ctx.try_with_title}}»">{{ctx.try_with_title}}</a></p>
 		{% endif %}
 
 		{% if ctx.try_with_url %}
-		<p>Try searching with url: <a href="{{ctx.try_with_url|discussions_url}}"
+		<p class="mb-1 ms-3">Try searching with url: <a href="{{ctx.try_with_url|discussions_url}}"
 				title="Discussions for «{{ctx.try_with_url}}»">{{ctx.try_with_url}}</a></p>
 		{% endif %}
 
@@ -218,13 +202,5 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 </div>
 
-{% if ctx.display_discussions and not ctx.nothing_found %}
-<aside>
-	<br />
-	<div class="donate">
-		<p>Support discu.eu's development by <a href="https://ko-fi.com/xojoc" rel="nofollow"
-				title="Support discu.eu's development">donating ❤️</a></p>
-	</div>
-</aside>
-{% endif %}
+
 {% endblock main %}

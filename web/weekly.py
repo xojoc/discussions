@@ -4,6 +4,7 @@ import logging
 import random
 import re
 import time
+from collections import defaultdict
 
 import django.template.loader as template_loader
 import urllib3
@@ -172,6 +173,53 @@ def last_nth_yearweeks(topic, n):
         yearweeks.add((ic.year, ic.week))
 
     return sorted(yearweeks, reverse=True)[:n]
+
+
+# from web import weekly; fc = weekly.__get_random_old_stories('hackernews', {'article': 3, 'project': 5})
+def __get_random_old_stories(topic, categories):
+    time_ago = datetime.datetime.now() - datetime.timedelta(days=365)
+    stories = (
+        __base_query(topic)
+        .filter(created_at__lt=time_ago)
+        .filter(comment_count__gte=100)
+        .filter(score__gte=100)
+    )
+    count = stories.count()
+    found_categories = defaultdict(list)
+
+    max_iter = sum(categories.values()) * 20
+
+    for i in range(max_iter):
+        if sum((len(v) for v in found_categories.values())) >= sum(
+            categories.values()
+        ):
+            break
+
+        j = random.randint(0, count - 1)
+        rs = stories[j]
+        cat = __category(rs)
+        if len(found_categories[cat]) >= categories.get(cat, 0):
+            continue
+        if rs not in found_categories[cat]:
+            discussions, _, _ = models.Discussion.of_url(
+                rs.story_url, only_relevant_stories=True
+            )
+            discussion_counts = (
+                discussions.aggregate(
+                    total_comments=Coalesce(Sum("comment_count"), 0),
+                    total_discussions=Coalesce(Count("platform_id"), 0),
+                )
+                or {}
+            )
+            rs.__dict__["total_comments"] = discussion_counts.get(
+                "total_comments"
+            )
+            rs.__dict__["total_discussions"] = discussion_counts.get(
+                "total_discussions"
+            )
+            found_categories[cat].append(rs)
+
+    return found_categories
 
 
 def __get_stories(topic, year, week):
@@ -344,6 +392,12 @@ def _get_digest(topic, year, week):
     return digest
 
 
+def __get_digest_old_stories(topic):
+    old_stories = __get_random_old_stories(topic, {"article": 2, "project": 2})
+    old_stories.default_factory = None
+    return old_stories
+
+
 def __generate_breadcrumbs(topic=None, year=None, week=None):
     breadcrumbs = []
     breadcrumbs.append({"name": "Home", "url": "/"})
@@ -395,7 +449,7 @@ def topic_context(topic):
     ctx["topic"] = topics.topics[topic]
     ctx["yearweeks"] = []
     # yearweeks = all_yearweeks(topic)
-    yearweeks = last_nth_yearweeks(topic, 10)
+    yearweeks = last_nth_yearweeks(topic, 5)
     for yearweek in yearweeks:
         ctx["yearweeks"].append(
             {
@@ -432,6 +486,7 @@ def topic_week_context(topic, year, week):
     ctx["week_end"] = week_end(year, week) - datetime.timedelta(days=1)
     # ctx["stories"] = __get_stories(topic, year, week)
     ctx["digest"] = _get_digest(topic, year, week)
+    ctx["digest_old_stories"] = __get_digest_old_stories(topic)
     ctx["breadcrumbs"] = __generate_breadcrumbs(topic, year, week)
     ctx[
         "web_link"

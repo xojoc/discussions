@@ -11,15 +11,11 @@ Social accounts/bots - discu.eu
 	The following bots post regularly the most interesting discussions about some particular topic:
 </p>
 
-{% for bot in ctx.mastodon_bots %}
-
 <ul>
+	{% for bot in ctx.mastodon_bots %}
 	<li><a href="{{bot.link}}" title="{{bot.link_title}}" rel="me nofollow">{{bot.nick}}</a> - {{bot.description}}</li>
+	{% endfor %}
 </ul>
-
-{% endfor %}
-
-<br />
 
 <p>
 	You can find me at <a href="https://mastodon.social/@xojoc" rel="nofollow"
@@ -36,15 +32,13 @@ Social accounts/bots - discu.eu
 	The following bots tweet regularly the most interesting discussions about some particular topic:
 </p>
 
-{% for bot in ctx.twitter_bots %}
-
 <ul>
+	{% for bot in ctx.twitter_bots %}
 	<li><a href="{{bot.link}}" title="{{bot.link_title}}" rel="me nofollow">{{bot.nick}}</a> - {{bot.description}}</li>
+
+	{% endfor %}
 </ul>
 
-{% endfor %}
-
-<br />
 
 <p>
 	You can find me at <a href="https://twitter.com/XojocXojoc" title="Twitter profile of Alexandru Cojocaru"

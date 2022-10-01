@@ -70,3 +70,5 @@ admin.site.register(models.Discussion, DiscussionAdmin)
 admin.site.register(models.Subscriber, SubscriberAdmin)
 
 admin.site.register([models.APIClient, models.Tweet, models.Statistics])
+
+admin.site.register([models.CustomUser])

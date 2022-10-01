@@ -5,7 +5,7 @@
 {% load util %}
 
 {% block title %}
-Free Weekly newsletters - discu.eu
+Free weekly newsletters - discu.eu
 {% endblock title %}
 
 {% block meta_description %}
@@ -13,48 +13,39 @@ Free weekly newsletter with articles, tutorials, projects and releases about top
 {% endblock meta_description %}
 
 {% block main %}
-<div class="weekly">
-    <h2>Free Weekly newsletters with the latest from the web</h2>
-    <p>Keep up to date about what you care about. Each week a recap of stories, projects and tutorials.</p>
-
-    <!-- <figure>
-        <figcaption>Example email of <a href="{% url 'web:weekly_topic_week' 'compsci' '2022' '8' %}">issue
-                8/2022</a> for
-            Computer Science</figcaption>
-        <img class="screenshot" src="{% static 'weekly_compsci_screenshot_light.png' %}"
-            alt="Screenshot of issue 8/2022 for Computer Science" />
-
-    </figure> -->
+<h2>Free Weekly newsletters with the latest from the web</h2>
+<p>Keep up to date about what you care about. Each week a recap of stories, projects and tutorials.</p>
 
 
-    <div class="weekly-main">
-        <p class="smaller-font text-center bold">
-            Choose a topic:
-        </p>
+<p class="smaller-font text-center">
+    <strong>Choose a topic:</strong>
+</p>
 
-        <ul class="weekly-index-topics">
-            {% for topic_key, topic in ctx.topics.items %}
-            <li class="weekly-index-topic">
-                <a href="{% url 'web:weekly_topic' topic_key %}"
-                    title="{{topic.short_description}} newsletter">{{topic.name}}</a>
-            </li>
-            {% endfor %}
-        </ul>
+<div class="weekly-index-grid">
+    {% for topic_key, topic in ctx.topics.items %}
+    <div class="btn btn-dark d-flex align-items-center justify-content-center">
+        <a href="{% url 'web:weekly_topic' topic_key %}" title="{{topic.short_description}} newsletter"
+            class="text-light">{{topic.name}}</a>
     </div>
-
-    {% include "web/weekly_subscribe_form.html" %}
-
-    {% include "web/weekly_faq.html" %}
-
-    {% include "web/weekly_about_me.html" %}
-
-
-    <div class="weekly-footer">
-        <p class="weekly-follow">
-            For daily updates follow one of our <a href="/social" title="Social media bots">accounts on Twitter or
-                Mastodon</a>.
-        </p>
-    </div>
+    {% endfor %}
 </div>
+
+<div class="my-5"></div>
+{% include "web/weekly_subscribe_form.html" %}
+
+<div class="my-5"></div>
+{% include "web/weekly_faq.html" %}
+
+<div class="my-5"></div>
+{% include "web/weekly_about_me.html" %}
+
+<div class="my-5"></div>
+
+<p class="weekly-follow">
+    For daily updates follow one of our <a href="/social" title="Social media bots">accounts on Twitter or
+        Mastodon</a>.
+</p>
+
+
 
 {% endblock main %}

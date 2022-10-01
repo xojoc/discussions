@@ -7,17 +7,27 @@ poetry_export:
 # Reenable them in the future.
 	@poetry export --without-hashes  -f requirements.txt --output requirements.txt
 
-deploy: poetry_export
+sass_compile:
+	@poetry run ./manage.py sass web/static/style.scss web/static/style.css
+
+sass_watch:
+	@poetry run ./manage.py sass web/static/style.scss web/static/style.css --watch
+
+deploy: poetry_export sass_compile
 	@git add requirements.txt
 	-git commit -m "Update requirements.txt" -- requirements.txt
+	@git add web/static/style.css
+	-git commit -m "Update web/static/style.css" -- web/static/style.css
 	@caprover deploy --default
 
-run:
+run: sass_compile
 	echo $$DATABASE_HOST
 	-kill $$(lsof -i:7777 -t -sTCP:LISTEN)
 	-kill $$(lsof -i:5555 -t -sTCP:LISTEN)
 	-kill $$(cat /var/run/celery/*.pid)
 	-killall -KILL celery
+	-killall -KILL stripe
+	stripe listen --forward-to localhost:7777/stripe/webhook/&
 	@poetry run ./docker-entrypoint.sh 7777
 
 cp: lint test poetry_export
@@ -32,7 +42,7 @@ migrate:
 	@poetry run python manage.py makemigrations
 	@poetry run python manage.py migrate
 
-d: poetry_export
+d: poetry_export sass_compile
 #	@poetry self update
 	@docker build -t discussions .
 	-docker stop $$(docker ps -a -q)
@@ -53,21 +63,6 @@ lint:
 
 test:
 	@poetry run python -Wa manage.py test --shuffle --keepdb
-
-
-account:
-	# poetry run python manage.py makemigrations web
-	# poetry run python manage.py migrate web
-
-	poetry run python manage.py migrate socialaccount zero
-	poetry run python manage.py migrate admin zero
-	poetry run python manage.py migrate sessions zero
-	poetry run python manage.py migrate contenttypes zero
-	poetry run python manage.py migrate auth zero
-	# poetry run python manage.py makemigrations auth
-	# poetry run python manage.py migrate auth
-	poetry run python manage.py showmigrations
-
 
 superuser:
 	poetry run python manage.py createsuperuser

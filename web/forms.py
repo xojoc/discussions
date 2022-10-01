@@ -27,3 +27,15 @@ class UnsubscribeForm(forms.ModelForm):
         model = models.Subscriber
         fields = ["topic", "email", "verification_code"]
         widgets = {"verification_code": forms.HiddenInput()}
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = models.CustomUser
+        fields = ["complete_name", "generic_ads", "job_ads"]
+        widgets = {"complete_name": forms.TextInput()}
+        # labels = {"email": "Primary email"}
+        # help_texts = {
+        #     "email": "See below on how to manage your emails",
+        # }
+        # readonly = ("email",)
