@@ -177,6 +177,7 @@ def last_nth_yearweeks(topic, n):
 
 # from web import weekly; fc = weekly.__get_random_old_stories('hackernews', {'article': 3, 'project': 5})
 def __get_random_old_stories(topic, categories):
+    found_categories = defaultdict(list)
     time_ago = datetime.datetime.now() - datetime.timedelta(days=365)
     stories = (
         __base_query(topic)
@@ -185,7 +186,8 @@ def __get_random_old_stories(topic, categories):
         .filter(score__gte=100)
     )
     count = stories.count()
-    found_categories = defaultdict(list)
+    if not count:
+        return found_categories
 
     max_iter = sum(categories.values()) * 20
 
