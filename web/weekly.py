@@ -395,9 +395,10 @@ def _get_digest(topic, year, week):
 
 
 def __get_digest_old_stories(topic):
-    old_stories = __get_random_old_stories(topic, {"article": 2, "project": 2})
-    old_stories.default_factory = None
-    return old_stories
+    return {}
+    # old_stories = __get_random_old_stories(topic, {"article": 2, "project": 2})
+    # old_stories.default_factory = None
+    # return old_stories
 
 
 def __generate_breadcrumbs(topic=None, year=None, week=None):
