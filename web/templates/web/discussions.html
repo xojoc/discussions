@@ -141,11 +141,6 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 						class="d-inline-block smaller-font url-max-width text-truncate">{{inbound_resource.complete_url}}</span>
 				</a>
 
-				<a href="{{d.discussion_url}}"
-					title="View discussion with {{d.score}} {{d.score_label}} on {{platform_name}}"
-					rel="nofollow"><strong>{{d.comment_count}}
-						comment{{d.comment_count|pluralize:",s"}}</strong></a>
-
 				<a href="{{inbound_resource.complete_url | discussions_url}}"
 					title="Discussions for «{% firstof inbound_resource.title inbound_resource.complete_url %}»">
 					<strong>{{ inbound_resource.discussions_comment_count }}
