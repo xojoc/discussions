@@ -19,4 +19,10 @@
   <button type="submit" class="btn btn-primary">{% trans "Sign Up" %} &raquo;</button>
 </form>
 
+<p class="mt-5 smaller-font-2">By creating an account, you agree to the <a href="{% url 'web:terms' %}"
+    title="Terms and Conditions">Terms of
+    Service</a>. For more information about discu.eu's
+  privacy practices, see the <a href="{% url 'web:privacy_policy' %}" title="Privacy Policy">Privacy Policy</a>. We'll
+  occasionally send you account-related emails.</p>
+
 {% endblock %}

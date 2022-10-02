@@ -58,6 +58,21 @@ urlpatterns = [
         name="search",
     ),
     path(
+        "pricing/",
+        TemplateView.as_view(template_name="web/pricing.html"),
+        name="pricing",
+    ),
+    path(
+        "privacy-policy/",
+        TemplateView.as_view(template_name="web/privacy-policy.html"),
+        name="privacy_policy",
+    ),
+    path(
+        "terms/",
+        TemplateView.as_view(template_name="web/terms.html"),
+        name="terms",
+    ),
+    path(
         "opensearch.xml",
         TemplateView.as_view(
             template_name="web/opensearch.xml",

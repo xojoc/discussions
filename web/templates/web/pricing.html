@@ -1,0 +1,88 @@
+{% extends "web/base.html" %}
+
+{% block title %}
+Pricing - discu.eu
+{% endblock title %}
+
+{% block main %}
+
+<div class="d-flex flex-row flex-wrap gap-4 justify-content-center w-fit-content mx-auto">
+    <div class="card flex-1 mb-4 rounded-3 shadow-sm">
+        <div class="card-header py-3">
+            <h4 class="my-0 fw-normal">Free</h4>
+        </div>
+        <div class="card-body d-flex flex-column">
+            <h1 class="card-title">€0<small class="text-muted fw-light">/mo</small></h1>
+            <ul class="list-unstyled mt-3 mb-4">
+                <li>Weekly newsletter</li>
+                <li>API</li>
+                <li>Community Support</li>
+                <li></li>
+            </ul>
+            <div class="mt-auto">
+                <a href="{% url 'account_signup' %}" class="w-100 btn btn-lg btn-outline-primary text-black">Sign up</a>
+            </div>
+        </div>
+    </div>
+    <div class="card flex-1 mb-4 rounded-3 shadow-sm border-primary">
+        <div class="card-header py-3 text-bg-primary border-primary">
+            <h4 class="my-0 fw-normal text-light">Premium</h4>
+        </div>
+        <div class="card-body d-flex flex-column">
+            <h1 class="card-title pricing-card-title">€5<small class="text-muted fw-light">/mo</small></h1>
+            <ul class="list-unstyled mt-3 mb-4">
+                <li>Weekly newsletter</li>
+                <li>API</li>
+                <li>Ad-free experience</li>
+                <li>Email support</li>
+            </ul>
+
+            <a href="{% url 'account_signup' %}" class="w-100 btn btn-lg btn-primary">Sign up</a>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5 mb-4">
+    <h2 class="display-6 text-center mb-4">Compare plans</h2>
+
+    <div class="table-responsive">
+        <table class="table text-center">
+            <thead>
+                <tr>
+                    <th style="width: 34%;"></th>
+                    <th style="width: 33%;">Free</th>
+                    <th style="width: 33%;">Premium</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row" class="text-start align-middle">Weekly newsletter</th>
+                    <td><span class="bi bi-check2 fs-2"></span></td>
+                    <td><span class="bi bi-check2 fs-2"></span></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="text-start align-middle">Api</th>
+                    <td><span class="bi bi-check2 fs-2"></span></td>
+                    <td><span class="bi bi-check2 fs-2"></span></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="text-start align-middle">Community support</th>
+                    <td><span class="bi bi-check2 fs-2"></span></td>
+                    <td><span class="bi bi-check2 fs-2"></span></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="text-start align-middle">Ad-free</th>
+                    <td></td>
+                    <td><span class="bi bi-check2-all fs-2 text-primary"></span></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="text-start align-middle">Email support</th>
+                    <td></td>
+                    <td><span class="bi bi-check2-all fs-2 text-primary"></span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock main %}

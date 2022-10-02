@@ -33,12 +33,16 @@ $link-decoration: none;
 $link-hover-decoration: underline;
 
 $btn-font-weight: bold;
+$btn-link-color: white;
+
 $alert-padding-y: 0.5rem;
 $alert-padding-x: 0.5rem;
 
 $input-bg: white;
 
 $custom-max-width: 65ch;
+
+
 
 @import 'bootstrap/scss/bootstrap';
 
@@ -47,12 +51,25 @@ body {
 }
 
 .btn {
-    color: #F1F1F1 !important;
     text-rendering: optimizelegibility;
 
     &:hover {
-        color: #F1F1F1 !important;
         text-rendering: optimizelegibility;
+    }
+}
+
+.btn-primary,
+.btn-secondary {
+    color: #F1F1F1 !important;
+
+    &:hover {
+        color: #F1F1F1 !important;
+    }
+}
+
+.btn-outline-primary {
+    &:hover {
+        color: white !important;
     }
 }
 
@@ -102,6 +119,10 @@ footer {
 
 .w-min-content {
     width: min-content;
+}
+
+.w-fit-content {
+    width: fit-content;
 }
 
 .url-max-width {

@@ -3260,7 +3260,7 @@ textarea.form-control-lg {
 
 .btn-link {
   --bs-btn-font-weight: 400;
-  --bs-btn-color: var(--bs-link-color);
+  --bs-btn-color: white;
   --bs-btn-bg: transparent;
   --bs-btn-border-color: transparent;
   --bs-btn-hover-color: var(--bs-link-hover-color);
@@ -11235,13 +11235,25 @@ body {
 }
 
 .btn {
-  color: #F1F1F1 !important;
   text-rendering: optimizelegibility;
 }
 
 .btn:hover {
-  color: #F1F1F1 !important;
   text-rendering: optimizelegibility;
+}
+
+.btn-primary,
+.btn-secondary {
+  color: #F1F1F1 !important;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+  color: #F1F1F1 !important;
+}
+
+.btn-outline-primary:hover {
+  color: white !important;
 }
 
 h1, .h1,
@@ -11294,6 +11306,10 @@ footer {
 
 .w-min-content {
   width: min-content;
+}
+
+.w-fit-content {
+  width: fit-content;
 }
 
 .url-max-width {

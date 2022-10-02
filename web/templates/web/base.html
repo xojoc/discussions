@@ -7,6 +7,7 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="stylesheet" href="{% static 'style.css' %}" />
+		<link rel="stylesheet" href="{% static 'bootstrap-icons/bootstrap-icons.css' %}">
 		<script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
 
 		<link rel="icon" type="image/png" href="{% static 'favicon-32x32.png' %}" />
@@ -69,16 +70,19 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 					<div class="collapse navbar-collapse" id="header-navbar">
 						<ul class="navbar-nav container-fluid me-1">
 							<li class="nav-item">
-								<a class="nav-link" href="{% url 'web:weekly_index' %}">Newsletters</a>
+								<a class="nav-link" href="{% url 'web:weekly_index' %}"
+									title="Weekly Newsletters">Newsletters</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" href="{% url 'web:social' %}">Social bots</a>
+								<a class="nav-link" href="{% url 'web:social' %}"
+									title="Social accounts and bots">Social</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" href="{% url 'web:extension' %}">Browser extension</a>
+								<a class="nav-link" href="{% url 'web:extension' %}"
+									title="Firefox and Chrome extensions">Extension</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" href="/api/v0/docs">API</a>
+								<a class="nav-link" href="{% url 'web:pricing' %}" title="Pricing">Pricing</a>
 							</li>
 
 							<li class="ms-auto"></li>
@@ -126,22 +130,32 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 		{% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
 
-		<footer class="d-flex mx-auto pt-5 pb-2 px-2 flex-row flex-wrap gap-4">
-			<ul class="list-unstyled">
-				<li><a href="/social" title="Social accounts and bots">Social accounts/bots</a></li>
-				<li><a href="/weekly" title="Weekly newsletter">Weekly newsletter</a></li>
-			</ul>
-			<ul class="list-unstyled">
-				<li><a href="/extension" title="Browser extensions">Browser extension</a></li>
-				<li><a href="/bookmarklet" title="Bookmarklets">Bookmarklet</a></li>
-				<li>Comments on your <a href="/website" title="Display discussions on your website">Website</a>
-				</li>
-				<li><a href="/api/v0/docs" title="Discussions API">API</a></li>
-			</ul>
-			<ul class="list-unstyled">
-				<li>Made by <a href="https://xojoc.pw" title="My home page">Alexandru Cojocaru</a></li>
-				<li><a class="u-email email" href="mailto:hi@discu.eu" title="Contact us">hi@discu.eu</a></li>
-			</ul>
+		<footer class="d-flex mx-auto pt-5 pb-2 px-2 flex-row flex-wrap gap-5">
+			<div>
+				<h6>Features</h6>
+				<ul class="list-unstyled">
+					<li><a href="/weekly" title="Weekly newsletter">Weekly newsletter</a></li>
+					<li><a href="/social" title="Social accounts and bots">Social/bots</a></li>
+					<li><a href="/extension" title="Browser extensions">Browser extension</a></li>
+					<li><a href="{% url 'web:pricing' %}" title="Pricing">Pricing</a></li>
+				</ul>
+			</div>
+			<div>
+				<h6>Developers</h6>
+				<ul class="list-unstyled">
+					<li><a href="/api/v0/docs" title="Discussions API">API</a></li>
+					<li>For your <a href="/website" title="Display discussions on your website">Website</a></li>
+				</ul>
+			</div>
+			<div>
+				<h6>About</h6>
+				<ul class="list-unstyled">
+					<li><a href="{% url 'web:privacy_policy' %}" title="Privacy Policy">Privacy Policy</a></li>
+					<li><a href="{% url 'web:terms' %}" title="Terms and Conditions">Terms</a></li>
+					<li>Made by <a href="https://xojoc.pw" title="My home page">Alexandru Cojocaru</a></li>
+					<li><a class="u-email email" href="mailto:hi@discu.eu" title="Contact us">hi@discu.eu</a></li>
+				</ul>
+			</div>
 		</footer>
 	</body>
 
