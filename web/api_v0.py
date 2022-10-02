@@ -93,6 +93,17 @@ def get_discussions(request, url: str, only_relevant_stories: bool = True):
     return ds
 
 
+@api.api_operation(
+    ["OPTIONS"],
+    "/discussions/url/{path:url}",
+    response={200: List[Discussion]},
+)
+def options_get_discussions(
+    request, url: str, only_relevant_stories: bool = True
+):
+    return []
+
+
 @api.get(
     "/discussion_counts/url/{path:url}",
     response={200: DiscussionCounts},
@@ -161,3 +172,12 @@ def get_discussion_counts(request, url: str):
         cache.set(touch_key, 1, timeout=60 * 3)
 
     return dcs
+
+
+@api.api_operation(
+    ["OPTIONS"],
+    "/discussion_counts/url/{path:url}",
+    response={200: DiscussionCounts},
+)
+def options_get_discussion_counts(request, url: str):
+    return {}
