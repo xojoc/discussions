@@ -144,7 +144,14 @@ def admin_send_recap_email(self):
     twitter_followers_count = twitter.get_followers_count(twitter_usernames)
     mastodon_followers_count = mastodon.get_followers_count(mastodon_usernames)
 
+    users_count = models.CustomUser.objects.count()
+    users_premium_count = models.CustomUser.objects.filter(
+        premium_active=True
+    ).filter(premium_cancelled=False)
+
     body = f"""
+Users: {users_count}
+Premium users: {users_premium_count}
 Subscribers: {subscribers}
 Unconfirmed: {unconfirmed}
 Unsubscribed: {unsubscribed}

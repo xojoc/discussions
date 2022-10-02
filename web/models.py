@@ -1,6 +1,7 @@
 import datetime
 import json
 import urllib
+import secrets
 
 import cleanurl
 import django.template.loader as template_loader
@@ -815,8 +816,6 @@ class APIClient(models.Model):
 
     @classmethod
     def generate_token(cls):
-        import secrets
-
         return secrets.token_urlsafe(32)
 
     def save(self, *args, **kwargs):
@@ -971,9 +970,14 @@ class CustomUser(AbstractUser):
 
     stripe_customer_id = models.TextField(null=True, blank=True)
 
+    rss_id = models.TextField(null=True)
+
     def save(self, *args, **kwargs):
         if not self.api:
             self.api = APIClient.objects.create(name=f"User {self.pk}")
+        if not self.rss_id:
+            self.rss_id = secrets.token_urlsafe(5)
+
         super(CustomUser, self).save(*args, **kwargs)
 
     def trial_length_days(self):

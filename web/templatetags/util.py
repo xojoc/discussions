@@ -31,3 +31,8 @@ def story_short_url(d):
 @register.filter(name="url_root")
 def url_root(u):
     return util.url_root(u)
+
+
+@register.simple_tag(name="is_dev")
+def is_dev():
+    return util.is_dev()

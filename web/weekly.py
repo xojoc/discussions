@@ -94,7 +94,7 @@ def __category(story):
     return "article"
 
 
-def __base_query(topic):
+def base_query(topic):
     qs = (
         models.Discussion.objects.exclude(schemeless_story_url__isnull=True)
         .exclude(schemeless_story_url="")
@@ -137,7 +137,7 @@ def week_end(year, week=None):
 def all_yearweeks(topic):
     yearweeks = set()
     stories = (
-        __base_query(topic)
+        base_query(topic)
         .annotate(created_at_date=TruncDay("created_at"))
         .values("created_at_date")
         .distinct()
@@ -154,7 +154,7 @@ def last_nth_yearweeks(topic, n):
     # days_ago = datetime.datetime.now() - datetime.timedelta(days=(n * 1.3) * 7)
     # yearweeks = set()
     # stories = (
-    #     __base_query(topic)
+    #     base_query(topic)
     #     .filter(created_at__gte=days_ago)
     #     .annotate(created_at_date=TruncDay("created_at"))
     #     .values("created_at_date")
@@ -180,7 +180,7 @@ def __get_random_old_stories(topic, categories):
     found_categories = defaultdict(list)
     time_ago = datetime.datetime.now() - datetime.timedelta(days=365)
     stories = (
-        __base_query(topic)
+        base_query(topic)
         .filter(created_at__lt=time_ago)
         .filter(comment_count__gte=100)
         .filter(score__gte=100)
@@ -229,7 +229,7 @@ def __get_stories(topic, year, week):
     we = week_end(year, week)
 
     stories = (
-        __base_query(topic)
+        base_query(topic)
         .filter(created_at__gte=ws)
         .filter(created_at__lt=we)
         .distinct("canonical_story_url")

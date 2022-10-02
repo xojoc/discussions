@@ -2,7 +2,9 @@ from django.urls import path
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 
-from . import views
+# from django.views.decorators.cache import cache_page
+
+from . import views, feed
 
 app_name = "web"
 
@@ -106,4 +108,14 @@ urlpatterns = [
         name="stripe_subscribe_cancel",
     ),
     path("stripe/webhook/", views.stripe_webhook, name="stripe_webhook"),
+    path(
+        "rss/<slug:topic>/<slug:rss_id>",
+        feed.WeeklyFeedSingle(),
+        name="weekly_single_rss_feed",
+    ),
+    path(
+        "atom/<slug:topic>/<slug:rs_id>",
+        feed.AtomWeeklyFeedSingle(),
+        name="weekly_single_atom_feed",
+    ),
 ]
