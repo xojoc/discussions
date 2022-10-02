@@ -11243,12 +11243,14 @@ body {
 }
 
 .btn-primary,
-.btn-secondary {
+.btn-secondary,
+.btn-info {
   color: #F1F1F1 !important;
 }
 
 .btn-primary:hover,
-.btn-secondary:hover {
+.btn-secondary:hover,
+.btn-info:hover {
   color: #F1F1F1 !important;
 }
 
