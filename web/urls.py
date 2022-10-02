@@ -73,6 +73,11 @@ urlpatterns = [
         name="terms",
     ),
     path(
+        "support/",
+        TemplateView.as_view(template_name="web/support.html"),
+        name="support",
+    ),
+    path(
         "opensearch.xml",
         TemplateView.as_view(
             template_name="web/opensearch.xml",

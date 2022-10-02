@@ -1,0 +1,19 @@
+{% extends "web/base.html" %}
+
+{% block title %}
+Support and contacts - discu.eu
+{% endblock title %}
+
+{% block main %}
+
+<h2>Support</h2>
+<p>Checkout our <a href="https://www.reddit.com/r/discueu/" title="discu.eu subreddit">subreddit</a> for community
+    support.</a></p>
+{% if user.is_premium %}
+<p>Write to <a href="mailto:support@discu.eu" title="Support email">support@discu.eu</a> and we'll get back to you as
+    soon as possible.</p>
+{% else %}
+<p>Subscribe to a <a href="{% url 'web:pricing' %}" title="Pricing">premium account</a> to get email support.</p>
+{% endif %}
+
+{% endblock %}
