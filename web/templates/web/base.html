@@ -70,38 +70,37 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 					<div class="collapse navbar-collapse" id="header-navbar">
 						<ul class="navbar-nav container-fluid me-1 align-items-center">
 							<li class="nav-item">
-								<a class="nav-link" href="{% url 'web:weekly_index' %}"
+								<a class="nav-link text-light" href="{% url 'web:weekly_index' %}"
 									title="Weekly Newsletters">Newsletters</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" href="{% url 'web:social' %}"
+								<a class="nav-link text-light" href="{% url 'web:social' %}"
 									title="Social accounts and bots">Social</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" href="{% url 'web:extension' %}"
+								<a class="nav-link text-light" href="{% url 'web:extension' %}"
 									title="Firefox and Chrome extensions">Extension</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" href="{% url 'web:pricing' %}" title="Pricing">Pricing</a>
+								<a class="nav-link text-light" href="{% url 'web:pricing' %}"
+									title="Pricing">Pricing</a>
 							</li>
 
 							<li class="ms-auto"></li>
 
 							{% if user.is_authenticated %}
 							<li class="nav-item me-1 my-1"><a href="{% url 'account_logout' %}"
-									class="btn btn-secondary">Log
-									out</a>
+									class="btn btn-outline-light">Logout</a>
 							</li>
 							<li class="nav-item me-1 my-1"><a href="{% url 'web:dashboard' %}"
 									class="btn btn-primary">Dashboard</a>
 							</li>
 							{% else %}
 							<li class="nav-item me-1 my-1"><a href="{% url 'account_login' %}"
-									class="btn btn-secondary">Log
-									in</a></li>
+									class="btn btn-outline-light">Login</a></li>
 							<li class="nav-item me-1 my-1"><a href="{% url 'account_signup' %}"
 									class="btn btn-primary">Sign
-									up</a>
+									Up</a>
 							</li>
 							{% endif %}
 						</ul>

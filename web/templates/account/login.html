@@ -4,11 +4,14 @@
 {% load account socialaccount %}
 {% load crispy_forms_tags %}
 
-{% block head_title %}{% trans "Sign In" %}{% endblock %}
+
+{% block title %}
+Login - discu.eu
+{% endblock title %}
 
 {% block content %}
 
-<h1>{% trans "Sign In" %}</h1>
+<h1>Login</h1>
 
 {% get_providers as socialaccount_providers %}
 
@@ -41,7 +44,7 @@
   {% if redirect_field_value %}
   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
   {% endif %}
-  <button class="primaryAction btn btn-primary" type="submit">{% trans "Sign In" %}</button>
+  <button class="primaryAction btn btn-primary" type="submit">Login</button>
   <a class="button secondaryAction btn btn-secondary"
     href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
 </form>
