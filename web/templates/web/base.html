@@ -89,14 +89,14 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 							<li class="ms-auto"></li>
 
 							{% if user.is_authenticated %}
-							<li class="nav-item me-1 my-1"><a href="{% url 'account_logout' %}"
+							<li class="nav-item me-2 my-1"><a href="{% url 'account_logout' %}"
 									class="btn btn-outline-light">Logout</a>
 							</li>
 							<li class="nav-item me-1 my-1"><a href="{% url 'web:dashboard' %}"
 									class="btn btn-primary">Dashboard</a>
 							</li>
 							{% else %}
-							<li class="nav-item me-1 my-1"><a href="{% url 'account_login' %}"
+							<li class="nav-item me-2 my-1"><a href="{% url 'account_login' %}"
 									class="btn btn-outline-light">Login</a></li>
 							<li class="nav-item me-1 my-1"><a href="{% url 'account_signup' %}"
 									class="btn btn-primary">Sign
@@ -127,7 +127,11 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 			{% block main %}{% endblock %}
 		</div>
 
+		{% if ctx.breadcrumbs %}
+		<div class="mt-5"></div>
+		{% endif %}
 		{% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
+
 
 		<footer class="d-flex justify-content-between mx-auto pt-5 pb-2 px-2 flex-row flex-wrap gap-5 w-100">
 			<div>

@@ -31,19 +31,18 @@ Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials a
     <ul class="weekly-stories">
         {% for story in stories %}
         <li>
-            <p>
+            <p class="d-flex flex-column">
                 <a href="{{story.story_url}}" title="{{story.title}}">{{story.title}}</a>
-            </p>
 
-            {% if story.total_comments %}
-            <p class="weekly-discussions">
-                <a href="{{story.story_url|discussions_url}}" title="Discussions for «{{story.title}}»"
-                    class="bold">{{story.total_comments}}
-                    comment{{story.total_comments|pluralize}}</a> <span class="weekly-discussions-count">in
-                    {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</span>
+                {% if story.total_comments %}
+                <span>
+                    <a href="{{story.story_url|discussions_url}}" title="Discussions for «{{story.title}}»"
+                        class="bold">{{story.total_comments}}
+                        comment{{story.total_comments|pluralize}}</a> <span class="smaller-font-2">in
+                        {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</span>
+                </span>
+                {% endif %}
             </p>
-            {% endif %}
-
         </li>
         {% endfor %}
     </ul>
@@ -80,7 +79,7 @@ Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials a
 
 
     <br />
-    <p>
+    <p class="smaller-font-1">
         This is an archived issue from the <a href="{% url 'web:weekly_topic' ctx.topic_key %}"
             title="Weekly {{ctx.topic.name}} newsletter">{{ctx.topic.name}}
             newsletter</a>.
