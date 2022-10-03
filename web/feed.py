@@ -96,7 +96,7 @@ class WeeklyFeed(Feed):
 
     def item_pubdate(self, item):
         obj, year, week = item
-        return weekly.week_start(year, week)
+        return weekly.week_end(year, week)
 
 
 class AtomWeeklyFeed(WeeklyFeed):
