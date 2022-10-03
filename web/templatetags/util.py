@@ -36,3 +36,8 @@ def url_root(u):
 @register.simple_tag(name="is_dev")
 def is_dev():
     return util.is_dev()
+
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key, "")

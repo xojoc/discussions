@@ -1,7 +1,7 @@
 @import 'bootstrap/scss/functions';
 
-// $enable-grid-classes: false;
-// $enable-cssgrid: true;
+$enable-grid-classes: false;
+$enable-cssgrid: true;
 
 
 $body-bg: #f1f1f1;
@@ -127,6 +127,10 @@ footer {
     width: fit-content;
 }
 
+.w-max-content {
+    width: max-content;
+}
+
 .url-max-width {
     max-width: $custom-max-width - 5ch;
 }
@@ -143,4 +147,9 @@ footer {
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(8em, 1fr)) !important;
     grid-gap: 0.9em 0.8em !important;
+}
+
+.flex-1-1-0 {
+    flex: 1 0 0;
+    min-width: 0
 }

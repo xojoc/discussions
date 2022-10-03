@@ -7,38 +7,39 @@ Pricing - discu.eu
 {% block main %}
 
 <div class="d-flex flex-row flex-wrap gap-4 justify-content-center w-fit-content mx-auto">
-    <div class="card flex-1 mb-4 rounded-3 shadow-sm">
+    <!-- <div class="grid  gap-4 justify-content-center w-fit-content mx-auto" style="--bs-columns: 2;"> -->
+
+    <div class="card mb-4 rounded-3 shadow-sm">
         <div class="card-header py-3">
             <h4 class="my-0 fw-normal">Free</h4>
         </div>
         <div class="card-body d-flex flex-column">
             <h1 class="card-title">€0<small class="text-muted fw-light">/mo</small></h1>
             <ul class="list-unstyled mt-3 mb-4">
-                <li>Weekly newsletter</li>
+                <li class="w-max-content">Newsletters (email)</li>
                 <li>API</li>
                 <li>Community Support</li>
-                <li></li>
             </ul>
             <div class="mt-auto">
-                <a href="{% url 'account_signup' %}" class="w-100 btn btn-lg btn-outline-primary text-black">Sign Up</a>
+                <a href="{% url 'account_signup' %}" class="w-100 btn btn-lg btn-outline-primary text-black mb-2">Sign
+                    Up</a>
             </div>
         </div>
     </div>
-    <div class="card flex-1 mb-4 rounded-3 shadow-sm border-primary">
-        <div class="card-header py-3 text-bg-primary border-primary">
+    <div class="card mb-4 rounded-3 shadow-sm border-primary">
+        <div class="card-header py-3 text-bg-primary border-primary ps-4 pe-4">
             <h4 class="my-0 fw-normal text-light">Premium</h4>
         </div>
-        <div class="card-body d-flex flex-column">
+        <div class="card-body d-flex flex-column ps-4 pe-4">
             <h1 class="card-title pricing-card-title">€5<small class="text-muted fw-light">/mo</small></h1>
             <ul class="list-unstyled mt-3 mb-4">
-                <li>Weekly newsletter</li>
+                <li>Newsletters (RSS)</li>
                 <li>API</li>
-                <li>Community Support</li>
                 <li>Email support</li>
-                <li>Ad-free experience</li>
+                <li>No ads</li>
             </ul>
 
-            <a href="{% url 'account_signup' %}" class="w-100 btn btn-lg btn-primary">Sign Up</a>
+            <a href="{% url 'account_signup' %}" class="w-100 btn btn-lg btn-primary mb-2 mt-2">Sign Up</a>
         </div>
     </div>
 </div>
@@ -60,6 +61,11 @@ Pricing - discu.eu
                     <th scope="row" class="text-start align-middle">Weekly newsletter</th>
                     <td><span class="bi bi-check2 fs-2"></span></td>
                     <td><span class="bi bi-check2 fs-2"></span></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="text-start align-middle ps-5 smaller-font-1">RSS feeds</th>
+                    <td></td>
+                    <td><span class="bi bi-check2-all fs-2 text-primary"></span></td>
                 </tr>
                 <tr>
                     <th scope="row" class="text-start align-middle">Api</th>

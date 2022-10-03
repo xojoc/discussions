@@ -109,12 +109,22 @@ urlpatterns = [
     ),
     path("stripe/webhook/", views.stripe_webhook, name="stripe_webhook"),
     path(
-        "rss/<slug:topic>/<slug:rss_id>",
+        "rss/weekly/<slug:topic>/<slug:rss_id>",
+        feed.WeeklyFeed(),
+        name="weekly_rss_feed",
+    ),
+    path(
+        "atom/weekly/<slug:topic>/<slug:rs_id>",
+        feed.AtomWeeklyFeed(),
+        name="weekly_atom_feed",
+    ),
+    path(
+        "rss_single/<slug:topic>/<slug:rss_id>",
         feed.WeeklyFeedSingle(),
         name="weekly_single_rss_feed",
     ),
     path(
-        "atom/<slug:topic>/<slug:rs_id>",
+        "atom_single/<slug:topic>/<slug:rs_id>",
         feed.AtomWeeklyFeedSingle(),
         name="weekly_single_atom_feed",
     ),

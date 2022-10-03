@@ -524,6 +524,8 @@ def dashboard(request):
             request, "Please verify your email to access all the features."
         )
 
+    ctx['topics'] = topics.topics
+
     return render(request, "web/dashboard.html", {"ctx": ctx})
 
 

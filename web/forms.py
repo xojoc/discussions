@@ -32,7 +32,7 @@ class UnsubscribeForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = models.CustomUser
-        fields = ["complete_name", "generic_ads", "job_ads"]
+        fields = ["complete_name"]  # , "generic_ads", "job_ads"]
         widgets = {"complete_name": forms.TextInput()}
         # labels = {"email": "Primary email"}
         # help_texts = {

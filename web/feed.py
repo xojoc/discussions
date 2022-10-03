@@ -1,9 +1,11 @@
 import re
-from django.urls import reverse
 
+from django.conf import settings
 from django.contrib.syndication.views import Feed
+from django.urls import reverse
 from django.utils.feedgenerator import Atom1Feed, Rss201rev2Feed
-from web import weekly, models
+
+from web import models, topics, weekly, tags
 
 
 def filter_control_chars(method):
@@ -16,6 +18,90 @@ def filter_control_chars(method):
 
 class XmlMimeTypeRss2Feed(Rss201rev2Feed):
     content_type = "application/xml; charset=utf-8"
+
+
+class WeeklyFeed(Feed):
+    feed_type = XmlMimeTypeRss2Feed
+
+    @filter_control_chars
+    def title(self, obj):
+        return f"{obj['topic']['name']} weekly - discu.eu"
+
+    def link(self, obj):
+        return (
+            settings.APP_SCHEME
+            + "://"
+            + settings.APP_DOMAIN
+            + reverse(
+                "web:weekly_topic",
+                args=[obj["topic_key"]],
+            )
+        )
+
+    @filter_control_chars
+    def description(self, obj):
+        return f"Weekly newsletter about {obj['topic']['name']} with articles, projects and tutorials."
+
+    def author_name(self, obj):
+        return "discu.eu"
+
+    def author_email(self, obj):
+        return "feed@discu.eu"
+
+    def author_link(self, obj):
+        return "https://discu.eu"
+
+    def categories(self, obj):
+        return tags.normalize(obj["topic"]["tags"])
+
+    def feed_copyright(self, obj):
+        pass
+
+    def ttl(self, obj):
+        return 60 * 60
+
+    def get_object(self, request, topic, rss_id, **kwargs):
+        user = models.CustomUser.objects.get(rss_id=rss_id)
+        return {
+            "topic_key": topic,
+            "topic": topics.topics[topic],
+            "user": user,
+        }
+
+    def items(self, obj):
+        return [
+            (obj,) + e for e in weekly.last_nth_yearweeks(obj["topic_key"], 10)
+        ]
+
+    @filter_control_chars
+    def item_title(self, item):
+        obj, year, week = item
+        return f"{obj['topic']['name']} recap for week {week}/{year}"
+
+    @filter_control_chars
+    def item_description(self, item):
+        obj, year, week = item
+        return f"{obj['topic']['name']} recap for week {week}/{year}"
+
+    def item_link(self, item):
+        obj, year, week = item
+        return (
+            settings.APP_SCHEME
+            + "://"
+            + settings.APP_DOMAIN
+            + reverse(
+                "web:weekly_topic_week", args=[obj["topic_key"], year, week]
+            )
+        )
+
+    def item_pubdate(self, item):
+        obj, year, week = item
+        return weekly.week_start(year, week)
+
+
+class AtomWeeklyFeed(WeeklyFeed):
+    feed_type = Atom1Feed
+    subtitle = WeeklyFeed.description
 
 
 class WeeklyFeedSingle(Feed):
