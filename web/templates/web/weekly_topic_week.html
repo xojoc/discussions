@@ -22,60 +22,7 @@ Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials a
 
     {% include "web/weekly_subscribe_form.html" %}
 
-    {% for category, category_name, stories in ctx.digest %}
-
-    <h3 id="weekly-{{category}}">{{category_name}} <a href="#weekly-{{category}}" title="{{category_name}}"
-            class="relative-url">#</a>
-    </h3>
-
-    <ul class="weekly-stories">
-        {% for story in stories %}
-        <li>
-            <p class="d-flex flex-column">
-                <a href="{{story.story_url}}" title="{{story.title}}">{{story.title}}</a>
-
-                {% if story.total_comments %}
-                <span>
-                    <a href="{{story.story_url|discussions_url}}" title="Discussions for «{{story.title}}»"
-                        class="bold">{{story.total_comments}}
-                        comment{{story.total_comments|pluralize}}</a> <span class="smaller-font-2">in
-                        {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</span>
-                </span>
-                {% endif %}
-            </p>
-        </li>
-        {% endfor %}
-    </ul>
-
-    {% for k, v in ctx.digest_old_stories.items %}
-    {% if k == category and v %}
-    <span class="fs-4">Blast from the past</span>
-    <ul class="weekly-stories">
-        {% for old_story in v %}
-        <li>
-            <p>
-                <a href="{{old_story.story_url}}" title="{{old_story.title}}">{{old_story.title}}</a>
-            </p>
-
-            {% if old_story.total_comments %}
-            <p class="weekly-discussions">
-                <a href="{{old_story.story_url|discussions_url}}" title="Discussions for «{{old_story.title}}»"
-                    class="bold">{{old_story.total_comments}}
-                    comment{{old_story.total_comments|pluralize}}</a> <span class="weekly-discussions-count">in
-                    {{old_story.total_discussions}} discussion{{old_story.total_discussions|pluralize}}</span>
-                <span class="weekly-discussions-date"><time
-                        datetime="{{old_story.created_at | date:'c'}}">{{old_story.created_at | date}}</time></span>
-            </p>
-            {% endif %}
-
-        </li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    {% endfor %}
-
-    {% endfor %}
-
+    {% include "web/weekly_topic_week_fragment.html" %}
 
 
     <br />

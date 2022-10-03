@@ -6,6 +6,7 @@ from urllib.parse import unquote as url_unquote
 
 import stripe
 import urllib3
+from allauth.account import forms as account_forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -16,8 +17,6 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django_redis import get_redis_connection
-
-from allauth.account import forms as account_forms
 
 from discussions import settings
 
@@ -524,7 +523,7 @@ def dashboard(request):
             request, "Please verify your email to access all the features."
         )
 
-    ctx['topics'] = topics.topics
+    ctx["topics"] = topics.topics
 
     return render(request, "web/dashboard.html", {"ctx": ctx})
 

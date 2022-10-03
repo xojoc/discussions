@@ -2,10 +2,11 @@ import re
 
 from django.conf import settings
 from django.contrib.syndication.views import Feed
+from django.template import loader as template_loader
 from django.urls import reverse
 from django.utils.feedgenerator import Atom1Feed, Rss201rev2Feed
 
-from web import models, topics, weekly, tags
+from web import models, tags, topics, weekly
 
 
 def filter_control_chars(method):
@@ -81,7 +82,11 @@ class WeeklyFeed(Feed):
     @filter_control_chars
     def item_description(self, item):
         obj, year, week = item
-        return f"{obj['topic']['name']} recap for week {week}/{year}"
+        ctx = weekly.topic_week_context_cached(obj["topic_key"], year, week)
+        content = template_loader.render_to_string(
+            "web/weekly_topic_week_feed.html", {"ctx": ctx}
+        )
+        return content
 
     def item_link(self, item):
         obj, year, week = item

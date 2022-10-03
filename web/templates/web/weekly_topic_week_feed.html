@@ -1,0 +1,28 @@
+{% load humanize %}
+{% load util %}
+
+{% for category, category_name, stories in ctx.digest %}
+
+<h3>{{category_name}}</h3>
+
+<ul>
+    {% for story in stories %}
+    <li>
+        <p>
+            <a href="{{story.story_url}}" title="{{story.title}}">{{story.title}}</a>
+        </p>
+        {% if story.total_comments %}
+        <p>
+            <span>
+                <a href="{{story.story_url|discussions_url}}"
+                    title="Discussions for «{{story.title}}»">{{story.total_comments}}
+                    comment{{story.total_comments|pluralize}}</a> <small>in
+                    {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</small>
+            </span>
+        </p>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+
+{% endfor %}

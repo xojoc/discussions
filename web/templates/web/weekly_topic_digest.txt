@@ -10,13 +10,10 @@ here's a recap {% if ctx.topic.topic_key == 'hackernews' or ctx.topic.topic_key 
 
 {% endfor %}Thanks for reading,
 see you next week!
+—
 
---
+If you prefer an RSS feed sign up for the premium plan: https://discu.eu/pricing
 
 View issue online: {{ctx.web_link|safe}}
 
-If you have any friends or colleagues that could find this issue useful, please forward it to them.
-
-Check out the extension, bookmarklet, bots and more on: https://discu.eu
-
-To unsubscribe visit: {{ctx.subscriber.unsubscribe_url|safe}}
+Unsubscribe: {{ctx.subscriber.unsubscribe_url|safe}}

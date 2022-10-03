@@ -634,7 +634,7 @@ def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
             print(body)
         else:
             email_util.send(
-                f"Weekly {topics.topics[topic]['name']} digest for week {week}/{year}",
+                f"{topics.topics[topic]['name']} recap for week {week}/{year}",
                 body,
                 from_email,
                 subscriber.email,
