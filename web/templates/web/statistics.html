@@ -8,16 +8,16 @@ Discussions statistics
 {% endblock title %}
 
 {% block main %}
-<div id='statistics'>
-    <h2 id="platforms">Platform statistics</h2>
-    <table>
-        <thead>
+<h2 id="platforms">Platform statistics</h2>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-info">
             <tr>
-                <th>Platform</th>
-                <th>Total discussions</th>
-                <th>Total comments</th>
-                <th>Oldest discussion</th>
-                <th>Newest dicussion</th>
+                <th scope="col">Platform</th>
+                <th scope="col">Total discussions</th>
+                <th scope="col">Total comments</th>
+                <th scope="col">Oldest discussion</th>
+                <th scope="col">Newest dicussion</th>
             </tr>
         </thead>
         <tbody>
@@ -34,14 +34,16 @@ Discussions statistics
             {% endfor %}
         </tbody>
     </table>
+</div>
 
-    <h2 id="domains">Most discussed domains</h2>
-    <table>
-        <thead>
+<h2 id="domains" class="mt-4">Most discussed domains</h2>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-info">
             <tr>
-                <th>Domain</th>
-                <th>Total discussions</th>
-                <th>Total comments</th>
+                <th scope="col">Domain</th>
+                <th scope="col">Total discussions</th>
+                <th scope="col">Total comments</th>
             </tr>
         </thead>
         <tbody>
@@ -54,18 +56,6 @@ Discussions statistics
             {% endfor %}
         </tbody>
     </table>
-
-    <!--
-    <h2>Most discussed stories</h2>
-    <ol>
-        {% for story in ctx.statistics.top_stories %}
-        <li><a href="{{story.story_url|discussions_url}}" title="{{story.title}}">{{story.title}}</a><br />
-            <span class='comment-count-date'><b>{{story.comment_count}}</b> comments (last discussion <time
-                    datetime="{{story.date__last_discussion|date:'c'}}">{{story.date__last_discussion|date}})</time></span>
-        </li>
-        {% endfor %}
-    </ol> -->
-
 </div>
 
 {% endblock main %}

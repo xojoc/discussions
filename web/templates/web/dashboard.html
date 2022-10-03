@@ -19,7 +19,7 @@
 <div class="card">
     <h5 class="card-header">Premium plan</h5>
     <div class="card-body">
-        <p class="card-text">Cancel or renew your premium plan. Update payment methods, billing information or
+        <p class="card-text">Renew or cancel your premium plan. Update payment methods, billing information or
             see
             invoices.</p>
 
@@ -124,6 +124,9 @@
         </tbody>
     </table>
 </div>
+<p class="smaller-font-4">
+    Please don't share these feeds with anyone.
+</p>
 {% endif %}
 {% else %}
 {% if ctx.user_verified_email %}
@@ -152,8 +155,6 @@
     <h5 class="card-header">Discussions API</h5>
     <div class="card-body">
         <p class="card-text">Api token: {{user.api.token}} </p>
-
-
         <p><a href="/api/v0/docs" class="btn btn-info">API documentation</a></p>
     </div>
 </div>

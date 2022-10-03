@@ -94,10 +94,6 @@ p {
     width: 95vw;
 }
 
-footer {
-    max-width: 78ch;
-
-}
 
 .smaller-font {
     font-size: 0.6em;
@@ -119,6 +115,10 @@ footer {
     font-size: 0.6em;
 }
 
+.fs-5em {
+    font-size: 5em;
+}
+
 .w-min-content {
     width: min-content;
 }
@@ -131,6 +131,10 @@ footer {
     width: max-content;
 }
 
+.w-max-width-78ch {
+    max-width: 78ch;
+}
+
 .url-max-width {
     max-width: $custom-max-width - 5ch;
 }
@@ -141,6 +145,10 @@ footer {
 
 .w-max-30em {
     max-width: 30em;
+}
+
+.mt-2em {
+    margin-top: 2em;
 }
 
 .weekly-index-grid {

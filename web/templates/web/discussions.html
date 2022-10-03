@@ -30,7 +30,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 {% block main %}
 
 <div id=discussions>
-	<form method="GET" class="discussions_form" action="/">
+	<form method="GET" action="/">
 		<div class="d-flex flex-row flex-wrap gap-2">
 			<input class="flex-fill" id="q" name="q" type="text" autofocus
 				onfocus="this.selectionStart = this.selectionEnd = this.value.length;" value="{{ctx.original_query}}"
@@ -38,6 +38,10 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 			<input type="submit" value="Lookup" class="btn btn-primary" />
 		</div>
 	</form>
+	<!-- {% if not ctx.nothing_found and not ctx.display_discussions %}
+	<p class="smaller-font-3">See some <a href="{% url 'web:search' %}" title="How to search">search
+			examples</a>.</p>
+	{% endif %} -->
 
 	<div class="my-4"></div>
 
@@ -50,7 +54,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	{% if ctx.nothing_found %}
 	<h4>Discussions not found</h4>
-	<p>Sorry, we couldn't find anything for <strong>{{ctx.url}}</strong></p>
+	<p>Sorry, we couldn't find anything for <strong>{{ctx.url}}</strong>.</p>
+	<p>See some <a href="{% url 'web:search' %}" title="How to search">search examples</a>.</p>
 	{% else %}
 
 	{% if ctx.display_discussions %}
@@ -97,25 +102,39 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	{% else %}
 
-	<h5 class="mt-5">What is discu.eu?</h5>
-	<p>discu.eu tracks and makes accessible discussions on Hacker News, Lobsters, Reddit, Lambda the
+	<h1 class="mt-5 text-center">Keep up with the topics you care about.</h1>
+
+	<div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mb-5">
+		<div class="w-min-content"><a href="{% url 'web:weekly_index' %}" title="Weekly newsletters"
+				class="text-decoration-none text-body"><i class="bi bi-newspaper m-auto text-primary fs-5em"></i>
+				<h3>Weekly newsletters</h3>
+				<span class="lead mb-0">Each week on topic recaps with articles, projects and tutorials.</span>
+			</a>
+		</div>
+		<div class="w-min-content"><a href="{% url 'web:extension' %}" class="text-decoration-none text-body"
+				title="Discussions browser extension"><i class="bi bi-browser-firefox m-auto text-primary fs-5em"></i>
+				<h3>Browser extension</h3>
+				<span class="lead mb-0">See if the page you are on has been discussed before.</span>
+			</a>
+		</div>
+		<div class="w-min-content"><a href="{% url 'web:social' %}" class="text-decoration-none text-body"
+				title="Social accounts and bots"><i class="bi bi-twitter m-auto text-primary fs-5em"></i>
+				<h3>Twitter & Mastodon</h3>
+				<span class="lead mb-0">On topic bots posting articles, projects and tutorials.</span>
+			</a>
+		</div>
+	</div>
+
+	<!-- <p class="mt-5">discu.eu tracks and makes accessible discussions on Hacker News, Lobsters, Reddit, Lambda the
 		Ultimate and <a href="/statistics#platforms" title="Platforms">others</a>.
 	</p>
 
-	<h5>How to use</h5>
-	<ul>
-		<li><a href="{% url 'web:search' %}" title="How to search">Search by url or keyword</a></li>
-		<li>Follow us on <a href="/social" title="Social accounts">Twitter or Mastodon</a> for daily updates on
-			topics
-			you care about</li>
-		<li>Subscribe to the <a href="/weekly" title="Weekly newsletter">weekly newsletter</a> to get the latest on
-			topics you
-			care about</li>
-		<li>Install the <a href="/extension" title="Browser extension">browser extension</a> to view discussions for the
-			pages you visit (or use the <a href="/bookmarklet" title="Bookmarklet">bookmarklet</a>)</li>
-		<li>Display comments on your <a href="/website" title="Display comments on your website">website</a></li>
-		<li>Use the <a href="/api/v0/docs" title="Discussions API">API</a></li>
-	</ul>
+	<div class="text-center mb-5">
+		<a href="{% url 'web:pricing' %}" title="Pricing and features"
+			class="btn btn-primary text-white fw-bold fs-1">See
+			all the
+			features</a>
+	</div> -->
 
 	{% endif %}
 

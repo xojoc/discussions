@@ -129,32 +129,49 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 		{% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
 
 
-		<footer class="d-flex justify-content-between mx-auto pt-5 pb-2 px-2 flex-row flex-wrap gap-5 w-100">
-			<div>
-				<h6>Features</h6>
-				<ul class="list-unstyled">
-					<li><a href="/weekly" title="Weekly newsletter">Weekly newsletter</a></li>
-					<li><a href="/social" title="Social accounts and bots">Social/bots</a></li>
-					<li><a href="/extension" title="Browser extensions">Browser extension</a></li>
-					<li><a href="{% url 'web:pricing' %}" title="Pricing">Pricing</a></li>
-				</ul>
+		<footer class="bg-dark text-white-50">
+			<div
+				class="d-flex justify-content-between mx-auto pt-5 pb-2 px-2 flex-row flex-wrap gap-5 w-100 w-max-width-78ch">
+				<div>
+					<h6>Features</h6>
+					<ul class="list-unstyled">
+						<li><a href="/weekly/" title="Weekly newsletter" class="text-white">Weekly newsletter</a></li>
+						<li><a href="/social/" title="Social accounts and bots" class="text-white">Social & bots</a>
+						</li>
+						<li><a href="/extension/" title="Browser extensions" class="text-white">Browser extension</a>
+						</li>
+						<li><a href="/bookmarklet/" title="Bookmarklet" class="text-white">Bookmarklet</a>
+						</li>
+						<li><a href="{% url 'web:search' %}" title="How to search" class="text-white">Search</a>
+						</li>
+						<li><a href="{% url 'web:pricing' %}" title="Pricing and features"
+								class="text-white">Pricing</a></li>
+					</ul>
+				</div>
+				<div>
+					<h6>Developers</h6>
+					<ul class="list-unstyled">
+						<li><a href="/api/v0/docs" title="Discussions API" class="text-white">API</a></li>
+						<li><a href="/website" title="Display discussions on your website"
+								class="text-white">Website</a></li>
+					</ul>
+				</div>
+				<div>
+					<h6>About</h6>
+					<ul class="list-unstyled">
+						<li><a href="{% url 'web:privacy_policy' %}" title="Privacy Policy" class="text-white">Privacy
+								Policy</a></li>
+						<li><a href="{% url 'web:terms' %}" title="Terms and Conditions" class="text-white">Terms</a>
+						</li>
+						<li><a href="{% url 'web:support' %}" title="Support" class="text-white">Support</a></li>
+
+					</ul>
+				</div>
 			</div>
-			<div>
-				<h6>Developers</h6>
-				<ul class="list-unstyled">
-					<li><a href="/api/v0/docs" title="Discussions API">API</a></li>
-					<li><a href="/website" title="Display discussions on your website">Website</a></li>
-				</ul>
-			</div>
-			<div>
-				<h6>About</h6>
-				<ul class="list-unstyled">
-					<li><a href="{% url 'web:privacy_policy' %}" title="Privacy Policy">Privacy Policy</a></li>
-					<li><a href="{% url 'web:terms' %}" title="Terms and Conditions">Terms</a></li>
-					<li><a href="{% url 'web:support' %}" title="Support">Support</a></li>
-					<li>Made by <a href="https://xojoc.pw" title="My home page">Alexandru Cojocaru</a></li>
-				</ul>
-			</div>
+
+			<p class="text-center smaller-font-3 mt-2">Made by <a href="https://xojoc.pw" title="My home page"
+					class="text-white">Alexandru
+					Cojocaru</a></p>
 		</footer>
 	</body>
 

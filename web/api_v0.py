@@ -13,10 +13,10 @@ api.description = """<p>
 API for <a href="https://discu.eu" title="Discussions around the web">discu.eu</a>.
 </p>
 <p>
-To get a Bearer token please drop me an email: hi@xojoc.pw
+To get a Bearer token <a href="/account/signup/" title="Sign Up">create a free account</a>.
 </p>
 <p>
-If you want only to try out the API then use <b>test</b> for the token.
+If you just want to try out the API then use the token <strong>test</strong>.
 </p>
 """
 
