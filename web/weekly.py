@@ -671,17 +671,12 @@ def share_weekly_issue(self):
         issue_url = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}" + reverse(
             "web:weekly_topic_week", args=[topic_key, year, week]
         )
-        topic_url = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}" + reverse(
-            "web:weekly_topic", args=[topic_key]
-        )
 
         htags = tags.normalize(topic.get("tags"))
 
         status = f"""Issue for week {week}/{year} is out 🎉
 
 {issue_url}
-
-Subscribe by going to {topic_url}
 """
 
         twitter_status = status
