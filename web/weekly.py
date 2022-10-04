@@ -515,8 +515,9 @@ def topic_week_context_cached(topic, year, week):
     pic = (datetime.datetime.now() - datetime.timedelta(days=7)).isocalendar()
     cw = (ic.year, ic.week)
     cache_timeout = 0
+
     if (year, week) >= cw:
-        cache_timeout = 0
+        cache_timeout = 15 * 60
     elif (year, week) == (pic.year, pic.week) and ic.weekday == 1:
         cache_timeout = 24 * 60 * 60
     else:

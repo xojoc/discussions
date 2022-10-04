@@ -1057,7 +1057,10 @@ If you select multiple topics, duplicate emails are counted only once.
     url = models.TextField(verbose_name="Ad URL", null=True, blank=True)
 
     comments = models.TextField(
-        null=True, blank=True, help_text="Comments for the ad approver"
+        null=True,
+        blank=True,
+        help_text="""Comments for the ad approver.<br/>
+If you have preferences for when to tweet or toot or anything else let us know here.""",
     )
 
     estimated_total_euro = models.DecimalField(
