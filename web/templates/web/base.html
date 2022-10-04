@@ -28,14 +28,15 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 		<!-- <script defer data-domain="discu.eu" src="https://plausible.xojoc.pw/js/plausible.js"></script> -->
 
+		<script defer data-domain="discu.eu" src="https://plausible.xojoc.pw/js/script.js"></script>
 
-		<script defer data-domain="discu.eu" src="https://plausible.xojoc.pw/js/script.manual.js"></script>
+		<!-- <script defer data-domain="discu.eu" src="https://plausible.xojoc.pw/js/script.local.manual.js"></script> -->
 
 		<!-- define the `plausible` function to manually trigger events -->
-		<script>window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+		<!-- <script>window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments) }</script> -->
 
 		<!-- trigger pageview -->
-		<script>
+		<!-- <script>
 			function prepareUrl(params) {
 				const url = new URL(location.href)
 				const queryParams = new URLSearchParams(location.search)
@@ -52,7 +53,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 				return customUrl
 			}
 			plausible('pageview', { u: prepareUrl(["q", "url"]) })
-		</script>
+		</script> -->
 	</head>
 
 	<body class="d-flex flex-column">
@@ -158,6 +159,11 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 						<li><a href="/api/v0/docs" title="Discussions API" class="text-white">API</a></li>
 						<li><a href="/website" title="Display discussions on your website"
 								class="text-white">Website</a></li>
+					</ul>
+					<h6>Advertisers</h6>
+					<ul class="list-unstyled">
+						<li><a href="{% url 'web:new_ad' %}" title="Advertise on newsletters, Twitter and Mastodon"
+								class="text-white">Ad price calculator</a></li>
 					</ul>
 				</div>
 				<div class=" w-min-16ch">

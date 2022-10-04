@@ -1,0 +1,60 @@
+{% extends "web/base.html" %}
+{% load crispy_forms_tags %}
+{% load util %}
+
+{% block title %}Ad price calculator - discu.eu{% endblock %}
+
+{% block main %}
+
+<div>
+    <h2>Ad price calculator</h2>
+    <!-- <form method="POST">
+        {% csrf_token %} -->
+    {% crispy ctx.simulate_ad_form %}
+    <!-- <button type="submit" class="btn btn-secondary" name="simulate-new-ad">Simulate Ad</button>
+    </form> -->
+
+    <div class="fs-4">
+        <ul class="list-unstyled">
+            <li>Total ad price: <span class="fw-bold text-primary float-end">{{ctx.estimate.total_euro|default:"0"}}
+                    €</span></li>
+            {% if ctx.simulate_ad_form.data.newsletter %}
+            <li>Newsletter subscribers: <span class="float-end">{{ctx.estimate.newsletter_subscribers}}</span>
+            </li>
+            {% endif %}
+            {% if ctx.simulate_ad_form.data.twitter %}
+            <li>Twitter followers: <span class="float-end">{{ctx.estimate.twitter_followers}}</span></li>
+            {% endif %}
+            {% if ctx.simulate_ad_form.data.mastodon%}
+            <li>Mastodon followers: <span class="float-end">{{ctx.estimate.mastodon_followers}}</span></li>
+            {% endif %}
+        </ul>
+    </div>
+
+</div>
+
+<div class="mt-5">
+    <h2>Submit an Ad</h2>
+    {% if user.is_authenticated %}
+    {% if ctx.user_verified_email %}
+    <!-- <form method="POST">
+        {% csrf_token %} -->
+    {% crispy ctx.ad_form %}
+    <!-- <button type="submit" class="btn btn-primary" name="submit-new-ad">Submit Ad</button>
+    </form> -->
+    {% else %}
+    <p>
+        You have to <a href="{% url 'account_email' %}" title="Manage your emails">verify your email</a> before
+        submitting an ad.
+    </p>
+    {% endif %}
+    {% else %}
+    <p>
+        You have to <a href="{% url 'account_signup' %}" title="Sign Up">Sign Up</a> or <a
+            href="{% url 'account_login' %}" title="Login">Login</a> before
+        submitting an ad.
+    </p>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -478,14 +478,22 @@ def tweet_discussions_scheduled():
 
 
 def get_followers_count(usernames):
+    cache_timeout = 24 * 60 * 60
     followers_count = {}
     auth = tweepy.OAuth2BearerHandler(os.getenv("TWITTER_BEARER_TOKEN"))
     api = tweepy.API(auth)
+
     for username in usernames:
-        try:
-            user = api.get_user(screen_name=username)
-            followers_count[username] = user.followers_count
-        except Exception as e:
-            logger.warn(f"twitter followers count: {e}")
+        key = f"twitter:followers:{username}"
+        fc = cache.get(key)
+        if fc:
+            followers_count[username] = fc
+        else:
+            try:
+                user = api.get_user(screen_name=username)
+                followers_count[username] = user.followers_count
+                cache.set(key, user.followers_count, cache_timeout)
+            except Exception as e:
+                logger.warn(f"twitter followers count: {e}")
 
     return followers_count

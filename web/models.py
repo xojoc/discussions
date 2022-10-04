@@ -27,7 +27,16 @@ from django.db.models.functions import Coalesce, Round, Upper
 from django.db.models.lookups import PostgresOperatorLookup
 from django.utils import timezone
 
-from . import discussions, email_util, extract, tags, title, topics
+from . import (
+    discussions,
+    email_util,
+    extract,
+    tags,
+    title,
+    topics,
+    twitter,
+    mastodon,
+)
 
 
 class MyTrigramStrictWordSimilarity(TrigramWordBase):
@@ -996,3 +1005,145 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+class AD(models.Model):
+    topics = postgres_fields.ArrayField(
+        models.CharField(
+            max_length=255, blank=True, choices=topics.topics_choices
+        ),
+        null=True,
+        blank=True,
+        help_text="Ads are always reviewed manually and only ads relevant to the selected topics are approved",
+    )
+    week_year = models.IntegerField(null=True, blank=True)
+    week_week = models.IntegerField(null=True, blank=True)
+
+    consecutive_weeks = models.PositiveIntegerField(
+        default=1,
+        help_text="How many weeks in a row would you like to run the ad?",
+    )
+
+    newsletter = models.BooleanField(
+        default=True,
+        help_text="""Would you like to advertise in the <a href="/weekly/" title="Weekly newsletters">newsletters</a>?<br/>
+If you select multiple topics, duplicate emails are counted only once.
+        """,
+    )
+    twitter = models.BooleanField(
+        default=False,
+        help_text='Would you like to advertise on <a href="/social#twitter" title="Twitter bots">Twitter</a>?',
+    )
+    mastodon = models.BooleanField(
+        default=False,
+        help_text='Would you like to advertise on <a href="/social#mastodon" title="Mastodon bots">Mastodon</a>?',
+    )
+
+    floss_project = models.BooleanField(
+        default=False,
+        verbose_name="FLOSS project",
+        help_text="FLOSS projects get a 20% discount",
+    )
+    floss_repository = models.TextField(
+        null=True, blank=True, help_text="FLOSS projects get a 20% discount"
+    )
+
+    title = models.TextField(null=True, blank=True)
+    body = models.TextField(
+        verbose_name="Ad message",
+        help_text="""Only <strong>plain text</strong> is accepted for now.
+        If you selected Twitter above please take in consideration character limits.""",
+    )
+    url = models.TextField(verbose_name="Ad URL", null=True, blank=True)
+
+    comments = models.TextField(
+        null=True, blank=True, help_text="Comments for the ad approver"
+    )
+
+    estimated_total_euro = models.DecimalField(
+        max_digits=19, decimal_places=4, null=True, blank=True
+    )
+
+    estimated_newsletter_subscribers = models.IntegerField(
+        null=True, blank=True
+    )
+    estimated_twitter_followers = models.IntegerField(null=True, blank=True)
+    estimated_mastodon_followers = models.IntegerField(null=True, blank=True)
+
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
+
+    approved = models.BooleanField(default=False)
+
+    entry_created_at = models.DateTimeField(auto_now_add=True)
+    entry_updated_at = models.DateTimeField(auto_now=True)
+
+    def estimate(self):
+        total_euro = 0
+        newsletter_subscribers = 0
+        twitter_followers = 0
+        mastodon_followers = 0
+
+        if self.consecutive_weeks <= 0:
+            self.consecutive_weeks = 1
+
+        if self.newsletter:
+            subscribers = Subscriber.mailing_list(None).distinct("email")
+            subscribers = subscribers.filter(topic__in=self.topics)
+            newsletter_subscribers = subscribers.count()
+
+            total_euro += newsletter_subscribers * 15 / 1000
+
+        if self.twitter:
+            twitter_followers = 0
+            for topic in self.topics:
+                try:
+                    username = topics.topics[topic]["twitter"]["account"]
+                    if username:
+                        twitter_followers += twitter.get_followers_count(
+                            [username]
+                        )[username]
+                except Exception:
+                    pass
+
+            total_euro += twitter_followers * 5 / 1000
+
+        if self.mastodon:
+            mastodon_followers = 0
+            for topic in self.topics:
+                try:
+                    username = topics.topics[topic]["mastodon"][
+                        "account"
+                    ].split("@")[1]
+                    if username:
+                        mastodon_followers += mastodon.get_followers_count(
+                            [username]
+                        )[username]
+                except Exception:
+                    pass
+
+            total_euro += mastodon_followers * 5 / 1000
+
+        if self.floss_project or self.floss_repository:
+            total_euro *= 0.80
+
+        total_euro *= self.consecutive_weeks
+
+        total_euro = round(total_euro, 2)
+
+        return {
+            "total_euro": total_euro,
+            "newsletter_subscribers": newsletter_subscribers,
+            "twitter_followers": twitter_followers,
+            "mastodon_followers": mastodon_followers,
+        }
+
+    def save(self, *args, **kwargs):
+        if self.consecutive_weeks <= 0:
+            self.consecutive_weeks = 1
+        e = self.estimate()
+        self.estimated_total_euro = e["total_euro"]
+        self.estimated_newsletter_subscribers = e["newsletter_subscribers"]
+        self.estimated_twitter_followers = e["twitter_followers"]
+        self.estimated_mastodon_followers = e["mastodon_followers"]
+
+        super(AD, self).save(*args, **kwargs)

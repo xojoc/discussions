@@ -454,6 +454,7 @@ def post_discussions_scheduled():
 
 
 def get_followers_count(usernames):
+    cache_timeout = 24 * 60 * 60
     followers_count = {}
 
     access_token = os.getenv("MASTODON_DISCUSSIONS_ACCESS_TOKEN")
@@ -465,16 +466,22 @@ def get_followers_count(usernames):
     parameters = {"limit": 5, "resolve": True, "type": "accounts"}
 
     for username in usernames:
-        parameters["q"] = username
-        res = client.get(api_url, data=parameters, headers=auth)
+        key = f"mastodon:followers:{username}"
+        fc = cache.get(key)
+        if fc:
+            followers_count[username] = fc
+        else:
+            parameters["q"] = username
+            res = client.get(api_url, data=parameters, headers=auth)
 
-        if not res.ok:
-            continue
-
-        for user in res.json()["accounts"]:
-            if user["username"].lower() != username:
+            if not res.ok:
                 continue
 
-            followers_count[username] = user["followers_count"]
+            for user in res.json()["accounts"]:
+                if user["username"].lower() != username:
+                    continue
+
+                followers_count[username] = user["followers_count"]
+                cache.set(key, user["followers_count"], cache_timeout)
 
     return followers_count

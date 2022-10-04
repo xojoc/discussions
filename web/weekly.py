@@ -511,8 +511,18 @@ def topic_week_context(topic, year, week):
 
 
 def topic_week_context_cached(topic, year, week):
+    ic = datetime.datetime.now().isocalendar()
+    cw = (ic.year, ic.week)
+    cache_timeout = 0
+    if (year, week) > cw:
+        cache_timeout = 0
+    elif (year, week) == cw:
+        cache_timeout = 24 * 60 * 60
+    else:
+        cache_timeout = 10 * 7 * 24 * 60 * 60  # 10 weeks
+
     if util.is_dev():
-        return topic_week_context(topic, year, week)
+        cache_timeout = 0
 
     key = f"weekly:{topic}:{year}:{week}"
     ctx = cache.get(key)
@@ -521,8 +531,8 @@ def topic_week_context_cached(topic, year, week):
         return ctx
 
     ctx = topic_week_context(topic, year, week)
-    if ctx:
-        cache.set(key, ctx, 24 * 60 * 60)
+    if ctx and cache_timeout:
+        cache.set(key, ctx, cache_timeout)
 
     return ctx
 

@@ -612,3 +612,42 @@ def stripe_subscribe_cancel(request):
         f"Stripe subscribe cancelled. User {request.user.pk} stripe id {request.user.stripe_customer_id}"
     )
     return redirect("web:dashboard", permanent=False)
+
+
+def new_ad(request):
+    ctx = {}
+
+    ad_form = forms.ADForm()
+    simulate_ad_form = forms.SimulateADForm()
+
+    if request.method == "POST":
+        if "submit-new-ad" in request.POST:
+            ad_form = forms.ADForm(request.POST)
+            if ad_form.is_valid():
+                model = ad_form.save(commit=False)
+                model.user = request.user
+                model.save()
+                messages.success(
+                    request,
+                    f"""Thank you!
+                    Total price is {model.estimated_total_euro}€
+                    We'll let you know once the ad is approved.""",
+                )
+
+        if "simulate-new-ad" in request.POST:
+            simulate_ad_form = forms.SimulateADForm(request.POST)
+            if simulate_ad_form.is_valid():
+                ctx["estimate"] = simulate_ad_form.instance.estimate()
+
+            ad_form = forms.ADForm(request.POST)
+
+    ctx["ad_form"] = ad_form
+    ctx["simulate_ad_form"] = simulate_ad_form
+
+    ctx["user_verified_email"] = (
+        request.user.is_authenticated
+        and request.user.emailaddress_set.filter(primary=True)
+        .filter(verified=True)
+        .exists()
+    )
+    return render(request, "web/new-ad.html", {"ctx": ctx})

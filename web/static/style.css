@@ -10722,6 +10722,14 @@ p {
   min-width: 16ch;
 }
 
+.h-max-10em {
+  max-height: 10em;
+}
+
+.overflow-y-scroll {
+  overflow-y: scroll !important;
+}
+
 .mt-2em {
   margin-top: 2em;
 }

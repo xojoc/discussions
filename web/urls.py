@@ -129,4 +129,5 @@ urlpatterns = [
         feed.AtomWeeklyFeedSingle(),
         name="weekly_single_atom_feed",
     ),
+    path("advertise/", views.new_ad, name="new_ad"),
 ]

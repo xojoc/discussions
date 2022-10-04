@@ -12,7 +12,7 @@ here's a recap {% if ctx.topic.topic_key == 'hackernews' or ctx.topic.topic_key 
 see you next week!
 —
 
-If you prefer an RSS feed sign up for the premium plan: https://discu.eu/pricing
+If you prefer RSS feeds sign up for the premium plan: https://discu.eu/premium
 
 View issue online: {{ctx.web_link|safe}}
 
