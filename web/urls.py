@@ -64,6 +64,7 @@ urlpatterns = [
         TemplateView.as_view(template_name="web/pricing.html"),
         name="pricing",
     ),
+    path("premium/", RedirectView.as_view(url="/pricing/")),
     path(
         "privacy-policy/",
         TemplateView.as_view(template_name="web/privacy-policy.html"),
