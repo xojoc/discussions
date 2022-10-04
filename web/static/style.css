@@ -10718,6 +10718,10 @@ p {
   max-width: 30em;
 }
 
+.w-min-16ch {
+  min-width: 16ch;
+}
+
 .mt-2em {
   margin-top: 2em;
 }
