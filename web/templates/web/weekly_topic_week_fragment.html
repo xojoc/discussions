@@ -3,11 +3,11 @@
 
 {% for category, category_name, stories in ctx.digest %}
 
-<h3 id="weekly-{{category}}" class="fs-4">{{category_name}} <a href="#weekly-{{category}}" title="{{category_name}}"
+<h2 id="weekly-{{category}}" class="fs-4">{{category_name}} <a href="#weekly-{{category}}" title="{{category_name}}"
         class="relative-url smaller-font-3 text-body">#</a>
-</h3>
+</h2>
 
-<ul class="weekly-stories">
+<ul>
     {% for story in stories %}
     <li>
         <p class="d-flex flex-column">
