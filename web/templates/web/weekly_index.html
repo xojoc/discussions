@@ -16,14 +16,14 @@ Weekly newsletters with articles, tutorials, projects and releases about topics 
 <h1 class="fs-2">Weekly newsletters with the latest from the web</h1>
 <p class="lead fs-4">Keep up to date on what you care about. Each monday a recap of stories, projects and tutorials
     from
-    last week.</p>
+    last week:</p>
 
 
 <!-- <p class="smaller-font text-center mt-3">
     <strong>Choose a topic:</strong>
 </p> -->
 
-<div class="weekly-index-grid mt-5">
+<div class="weekly-index-grid mt-4">
     {% for topic_key, topic in ctx.topics.items %}
     <div class="btn btn-secondary d-flex align-items-center justify-content-center">
         <a href="{% url 'web:weekly_topic' topic_key %}" title="{{topic.short_description}} newsletter"
@@ -32,16 +32,18 @@ Weekly newsletters with articles, tutorials, projects and releases about topics 
     {% endfor %}
 </div>
 
-<div class="my-5"></div>
-{% include "web/weekly_subscribe_form.html" %}
+<div class="my-5">
+    {% include "web/weekly_subscribe_form.html" %}
+</div>
 
-<div class="my-5"></div>
-{% include "web/weekly_faq.html" %}
+<div class="mt-4em">
+    {% include "web/weekly_faq.html" %}
+</div>
 
-<div class="my-5"></div>
-{% include "web/weekly_about_me.html" %}
+<div class="mt-4em mb-5">
+    {% include "web/weekly_about_me.html" %}
+</div>
 
-<div class="my-5"></div>
 
 <p class="smaller-font-2">
     For daily updates follow one of our <a href="/social" title="Social media bots">accounts on Twitter or

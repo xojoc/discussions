@@ -169,7 +169,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 
 	{% if ctx.submit_links %}
-	<div class='submit_links mt-5'>
+	<div class='submit_links mt-5 smaller-font-2'>
 		<details {% if ctx.submit_links_visible %}open{% endif %}>
 			<summary>Submit link to:</summary>
 			<ul>
@@ -186,23 +186,28 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	{% if ctx.try_with_site_prefix or ctx.try_with_title %}
 
-	<details {% if ctx.nothing_found %}open{% endif %} class="related-searches">
+	<details {% if ctx.nothing_found %}open{% endif %} class="smaller-font-2">
 		<summary>Related searches:</summary>
 
 		{% if ctx.try_with_site_prefix %}
 		<p class="mb-1 ms-3">Search whole site: <a href="{{ctx.try_with_site_prefix|discussions_url}}"
-				title="Discussions for «{{ctx.try_with_site_prefix}}»">{{ctx.try_with_site_prefix}}</a></p>
+				title="Discussions for «{{ctx.try_with_site_prefix}}»" rel="nofollow">{{ctx.try_with_site_prefix}}</a>
+		</p>
 		{% endif %}
 
 		{% if ctx.try_with_title %}
 		<p class="mb-1 ms-3">Search title: <a href="{{ctx.try_with_title|discussions_url}}"
-				title="Discussions for «{{ctx.try_with_title}}»">{{ctx.try_with_title}}</a></p>
+				title="Discussions for «{{ctx.try_with_title}}»" rel="nofollow">{{ctx.try_with_title}}</a></p>
 		{% endif %}
 
 		{% if ctx.try_with_url %}
 		<p class="mb-1 ms-3">Lookup url: <a href="{{ctx.try_with_url|discussions_url}}"
-				title="Discussions for «{{ctx.try_with_url}}»">{{ctx.try_with_url}}</a></p>
+				title="Discussions for «{{ctx.try_with_url}}»" rel="nofollow">{{ctx.try_with_url}}</a></p>
 		{% endif %}
+
+		<p class="mt-1 mb-1 ms-3 smaller-font-1">See <a href="{% url 'web:search' %}"
+				title="How to search discussions">how
+				to search</a>.</p>
 
 	</details>
 

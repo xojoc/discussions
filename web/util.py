@@ -97,4 +97,13 @@ def url_root(url):
         if len(parts) >= 3 and parts[1] == "status":
             return url.hostname + "/" + parts[0]
 
+    if url.hostname in (
+        "mastodon.social",
+        "mastodon.technology",
+    ):
+        parts = (url.path or "").split("/")
+        parts = [p for p in parts if p]
+        if len(parts) >= 3 and parts[0] == "web" and parts[1][0] == "@":
+            return url.hostname + "/web/" + parts[1]
+
     return url.hostname

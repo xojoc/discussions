@@ -1,9 +1,9 @@
 {
     "manifest_version": 3,
-    "name": "Discussions on HN, Reddit and Lobsters",
+    "name": "Discussions and comments on Hacker News, Reddit and Lobsters",
     "version": "1.0.1",
     "author": "Alexandru Cojocaru",
-    "description": "Get the discussions on Hacker News, Lobsters, Reddit and others about a page",
+    "description": "See if the current page has been discussed on Hacker News, Lobsters and Reddit",
     "homepage_url": "https://discu.eu",
     "icons": {
         "32": "icons/favicon-32x32.png"

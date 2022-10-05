@@ -1,5 +1,5 @@
 {% load util %}Hey 👋
-here's a recap {% if ctx.topic.topic_key == 'hackernews' or ctx.topic.topic_key == 'laarc' %}for{% else %}about{% endif %} {{ctx.topic.name|safe}} for last week:
+here's the recap {% if ctx.topic.topic_key == 'hackernews' or ctx.topic.topic_key == 'laarc' %}for{% else %}about{% endif %} {{ctx.topic.name|safe}} for last week:
 
 {% for category, category_name, stories in ctx.digest %}# {{category_name|safe}}
 {% for story in stories %}

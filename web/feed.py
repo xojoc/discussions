@@ -41,7 +41,7 @@ class WeeklyFeed(Feed):
 
     @filter_control_chars
     def description(self, obj):
-        return f"Weekly newsletter about {obj['topic']['name']} with articles, projects and tutorials."
+        return f"Weekly recap for {obj['topic']['name']} with articles, projects and tutorials."
 
     def author_name(self, obj):
         return "discu.eu"
@@ -70,9 +70,10 @@ class WeeklyFeed(Feed):
         }
 
     def items(self, obj):
-        return [
-            (obj,) + e for e in weekly.last_nth_yearweeks(obj["topic_key"], 10)
-        ]
+        weeks = weekly.last_nth_yearweeks(obj["topic_key"], 10)
+        if not obj["user"].is_premium:
+            weeks = weeks[-2:]
+        return [(obj,) + e for e in weeks]
 
     @filter_control_chars
     def item_title(self, item):

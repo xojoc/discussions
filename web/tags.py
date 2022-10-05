@@ -439,6 +439,14 @@ def __enrich(tags, title):
     return tags
 
 
+def __special_cases(tags, platform, title, url):
+    if url and url.hostname == "joinmastodon.org":
+        tags.remove("bitcoin")
+        tags.remove("italy")
+
+    return tags
+
+
 def normalize(tags, platform=None, title="", url=""):
     tags = tags or []
     tags = set(t.lower().strip() for t in tags)
@@ -462,5 +470,7 @@ def normalize(tags, platform=None, title="", url=""):
 
         tags = __rename(tags, title, platform)
         tags = __enrich(tags, title)
+
+    tags = __special_cases(tags, platform, title, curl)
 
     return sorted(list(tags))

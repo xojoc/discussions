@@ -9,6 +9,7 @@ from . import models, util
 
 api = NinjaAPI(version="v0")
 api.title = "Discussions API"
+
 api.description = """<p>
 API for <a href="https://discu.eu" title="Discussions around the web">discu.eu</a>.
 </p>

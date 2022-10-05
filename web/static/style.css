@@ -154,17 +154,23 @@ h4, .h4 {
 }
 
 h5, .h5 {
-  font-size: calc(1.275rem + 0.3vw);
+  font-size: calc(1.263rem + 0.156vw);
 }
 
 @media (min-width: 1200px) {
   h5, .h5 {
-    font-size: 1.5rem;
+    font-size: 1.38rem;
   }
 }
 
 h6, .h6 {
-  font-size: 1.2rem;
+  font-size: calc(1.257rem + 0.084vw);
+}
+
+@media (min-width: 1200px) {
+  h6, .h6 {
+    font-size: 1.32rem;
+  }
 }
 
 p {
@@ -7711,11 +7717,11 @@ textarea.form-control-lg {
 }
 
 .fs-5 {
-  font-size: calc(1.275rem + 0.3vw) !important;
+  font-size: calc(1.263rem + 0.156vw) !important;
 }
 
 .fs-6 {
-  font-size: 1.2rem !important;
+  font-size: calc(1.257rem + 0.084vw) !important;
 }
 
 .fst-italic {
@@ -10575,7 +10581,10 @@ textarea.form-control-lg {
     font-size: 1.5rem !important;
   }
   .fs-5 {
-    font-size: 1.5rem !important;
+    font-size: 1.38rem !important;
+  }
+  .fs-6 {
+    font-size: 1.32rem !important;
   }
 }
 
@@ -10732,6 +10741,18 @@ p {
 
 .mt-2em {
   margin-top: 2em;
+}
+
+.mb-2em {
+  margin-top: 2em;
+}
+
+.mt-4em {
+  margin-top: 4em;
+}
+
+.mb-4em {
+  margin-top: 4em;
 }
 
 .weekly-index-grid {

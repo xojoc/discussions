@@ -848,6 +848,7 @@ class Subscriber(models.Model):
     subscribed_from = models.CharField(
         max_length=2,
         null=True,
+        blank=True,
         choices=[("wf", "Web Form"), ("em", "Email Comand")],
     )
     entry_created_at = models.DateTimeField(auto_now_add=True)
@@ -1002,6 +1003,13 @@ class CustomUser(AbstractUser):
     @property
     def is_premium(self):
         return self.premium_active and not self.premium_cancelled
+
+    def email_verified(self):
+        return (
+            self.emailaddress_set.filter(primary=True)
+            .filter(verified=True)
+            .exists()
+        )
 
     def __str__(self):
         return self.email

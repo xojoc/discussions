@@ -21,8 +21,27 @@ Pricing and features - discu.eu
                 <li>Community Support</li>
             </ul>
             <div class="mt-auto">
-                <a href="{% url 'account_signup' %}" class="w-100 btn btn-lg btn-outline-primary text-black mb-2">Sign
+                {% with classes="w-100 btn btn-lg btn-outline-primary text-black mb-2" %}
+                {% if user.is_authenticated %}
+                {% if user.email_verified %}
+                {% if user.is_premium %}
+                <form method="POST" action="{% url 'web:stripe_create_customer_portal_session' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="return_to_path" value="{{ request.get_full_path }}">
+                    <button type="submit" class="{{classes}}">Downgrade</button>
+                </form>
+                {% else %}
+                <span class="{{classes}}">Current plan</span>
+                {% endif %}
+                {% else %}
+                <a href="{% url 'account_email' %}" class="{{classes}}">Verify
+                    email</a>
+                {% endif %}
+                {% else %}
+                <a href="{% url 'account_signup' %}" class="{{classes}}">Sign
                     Up</a>
+                {% endif %}
+                {% endwith %}
             </div>
         </div>
     </div>
@@ -39,7 +58,35 @@ Pricing and features - discu.eu
                 <li>No ads</li>
             </ul>
 
-            <a href="{% url 'account_signup' %}" class="w-100 btn btn-lg btn-primary mb-2 mt-2">Sign Up</a>
+
+
+            {% with classes="w-100 btn btn-lg btn-primary mb-2 mt-2" %}
+            {% if user.is_authenticated %}
+            {% if user.email_verified %}
+            {% if user.is_premium %}
+            <form method="POST" action="{% url 'web:stripe_create_customer_portal_session' %}">
+                {% csrf_token %}
+                <input type="hidden" name="return_to_path" value="{{ request.get_full_path }}">
+                <button type="submit" class="{{classes}}">Manage plan</button>
+            </form>
+            {% else %}
+            <form method="POST" action="{% url 'web:stripe_checkout' %}">
+                {% csrf_token %}
+                <input type="hidden" name="return_to_path" value="{{ request.get_full_path }}">
+                <button type="submit" class="{{classes}}">Upgrade!</button>
+            </form>
+            {% endif %}
+            {% else %}
+            <a href="{% url 'account_email' %}" class="{{classes}}">Verify
+                email</a>
+            {% endif %}
+            {% else %}
+            <a href="{% url 'account_signup' %}" class="{{classes}}">Sign
+                Up</a>
+            {% endif %}
+            {% endwith %}
+
+            <!-- <a href="{% url 'account_signup' %}" class="w-100 btn btn-lg btn-primary mb-2 mt-2">Sign Up</a> -->
         </div>
     </div>
 </div>

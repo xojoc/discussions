@@ -14,8 +14,8 @@ $h1-font-size: $font-size-base * 2;
 $h2-font-size: $font-size-base * 1.75;
 $h3-font-size: $font-size-base * 1.50;
 $h4-font-size: $font-size-base * 1.25;
-$h5-font-size: $font-size-base * 1.25;
-$h6-font-size: $font-size-base;
+$h5-font-size: $font-size-base * 1.15;
+$h6-font-size: $font-size-base * 1.1;
 
 
 $enable-shadows: true;
@@ -161,6 +161,18 @@ p {
 
 .mt-2em {
     margin-top: 2em;
+}
+
+.mb-2em {
+    margin-top: 2em;
+}
+
+.mt-4em {
+    margin-top: 4em;
+}
+
+.mb-4em {
+    margin-top: 4em;
 }
 
 .weekly-index-grid {

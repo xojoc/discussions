@@ -4,7 +4,7 @@
 {% load util %}
 
 {% block title %}
-Discussions statistics
+Discussions statistics - discu.eu
 {% endblock title %}
 
 {% block main %}
@@ -23,8 +23,8 @@ Discussions statistics
         <tbody>
             {% for platform in ctx.statistics.platform %}
             <tr>
-                <td><a href="{{platform.platform_url}}"
-                        title="{{platform.platform_name}}">{{platform.platform_name}}</a>
+                <td><a href="{{platform.platform_url}}" title="{{platform.platform_name}}"
+                        rel="nofollow">{{platform.platform_name}}</a>
                 </td>
                 <td>{{platform.discussion_count|intcomma}}</td>
                 <td>{{platform.comment_count|intcomma}}</td>

@@ -10,7 +10,7 @@ from allauth.account import forms as account_forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.http import HttpResponse, HttpResponsePermanentRedirect
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -220,6 +220,24 @@ def index(request, path_q=None):
 
     q = q or ""
 
+    if (
+        path_q
+        and q.startswith("http:/")
+        and not q.startswith("http://")
+        and " " not in q
+    ):
+        p = request.get_full_path().replace("http:/", "http://", 1)
+        return redirect(request.build_absolute_uri(p))
+
+    if (
+        path_q
+        and q.startswith("https:/")
+        and not q.startswith("https://")
+        and " " not in q
+    ):
+        p = request.get_full_path().replace("https:/", "https://", 1)
+        return redirect(request.build_absolute_uri(p))
+
     ctx = discussions_context_cached(q)
 
     get_submit_links(request, ctx)
@@ -423,6 +441,9 @@ def weekly_index(request):
 
 def weekly_topic(request, topic):
     ctx = weekly.topic_context(topic)
+    if not ctx:
+        raise Http404("404")
+
     response = __weekly_topic_subscribe_form(request, topic, ctx)
     if response:
         return response
@@ -433,6 +454,8 @@ def weekly_topic(request, topic):
 # @cache_page(24 * 60 * 60, key_prefix="weekly:")
 def weekly_topic_week(request, topic, year, week):
     ctx = weekly.topic_week_context_cached(topic, year, week)
+    if not ctx:
+        raise Http404("404")
     response = __weekly_topic_subscribe_form(request, topic, ctx)
     if response:
         return response
@@ -570,8 +593,11 @@ def stripe_webhook(request):
 @login_required
 @require_http_methods(["POST"])
 def stripe_create_customer_portal_session(request):
+    return_path = request.POST.get("return_to_path") or reverse(
+        "web:dashboard"
+    )
     stripe.api_key = settings.STRIPE_SECRET_KEY
-    return_url = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}{reverse('web:dashboard')}"
+    return_url = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}{return_path}"
     session = stripe.billing_portal.Session.create(
         customer=request.user.stripe_customer_id,
         return_url=return_url,

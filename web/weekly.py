@@ -10,6 +10,8 @@ import django.template.loader as template_loader
 import urllib3
 from celery import shared_task
 from django.core.cache import cache
+from django.core import mail
+from django.core.mail import EmailMultiAlternatives
 from django.db.models import Count, OuterRef, Subquery, Sum, Value
 from django.db.models.functions import Coalesce, TruncDay
 from django.urls import reverse
@@ -19,7 +21,6 @@ from discussions import settings
 
 from . import (
     celery_util,
-    email_util,
     mastodon,
     models,
     tags,
@@ -449,7 +450,9 @@ def index_context():
 def topic_context(topic):
     ctx = {}
     ctx["topic_key"] = topic
-    ctx["topic"] = topics.topics[topic]
+    ctx["topic"] = topics.topics.get(topic)
+    if not ctx["topic"]:
+        return None
     ctx["yearweeks"] = []
     # yearweeks = all_yearweeks(topic)
     yearweeks = last_nth_yearweeks(topic, 5)
@@ -482,11 +485,16 @@ def topic_context(topic):
 def topic_week_context(topic, year, week):
     ctx = {}
     ctx["topic_key"] = topic
-    ctx["topic"] = topics.topics[topic]
+    ctx["topic"] = topics.topics.get(topic)
+    if not ctx["topic"]:
+        return None
     ctx["year"] = year
     ctx["week"] = week
-    ctx["week_start"] = week_start(year, week)
-    ctx["week_end"] = week_end(year, week) - datetime.timedelta(days=1)
+    try:
+        ctx["week_start"] = week_start(year, week)
+        ctx["week_end"] = week_end(year, week) - datetime.timedelta(days=1)
+    except ValueError:
+        return None
     # ctx["stories"] = __get_stories(topic, year, week)
     ctx["digest"] = _get_digest(topic, year, week)
     ctx["digest_old_stories"] = __get_digest_old_stories(topic)
@@ -615,7 +623,6 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
     return False
 
 
-@shared_task(ignore_result=True)
 def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
     if only_subscribers:
         subscribers = only_subscribers
@@ -629,32 +636,47 @@ def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
     )
     ctx = topic_week_context(topic, year, week)
 
-    if not ctx.get("digest"):
+    if not ctx or not ctx.get("digest"):
         logger.warning(f"weekly: no articles {topic} {week}/{year}")
         return
 
+    messages = []
+
+    subject = f"{topics.topics[topic]['name']} recap for week {week}/{year}"
+    if util.is_dev():
+        subject = "[DEV] " + subject
+
+    from_email = topics.topics[topic]["from_email"]
+
     for subscriber in subscribers:
         ctx["subscriber"] = subscriber
-        body = template_loader.render_to_string(
+        text_content = template_loader.render_to_string(
             "web/weekly_topic_digest.txt",
             {"ctx": ctx},
         )
+        html_content = template_loader.render_to_string(
+            "web/weekly_topic_week_email.html", {"ctx": ctx}
+        )
 
-        from_email = topics.topics[topic]["from_email"]
+        msg = EmailMultiAlternatives(
+            subject, text_content, from_email, [subscriber.email]
+        )
+        msg.attach_alternative(html_content, "text/html")
 
-        if testing:
-            print(body)
-        else:
-            email_util.send(
-                f"{topics.topics[topic]['name']} recap for week {week}/{year}",
-                body,
-                from_email,
-                subscriber.email,
-            )
-            time.sleep(0.1)
+        messages.append(msg)
+
+    if testing:
+        print(messages)
+        return
+
+    if not messages:
+        return
+
+    connection = mail.get_connection()
+    connection.send_messages(messages)
 
 
-@shared_task(bind=True, ignore_result=True)
+@shared_task(bind=True, ignore_result=False)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_send_weekly_email(self):
     six_days_ago = datetime.datetime.now() - datetime.timedelta(days=6)
@@ -662,7 +684,9 @@ def worker_send_weekly_email(self):
     week = six_days_ago.isocalendar().week
 
     for topic in topics.topics:
-        send_mass_email.delay(topic, year, week, testing=False)
+        send_mass_email(topic, year, week, testing=False)
+        if not util.is_dev():
+            time.sleep(10)
 
 
 @shared_task(bind=True, ignore_result=True)

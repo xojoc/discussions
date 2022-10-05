@@ -25,6 +25,7 @@
 
         <form method="POST" action="{% url 'web:stripe_create_customer_portal_session' %}">
             {% csrf_token %}
+            <input type="hidden" name="return_to_path" value="{{ request.get_full_path }}">
             <button type="submit" class="btn btn-secondary">Manage premium plan</button>
         </form>
     </div>
@@ -40,6 +41,7 @@
 
         <form method="POST" action="{% url 'web:stripe_checkout' %}">
             {% csrf_token %}
+            <input type="hidden" name="return_to_path" value="{{ request.get_full_path }}">
             <button type="submit" class="btn btn-primary">Go premium!</button>
         </form>
     </div>
@@ -97,9 +99,15 @@
         title="Manage your emails">all your emails</a> or subscribe <a href="/weekly/">to a newsletter</a>.</p>
 {% endif %}
 
-{% if user.is_premium %}
-{% if user.rss_id %}
+{% if user.rss_id and user.email_verified %}
 <h4 class="mt-5">RSS feeds</h4>
+
+{% if not user.is_premium %}
+<p class="alert alert-warning py-3">The following RSS feeds contain old sample issues.
+    Get the <a href="#dashboard-get-premium">premium plan</a> to access complete feeds.</p>
+
+{% endif %}
+
 <div class="table-responsive">
     <table class="table table-hover">
         <thead class="table-info">
@@ -124,17 +132,9 @@
         </tbody>
     </table>
 </div>
-<p class="smaller-font-4">
-    Please don't share these feeds with anyone.
+<p class="smaller-font-4 alert alert-info">
+    These feeds are personal, please don't share them with anyone.
 </p>
-{% endif %}
-{% else %}
-{% if ctx.user_verified_email %}
-
-<h4 class="mt-5">RSS feeds</h4>
-<p>Get the <a href="#dashboard-get-premium">premium plan</a> to access RSS feeds of the weekly newsletters.</p>
-
-{% endif %}
 {% endif %}
 
 <div class="my-5"></div>
@@ -154,7 +154,12 @@
 <div class="card">
     <h5 class="card-header">Discussions API</h5>
     <div class="card-body">
-        <p class="card-text">Api token: {{user.api.token}} </p>
+        {% if ctx.user_verified_email %}
+        <p class="card-text">API token: {{user.api.token}} </p>
+        {% else %}
+        <p class="card-text">API token: <span class="alert alert-warning">verify your email to get an API
+                token</span></p>
+        {% endif %}
         <p><a href="/api/v0/docs" class="btn btn-info">API documentation</a></p>
     </div>
 </div>

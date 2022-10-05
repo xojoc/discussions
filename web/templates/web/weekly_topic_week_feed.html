@@ -5,7 +5,7 @@
 
 <h3>{{category_name}}</h3>
 
-<ul>
+<ul style="padding-left: 0">
     {% for story in stories %}
     <li>
         <p>
@@ -14,7 +14,7 @@
         {% if story.total_comments %}
         <p>
             <span>
-                <a href="{{story.story_url|discussions_url}}"
+                <a href="{{story.story_url|discussions_url_domain}}"
                     title="Discussions for «{{story.title}}»">{{story.total_comments}}
                     comment{{story.total_comments|pluralize}}</a> <small>in
                     {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</small>

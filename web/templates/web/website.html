@@ -10,7 +10,7 @@ Display comments on your website - discu.eu
 
 <h2>Display comments on your website</h2>
 <p>
-    Just include a link to this site, like this:
+    To display discussions for a page on your website, just include a link to discu.eu:
 
 <pre>
     https://discu.eu/?q=<b>URL</b>&submit_title=<b>article title</b></pre>
@@ -18,6 +18,9 @@ Display comments on your website - discu.eu
 the <b>submit_title</b> parameter is optional, but when included it will prefill the submission title if the user
 decides to submit your story to a platform.
 </p>
+
+<p>Discussions are fetched from Hacker News, Reddit, Lobsters and <a href="{% url 'web:statistics' %}#platforms"
+        title="Platforms">others</a>.</p>
 
 <p>
     If you want to include a link only on pages with relevant dicussions then first call the <a href="/api/v0/docs"

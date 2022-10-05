@@ -122,7 +122,7 @@ class ADForm(forms.ModelForm):
         self.helper.add_input(
             Submit(
                 "submit-new-ad",
-                "Submit Ad",
+                "Submit ad",
                 css_class="btn btn-primary",
             )
         )

@@ -34,8 +34,9 @@ Weekly newsletter about {{ctx.topic.name}} with articles, projects and tutorials
 
 {% include "web/weekly_subscribe_form.html" %}
 
-<h4>Past few issues</h4>
-<ul>
+
+<span class="fs-6">Past few issues</span>
+<ul class="ms-0 ps-4">
     {% for yearweek in ctx.yearweeks %}
     <li><a href="{% url 'web:weekly_topic_week' ctx.topic_key yearweek.year yearweek.week %}"
             title="{{ctx.topic.name}} recap for week {{yearweek.week}}/{{yearweek.year}}">Week
@@ -47,13 +48,11 @@ Weekly newsletter about {{ctx.topic.name}} with articles, projects and tutorials
 </ul>
 
 
-<br />
+<div class="mt-5 mb-5">
+    {% include "web/weekly_faq.html" %}
+</div>
 
-{% include "web/weekly_faq.html" %}
-
-
-<br />
-<p>
+<p class="smaller-font-1">
     Discover <a href="{% url 'web:weekly_index' %}" title="Weekly newsletters">all the newsletters</a>.
 </p>
 
