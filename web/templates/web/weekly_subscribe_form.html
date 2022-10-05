@@ -3,10 +3,12 @@
 {% if ctx.weekly_subscribe_form %}
 <div class="card text-bg-light w-min-content mx-auto px-4 py-3 rounded-3">
     <div class="card-body">
+        {% if form_lead %}
         <p class="card-text smaller-font-2">Newsletter sent every monday with a recap of articles, projects
             and tutorials
             from previous
             week.</p>
+        {% endif %}
         <form method="POST">
             {% csrf_token %}
             {{ ctx.weekly_subscribe_form | crispy }}

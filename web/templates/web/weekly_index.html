@@ -5,27 +5,29 @@
 {% load util %}
 
 {% block title %}
-Free weekly newsletters - discu.eu
+Weekly newsletters - discu.eu
 {% endblock title %}
 
 {% block meta_description %}
-Free weekly newsletter with articles, tutorials, projects and releases about topics you care about.
+Weekly newsletters with articles, tutorials, projects and releases about topics you care about.
 {% endblock meta_description %}
 
 {% block main %}
-<h2>Free Weekly newsletters with the latest from the web</h2>
-<p>Keep up to date about what you care about. Each week a recap of stories, projects and tutorials.</p>
+<h1 class="fs-2">Weekly newsletters with the latest from the web</h1>
+<p class="lead fs-4">Keep up to date on what you care about. Each monday a recap of stories, projects and tutorials
+    from
+    last week.</p>
 
 
-<p class="smaller-font text-center">
+<!-- <p class="smaller-font text-center mt-3">
     <strong>Choose a topic:</strong>
-</p>
+</p> -->
 
-<div class="weekly-index-grid">
+<div class="weekly-index-grid mt-5">
     {% for topic_key, topic in ctx.topics.items %}
-    <div class="btn btn-dark d-flex align-items-center justify-content-center">
+    <div class="btn btn-secondary d-flex align-items-center justify-content-center">
         <a href="{% url 'web:weekly_topic' topic_key %}" title="{{topic.short_description}} newsletter"
-            class="text-light">{{topic.name}}</a>
+            class="text-white">{{topic.name}}</a>
     </div>
     {% endfor %}
 </div>
@@ -41,11 +43,10 @@ Free weekly newsletter with articles, tutorials, projects and releases about top
 
 <div class="my-5"></div>
 
-<p class="weekly-follow">
+<p class="smaller-font-2">
     For daily updates follow one of our <a href="/social" title="Social media bots">accounts on Twitter or
         Mastodon</a>.
 </p>
-
 
 
 {% endblock main %}

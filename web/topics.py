@@ -10,6 +10,7 @@ topics = {
         "mastodon": {
             "account": "@nim_discussions@mastodon.social",
         },
+        "home_link": "https://nim-lang.org/",
     },
     "zig": {
         "name": "Zig",
@@ -21,6 +22,7 @@ topics = {
         "mastodon": {
             "account": "@zig_discussions@mastodon.social",
         },
+        "home_link": "https://ziglang.org/",
     },
     "java": {
         "name": "Java",
@@ -32,6 +34,7 @@ topics = {
         "mastodon": {
             "account": "@java_discussions@mastodon.social",
         },
+        "home_link": "https://www.java.com/en/",
     },
     "php": {
         "name": "PHP",
@@ -43,6 +46,7 @@ topics = {
         "mastodon": {
             "account": "@php_discussions@mastodon.social",
         },
+        "home_link": "https://www.php.net/",
     },
     "apl": {
         "name": "APL",
@@ -54,6 +58,7 @@ topics = {
         "mastodon": {
             "account": "@apl_discussions@mastodon.social",
         },
+        "home_link": "https://aplwiki.com/",
     },
     "rust": {
         "name": "Rust",
@@ -65,6 +70,7 @@ topics = {
         "mastodon": {
             "account": "@rust_discussions@mastodon.social",
         },
+        "home_link": "https://www.rust-lang.org/",
     },
     "golang": {
         "name": "Golang",
@@ -76,6 +82,7 @@ topics = {
         "mastodon": {
             "account": "@golang_discussions@mastodon.social",
         },
+        "home_link": "https://go.dev/",
     },
     "python": {
         "name": "Python",
@@ -87,6 +94,7 @@ topics = {
         "mastodon": {
             "account": "@python_discussions@mastodon.social",
         },
+        "home_link": "https://www.python.org/",
     },
     "candcpp": {
         "name": "C & C++",
@@ -109,6 +117,7 @@ topics = {
         "mastodon": {
             "account": "@haskell_discussions@mastodon.social",
         },
+        "home_link": "https://www.haskell.org/",
     },
     "lisp": {
         "name": "Lisp & Scheme",
@@ -131,6 +140,7 @@ topics = {
         "mastodon": {
             "account": "@erlang_discussions@mastodon.social",
         },
+        "home_link": "https://www.erlang.org/",
     },
     "ruby": {
         "name": "Ruby",
@@ -142,6 +152,7 @@ topics = {
         "mastodon": {
             "account": "@ruby_discussions@mastodon.social",
         },
+        "home_link": "https://www.ruby-lang.org/en/",
     },
     "unix": {
         "name": "Unix",

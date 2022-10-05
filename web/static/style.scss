@@ -20,7 +20,7 @@ $h6-font-size: $font-size-base;
 
 $enable-shadows: true;
 $primary: #4786f1;
-$secondary: #88BD00;
+$secondary: #04A777; // #88BD00;
 // $success;
 $info: #49afcd;
 // $warning;
@@ -62,10 +62,10 @@ body {
 .btn-secondary,
 .btn-info,
 .btn-danger {
-    color: #F1F1F1 !important;
+    color: white !important; // #F1F1F1 !important;
 
     &:hover {
-        color: #F1F1F1 !important;
+        color: white !important; // #F1F1F1 !important;
     }
 }
 

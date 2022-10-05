@@ -4,7 +4,7 @@
 {% load util %}
 
 {% block title %}
-{{ctx.topic.name}} newsletter: issue for week {{ctx.week}}/{{ctx.year}} - discu.eu
+{{ctx.topic.name}} recap for week {{ctx.week}}/{{ctx.year}} - discu.eu
 {% endblock title %}
 
 {% block meta_description %}
@@ -12,28 +12,24 @@ Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials a
 {% endblock meta_description %}
 
 {% block main %}
-
-<div class="weekly">
-    <h2 class="fs-3">{{ctx.topic.name}} newsletter: issue for week {{ctx.week}}/{{ctx.year}}</h2>
-    <span class="smaller-font">From
-        {{ctx.week_start|date:"j/n/Y"}} to
-        {{ctx.week_end|date:"j/n/Y"}}</span>
+<h1 class="fs-3">{{ctx.topic.name}} recap for week {{ctx.week}}/{{ctx.year}}</h1>
+<span class="smaller-font">From
+    {{ctx.week_start|date:"j/n/Y"}} to
+    {{ctx.week_end|date:"j/n/Y"}}</span>
 
 
-    {% include "web/weekly_subscribe_form.html" %}
+{% include "web/weekly_subscribe_form.html" with form_lead="true" %}
 
-    {% include "web/weekly_topic_week_fragment.html" %}
-
-
-    <br />
-    <p class="smaller-font-1">
-        This is an archived issue from the <a href="{% url 'web:weekly_topic' ctx.topic_key %}"
-            title="Weekly {{ctx.topic.name}} newsletter">{{ctx.topic.name}}
-            newsletter</a>.
-    </p>
+{% include "web/weekly_topic_week_fragment.html" %}
 
 
-    {% include "web/weekly_fragment_follow.html" %}
 
-</div>
+<p class="smaller-font-1 mt-5">
+    This is an archived issue from the <a href="{% url 'web:weekly_topic' ctx.topic_key %}"
+        title="Weekly {{ctx.topic.name}} newsletter">{{ctx.topic.name}}
+        newsletter</a>.
+</p>
+
+
+{% include "web/weekly_fragment_follow.html" %}
 {% endblock main %}

@@ -11,12 +11,12 @@
     {% for story in stories %}
     <li>
         <p class="d-flex flex-column">
-            <a href="{{story.story_url}}" title="{{story.title}}">{{story.title}}</a>
+            <a href="{{story.story_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
 
             {% if story.total_comments %}
             <span>
-                <a href="{{story.story_url|discussions_url}}" title="Discussions for «{{story.title}}»"
-                    class="bold">{{story.total_comments}}
+                <a href="{{story.story_url|discussions_url}}"
+                    title="Discussions for «{{story.title}}»">{{story.total_comments}}
                     comment{{story.total_comments|pluralize}}</a> <span class="smaller-font-2">in
                     {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</span>
             </span>
@@ -33,7 +33,7 @@
     {% for old_story in v %}
     <li>
         <p>
-            <a href="{{old_story.story_url}}" title="{{old_story.title}}">{{old_story.title}}</a>
+            <a href="{{old_story.story_url}}" title="{{old_story.title}}" rel="nofollow">{{old_story.title}}</a>
         </p>
 
         {% if old_story.total_comments %}

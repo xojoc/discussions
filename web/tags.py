@@ -133,6 +133,7 @@ def __hacker_news(tags, title):
     tags = __augment_tags(title, tags, "nim", None, "nimlang")
     tags = __augment_tags(title, tags, "python")
     tags = __augment_tags(title, tags, "rust", None, "rustlang")
+    tags = __augment_tags(title, tags, "rustc", None, "rustlang")
     tags = __augment_tags(title, tags, "typescript")
     tags = __augment_tags(title, tags, "zig", None, "ziglang")
     return tags

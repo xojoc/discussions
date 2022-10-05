@@ -12,52 +12,53 @@ Weekly newsletter about {{ctx.topic.name}} with articles, projects and tutorials
 {% endblock meta_description %}
 
 {% block main %}
-<div class="weekly">
-    <h2>{{ctx.topic.name}} weekly newsletter</h2>
-    {% if ctx.topic_key == 'hackernews' %}
-    <p>
-        Get every monday a summary of the most interesting articles on Hacker News.
-    </p>
-    {% elif ctx.topic_key == 'laarc' %}
-    <p>
-        Get every monday a summary of the most interesting articles on Laarc.
-    </p>
-    {% else %}
-    <p>
-        Get the latest articles, projects and tutorials about {{ctx.topic.name}}. Collated, filtered and
-        delivered straight to you each monday.
-    </p>
-    {% endif %}
+<h1 class="fs-2">{{ctx.topic.name}} weekly newsletter</h1>
+{% if ctx.topic_key == 'hackernews' %}
+<p>
+    Every monday a summary of the most interesting articles on Hacker News.
+</p>
+{% elif ctx.topic_key == 'laarc' %}
+<p>
+    Every monday a summary of the most interesting articles on Laarc.
+</p>
+{% else %}
+<p>
+    Get the latest articles, projects and tutorials about {% if ctx.topic.home_link %}<a href="{{ctx.topic.home_link}}"
+        title="{{ctx.topic.short_description}}">{{ctx.topic.name}}</a>{% else %}{{ctx.topic.name}}{% endif %}.
+    Collated, filtered and
+    delivered straight to you each monday.
+</p>
+{% endif %}
 
-    <br />
+<br />
 
-    {% include "web/weekly_subscribe_form.html" %}
+{% include "web/weekly_subscribe_form.html" %}
 
-    <h4>Past few issues</h4>
-    <ul>
-        {% for yearweek in ctx.yearweeks %}
-        <li><a href="{% url 'web:weekly_topic_week' ctx.topic_key yearweek.year yearweek.week %}"
-                title="{{ctx.topic.name}} recap for week {{yearweek.week}}/{{yearweek.year}}">Week
-                {{yearweek.week}}/{{yearweek.year}}</a><span class="smaller-font-3"> — from
-                {{yearweek.week_start|date:"j/n/Y"}} to
-                {{yearweek.week_end|date:"j/n/Y"}}</span>
-        </li>
-        {% endfor %}
-    </ul>
-
-
-    <br />
-
-    {% include "web/weekly_faq.html" %}
+<h4>Past few issues</h4>
+<ul>
+    {% for yearweek in ctx.yearweeks %}
+    <li><a href="{% url 'web:weekly_topic_week' ctx.topic_key yearweek.year yearweek.week %}"
+            title="{{ctx.topic.name}} recap for week {{yearweek.week}}/{{yearweek.year}}">Week
+            {{yearweek.week}}/{{yearweek.year}}</a><span class="smaller-font-3"> — from
+            {{yearweek.week_start|date:"j/n/Y"}} to
+            {{yearweek.week_end|date:"j/n/Y"}}</span>
+    </li>
+    {% endfor %}
+</ul>
 
 
-    <br />
-    <p>
-        Discover <a href="{% url 'web:weekly_index' %}" title="Weekly newsletters">all the newsletters</a>.
-    </p>
+<br />
+
+{% include "web/weekly_faq.html" %}
+
+
+<br />
+<p>
+    Discover <a href="{% url 'web:weekly_index' %}" title="Weekly newsletters">all the newsletters</a>.
+</p>
 
 
 
-    {% include "web/weekly_fragment_follow.html" %}
-</div>
+{% include "web/weekly_fragment_follow.html" %}
+
 {% endblock main %}
