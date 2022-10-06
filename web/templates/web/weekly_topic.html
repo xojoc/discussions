@@ -35,7 +35,28 @@ Weekly newsletter about {{ctx.topic.name}} with articles, projects and tutorials
 {% include "web/weekly_subscribe_form.html" %}
 
 
-<span class="fs-6">Past few issues</span>
+
+<div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mb-5">
+    <div class="w-min-content w-min-16ch d-flex flex-column">
+        <i class="bi bi-book m-auto text-dark fs-2-5em my-0"></i>
+        <span class="fs-5">Informative</span>
+        <span class="lead mb-0 smaller-font-1">Best and latest content about {{ctx.topic.name}} from the web.</span>
+    </div>
+    <div class="w-min-content w-min-16ch d-flex flex-column">
+        <i class="bi bi-chat-right-text m-auto text-dark fs-2-5em my-0"></i>
+        <span class="fs-5">Discussions</span>
+        <span class="lead mb-0 smaller-font-1">See what people say, explore and get more context.</span>
+
+    </div>
+    <div class="w-min-content w-min-16ch d-flex flex-column">
+        <i class="bi bi-gem m-auto text-dark fs-2-5em my-0"></i>
+        <span class="fs-5">Classics</span>
+        <span class="lead mb-0 smaller-font-1">Certain wisdom never gets old. Rediscover old gems every week.</span>
+    </div>
+</div>
+
+
+<span class="fs-6">Sample issues</span>
 <ul class="ms-0 ps-4">
     {% for yearweek in ctx.yearweeks %}
     <li><a href="{% url 'web:weekly_topic_week' ctx.topic_key yearweek.year yearweek.week %}"

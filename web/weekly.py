@@ -455,7 +455,7 @@ def topic_context(topic):
         return None
     ctx["yearweeks"] = []
     # yearweeks = all_yearweeks(topic)
-    yearweeks = last_nth_yearweeks(topic, 5)
+    yearweeks = last_nth_yearweeks(topic, 3)
     for yearweek in yearweeks:
         ctx["yearweeks"].append(
             {
