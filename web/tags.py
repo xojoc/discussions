@@ -441,8 +441,8 @@ def __enrich(tags, title):
 
 def __special_cases(tags, platform, title, url):
     if url and url.hostname == "joinmastodon.org":
-        tags.remove("bitcoin")
-        tags.remove("italy")
+        tags.discard("bitcoin")
+        tags.discard("italy")
 
     return tags
 
