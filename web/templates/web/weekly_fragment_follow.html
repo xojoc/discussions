@@ -1,9 +1,10 @@
 {% if ctx.twitter_account or ctx.mastodon_account %}
 <div class="smaller-font-2">
     <p>
-        For daily updates follow us on <a href="https://twitter.com/{{ctx.twitter_account}}"
-            title="{{ctx.topic.name}} Twitter bot" rel="me nofollow">Twitter</a> or
-        <a href="{{ctx.mastodon_account_url}}" title="{{ctx.topic.name}} Mastodon bot" rel="me nofollow">Mastodon</a>.
+        Follow us on <a href="https://twitter.com/{{ctx.twitter_account}}" title="{{ctx.topic.name}} on Twitter"
+            rel="me nofollow">Twitter <i class="bi bi-twitter"></i></a> or
+        <a href="{{ctx.mastodon_account_url}}" title="{{ctx.topic.name}} on Mastodon" rel="me nofollow">Mastodon <i
+                class="bi bi-mastodon"></i></a>
     </p>
 </div>
 {% endif %}

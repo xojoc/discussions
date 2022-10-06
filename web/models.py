@@ -1,7 +1,7 @@
 import datetime
 import json
-import urllib
 import secrets
+import urllib
 
 import cleanurl
 import django.template.loader as template_loader
@@ -28,14 +28,15 @@ from django.db.models.lookups import PostgresOperatorLookup
 from django.utils import timezone
 
 from . import (
+    category,
     discussions,
     email_util,
     extract,
+    mastodon,
     tags,
     title,
     topics,
     twitter,
-    mastodon,
 )
 
 
@@ -105,6 +106,8 @@ class Discussion(models.Model):
     normalized_tags = postgres_fields.ArrayField(
         models.CharField(max_length=255, blank=True), null=True, blank=True
     )
+
+    category = models.TextField(null=True, blank=True)
 
     archived = models.BooleanField(default=False)
 
@@ -176,6 +179,8 @@ class Discussion(models.Model):
             self.title,
             (self.story_url or ""),
         )
+
+        self.category = category.derive(self)
 
     def save(self, *args, **kwargs):
         self._pre_save()

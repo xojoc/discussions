@@ -1,4 +1,5 @@
 {% extends "web/base.html" %}
+{% load static %}
 
 {% block title %}
 Browser extension - discu.eu
@@ -6,8 +7,10 @@ Browser extension - discu.eu
 
 {% block main %}
 
-<h2>Browser extension</h2>
-<p>This extension shows if the page you're visiting has been discussed on Hacker News, Lobsters, Reddit, etc.</p>
+<h2>Browser extension <img src="{% static 'web/discussions_extension_badge_trasp.png' %}"
+        alt="Discussions extension's badge" class="vertical-align-baseline"></img></h2>
+<p>See discussions and comments for the current page. Discussions are fetched from Hacker News, Reddit, Lobsters and <a
+        href="{% url 'web:statistics' %}#platforms" title="Platforms">others</a>.</p>
 
 <h3>Firefox <i class="bi bi-browser-firefox"></i></h3>
 <p>

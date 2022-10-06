@@ -60,6 +60,7 @@ def worker_update_discussions(self):
         canonical_story_url = story.canonical_story_url
         normalized_title = story.normalized_title
         normalized_tags = story.normalized_tags
+        category = story.category
 
         story._pre_save()
 
@@ -67,6 +68,7 @@ def worker_update_discussions(self):
             story.canonical_story_url != canonical_story_url
             or story.normalized_title != normalized_title
             or story.normalized_tags != normalized_tags
+            or story.category != category
         ):
             dirty = True
 

@@ -7,10 +7,9 @@ import time
 from collections import defaultdict
 
 import django.template.loader as template_loader
-import urllib3
 from celery import shared_task
-from django.core.cache import cache
 from django.core import mail
+from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Count, OuterRef, Subquery, Sum, Value
 from django.db.models.functions import Coalesce, TruncDay
@@ -20,6 +19,7 @@ from django.utils.timezone import make_aware
 from discussions import settings
 
 from . import (
+    category,
     celery_util,
     mastodon,
     models,
@@ -30,69 +30,6 @@ from . import (
 )
 
 logger = logging.getLogger(__name__)
-
-categories = {
-    "article": {
-        "name": "Articles",
-        "sort": 10,
-    },
-    "release": {
-        "name": "Releases",
-        "sort": 20,
-    },
-    "project": {
-        "name": "Projects",
-        "sort": 30,
-    },
-    "video": {
-        "name": "Videos",
-        "sort": 40,
-    },
-}
-
-
-def __category(story):
-    u = None
-    try:
-        u = urllib3.util.parse_url(story.canonical_story_url)
-    except Exception as e:
-        logger.warning(f"weekly: url parsing failed: {e}")
-
-    path, host = "", ""
-    if u:
-        path = u.path or ""
-        host = u.host or ""
-    title_tokens = story.normalized_title.split()
-
-    if "programming" in story.normalized_tags:
-        if "release" in title_tokens or "released" in title_tokens:
-            return "release"
-    if "release" in story.normalized_tags:
-        return "release"
-
-    if host in ("github.com", "gitlab.com", "bitbucket.org", "gitea.com"):
-        parts = [p for p in path.split("/") if p]
-        if len(parts) == 2:
-            return "project"
-
-    if host in ("savannah.gnu.org", "savannah.nongnu.org"):
-        if path.startswith("/projects/"):
-            return "project"
-
-    if host in ("crates.io"):
-        if path.startswith("/crates/"):
-            return "project"
-
-    if host in ("docs.rs"):
-        parts = [p for p in path.split("/") if p]
-        if len(parts) == 1:
-            return "project"
-
-    # fixme: look for parameters too
-    if host in ("youtu.be", "youtube.com", "vimeo.com"):
-        return "video"
-
-    return "article"
 
 
 def base_query(topic):
@@ -200,7 +137,7 @@ def __get_random_old_stories(topic, categories):
 
         j = random.randint(0, count - 1)
         rs = stories[j]
-        cat = __category(rs)
+        cat = category.derive(rs)
         if len(found_categories[cat]) >= categories.get(cat, 0):
             continue
         if rs not in found_categories[cat]:
@@ -275,93 +212,13 @@ def __get_stories(topic, year, week):
 
     stories = stories.filter(total_discussions__lt=20)
 
-    # stories = stories.annotate(
-    #     total_comments=Coalesce(
-    #         Subquery(
-    #             (
-    #                 models.Discussion.objects.filter(
-    #                     canonical_story_url=OuterRef("canonical_story_url")
-    #                 )
-    #                 | models.Discussion.objects.filter(
-    #                     schemeless_story_url__iexact=OuterRef(
-    #                         "schemeless_story_url"
-    #                     )
-    #                 )
-    #                 | models.Discussion.objects.filter(
-    #                     schemeless_story_url__iexact=OuterRef(
-    #                         "canonical_story_url"
-    #                     )
-    #                 )
-    #             )
-    #             .filter(comment_count__gte=min_comments)
-    #             .values("canonical_story_url")
-    #             .annotate(total_comments=Sum("comment_count"))
-    #             .values("total_comments")
-    #         ),
-    #         Value(0),
-    #     )
-    # )
-
-    # stories = stories.annotate(
-    #     total_discussions=Coalesce(
-    #         Subquery(
-    #             (
-    #                 models.Discussion.objects.filter(
-    #                     canonical_story_url=OuterRef("canonical_story_url")
-    #                 )
-    #                 | models.Discussion.objects.filter(
-    #                     schemeless_story_url__iexact=OuterRef(
-    #                         "schemeless_story_url"
-    #                     )
-    #                 )
-    #                 | models.Discussion.objects.filter(
-    #                     schemeless_story_url__iexact=OuterRef(
-    #                         "canonical_story_url"
-    #                     )
-    #                 )
-    #             )
-    #             .filter(comment_count__gte=min_comments)
-    #             .values("canonical_story_url")
-    #             .annotate(total_discussions=Count("platform_id"))
-    #             .values("total_discussions")
-    #         ),
-    #         Value(0),
-    #     )
-    # )
-
     if util.is_dev():
         logger.debug(
             f"weekly: {topic} {ws} {we}: stories count {stories.count()}"
         )
 
     for story in stories:
-        category = __category(story)
-        story.__dict__["category"] = category
-
-        # discussions, _, _ = models.Discussion.of_url(
-        #     story.story_url, only_relevant_stories=True
-        # )
-        # discussion_counts = (
-        #     discussions.aggregate(
-        #         total_comments=Coalesce(Sum("comment_count"), 0),
-        #         total_discussions=Coalesce(Count("platform_id"), 0),
-        #     )
-        #     or {}
-        # )
-        # story.__dict__["total_comments"] = discussion_counts.get(
-        #     "total_comments"
-        # )
-        # story.__dict__["total_discussions"] = discussion_counts.get(
-        #     "total_discussions"
-        # )
-
-        # story.__dict__["discussions"], _, _ = models.Discussion.of_url(
-        #     story.story_url, only_relevant_stories=True
-        # )
-        # r = models.Resource.by_url(story.schemeless_story_url)
-        # if r:
-        #     irs = r.inbound_resources()
-        #     story.__dict__["related_articles"] = irs.values()
+        story.category = category.derive(story)
 
     return stories
 
@@ -370,27 +227,25 @@ def _get_digest(topic, year, week):
     stories = __get_stories(topic, year, week)
     stories = sorted(stories, key=lambda x: x.category)
     digest = [
-        (category, categories[category]["name"], list(stories))
-        for category, stories in itertools.groupby(
-            stories, lambda x: x.category
-        )
+        (cat, category.categories[cat]["name"], list(stories))
+        for cat, stories in itertools.groupby(stories, lambda x: x.category)
     ]
 
-    digest = sorted(digest, key=lambda x: categories[x[0]]["sort"])
+    digest = sorted(digest, key=lambda x: category.categories[x[0]]["sort"])
 
-    for category, category_name, stories in digest:
+    for cat, category_name, stories in digest:
         if topic == "hackernews":
             stories.sort(key=lambda x: x.comment_count, reverse=True)
         else:
             stories.sort(key=lambda x: x.total_comments, reverse=True)
 
-        if category == "article":
+        if cat == "article":
             stories[:] = stories[:15]
-        elif category == "project":
+        elif cat == "project":
             stories[:] = stories[:10]
-        elif category == "release":
+        elif cat == "release":
             stories[:] = stories[:10]
-        elif category == "video":
+        elif cat == "video":
             stories[:] = stories[:7]
     return digest
 
@@ -686,7 +541,7 @@ def worker_send_weekly_email(self):
     for topic in topics.topics:
         send_mass_email(topic, year, week, testing=False)
         if not util.is_dev():
-            time.sleep(10)
+            time.sleep(60)
 
 
 @shared_task(bind=True, ignore_result=True)

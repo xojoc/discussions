@@ -14,6 +14,7 @@ class StaticViewSitemap(Sitemap):
             "api-v0:openapi-swagger",
             "web:bookmarklet",
             "web:extension",
+            "web:pricing",
             "web:search",
             "web:social",
             "web:statistics",
@@ -32,7 +33,7 @@ class WeeklySitemap(Sitemap):
         its = []
         for topic_key in topics.topics:
             its.append(("web:weekly_topic", [topic_key]))
-            for yearweek in weekly.last_nth_yearweeks(topic_key, 10):
+            for yearweek in weekly.last_nth_yearweeks(topic_key, 3):
                 its.append(
                     (
                         "web:weekly_topic_week",
