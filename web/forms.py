@@ -3,14 +3,12 @@ from . import models, topics
 from crispy_forms.layout import Field, Submit
 from crispy_forms.helper import FormHelper
 
-PLATFORM_CHOICES = [("h", "Hacker News"), ("l", "Lobsters")]
-
 
 class QueryForm(forms.Form):
     query = forms.CharField()
     platforms = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple(attrs={"checked": ""}),
-        choices=PLATFORM_CHOICES,
+        choices=models.PLATFORM_CHOICES,
     )
 
     tags = forms.MultipleChoiceField(

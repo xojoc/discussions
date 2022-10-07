@@ -130,4 +130,9 @@ urlpatterns = [
         name="weekly_single_atom_feed",
     ),
     path("advertise/", views.new_ad, name="new_ad"),
+    path(
+        "reading/<slug:topic>/",
+        views.reading_list_topic,
+        name="reading_list_topic",
+    ),
 ]

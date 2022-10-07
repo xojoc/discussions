@@ -1,10 +1,10 @@
 {% if breadcrumbs %}
 <div class="ms-2 smaller-font-2">
-    <ol vocab="https://schema.org/" typeof="BreadcrumbList" class="list-unstyled list-inline">
+    <ol vocab="https://schema.org/" typeof="BreadcrumbList" class="list-unstyled list-inline mb-0">
         {% for breadcrumb in breadcrumbs %}
         <li property="itemListElement" typeof="ListItem"
             class="d-inline-block {% if breadcrumb.classes %}{{breadcrumb.classes}}{% endif %}">
-            <a property="item" typeof="WebPage" href="{{breadcrumb.url}}" title="{{breadcrumb.name}}">
+            <a property="item" typeof="WebPage" href="{{breadcrumb.url}}" title="{{breadcrumb.name}}" class="text-body">
                 <span property="name">{{breadcrumb.name}}</span>
             </a>
             <meta property="position" content="{{forloop.counter}}">

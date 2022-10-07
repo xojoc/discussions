@@ -27,6 +27,7 @@ from django.db.models.functions import Coalesce, Round, Upper
 from django.db.models.lookups import PostgresOperatorLookup
 from django.utils import timezone
 
+
 from . import (
     category,
     discussions,
@@ -38,6 +39,8 @@ from . import (
     topics,
     twitter,
 )
+
+PLATFORM_CHOICES = [("h", "Hacker News"), ("l", "Lobsters")]
 
 
 class MyTrigramStrictWordSimilarity(TrigramWordBase):
@@ -1163,3 +1166,49 @@ If you have preferences for when to tweet or toot or anything else let us know h
         self.estimated_mastodon_followers = e["mastodon_followers"]
 
         super(AD, self).save(*args, **kwargs)
+
+
+class Mention(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    rule_name = models.CharField(max_length=255)
+    url_pattern = models.TextField()
+    title_pattern = models.TextField(blank=True)
+
+    platforms = postgres_fields.ArrayField(
+        models.CharField(max_length=1, blank=True, choices=PLATFORM_CHOICES),
+        null=True,
+        blank=True,
+    )
+
+    subreddits_only = postgres_fields.ArrayField(
+        models.CharField(max_length=255, blank=True, choices=PLATFORM_CHOICES),
+        null=True,
+        blank=True,
+    )
+
+    subreddits_exclude = postgres_fields.ArrayField(
+        models.CharField(max_length=255, blank=True, choices=PLATFORM_CHOICES),
+        null=True,
+        blank=True,
+    )
+
+    min_comments = models.PositiveIntegerField(default=0)
+    min_score = models.IntegerField(default=0)
+
+    disabled = models.BooleanField(default=False)
+
+    entry_created_at = models.DateTimeField(auto_now_add=True)
+    entry_updated_at = models.DateTimeField(auto_now=True)
+
+
+class MentionNotification(models.Model):
+    mention = models.ForeignKey(Mention, on_delete=models.CASCADE)
+    discussion = models.OneToOneField(
+        Discussion, on_delete=models.SET_NULL, null=True
+    )
+
+    email_sent = models.BooleanField(default=False)
+    email_sent_at = models.DateTimeField(blank=True, null=True)
+
+    entry_created_at = models.DateTimeField(auto_now_add=True)
+    entry_updated_at = models.DateTimeField(auto_now=True)

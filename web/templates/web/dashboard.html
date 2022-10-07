@@ -165,9 +165,15 @@
 </div>
 {% endif %}
 
-{% if user.is_premium %}
 <h5 class="mt-5">Contacts</h5>
-<p>To contact us write to <a href="mailto:hi@discu.eu">hi@discu.eu</a>.</p>
+<p>
+    Check out our <a href="https://www.reddit.com/r/discueu/" title="Discu.eu's subreddit">subreddit</a> for quetions,
+    feedback or support.
+</p>
+{% if user.is_premium %}
+<p>To contact us by email write to <a href="mailto:hi@discu.eu">hi@discu.eu</a>.</p>
+{% else %}
+<p>Get the <a href="#dashboard-get-premium" title="Premium plan">premium plan</a> for email support.</p>
 {% endif %}
 
 {% endblock main %}

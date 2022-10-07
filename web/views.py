@@ -20,7 +20,16 @@ from django_redis import get_redis_connection
 
 from discussions import settings
 
-from . import discussions, forms, mastodon, models, topics, util, weekly
+from . import (
+    discussions,
+    forms,
+    mastodon,
+    models,
+    topics,
+    util,
+    weekly,
+    reading_list,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -677,3 +686,16 @@ def new_ad(request):
         .exists()
     )
     return render(request, "web/new-ad.html", {"ctx": ctx})
+
+
+def reading_list_topic(request, topic):
+    ctx = {}
+    ctx["topic"] = topics.topics.get(topic)
+    if not ctx["topic"]:
+        raise Http404("not found")
+
+    ctx["articles"] = reading_list.get_reading_list_cached(
+        topic, "article"
+    )
+
+    return render(request, "web/reading_list_topic.html", {"ctx": ctx})

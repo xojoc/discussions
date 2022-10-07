@@ -104,6 +104,7 @@ class WebConfig(AppConfig):
 
     def __set_up_signals(self):
         from . import indexnow  # noqa F401
+        from . import mention  # noqa F401
         from . import stripe_util  # noqa F401
 
     def ready(self):

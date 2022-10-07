@@ -157,7 +157,9 @@ def __stem(title):
 
 def __duplicate(title):
     prev = object()
-    return " ".join((prev := v for v in title.split() if prev != v))
+    return " ".join(
+        (prev := v for v in title.split() if prev != v)  # noqa F841
+    )
 
 
 def normalize(title, platform=None, url="", tags=[], stem=True):

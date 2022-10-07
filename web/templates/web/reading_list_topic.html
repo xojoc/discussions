@@ -1,0 +1,36 @@
+{% extends "web/base.html" %}
+
+{% load humanize %}
+{% load util %}
+
+{% block title %}
+{{ctx.topic.name}} classics - discu.eu
+{% endblock title %}
+
+{% block meta_description %}
+{{ctx.topic.name}} classics
+{% endblock meta_description %}
+
+{% block main %}
+<h1 class="fs-2">{{ctx.topic.name}} classics</h1>
+
+<ul>
+    {% for story in ctx.articles %}
+    <li>
+        <p class="d-flex flex-column">
+            <a href="{{story.story_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
+
+            {% if story.total_comments %}
+            <span>
+                <a href="{{story.story_url|discussions_url}}"
+                    title="Discussions for «{{story.title}}»">{{story.total_comments}}
+                    comment{{story.total_comments|pluralize}}</a> <span class="smaller-font-2">in
+                    {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</span>
+            </span>
+            {% endif %}
+        </p>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock main %}

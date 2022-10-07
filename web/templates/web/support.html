@@ -6,11 +6,15 @@ Support and contacts - discu.eu
 
 {% block main %}
 
-<h2>Support</h2>
-<p>Checkout our <a href="https://www.reddit.com/r/discueu/" title="discu.eu subreddit">subreddit</a> for community
-    support.</a></p>
+<h1 class="fs-2">Support</h1>
+
+<p>
+    Check out our <a href="https://www.reddit.com/r/discueu/" title="Discu.eu's subreddit">subreddit</a> for quetions,
+    feedback or support.
+</p>
+
 {% if user.is_premium %}
-<p>Write to <a href="mailto:support@discu.eu" title="Support email">support@discu.eu</a> and we'll get back to you as
+<p>To contact us by email write to <a href="mailto:support@discu.eu">support@discu.eu</a> and we'll get back to you as
     soon as possible.</p>
 {% else %}
 <p>Subscribe to a <a href="{% url 'web:pricing' %}" title="Pricing">premium plan</a> to get email support.</p>
