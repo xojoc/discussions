@@ -54,6 +54,8 @@ class Mention(TestCase):
         d3 = models.Discussion.objects.create(
             platform_id="h3",
             created_at=timezone.now(),
+            scheme_of_story_url="https",
+            schemeless_story_url="discu.eu",
             title="Discussions around the web - discu.eu",
         )
 

@@ -22,6 +22,10 @@ def __process_mentions(sender, instance: models.Discussion, created, **kwargs):
     if instance.created_at < three_days_ago:
         return
 
+    # fixme: include mentions without urls?
+    if not instance.schemeless_story_url:
+        return
+
     rules = (
         models.Mention.objects.filter(disabled=False)
         .filter(min_comments__lte=instance.comment_count)

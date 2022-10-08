@@ -32,7 +32,7 @@ subreddit_blacklist = set()
 subreddit_whitelist = set()
 
 
-def __url_blacklisted(url):
+def _url_blacklisted(url):
     if not url:
         return False
 
@@ -45,6 +45,9 @@ def __url_blacklisted(url):
         or url.startswith("i.redd.it")
         or url.startswith("reddit.com/live")
         or url.startswith("www.reddit.com/live")
+        or url.startswith("reddit.com/gallery/")
+        or url.startswith("www.reddit.com/gallery/")
+        or url.startswith("preview.redd.it")
         or url
         in ("reddit.com", "reddit.com/", "www.reddit.com", "www.reddit.com/")
     ):
@@ -80,6 +83,7 @@ def __url_blacklisted_selftext(url):
         or url.startswith("reddit.com")
         or url.startswith("www.reddit.com")
         or url.startswith("old.reddit.com")
+        or url.startswith("preview.redd.it")
     ):
         return True
 
@@ -110,7 +114,7 @@ def _url_from_selftext(selftext):
                 continue
             if not u.parsed_url.netloc or not u.parsed_url.hostname:
                 continue
-            if __url_blacklisted(u.schemeless_url):
+            if _url_blacklisted(u.schemeless_url):
                 continue
             if __url_blacklisted_selftext(u.schemeless_url):
                 continue
@@ -182,7 +186,7 @@ def __process_archive_line(line):
         scheme = u.scheme
         story_url = u.schemeless_url
 
-    if __url_blacklisted(story_url):
+    if _url_blacklisted(story_url):
         return
 
     created_at = None
@@ -378,7 +382,7 @@ def __process_post(p):
         scheme = u.scheme
         story_url = u.schemeless_url
 
-    if __url_blacklisted(story_url):
+    if _url_blacklisted(story_url):
         return
 
     created_utc = p.created_utc
@@ -554,7 +558,7 @@ def worker_update_all_discussions(self):
             if d.subreddit.lower() in subreddit_blacklist:
                 d.delete()
                 continue
-            if __url_blacklisted(
+            if _url_blacklisted(
                 d.canonical_story_url or d.schemeless_story_url
             ):
                 d.delete()
@@ -607,7 +611,7 @@ def worker_update_all_discussions(self):
                 scheme = u.scheme
                 story_url = u.schemeless_url
 
-            if __url_blacklisted(story_url):
+            if _url_blacklisted(story_url):
                 d.delete()
                 continue
 

@@ -37,3 +37,18 @@ class Reddit(unittest.TestCase):
         for h, u in zip(tests[0::2], tests[1::2]):
             hu = reddit._url_from_selftext(h)
             self.assertEqual(u, hu, msg=h)
+
+    def test_url(self):
+        tests = [
+            "www.reddit.com/gallery/xykno0",
+            True,
+            "preview.redd.it/aaa.png",
+            True,
+            "i.imgur.com/aaa.jpg",
+            True,
+            "xojoc.pw",
+            False,
+        ]
+        for h, u in zip(tests[0::2], tests[1::2]):
+            hu = reddit._url_blacklisted(h)
+            self.assertEqual(u, hu, msg=h)
