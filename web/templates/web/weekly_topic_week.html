@@ -12,15 +12,69 @@ Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials a
 {% endblock meta_description %}
 
 {% block main %}
-<h1 class="fs-3">{{ctx.topic.name}} recap for week {{ctx.week}}/{{ctx.year}}</h1>
-<span class="smaller-font">From
-    {{ctx.week_start|date:"j/n/Y"}} to
-    {{ctx.week_end|date:"j/n/Y"}}</span>
+<div vocab="https://schema.org/" typeof="Article">
+    <h1 class="fs-3" property="name headline">{{ctx.topic.name}} recap for week {{ctx.week}}/{{ctx.year}}</h1>
+    <span class="smaller-font">From
+        <time datetime="{{ctx.week_start|date:'c'}}">{{ctx.week_start|date:"j/n/Y"}}</time> to
+        <time datetime="{{ctx.week_end|date:'c'}}" property="datePublished">{{ctx.week_end|date:"j/n/Y"}}</time></span>
 
 
-{% include "web/weekly_subscribe_form.html" with form_lead="true" %}
+    {% include "web/weekly_subscribe_form.html" with form_lead="true" %}
 
-{% include "web/weekly_topic_week_fragment.html" %}
+    {% for category, category_name, stories in ctx.digest %}
+
+    <h2 id="weekly-{{category}}" class="fs-4">{{category_name}} <a href="#weekly-{{category}}" title="{{category_name}}"
+            class="relative-url smaller-font-3 text-body">#</a>
+    </h2>
+
+    <ul>
+        {% for story in stories %}
+        <li>
+            <p class="d-flex flex-column">
+                <a href="{{story.story_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
+
+                {% if story.total_comments %}
+                <span>
+                    <a href="{{story.story_url|discussions_url}}"
+                        title="Discussions for «{{story.title}}»">{{story.total_comments}}
+                        comment{{story.total_comments|pluralize}}</a> <span class="smaller-font-2">in
+                        {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</span>
+                </span>
+                {% endif %}
+            </p>
+        </li>
+        {% endfor %}
+    </ul>
+
+    {% for k, v in ctx.digest_old_stories.items %}
+    {% if k == category and v %}
+    <span class="fs-4">Blast from the past</span>
+    <ul class="weekly-stories">
+        {% for old_story in v %}
+        <li>
+            <p>
+                <a href="{{old_story.story_url}}" title="{{old_story.title}}" rel="nofollow">{{old_story.title}}</a>
+            </p>
+
+            {% if old_story.total_comments %}
+            <p class="weekly-discussions">
+                <a href="{{old_story.story_url|discussions_url}}" title="Discussions for «{{old_story.title}}»"
+                    class="bold">{{old_story.total_comments}}
+                    comment{{old_story.total_comments|pluralize}}</a> <span class="weekly-discussions-count">in
+                    {{old_story.total_discussions}} discussion{{old_story.total_discussions|pluralize}}</span>
+                <span class="weekly-discussions-date"><time
+                        datetime="{{old_story.created_at | date:'c'}}">{{old_story.created_at | date}}</time></span>
+            </p>
+            {% endif %}
+
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endfor %}
+
+    {% endfor %}
+</div>
 
 
 

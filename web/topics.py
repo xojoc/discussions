@@ -95,6 +95,7 @@ topics = {
             "account": "@python_discussions@mastodon.social",
         },
         "home_link": "https://www.python.org/",
+        "noun": "Pythonista",
     },
     "candcpp": {
         "name": "C & C++",
@@ -118,6 +119,7 @@ topics = {
             "account": "@haskell_discussions@mastodon.social",
         },
         "home_link": "https://www.haskell.org/",
+        # "noun": "Haskell programmer",
     },
     "lisp": {
         "name": "Lisp & Scheme",
@@ -153,6 +155,7 @@ topics = {
             "account": "@ruby_discussions@mastodon.social",
         },
         "home_link": "https://www.ruby-lang.org/en/",
+        "noun": "Rubyist",
     },
     "unix": {
         "name": "Unix",

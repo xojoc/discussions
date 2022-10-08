@@ -347,7 +347,8 @@ def topic_week_context(topic, year, week):
     ctx["week"] = week
     try:
         ctx["week_start"] = week_start(year, week)
-        ctx["week_end"] = week_end(year, week) - datetime.timedelta(days=1)
+        ctx["week_end"] = week_end(year, week) - datetime.timedelta(minutes=1)
+        # ctx["date_published"] = ctx["week_end"] + datetime.timedelta(days=1)
     except ValueError:
         return None
     # ctx["stories"] = __get_stories(topic, year, week)

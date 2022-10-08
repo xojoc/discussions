@@ -1,25 +1,52 @@
 <div>
     <h2 class="fs-4">FAQ</h2>
-    <h3 class="fs-5">Will I receive spam?</h3>
-    <p>
-        Emails are sent only once a week, every monday. They are always on topic and contain the latest articles,
-        tutorials and projects.</p>
-    <p>
-        You can unsubscribe at any time, by replying "unsubscribe" or following the link at the bottom of each email.
-    </p>
+    <div vocab="https://schema.org/" property='mainEntity' typeof="Question">
+        <h3 class="fs-5" property="name">Will I receive spam?</h3>
+        <div property="suggestedAnswer acceptedAnswer" typeof="Answer">
+            <div property="text">
+                <p>
+                    Emails are sent only once a week, every monday. They are always on topic and contain the latest
+                    articles,
+                    tutorials and projects.</p>
+                <p>
+                    You can unsubscribe at any time, by replying "unsubscribe" or following the link at the bottom of
+                    each
+                    email.
+                </p>
+            </div>
+        </div>
+    </div>
 
-    <h3 class="fs-5">How much does it cost?</h3>
-    <p>
-        The newsletter is free. Each issue may have a promoted and relevant link from one of our partners to help us
-        keep
-        this going.
-    </p>
-    <p>
-        Get the <a href="{% url 'web:pricing' %}" title="Premium plan">the premium plan</a> to remove ads and enable RSS
-        feeds.
-    </p>
-    <h3 class="fs-5">How do I get in touch?</h3>
-    <p>
-        Drop us an email at: hi@discu.eu and we'll get back as soon as possible.
-    </p>
+
+    <div vocab="https://schema.org/" property='mainEntity' typeof="Question">
+        <h3 class="fs-5" property="name">How much does it cost?</h3>
+        <div property="suggestedAnswer acceptedAnswer" typeof="Answer">
+            <div property="text">
+                <p>
+                    The newsletter is free. Each issue may have a promoted and relevant link from one of our partners to
+                    help us
+                    keep
+                    this going.
+                </p>
+                <p>
+                    Get the <a href="{% url 'web:pricing' %}" title="Premium plan">the premium plan</a> to remove ads
+                    and
+                    enable
+                    RSS
+                    feeds.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <h3 class="fs-5">How do I get in touch?</h3>
+        <div>
+            <div>
+                <p>
+                    Drop us an email at: hi@discu.eu and we'll get back as soon as possible.
+                </p>
+            </div>
+        </div>
+    </div>
 </div>

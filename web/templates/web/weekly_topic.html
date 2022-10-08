@@ -11,6 +11,8 @@
 Weekly newsletter about {{ctx.topic.name}} with articles, projects and tutorials.
 {% endblock meta_description %}
 
+{% block html_tag_attributes %}vocab="https://schema.org/" typeof="FAQPage"{% endblock %}
+
 {% block main %}
 <h1 class="fs-2">{{ctx.topic.name}} weekly newsletter</h1>
 {% if ctx.topic_key == 'hackernews' %}
@@ -25,8 +27,8 @@ Weekly newsletter about {{ctx.topic.name}} with articles, projects and tutorials
 <p>
     Get the latest articles, projects and tutorials about {% if ctx.topic.home_link %}<a href="{{ctx.topic.home_link}}"
         title="{{ctx.topic.short_description}}">{{ctx.topic.name}}</a>{% else %}{{ctx.topic.name}}{% endif %}.
-    Collated, filtered and
-    delivered straight to you each monday.
+    {% if ctx.topic.noun %}Become a better {{ctx.topic.noun}} and stay up to date.{% else %}Collated, filtered and
+    delivered straight to you each monday.{% endif %}
 </p>
 {% endif %}
 
