@@ -98,6 +98,7 @@ def get_discussions(request, url: str, only_relevant_stories: bool = True):
     ["OPTIONS"],
     "/discussions/url/{path:url}",
     response={200: List[Discussion]},
+    include_in_schema=False,
 )
 def options_get_discussions(
     request, url: str, only_relevant_stories: bool = True
@@ -179,6 +180,25 @@ def get_discussion_counts(request, url: str):
     ["OPTIONS"],
     "/discussion_counts/url/{path:url}",
     response={200: DiscussionCounts},
+    include_in_schema=False,
 )
 def options_get_discussion_counts(request, url: str):
     return {}
+
+
+class Platform(Schema):
+    code: str
+    name: str
+    url: str
+
+
+@api.get(
+    "/platforms",
+    response={200: List[Platform]},
+    auth=auth_bearer,
+)
+def platforms(request):
+    """All platforms on which discussions are tracked at the moment."""
+
+    pfs = models.Discussion.platforms()
+    return [{"code": k, "name": v[0], "url": v[1]} for k, v in pfs.items()]

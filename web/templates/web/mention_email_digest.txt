@@ -9,7 +9,7 @@ new mention/s:
      {{discussion.discussion_url|safe}}
 
      All discussions for this url:
-       {{discussion.story_url|discussions_url_domain|safe}}}
+       {{discussion.story_url|discussions_url_domain|safe}}
 
 {% endfor %}
 

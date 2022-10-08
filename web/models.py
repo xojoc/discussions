@@ -1234,6 +1234,14 @@ Web Archive
 
     def save(self, *args, **kwargs):
         self.platforms = self.platforms or []
+        self.subreddits_only = self.subreddits_only or []
+        self.subreddits_only = [
+            s.strip().lower() for s in self.subreddits_only
+        ]
+        self.subreddits_exclude = self.subreddits_exclude or []
+        self.subreddits_exclude = [
+            s.strip().lower() for s in self.subreddits_exclude
+        ]
 
         self.url_pattern = self.url_pattern or ""
         self.url_pattern = self.url_pattern.strip()

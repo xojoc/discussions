@@ -569,6 +569,31 @@ def dashboard(request):
     return render(request, "web/dashboard.html", {"ctx": ctx})
 
 
+@login_required
+def dashboard_mentions(request):
+    ctx = {}
+
+    mention_form = forms.MentionForm()
+
+    if request.method == "POST":
+        if "submit-new-mention-rule" in request.POST:
+            mention_form = forms.MentionForm(request.POST)
+            if mention_form.is_valid():
+                model = mention_form.save(commit=False)
+                model.user = request.user
+                model.save()
+                messages.success(
+                    request,
+                    f"Rule {model} saved!",
+                )
+
+    ctx["mention_form"] = mention_form
+
+    ctx["mentions"] = request.user.mention_set.all()
+
+    return render(request, "web/dashboard_mentions.html", {"ctx": ctx})
+
+
 @require_http_methods(["POST"])
 @csrf_exempt
 def stripe_webhook(request):
