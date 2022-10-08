@@ -6,7 +6,6 @@ from urllib.parse import unquote as url_unquote
 
 import stripe
 import urllib3
-from allauth.account import forms as account_forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -519,12 +518,11 @@ def social(request):
 @login_required
 def dashboard(request):
     ctx = {}
-    profile_form = None
-    email_form = None
-    if request.method == "GET":
-        profile_form = forms.ProfileForm(instance=request.user)
-        email_form = account_forms.AddEmailForm()
-    elif request.method == "POST":
+
+    profile_form = forms.ProfileForm(instance=request.user)
+    mention_form = forms.MentionForm()
+
+    if request.method == "POST":
         if "submit-update-user-profile" in request.POST:
             profile_form = forms.ProfileForm(
                 request.POST, instance=request.user
@@ -533,8 +531,19 @@ def dashboard(request):
                 profile_form.save()
                 messages.success(request, "Profile updated successfully!")
 
+        if "submit-new-mention-rule" in request.POST:
+            mention_form = forms.MentionForm(request.POST)
+            if mention_form.is_valid():
+                model = mention_form.save(commit=False)
+                model.user = request.user
+                model.save()
+                messages.success(
+                    request,
+                    f"Rule {model} saved!",
+                )
+
     ctx["profile_form"] = profile_form
-    ctx["email_form"] = email_form
+    ctx["mention_form"] = mention_form
 
     user_emails = request.user.emailaddress_set.filter(
         verified=True
@@ -694,8 +703,6 @@ def reading_list_topic(request, topic):
     if not ctx["topic"]:
         raise Http404("not found")
 
-    ctx["articles"] = reading_list.get_reading_list_cached(
-        topic, "article"
-    )
+    ctx["articles"] = reading_list.get_reading_list_cached(topic, "article")
 
     return render(request, "web/reading_list_topic.html", {"ctx": ctx})

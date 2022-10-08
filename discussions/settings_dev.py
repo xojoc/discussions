@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from django.contrib.messages import constants as message_constants
 
 DEBUG = True

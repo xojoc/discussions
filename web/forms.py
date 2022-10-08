@@ -124,3 +124,48 @@ class ADForm(forms.ModelForm):
                 css_class="btn btn-primary",
             )
         )
+
+
+class MentionForm(forms.ModelForm):
+    platforms = forms.MultipleChoiceField(
+        choices=models.PLATFORM_CHOICES,
+        help_text=models.Mention._meta.get_field("platforms").help_text,
+        widget=forms.CheckboxSelectMultiple(),
+    )
+
+    class Meta:
+        model = models.Mention
+        fields = [
+            # "rule_name",
+            "base_url",
+            "keyword",
+            # "title_pattern",
+            "platforms",
+            "subreddits_only",
+            "subreddits_exclude",
+            "min_comments",
+            "min_score",
+            # "disabled",
+        ]
+
+        widgets = {
+            "base_url": forms.TextInput(),
+            "keyword": forms.TextInput(),
+            # "url_pattern": forms.TextInput(),
+            # "title_pattern": forms.TextInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(MentionForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper["platforms"].wrap(
+            Field, css_class="overflow-y-scroll h-max-10em ms-2"
+        )
+        self.helper.form_method = "post"
+        self.helper.add_input(
+            Submit(
+                "submit-new-mention-rule",
+                "Submit Mention",
+                css_class="btn btn-secondary",
+            )
+        )

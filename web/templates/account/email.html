@@ -7,7 +7,7 @@ Manage emails - discu.eu
 {% endblock title %}
 
 {% block content %}
-<h1>{% trans "E-mail Addresses" %}</h1>
+<h1 class="fs-3">{% trans "E-mail Addresses" %}</h1>
 {% if user.emailaddress_set.all %}
 <p>{% trans 'The following e-mail addresses are associated with your account:' %}</p>
 
@@ -53,7 +53,7 @@ Manage emails - discu.eu
 {% endif %}
 
 {% if can_add_email %}
-<h2 class="mt-5">{% trans "Add E-mail Address" %}</h2>
+<h2 class="mt-5 fs-4">{% trans "Add E-mail Address" %}</h2>
 
 <form method="post" action="{% url 'account_email' %}" class="add_email">
   {% csrf_token %}

@@ -148,6 +148,15 @@
     </div>
 </div>
 
+{% is_dev as var_is_dev %}
+
+{% if var_is_dev or user.pk == 2 %}
+<div class="mt-5">
+    <h5>Mentions</h5>
+    {% crispy ctx.mention_form %}
+</div>
+{% endif %}
+
 <div class="my-5"></div>
 
 {% if user.api %}

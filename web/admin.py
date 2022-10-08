@@ -37,9 +37,6 @@ class DiscussionAdmin(admin.ModelAdmin):
         "title",
         "normalized_title",
     ]
-    # list_filter = [
-    #     "platform",
-    # ]
     search_fields = (
         "title",
         "tags",
@@ -58,11 +55,27 @@ class SubscriberAdmin(admin.ModelAdmin):
     ]
     list_filter = ["confirmed", "unsubscribed", "topic"]
     ordering = [
-        "topic",
-        "confirmed",
-        "-unsubscribed",
-        "email",
         "-entry_created_at",
+    ]
+
+
+class CustomUserAdmin(admin.ModelAdmin):
+    list_display = [
+        "pk",
+        "premium_active",
+        "premium_active_from",
+        "premium_cancelled",
+        "premium_cancelled_on",
+        "complete_name",
+        "email",
+        "email_verified",
+        "is_active",
+        "date_joined",
+    ]
+    list_filter = ["premium_active", "premium_cancelled", "is_active"]
+    search_fields = ("complete_name",)
+    ordering = [
+        "-date_joined",
     ]
 
 
@@ -71,5 +84,5 @@ admin.site.register(models.Subscriber, SubscriberAdmin)
 
 admin.site.register([models.APIClient, models.Tweet, models.Statistics])
 
-admin.site.register([models.CustomUser])
+admin.site.register(models.CustomUser, CustomUserAdmin)
 admin.site.register([models.AD])

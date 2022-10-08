@@ -1012,6 +1012,7 @@ class CustomUser(AbstractUser):
     def is_premium(self):
         return self.premium_active and not self.premium_cancelled
 
+    @property
     def email_verified(self):
         return (
             self.emailaddress_set.filter(primary=True)
@@ -1170,24 +1171,46 @@ If you have preferences for when to tweet or toot or anything else let us know h
 
 class Mention(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    rule_name = models.CharField(max_length=255)
-    url_pattern = models.TextField()
+    rule_name = models.CharField(max_length=255, blank=True)
+    url_pattern = models.TextField(
+        help_text="""
+Insert a URL pattern without the protocol.<br/>
+Use % to represent any string.<br/>
+URLs are normalized so: https://discu.eu, http://www.discu.eu and https://mobile.discu.eu all match discu.eu/%<br/>
+matching is case insensitive.<br/>
+Examples:
+<ul>
+    <li>discu.eu/%</li>
+    <li>twitter.com/xojoc/%</li>
+</ul>
+    """
+    )
     title_pattern = models.TextField(blank=True)
+
+    base_url = models.TextField(
+        blank=True,
+        help_text="""
+Domain to track.
+www.example.com example.com m.example.com and mobile.com are treated the same way.
+Web Archive
+    """,
+    )
+
+    keyword = models.TextField(blank=True)
 
     platforms = postgres_fields.ArrayField(
         models.CharField(max_length=1, blank=True, choices=PLATFORM_CHOICES),
-        null=True,
         blank=True,
     )
 
     subreddits_only = postgres_fields.ArrayField(
-        models.CharField(max_length=255, blank=True, choices=PLATFORM_CHOICES),
+        models.CharField(max_length=255, blank=True),
         null=True,
         blank=True,
     )
 
     subreddits_exclude = postgres_fields.ArrayField(
-        models.CharField(max_length=255, blank=True, choices=PLATFORM_CHOICES),
+        models.CharField(max_length=255, blank=True),
         null=True,
         blank=True,
     )
@@ -1200,10 +1223,31 @@ class Mention(models.Model):
     entry_created_at = models.DateTimeField(auto_now_add=True)
     entry_updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        if self.rule_name:
+            return self.rule_name
+        if self.url_pattern:
+            return self.url_pattern
+        if self.base_url:
+            return self.base_url
+        return self.title_pattern
+
+    def save(self, *args, **kwargs):
+        self.platforms = self.platforms or []
+
+        self.url_pattern = self.url_pattern or ""
+        self.url_pattern = self.url_pattern.strip()
+        if self.url_pattern and "%" not in self.url_pattern:
+            if not self.url_pattern.endswith("/"):
+                self.url_pattern += "/"
+            self.url_pattern += "%"
+
+        super(Mention, self).save(*args, **kwargs)
+
 
 class MentionNotification(models.Model):
     mention = models.ForeignKey(Mention, on_delete=models.CASCADE)
-    discussion = models.OneToOneField(
+    discussion = models.ForeignKey(
         Discussion, on_delete=models.SET_NULL, null=True
     )
 

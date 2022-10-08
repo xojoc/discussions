@@ -62,7 +62,7 @@ lint:
 	# @poetry run mypy --install-types --non-interactive .
 
 test:
-	@poetry run python -Wa manage.py test --shuffle --keepdb
+	@poetry run python -Wa manage.py test --shuffle --keepdb --failfast
 
 superuser:
 	poetry run python manage.py createsuperuser
