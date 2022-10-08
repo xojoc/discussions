@@ -14,6 +14,7 @@ from web import indexnow  # noqa F401
 from web import lobsters  # noqa F401
 from web import ltu  # noqa F401
 from web import mastodon  # noqa F401
+from web import mention  # noqa F401
 from web import reddit  # noqa F401
 from web import statistics  # noqa F401
 from web import stripe_util  # noqa F401

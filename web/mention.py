@@ -1,18 +1,27 @@
+import datetime
 import logging
 
 import cleanurl
+import django.template.loader as template_loader
+from celery import shared_task
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from celery import shared_task
+from django.utils import timezone
 
-from web import models, title
-
+from web import email_util, models, title
 
 logger = logging.getLogger(__name__)
 
 
 def __process_mentions(sender, instance: models.Discussion, created, **kwargs):
+    three_days_ago = timezone.now() - datetime.timedelta(days=3)
+    if not instance.created_at:
+        return
+
+    if instance.created_at < three_days_ago:
+        return
+
     rules = (
         models.Mention.objects.filter(disabled=False)
         .filter(min_comments__lte=instance.comment_count)
@@ -113,5 +122,36 @@ def process_mentions(sender, instance: models.Discussion, created, **kwargs):
 
 @shared_task(bind=True, ignore_result=True)
 def email_notification(self):
+    mentions = (
+        models.MentionNotification.objects.filter(email_sent=False)
+        .exclude(discussion__isnull=True)
+        .exclude(mention__isnull=True)
+        .exclude(mention__user__isnull=True)
+        .order_by("entry_created_at")
+    )
+    # todo: count sent recently
 
-    return
+    for m in mentions:
+        if not m.discussion:
+            continue
+        if not m.mention.user:
+            continue
+        ctx = {
+            "user": m.mention.user,
+            "discussions": [m.discussion],
+            "mention_rule": m.mention,
+        }
+        text_content = template_loader.render_to_string(
+            "web/mention_email_digest.txt",
+            {"ctx": ctx},
+        )
+
+        email_util.send(
+            "discu.eu: new mention",
+            text_content,
+            "hi@discu.eu",
+            m.mention.user.email,
+        )
+        m.email_sent = True
+        m.email_sent_at = timezone.now()
+        m.save()

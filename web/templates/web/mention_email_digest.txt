@@ -1,0 +1,16 @@
+{% load util %}Hi,
+
+new mention/s:
+
+{% for discussion in ctx.discussions %}
+  -> {{discussion.title|safe}}
+     {{discussion.story_url|safe}}
+
+     {{discussion.discussion_url|safe}}
+
+     All discussions for this url:
+       {{discussion.story_url|discussions_url_domain|safe}}}
+
+{% endfor %}
+
+Thank you

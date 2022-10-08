@@ -79,6 +79,34 @@ class CustomUserAdmin(admin.ModelAdmin):
     ]
 
 
+class MentionAdmin(admin.ModelAdmin):
+    list_display = [
+        "pk",
+        "rule_name",
+        "user",
+        "base_url",
+        "keyword",
+        "platforms",
+        "disabled",
+        "entry_created_at",
+    ]
+    list_filter = ["disabled"]
+    ordering = ["-entry_created_at"]
+
+
+class MentionNotificationAdmin(admin.ModelAdmin):
+    list_display = [
+        "mention",
+        "discussion",
+        "email_sent",
+        "email_sent_at",
+        "entry_created_at",
+    ]
+    list_filter = ["email_sent"]
+    ordering = ["-entry_created_at"]
+    raw_id_fields = ["discussion"]
+
+
 admin.site.register(models.Discussion, DiscussionAdmin)
 admin.site.register(models.Subscriber, SubscriberAdmin)
 
@@ -86,3 +114,6 @@ admin.site.register([models.APIClient, models.Tweet, models.Statistics])
 
 admin.site.register(models.CustomUser, CustomUserAdmin)
 admin.site.register([models.AD])
+
+admin.site.register(models.Mention, MentionAdmin)
+admin.site.register(models.MentionNotification, MentionNotificationAdmin)
