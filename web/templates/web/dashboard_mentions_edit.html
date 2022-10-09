@@ -1,0 +1,15 @@
+{% extends "web/base.html" %}
+{% load crispy_forms_tags %}
+{% load util %}
+
+{% block title %}Edit mention rule {{ctx.mention}} - discu.eu{% endblock %}
+
+{% block main %}
+
+<h5>Edit rule {{ctx.mention}}</h5>
+
+{% crispy ctx.form %}
+
+<a href="{% url 'web:dashboard_mentions' %}" title="Mention rules" class="btn btn-outline-dark mt-4">ᐸ All rules</a>
+
+{% endblock main %}

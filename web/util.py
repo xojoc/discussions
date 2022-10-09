@@ -8,6 +8,10 @@ import cleanurl
 from discussions import settings
 
 
+def path_with_domain(path):
+    return f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}{path}"
+
+
 def discussions_url(q, with_domain=True):
     if not q:
         q = ""

@@ -1,7 +1,14 @@
-from django import forms
-from . import models, topics
-from crispy_forms.layout import Field, Submit
+import logging
+
 from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Field, Submit
+from django import forms
+
+# from crispy_bootstrap5.bootstrap5 import FloatingField
+
+from . import models, topics
+
+logger = logging.getLogger(__name__)
 
 
 class QueryForm(forms.Form):
@@ -126,9 +133,12 @@ class ADForm(forms.ModelForm):
         )
 
 
+def _platform_choices():
+    return [(k, v[0]) for k, v in models.Discussion.platforms().items()]
+
+
 class MentionForm(forms.ModelForm):
     platforms = forms.MultipleChoiceField(
-        choices=models.PLATFORM_CHOICES,
         help_text=models.Mention._meta.get_field("platforms").help_text,
         widget=forms.CheckboxSelectMultiple(),
     )
@@ -136,36 +146,104 @@ class MentionForm(forms.ModelForm):
     class Meta:
         model = models.Mention
         fields = [
-            # "rule_name",
             "base_url",
             "keyword",
-            # "title_pattern",
             "platforms",
             "subreddits_only",
             "subreddits_exclude",
             "min_comments",
             "min_score",
-            # "disabled",
+            "rule_name",
         ]
 
         widgets = {
             "base_url": forms.TextInput(),
             "keyword": forms.TextInput(),
-            # "url_pattern": forms.TextInput(),
-            # "title_pattern": forms.TextInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super(MentionForm, self).__init__(*args, **kwargs)
+        self.fields["platforms"].choices = _platform_choices()
+        self.fields["platforms"].required = False
+        self.fields["min_comments"].required = False
+        self.fields["min_score"].required = False
+
         self.helper = FormHelper(self)
         self.helper["platforms"].wrap(
             Field, css_class="overflow-y-scroll h-max-10em ms-2"
         )
+
+        # self.helper.layout = Layout()
+        # for field_name, field in self.fields.items():
+        #     self.helper.layout.append(FloatingField(field_name))
+        # self.helper.form_show_labels = False
+
         self.helper.form_method = "post"
         self.helper.add_input(
             Submit(
                 "submit-new-mention-rule",
-                "Submit Mention",
+                "Create rule",
+                css_class="btn btn-secondary",
+            )
+        )
+
+    def clean_min_comments(self):
+        data = self.cleaned_data["min_comments"]
+        if not data:
+            return 0
+        return data
+
+    def clean_min_score(self):
+        data = self.cleaned_data["min_score"]
+        if not data:
+            return 0
+        return data
+
+    def clean_base_url(self):
+        data = self.cleaned_data["base_url"] or ""
+        prev_data = data
+        while True:
+            data = data.strip()
+            data = data.removeprefix("http://")
+            data = data.removeprefix("https://")
+            data = data.removeprefix("/")
+            if data == prev_data:
+                break
+            prev_data = data
+
+        if data and not data.endswith("/"):
+            data += "/"
+
+        return data
+
+    def clean(self):
+        logger.info("clean")
+        cleaned_data = super(MentionForm, self).clean()
+        base_url = cleaned_data.get("base_url")
+        keyword = cleaned_data.get("keyword")
+        subreddits_only = cleaned_data.get("subreddits_only")
+        subreddits_exclude = cleaned_data.get("subreddits_exclude")
+
+        if not base_url and not keyword:
+            msg = "Please fill at least one of URL prefix or Keyword."
+            self.add_error("base_url", msg)
+            self.add_error("keyword", msg)
+
+        if subreddits_only and subreddits_exclude:
+            msg = "Please fill only one of Subreddits whitelist or Subreddits blacklist."
+            self.add_error("subreddits_only", msg)
+            self.add_error("subreddits_exclude", msg)
+
+
+class EditMentionForm(MentionForm):
+    def __init__(self, *args, **kwargs):
+        super(EditMentionForm, self).__init__(*args, **kwargs)
+
+        self.helper.inputs.pop()
+        self.helper.add_input(
+            Submit(
+                "submit-edit-mention-rule",
+                "Update rule",
                 css_class="btn btn-secondary",
             )
         )

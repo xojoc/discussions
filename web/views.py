@@ -520,8 +520,6 @@ def dashboard(request):
     ctx = {}
 
     profile_form = forms.ProfileForm(instance=request.user)
-    mention_form = forms.MentionForm()
-
     if request.method == "POST":
         if "submit-update-user-profile" in request.POST:
             profile_form = forms.ProfileForm(
@@ -531,19 +529,7 @@ def dashboard(request):
                 profile_form.save()
                 messages.success(request, "Profile updated successfully!")
 
-        if "submit-new-mention-rule" in request.POST:
-            mention_form = forms.MentionForm(request.POST)
-            if mention_form.is_valid():
-                model = mention_form.save(commit=False)
-                model.user = request.user
-                model.save()
-                messages.success(
-                    request,
-                    f"Rule {model} saved!",
-                )
-
     ctx["profile_form"] = profile_form
-    ctx["mention_form"] = mention_form
 
     user_emails = request.user.emailaddress_set.filter(
         verified=True
@@ -578,20 +564,73 @@ def dashboard_mentions(request):
     if request.method == "POST":
         if "submit-new-mention-rule" in request.POST:
             mention_form = forms.MentionForm(request.POST)
-            if mention_form.is_valid():
-                model = mention_form.save(commit=False)
-                model.user = request.user
-                model.save()
+            mrc = request.user.mention_set.all().filter(disabled=False).count()
+            mrm = request.user.max_mention_rules()
+            if mrc >= mrm:
+                messages.error(
+                    request,
+                    "Sorry, but you already reached your maximum quota of rules",
+                )
+            else:
+                if mention_form.is_valid():
+                    model = mention_form.save(commit=False)
+                    model.user = request.user
+                    model.save()
+                    messages.success(
+                        request,
+                        f"Rule {model} saved!",
+                    )
+                    mention_form = forms.MentionForm()
+                    return redirect(request.get_full_path(), permanent=False)
+
+        if "submit-delete-mention-rule" in request.POST:
+            pk = request.POST["mention-rule-delete-pk"]
+            mention = get_object_or_404(models.Mention, pk=pk)
+            if mention.user != request.user:
+                raise Http404("404")
+            mention.disabled = True
+            mention.save()
+            messages.success(request, f"Rule {mention} deleted!")
+            return redirect(request.get_full_path(), permanent=False)
+
+    ctx["mention_form"] = mention_form
+
+    ctx["mentions"] = request.user.mention_set.all().filter(disabled=False)
+
+    return render(request, "web/dashboard_mentions.html", {"ctx": ctx})
+
+
+@login_required
+def dashboard_mentions_edit(request, pk):
+    ctx = {}
+    mention = get_object_or_404(models.Mention, pk=pk)
+    if mention.user != request.user:
+        raise Http404("404")
+
+    edit_form = forms.EditMentionForm(instance=mention)
+
+    logger.info("a")
+
+    if request.method == "POST":
+        edit_form = forms.EditMentionForm(request.POST, instance=mention)
+
+        if "submit-edit-mention-rule" in request.POST:
+            logger.info("b")
+            if edit_form.is_valid():
+                logger.info("c")
+                model = edit_form.save()
                 messages.success(
                     request,
                     f"Rule {model} saved!",
                 )
+                return redirect(
+                    reverse("web:dashboard_mentions"), permanent=False
+                )
 
-    ctx["mention_form"] = mention_form
+    ctx["form"] = edit_form
+    ctx["mention"] = mention
 
-    ctx["mentions"] = request.user.mention_set.all()
-
-    return render(request, "web/dashboard_mentions.html", {"ctx": ctx})
+    return render(request, "web/dashboard_mentions_edit.html", {"ctx": ctx})
 
 
 @require_http_methods(["POST"])

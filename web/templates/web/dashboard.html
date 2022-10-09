@@ -150,11 +150,17 @@
 
 {% is_dev as var_is_dev %}
 
+{% if ctx.user_verified_email %}
 {% if var_is_dev or user.pk == 2 %}
-<div class="mt-5">
-    <h5>Mentions</h5>
-    {% crispy ctx.mention_form %}
+<div class="card mt-5">
+    <h5 class="card-header">Manage mention rules</h5>
+    <div class="card-body">
+        <p class="card-text">Update, add and delete mention rules.</p>
+
+        <a href="{% url 'web:dashboard_mentions' %}" class="btn btn-secondary">Mentions</a>
+    </div>
 </div>
+{% endif %}
 {% endif %}
 
 <div class="my-5"></div>

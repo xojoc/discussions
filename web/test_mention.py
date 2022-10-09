@@ -62,3 +62,19 @@ class Mention(TestCase):
         self.assertTrue(
             r3.mentionnotification_set.filter(discussion=d3).exists()
         )
+
+        r4 = models.Mention.objects.create(
+            user=self.user, keyword="two keywords"
+        )
+
+        d4 = models.Discussion.objects.create(
+            platform_id="l4",
+            created_at=timezone.now(),
+            scheme_of_story_url="https",
+            schemeless_story_url="discu.eu",
+            title="title with keywords, they are two.",
+        )
+
+        self.assertTrue(
+            r4.mentionnotification_set.filter(discussion=d4).exists()
+        )

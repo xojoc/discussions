@@ -10651,6 +10651,10 @@ body {
   color: white !important;
 }
 
+.btn-outline-danger:hover {
+  color: white !important;
+}
+
 h1, .h1,
 h2,
 .h2,
@@ -10770,6 +10774,12 @@ p {
 .weekly-index-grid {
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(8em, 1fr)) !important;
+  grid-gap: 0.9em 0.8em !important;
+}
+
+.mention-rules-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(20em, 1fr)) !important;
   grid-gap: 0.9em 0.8em !important;
 }
 

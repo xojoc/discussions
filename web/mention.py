@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from email.utils import formataddr
 
 from web import email_util, models, title
 
@@ -96,8 +97,8 @@ def __process_mentions(sender, instance: models.Discussion, created, **kwargs):
         #         continue
 
         if r.keyword:
-            keyword = title.normalize(r.keyword, stem=False)
-            if keyword not in story_title.split():
+            keyword_set = set(title.normalize(r.keyword, stem=False).split())
+            if not keyword_set.issubset(set(story_title.split())):
                 continue
 
         if instance.platform == "r":
@@ -143,6 +144,7 @@ def email_notification(self):
         ctx = {
             "user": m.mention.user,
             "discussions": [m.discussion],
+            "discussion": m.discussion,
             "mention_rule": m.mention,
         }
         text_content = template_loader.render_to_string(
@@ -151,9 +153,9 @@ def email_notification(self):
         )
 
         email_util.send(
-            "discu.eu: new mention",
+            f"[Discu] New discussion for you ({m.mention})",
             text_content,
-            "hi@discu.eu",
+            formataddr(("Discu Mentions", "mentions@discu.eu")),
             m.mention.user.email,
         )
         m.email_sent = True

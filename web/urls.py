@@ -89,6 +89,16 @@ urlpatterns = [
     ),
     path("dashboard/", views.dashboard, name="dashboard"),
     path(
+        "dashboard/mentions/",
+        views.dashboard_mentions,
+        name="dashboard_mentions",
+    ),
+    path(
+        "dashboard/mentions/edit/<int:pk>",
+        views.dashboard_mentions_edit,
+        name="dashboard_mentions_edit",
+    ),
+    path(
         "stripe/checkout/",
         views.stripe_checkout,
         name="stripe_checkout",

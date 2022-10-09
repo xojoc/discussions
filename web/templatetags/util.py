@@ -6,6 +6,11 @@ from web import util
 register = template.Library()
 
 
+@register.filter(name="path_with_domain")
+def path_with_domain(p):
+    return util.path_with_domain(p)
+
+
 @register.filter(name="discussions_url")
 def discussions_url(q):
     return util.discussions_url(q, with_domain=False)

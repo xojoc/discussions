@@ -14,7 +14,6 @@ from django.contrib.postgres.search import (
     SearchQuery,
     SearchRank,
     SearchVectorField,
-    TrigramWordBase,
 )
 from django.core import serializers
 from django.db import models
@@ -41,10 +40,6 @@ from . import (
 )
 
 PLATFORM_CHOICES = [("h", "Hacker News"), ("l", "Lobsters")]
-
-
-class MyTrigramStrictWordSimilarity(TrigramWordBase):
-    function = "STRICT_WORD_SIMILARITY"
 
 
 @models.CharField.register_lookup
@@ -990,6 +985,9 @@ class CustomUser(AbstractUser):
 
     rss_id = models.TextField(null=True)
 
+    def __str__(self):
+        return self.email
+
     def save(self, *args, **kwargs):
         if not self.api:
             self.api = APIClient.objects.create(name=f"User {self.pk}")
@@ -1020,8 +1018,10 @@ class CustomUser(AbstractUser):
             .exists()
         )
 
-    def __str__(self):
-        return self.email
+    def max_mention_rules(self):
+        if self.is_premium:
+            return 20
+        return 2
 
 
 class AD(models.Model):
@@ -1189,30 +1189,50 @@ Examples:
 
     base_url = models.TextField(
         blank=True,
+        verbose_name="URL prefix",
         help_text="""
-Domain to track.
-www.example.com example.com m.example.com and mobile.com are treated the same way.
-Web Archive
+The discussed URL must have this prefix.</br>
+It could be your website, your twitter profile, github profile, etc.<br/>
+For example: xojoc.pw, twitter.com/XojocXojoc, github.com/xojoc<br/>
+
+Common subdomains are ignored. So example.com matches www.example.com, m.example.com, example.com, etc.<br/>
+If you have different subdomains (like blog. forum. docs. etc.) you have to create a separate rule for them.
     """,
     )
 
-    keyword = models.TextField(blank=True)
+    keyword = models.TextField(
+        blank=True,
+        help_text="""
+Title must have this keyword. It could be your brand, name or a product you are interested in.
+    """,
+    )
 
     platforms = postgres_fields.ArrayField(
-        models.CharField(max_length=1, blank=True, choices=PLATFORM_CHOICES),
+        models.CharField(max_length=1, blank=True),
         blank=True,
+        help_text="""
+Platforms you are interested in. Leave empty to select all.
+        """,
     )
 
     subreddits_only = postgres_fields.ArrayField(
         models.CharField(max_length=255, blank=True),
         null=True,
         blank=True,
+        verbose_name="Subreddits whitelist",
+        help_text="""
+        For Reddit discussions consider only these subreddits.
+        """,
     )
 
     subreddits_exclude = postgres_fields.ArrayField(
         models.CharField(max_length=255, blank=True),
         null=True,
         blank=True,
+        verbose_name="Subreddits blacklist",
+        help_text="""
+Ignore discussions in these subreddits.
+        """,
     )
 
     min_comments = models.PositiveIntegerField(default=0)
@@ -1226,22 +1246,28 @@ Web Archive
     def __str__(self):
         if self.rule_name:
             return self.rule_name
-        if self.url_pattern:
-            return self.url_pattern
+        if self.base_url and self.keyword:
+            return f"{self.base_url} - {self.keyword}"
         if self.base_url:
             return self.base_url
-        return self.title_pattern
+        if self.keyword:
+            return self.keyword
+        return str(self.pk)
 
     def save(self, *args, **kwargs):
         self.platforms = self.platforms or []
+
         self.subreddits_only = self.subreddits_only or []
         self.subreddits_only = [
             s.strip().lower() for s in self.subreddits_only
         ]
+        self.subreddits_only = [s for s in self.subreddits_only if s]
+
         self.subreddits_exclude = self.subreddits_exclude or []
         self.subreddits_exclude = [
             s.strip().lower() for s in self.subreddits_exclude
         ]
+        self.subreddits_exclude = [s for s in self.subreddits_exclude if s]
 
         self.url_pattern = self.url_pattern or ""
         self.url_pattern = self.url_pattern.strip()
@@ -1251,6 +1277,13 @@ Web Archive
             self.url_pattern += "%"
 
         super(Mention, self).save(*args, **kwargs)
+
+    def notifications_count(self, sent_only=False):
+        qs = self.mentionnotification_set.all()
+        if sent_only:
+            qs = qs.filter(sent=True)
+
+        return qs.count()
 
 
 class MentionNotification(models.Model):
