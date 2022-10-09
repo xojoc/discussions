@@ -14,9 +14,7 @@ from web import celery_util
 
 def discussions_platform_statistics():
     stats = (
-        models.Discussion.objects
-        .exclude(canonical_story_url__isnull=True)
-        .filter(comment_count__gte=2)
+        models.Discussion.objects.exclude(canonical_story_url__isnull=True)
         .values("platform")
         .annotate(
             discussion_count=Count("platform_id"),
@@ -39,8 +37,7 @@ def discussions_platform_statistics():
 
 def discussions_top_stories():
     stats = (
-        models.Discussion.objects
-        .exclude(canonical_story_url__isnull=True)
+        models.Discussion.objects.exclude(canonical_story_url__isnull=True)
         .exclude(canonical_story_url__startswith="reddit.com/")
         .values("canonical_story_url")
         .annotate(
@@ -61,8 +58,8 @@ def discussions_top_stories():
 
 def discussions_top_domains():
     stats = (
-        models.Discussion.objects
-        .exclude(canonical_story_url__isnull=True)
+        models.Discussion.objects.exclude(canonical_story_url__isnull=True)
+        .filter(comment_count__gte=2)
         .annotate(
             domain=Left(
                 "canonical_story_url",

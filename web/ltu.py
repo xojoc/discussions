@@ -20,7 +20,7 @@ class EndOfPages(Exception):
     pass
 
 
-def __exclude_story_url(a):
+def __filter_story_url(a):
     if not a:
         return False
     href = a.get("href")
@@ -89,7 +89,7 @@ def process_item(item, platform_prefix):
     if not body_links or len(body_links) == 0:
         return
 
-    body_links = list(filter(__exclude_story_url, body_links))
+    body_links = list(filter(__filter_story_url, body_links))
 
     if not body_links or len(body_links) == 0:
         if not any(t.lower() == "admin" for t in tags):
@@ -253,8 +253,8 @@ def process_ltu_archived_item(item_href, base_url, platform_prefix, c):
 
         if not created_at:
             try:
-                tst_match = re.match(
-                    r".*(\d+/\d+/\d\d\d\d); (\d+:\d+:\d+ ..).*", txt, re.DOTALL
+                tst_match = re.search(
+                    r"(\d+/\d+/\d\d\d\d); (\d+:\d+:\d+ ..)", txt, re.DOTALL
                 )
 
                 date_match = tst_match.group(1)
@@ -267,7 +267,7 @@ def process_ltu_archived_item(item_href, base_url, platform_prefix, c):
                 created_at = None
 
     if comment_count:
-        comment_count = comment_count + 1
+        comment_count += 1
 
     story_url = story.get("href")
     if not story_url:
