@@ -477,6 +477,37 @@ def tweet_discussions_scheduled():
                 break
 
 
+def client():
+    return tweepy.Client(os.getenv("TWITTER_BEARER_TOKEN"))
+
+
+def get_user(username, c=None):
+    cache_timeout = 60 * 60 * 24
+    key = f"twitter:username:{username}"
+    user = cache.get(key)
+    if user:
+        return user
+
+    if not c:
+        c = client()
+
+    try:
+        user = c.get_user(username=username)
+    except Exception as e:
+        logger.warning(f"twitter get_user: {e}")
+        return None
+
+    user = {
+        "id": user.data.id,
+        "name": user.data.name,
+        "username": user.data.username,
+    }
+
+    cache.set(key, user, cache_timeout)
+
+    return user
+
+
 def get_followers_count(usernames):
     cache_timeout = 24 * 60 * 60
     followers_count = {}
@@ -494,7 +525,7 @@ def get_followers_count(usernames):
                 followers_count[username] = user.followers_count
                 cache.set(key, user.followers_count, cache_timeout)
             except Exception as e:
-                logger.warn(f"twitter followers count: {e}")
+                logger.warning(f"twitter followers count: {e}")
 
     return followers_count
 
@@ -503,18 +534,75 @@ class IDPrinter(tweepy.StreamingClient):
     def on_tweet(self, tweet):
         print(tweet.id)
         print(tweet.text)
+        print()
 
 
-def stream():
+def __build_twitter_rule():
+    r = "lang:en -is:retweet -is:reply -is:quote -is:nullcast has:links followers_count:10000"
+    r += " ("
+    context_computer_programming = "context:131.848921413196984320"
+    r += context_computer_programming
+
+    tags = set()
+
+    for t in topics.topics.values():
+        tags.update(t.get("tags", set()))
+
+    tags_str = " OR ".join(build_hashtags(tags))
+
+    r += f" OR {tags_str}"
+
+    r += ")"
+
+    return r
+
+
+def stream(reset_filters=False):
     printer = IDPrinter(
         os.getenv("TWITTER_BEARER_TOKEN"),
         wait_on_rate_limit=True,
         chunk_size=1024**2,
         max_retries=3,
     )
-    printer.add_rules(
-        tweepy.StreamRule(
-            "lang:en -is:retweet -is:reply -is:quote -is:nullcast has:links followers_count:10000"
-        )
-    )
+    if reset_filters:
+        printer.delete_rules(r.id for r in printer.get_rules().data)
+        r = __build_twitter_rule()
+        logger.info(f"twitter stream: {r}")
+        printer.add_rules(tweepy.StreamRule(r))
+
+    print(f"twitter stream: {printer.get_rules()}")
+
     printer.filter(tweet_fields="id,text,created_at,entities")
+
+
+def print_details(id):
+    c = client()
+    t = c.get_tweet(id, tweet_fields="context_annotations,entities")
+    print(id)
+    for ca in t.data.context_annotations:
+        print(f"{ca['domain']['id']} - {ca['domain']['name']}")
+        print(f"{ca['entity']['id']} - {ca['entity']['name']}")
+
+
+def process_item(tweet):
+    return
+
+
+def fetch_all_tweets():
+    c = client()
+
+    twitter_bots = []
+    for t in topics.topics.values():
+        if t.get("twitter") and t.get("twitter").get("account"):
+            u = get_user(t.get("twitter").get("account"))
+            if u and u.get("id"):
+                twitter_bots.append(u.get("id"))
+
+    users_to_search = []
+    for bot in twitter_bots:
+        for fs in tweepy.Paginator(
+            c.get_users_following, bot, user_fields="id", max_results=1000
+        ):
+            users_to_search.extend((u.id for u in fs.data))
+
+    print(users_to_search)

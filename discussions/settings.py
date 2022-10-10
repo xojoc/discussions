@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "django.contrib.sitemaps",
     "ninja",
+    "django_extensions",
 ]
 
 if os.environ.get("DJANGO_DEVELOPMENT"):
@@ -350,6 +351,12 @@ STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 MESSAGE_TAGS = {
     messages.ERROR: "danger",
 }
+
+SHELL_PLUS_IMPORTS = [
+    "from web import *",
+    "from importlib import reload",
+    "import os",
+]
 
 if os.environ.get("DJANGO_DEVELOPMENT"):
     from .settings_dev import *  # noqa F401, F403
