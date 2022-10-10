@@ -100,12 +100,21 @@ def build_hashtags(tags):
     return sorted(["#" + t for t in tags])
 
 
-def build_story_post(title, url, tags, author):
+def build_story_post(title=None, url=None, tags=None, author=None, story=None):
     hashtags = build_hashtags(tags)
 
-    discussions_url = util.discussions_url(url)
+    if url is None:
+        if not title:
+            title = story.title
+        status = f"""
 
-    status = f"""
+{story.discussion_url}
+
+{' '.join(hashtags)}"""
+    else:
+        discussions_url = util.discussions_url(url)
+
+        status = f"""
 
 {url}
 
@@ -115,9 +124,9 @@ Discussions: {discussions_url}
 
     status = status.rstrip()
 
-    if author.mastodon_account:
+    if author and author.mastodon_account:
         status += f"\n\nby @{author.mastodon_account}"
-    elif author.mastodon_site:
+    elif author and author.mastodon_site:
         status += f"\n\nvia @{author.mastodon_site}"
 
     title = unicodedata.normalize("NFC", title)
@@ -130,68 +139,17 @@ Discussions: {discussions_url}
     return status
 
 
-def post_story(title, url, tags, platforms, already_posted_by, comment_count):
-    resource = models.Resource.by_url(url)
-    author = None
-    if resource:
-        author = resource.author
-    author = author or extract.Author()
-
-    status = build_story_post(title, url, tags, author)
-
-    posted_by = []
-    post_id = None
-
-    for topic_key, topic in topics.topics.items():
-        if not topic.get("mastodon"):
-            continue
-        bot_name = topic.get("mastodon").get("account")
-        if not bot_name:
-            continue
-        bot_name = topic.get("twitter").get("account")
-        if not bot_name:
-            continue
-
-        if bot_name in already_posted_by:
-            continue
-
-        if (topic.get("tags") and topic["tags"] & tags) or (
-            topic.get("platform") and topic.get("platform") in platforms
-        ):
-            if post_id:
-                try:
-                    __sleep(35, 47)
-                    repost(post_id, bot_name)
-                    posted_by.append(bot_name)
-                except Exception as e:
-                    logger.error(f"mastodon {bot_name}: {e}")
-                    sentry_sdk.capture_exception(e)
-                    __sleep(13, 27)
-            else:
-                if bot_name in ("HNDiscussions"):
-                    if comment_count < 200:
-                        continue
-                try:
-                    post_id = post(status, bot_name)
-                    posted_by.append(bot_name)
-                except Exception as e:
-                    logger.error(f"mastodon {bot_name}: {e}: {status}")
-                    sentry_sdk.capture_exception(e)
-                    __sleep(13, 27)
-
-            __sleep(4, 7)
-
-    return post_id, posted_by
-
-
 def post_story_topic(story, tags, topic, existing_toot):
-    resource = models.Resource.by_url(story.story_url)
-    author = None
-    if resource:
-        author = resource.author
-    author = author or extract.Author()
+    if story.story_url:
+        resource = models.Resource.by_url(story.story_url)
+        author = None
+        if resource:
+            author = resource.author
+        author = author or extract.Author()
 
-    status = build_story_post(story.title, story.story_url, tags, author)
+        status = build_story_post(story.title, story.story_url, tags, author)
+    else:
+        status = build_story_post(tags=tags, story=story)
 
     post_id = None
 
@@ -216,110 +174,7 @@ def post_story_topic(story, tags, topic, existing_toot):
 
 @shared_task(ignore_result=True)
 @celery_util.singleton(blocking_timeout=0.1)
-def post_discussions():
-    three_days_ago = timezone.now() - datetime.timedelta(days=3)
-    five_days_ago = timezone.now() - datetime.timedelta(days=5)
-
-    min_comment_count = 2
-    min_score = 5
-
-    stories = (
-        models.Discussion.objects.filter(created_at__gte=three_days_ago)
-        .filter(comment_count__gte=min_comment_count)
-        .filter(score__gte=min_score)
-        .exclude(schemeless_story_url__isnull=True)
-        .exclude(schemeless_story_url="")
-        .exclude(scheme_of_story_url__isnull=True)
-        .order_by("created_at")
-    )
-
-    logger.debug(f"mastodon: potential stories {stories.count()}")
-
-    for story in stories:
-        # fixme: skip for now
-        if (
-            story.canonical_story_url == "google.com"
-            or story.canonical_story_url == "google.com/trends/explore"
-            or story.canonical_story_url == "asp.net"
-            or story.story_url == "https://www.privacytools.io/#photos"
-            or story.canonical_story_url == "example.com"
-            or story.canonical_story_url == "itch.io"
-            or story.canonical_story_url == "crates.io"
-            or story.canonical_story_url == "amazon.com"
-            or story.canonical_story_url == "github.com"
-            or story.story_url == "https://github.com/ToolJet/ToolJet"
-        ):
-            continue
-
-        related_discussions, _, _ = models.Discussion.of_url(
-            story.story_url, only_relevant_stories=False
-        )
-
-        total_comment_count = 0
-        for rd in related_discussions:
-            total_comment_count += rd.comment_count
-
-        if total_comment_count < 10:
-            continue
-
-        already_posted_by = []
-
-        for t in story.mastodonpost_set.filter(created_at__gte=five_days_ago):
-            already_posted_by.extend(t.bot_names)
-
-        # see if this story was recently posted
-        for rd in related_discussions:
-            for t in rd.mastodonpost_set.filter(created_at__gte=five_days_ago):
-                already_posted_by.extend(t.bot_names)
-
-        already_posted_by = set(already_posted_by)
-
-        tags = set(story.normalized_tags or [])
-        platforms = {story.platform}
-        for rd in related_discussions:
-            if rd.comment_count >= min_comment_count and rd.score >= min_score:
-                tags |= set(rd.normalized_tags or [])
-            if (
-                rd.comment_count >= min_comment_count
-                and rd.score >= min_score
-                and rd.created_at >= five_days_ago
-            ):
-
-                platforms |= {rd.platform}
-
-        logger.debug(
-            f"mastodon {story.platform_id}: {already_posted_by}: {platforms}: {tags}"
-        )
-
-        post_id, posted_by = None, []
-        try:
-            post_id, posted_by = post_story(
-                story.title,
-                story.story_url,
-                tags,
-                platforms,
-                already_posted_by,
-                story.comment_count,
-            )
-        except Exception as e:
-            logger.error(f"mastodon {story.platform_id}: {e}")
-            sentry_sdk.capture_exception(e)
-
-        logger.debug(f"mastodon {post_id}: {posted_by}")
-
-        if post_id:
-            t = models.MastodonPost(post_id=post_id, bot_names=posted_by)
-            t.save()
-            t.discussions.add(story)
-            t.save()
-
-        if post_id:
-            break
-
-
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=0.1)
-def post_discussions_scheduled():
+def post_discussions_scheduled(filter_topic=None):
     __sleep(10, 20)
 
     five_days_ago = timezone.now() - datetime.timedelta(days=5)
@@ -333,10 +188,10 @@ def post_discussions_scheduled():
         models.Discussion.objects.filter(created_at__gte=five_days_ago)
         .filter(comment_count__gte=min_comment_count)
         .filter(score__gte=min_score)
-        .exclude(schemeless_story_url__isnull=True)
-        .exclude(schemeless_story_url="")
-        .exclude(scheme_of_story_url__isnull=True)
-        .exclude(scheme_of_story_url="")
+        # .exclude(schemeless_story_url__isnull=True)
+        # .exclude(schemeless_story_url="")
+        # .exclude(scheme_of_story_url__isnull=True)
+        # .exclude(scheme_of_story_url="")
         .order_by("-comment_count", "-score", "created_at")
     )
 
@@ -344,6 +199,9 @@ def post_discussions_scheduled():
 
     for topic_key, topic in topics.topics.items():
         if not topic.get("mastodon"):
+            continue
+
+        if filter_topic and topic_key not in filter_topic:
             continue
 
         topic_stories = stories
@@ -370,15 +228,17 @@ def post_discussions_scheduled():
             logger.debug(
                 f"mastodon scheduled platform {topic.get('platform')}: topic {topic_key} potential stories {topic_stories.count()}"
             )
+        else:
+            topic_stories = (
+                topic_stories.exclude(schemeless_story_url__isnull=True)
+                .exclude(schemeless_story_url="")
+                .exclude(scheme_of_story_url__isnull=True)
+                .exclude(scheme_of_story_url="")
+            )
 
         for story in topic_stories:
             if cache.get(key_prefix + story.platform_id):
                 continue
-
-            # if topic_key == "hackernews":
-            #     if story.comment_count < 200:
-            #         continue
-
             related_discussions, _, _ = models.Discussion.of_url(
                 story.story_url, only_relevant_stories=False
             )

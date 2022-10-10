@@ -94,12 +94,30 @@ def build_hashtags(tags):
     return sorted(["#" + t for t in tags])
 
 
-def build_story_status(title, url, tags, author):
+def build_story_status(
+    title=None, url=None, tags=set(), author=None, story=None
+):
     hashtags = build_hashtags(tags)
 
-    discussions_url = util.discussions_url(url)
+    if url is None:
+        if not title:
+            title = story.title
 
-    status = f"""
+        status = f"""
+
+{story.discussion_url}
+
+{' '.join(hashtags)}"""
+
+        status_len = f"""
+
+{'x' * URL_LENGTH}
+
+{' '.join(hashtags)}"""
+    else:
+        discussions_url = util.discussions_url(url)
+
+        status = f"""
 
 {url}
 
@@ -107,7 +125,7 @@ Discussions: {discussions_url}
 
 {' '.join(hashtags)}"""
 
-    status_len = f"""
+        status_len = f"""
 
 {'x' * URL_LENGTH}
 
@@ -118,7 +136,7 @@ Discussions: {'x' * URL_LENGTH}
     status = status.rstrip()
     status_len = status_len.rstrip()
 
-    if author.twitter_account:
+    if author and author.twitter_account:
         status += f"\n\nby @{author.twitter_account}"
         status_len += f"\n\nby @{author.twitter_account}"
     # elif author.twitter_site:
@@ -141,67 +159,17 @@ Discussions: {'x' * URL_LENGTH}
     return status
 
 
-def tweet_story(
-    title, url, tags, platforms, already_tweeted_by, comment_count
-):
-    resource = models.Resource.by_url(url)
-    author = None
-    if resource:
-        author = resource.author
-    author = author or extract.Author()
-
-    status = build_story_status(title, url, tags, author)
-
-    tweeted_by = []
-    tweet_id = None
-
-    for topic_key, topic in topics.topics.items():
-        if not topic.get("twitter"):
-            continue
-        bot_name = topic.get("twitter").get("account")
-        if not bot_name:
-            continue
-
-        if bot_name in already_tweeted_by:
-            continue
-
-        if (topic.get("tags") and topic["tags"] & tags) or (
-            topic.get("platform") and topic.get("platform") in platforms
-        ):
-            try:
-                if tweet_id:
-                    __sleep(35, 47)
-                    retweet(tweet_id, bot_name)
-                    tweeted_by.append(bot_name)
-                else:
-                    if bot_name in ("HNDiscussions"):
-                        if comment_count < 200:
-                            continue
-
-                    tweet_id = tweet(status, bot_name)
-                    tweeted_by.append(bot_name)
-            except tweepy.errors.Forbidden as fe:
-                raise fe
-            except Exception as e:
-                logger.error(
-                    f"twitter: tweet: {bot_name}: {e}: {status}: {tweet_id=}"
-                )
-                sentry_sdk.capture_exception(e)
-                __sleep(13, 27)
-
-            __sleep(4, 7)
-
-    return tweet_id, tweeted_by
-
-
 def tweet_story_topic(story, tags, topic, existing_tweet):
-    resource = models.Resource.by_url(story.story_url)
-    author = None
-    if resource:
-        author = resource.author
-    author = author or extract.Author()
+    if story.story_url:
+        resource = models.Resource.by_url(story.story_url)
+        author = None
+        if resource:
+            author = resource.author
+        author = author or extract.Author()
 
-    status = build_story_status(story.title, story.story_url, tags, author)
+        status = build_story_status(story.title, story.story_url, tags, author)
+    else:
+        status = build_story_status(tags=tags, story=story)
 
     tweet_id = None
 
@@ -227,121 +195,7 @@ def tweet_story_topic(story, tags, topic, existing_tweet):
 
 @shared_task(ignore_result=True)
 @celery_util.singleton(blocking_timeout=0.1)
-def tweet_discussions():
-    __sleep(10, 20)
-
-    three_days_ago = timezone.now() - datetime.timedelta(days=3)
-    five_days_ago = timezone.now() - datetime.timedelta(days=5)
-
-    key_prefix = "twitter:skip_story:"
-    min_comment_count = 2
-    min_score = 5
-
-    stories = (
-        models.Discussion.objects.filter(created_at__gte=three_days_ago)
-        .filter(comment_count__gte=min_comment_count)
-        .filter(score__gte=min_score)
-        .exclude(schemeless_story_url__isnull=True)
-        .exclude(schemeless_story_url="")
-        .exclude(scheme_of_story_url__isnull=True)
-        .order_by("created_at")
-    )
-
-    logger.debug(f"twitter: potential stories {stories.count()}")
-
-    for story in stories:
-        # fixme: skip for now
-        if (
-            story.canonical_story_url == "google.com"
-            or story.canonical_story_url == "google.com/trends/explore"
-            or story.canonical_story_url == "asp.net"
-            or story.story_url == "https://www.privacytools.io/#photos"
-            or story.canonical_story_url == "example.com"
-            or story.canonical_story_url == "itch.io"
-            or story.canonical_story_url == "crates.io"
-            or story.canonical_story_url == "amazon.com"
-            or story.canonical_story_url == "github.com"
-        ):
-            continue
-
-        if cache.get(key_prefix + story.platform_id):
-            continue
-
-        related_discussions, _, _ = models.Discussion.of_url(
-            story.story_url, only_relevant_stories=False
-        )
-
-        total_comment_count = 0
-        for rd in related_discussions:
-            total_comment_count += rd.comment_count
-
-        if total_comment_count < 10:
-            continue
-
-        already_tweeted_by = []
-
-        for t in story.tweet_set.filter(created_at__gte=five_days_ago):
-            already_tweeted_by.append(t.bot_name)
-            already_tweeted_by.extend(t.bot_names)
-
-        # see if this story was recently tweeted
-        for rd in related_discussions:
-            for t in rd.tweet_set.filter(created_at__gte=five_days_ago):
-                already_tweeted_by.append(t.bot_name)
-                already_tweeted_by.extend(t.bot_names)
-
-        already_tweeted_by = set(already_tweeted_by)
-
-        tags = set(story.normalized_tags or [])
-        platforms = {story.platform}
-        for rd in related_discussions:
-            if rd.comment_count >= min_comment_count and rd.score >= min_score:
-                tags |= set(rd.normalized_tags or [])
-            if (
-                rd.comment_count >= min_comment_count
-                and rd.score >= min_score
-                and rd.created_at >= five_days_ago
-            ):
-
-                platforms |= {rd.platform}
-
-        logger.debug(
-            f"twitter {story.platform_id}: {already_tweeted_by}: {platforms}: {tags}"
-        )
-
-        tweet_id, tweeted_by = None, []
-        try:
-            tweet_id, tweeted_by = tweet_story(
-                story.title,
-                story.story_url,
-                tags,
-                platforms,
-                already_tweeted_by,
-                story.comment_count,
-            )
-        except tweepy.errors.Forbidden:
-            cache.set(key_prefix + story.platform_id, 1, timeout=60 * 60 * 5)
-            continue
-        except Exception as e:
-            logger.error(f"twitter: {story.platform_id}: {e}")
-            sentry_sdk.capture_exception(e)
-            continue
-
-        logger.debug(f"twitter {tweet_id}: {tweeted_by}")
-
-        if tweet_id:
-            t = models.Tweet(tweet_id=tweet_id, bot_names=tweeted_by)
-            t.save()
-            t.discussions.add(story)
-            t.save()
-
-        if tweet_id:
-            break
-
-
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=0.1)
-def tweet_discussions_scheduled():
+def tweet_discussions_scheduled(filter_topic=None):
     __sleep(10, 20)
 
     five_days_ago = timezone.now() - datetime.timedelta(days=5)
@@ -355,10 +209,10 @@ def tweet_discussions_scheduled():
         models.Discussion.objects.filter(created_at__gte=five_days_ago)
         .filter(comment_count__gte=min_comment_count)
         .filter(score__gte=min_score)
-        .exclude(schemeless_story_url__isnull=True)
-        .exclude(schemeless_story_url="")
-        .exclude(scheme_of_story_url__isnull=True)
-        .exclude(scheme_of_story_url="")
+        # .exclude(schemeless_story_url__isnull=True)
+        # .exclude(schemeless_story_url="")
+        # .exclude(scheme_of_story_url__isnull=True)
+        # .exclude(scheme_of_story_url="")
         .order_by("-comment_count", "-score", "created_at")
     )
 
@@ -366,6 +220,9 @@ def tweet_discussions_scheduled():
 
     for topic_key, topic in topics.topics.items():
         if not topic.get("twitter"):
+            continue
+
+        if filter_topic and topic_key not in filter_topic:
             continue
 
         topic_stories = stories
@@ -390,16 +247,17 @@ def tweet_discussions_scheduled():
             logger.debug(
                 f"twitter scheduled platform {topic.get('platform')}: topic {topic_key} potential stories {topic_stories.count()}"
             )
-
-        # print(topic_stories.query)
+        else:
+            topic_stories = (
+                topic_stories.exclude(schemeless_story_url__isnull=True)
+                .exclude(schemeless_story_url="")
+                .exclude(scheme_of_story_url__isnull=True)
+                .exclude(scheme_of_story_url="")
+            )
 
         for story in topic_stories:
             if cache.get(key_prefix + story.platform_id):
                 continue
-
-            # if topic_key == "hackernews":
-            #     if story.comment_count < 200:
-            #         continue
 
             related_discussions, _, _ = models.Discussion.of_url(
                 story.story_url, only_relevant_stories=False

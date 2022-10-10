@@ -55,7 +55,7 @@ dshell:
 	docker exec -it $$(docker ps -l -f name=discussions -q) bash
 
 shell:
-	poetry run python manage.py shell_plus --ipython
+	poetry run python manage.py shell_plus --bpython
 
 lint:
 	@poetry run flake8 --extend-ignore E501,E741,E203 | tac
