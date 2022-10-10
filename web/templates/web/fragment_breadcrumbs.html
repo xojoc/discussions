@@ -4,7 +4,8 @@
         {% for breadcrumb in breadcrumbs %}
         <li property="itemListElement" typeof="ListItem"
             class="d-inline-block {% if breadcrumb.classes %}{{breadcrumb.classes}}{% endif %}">
-            <a property="item" typeof="WebPage" href="{{breadcrumb.url}}" title="{{breadcrumb.name}}" class="text-body">
+            <a property="item" typeof="WebPage" href="{{breadcrumb.url}}" title="{{breadcrumb.title}}"
+                class="text-body">
                 <span property="name">{{breadcrumb.name}}</span>
             </a>
             <meta property="position" content="{{forloop.counter}}">

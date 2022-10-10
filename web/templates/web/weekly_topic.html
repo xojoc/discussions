@@ -17,17 +17,18 @@ Weekly newsletter about {{ctx.topic.name}} with articles, projects and tutorials
 <h1 class="fs-2">{{ctx.topic.name}} weekly newsletter</h1>
 {% if ctx.topic_key == 'hackernews' %}
 <p>
-    Every monday a summary of the most interesting articles on Hacker News.
+    Every monday a summary of the most interesting and thought-provoking articles from Hacker News.
 </p>
 {% elif ctx.topic_key == 'laarc' %}
 <p>
-    Every monday a summary of the most interesting articles on Laarc.
+    Every monday a summary of the most interesting and thought-provoking articles from Laarc.
 </p>
 {% else %}
 <p>
     Get the latest articles, projects and tutorials about {% if ctx.topic.home_link %}<a href="{{ctx.topic.home_link}}"
         title="{{ctx.topic.short_description}}">{{ctx.topic.name}}</a>{% else %}{{ctx.topic.name}}{% endif %}.
-    {% if ctx.topic.noun %}Become a better {{ctx.topic.noun}} and stay up to date.{% else %}Collated, filtered and
+    {% if ctx.topic.noun %}Stay up to date, save time and become a better {{ctx.topic.noun}}.{% else %}Collated,
+    filtered and
     delivered straight to you each monday.{% endif %}
 </p>
 {% endif %}

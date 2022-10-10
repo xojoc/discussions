@@ -23,6 +23,7 @@ topics = {
             "account": "@zig_discussions@mastodon.social",
         },
         "home_link": "https://ziglang.org/",
+        "noun": "Zig programmer",
     },
     "java": {
         "name": "Java",
@@ -71,6 +72,7 @@ topics = {
             "account": "@rust_discussions@mastodon.social",
         },
         "home_link": "https://www.rust-lang.org/",
+        "noun": "Rustacean",
     },
     "golang": {
         "name": "Golang",
@@ -83,6 +85,7 @@ topics = {
             "account": "@golang_discussions@mastodon.social",
         },
         "home_link": "https://go.dev/",
+        "noun": "Gopher",
     },
     "python": {
         "name": "Python",
@@ -119,7 +122,7 @@ topics = {
             "account": "@haskell_discussions@mastodon.social",
         },
         "home_link": "https://www.haskell.org/",
-        # "noun": "Haskell programmer",
+        "noun": "Haskeller",
     },
     "lisp": {
         "name": "Lisp & Scheme",
@@ -200,6 +203,7 @@ topics = {
         "mastodon": {
             "account": "@webdev_discussions@mastodon.social",
         },
+        "noun": "Web Developer",
     },
     "programming": {
         "name": "Software Development",
@@ -211,6 +215,7 @@ topics = {
         "mastodon": {
             "account": "@programming_discussions@mastodon.social",
         },
+        "noun": "Programmer",
     },
     "hackernews": {
         "name": "Hacker News",

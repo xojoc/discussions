@@ -259,10 +259,11 @@ def __get_digest_old_stories(topic):
 
 def __generate_breadcrumbs(topic=None, year=None, week=None):
     breadcrumbs = []
-    breadcrumbs.append({"name": "Home", "url": "/"})
+    breadcrumbs.append({"name": "Home", "title": "Discu.eu", "url": "/"})
     breadcrumbs.append(
         {
             "name": "Weekly newsletter",
+            "title": "Weekly newsletter",
             "url": reverse("web:weekly_index"),
             # "classes": "bold",
         }
@@ -271,6 +272,7 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
         breadcrumbs.append(
             {
                 "name": topics.topics[topic]["name"],
+                "title": f"{topics.topics[topic]['name']} Weekly",
                 "url": reverse("web:weekly_topic", args=[topic]),
             }
         )
@@ -278,6 +280,7 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
         breadcrumbs.append(
             {
                 "name": f"Week {week}/{year}",
+                "title": f"{topics.topics[topic]['name']} recap for week {week}/{year}",
                 "url": reverse(
                     "web:weekly_topic_week", args=[topic, year, week]
                 ),
