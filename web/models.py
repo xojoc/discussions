@@ -1023,6 +1023,15 @@ class CustomUser(AbstractUser):
             return 20
         return 2
 
+    def notifications_sent(self, last_minutes=15):
+        t = timezone.now() - datetime.timedelta(minutes=last_minutes)
+        ns = (
+            MentionNotification.objects.filter(mention__user__pk=self.pk)
+            .filter(email_sent=True)
+            .filter(email_sent_at__gte=t)
+        )
+        return ns.count()
+
 
 class AD(models.Model):
     topics = postgres_fields.ArrayField(

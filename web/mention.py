@@ -141,6 +141,10 @@ def email_notification(self):
             continue
         if not m.mention.user:
             continue
+
+        if m.mention.user.notifications_sent(15) >= 3:
+            continue
+
         ctx = {
             "user": m.mention.user,
             "discussions": [m.discussion],
