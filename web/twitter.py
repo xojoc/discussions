@@ -497,3 +497,24 @@ def get_followers_count(usernames):
                 logger.warn(f"twitter followers count: {e}")
 
     return followers_count
+
+
+class IDPrinter(tweepy.StreamingClient):
+    def on_tweet(self, tweet):
+        print(tweet.id)
+        print(tweet.text)
+
+
+def stream():
+    printer = IDPrinter(
+        os.getenv("TWITTER_BEARER_TOKEN"),
+        wait_on_rate_limit=True,
+        chunk_size=1024**2,
+        max_retries=3,
+    )
+    printer.add_rules(
+        tweepy.StreamRule(
+            "lang:en -is:retweet -is:reply -is:quote -is:nullcast has:links followers_count:10000"
+        )
+    )
+    printer.filter(tweet_fields="id,text,created_at,entities")
