@@ -4,8 +4,11 @@
 Support and contacts - discu.eu
 {% endblock title %}
 
-{% block main %}
+{% block meta_description %}
+Reach us for support, questions or feedback on Reddit or directly by email.
+{% endblock %}
 
+{% block main %}
 <h1 class="fs-2">Support</h1>
 
 <p>
@@ -19,5 +22,4 @@ Support and contacts - discu.eu
 {% else %}
 <p>Subscribe to a <a href="{% url 'web:pricing' %}" title="Pricing">premium plan</a> to get email support.</p>
 {% endif %}
-
 {% endblock %}

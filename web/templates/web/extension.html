@@ -5,23 +5,28 @@
 Browser extension - discu.eu
 {% endblock title %}
 
+{% block meta_description %}
+Browser extension showing discussions and comments for the current page.
+{% endblock %}
+
+
 {% block main %}
 
 <h2>Browser extension <img src="{% static 'web/discussions_extension_badge_trasp.png' %}"
-        alt="Discussions extension's badge" class="vertical-align-baseline"></img></h2>
+                alt="Discussions extension's badge" class="vertical-align-baseline"></img></h2>
 <p>See discussions and comments for the current page. Discussions are fetched from Hacker News, Reddit, Lobsters and <a
-        href="{% url 'web:statistics' %}#platforms" title="Platforms">others</a>.</p>
+                href="{% url 'web:statistics' %}#platforms" title="Platforms">others</a>.</p>
 
 <h3>Firefox <i class="bi bi-browser-firefox"></i></h3>
 <p>
-    <a href="https://addons.mozilla.org/en-US/firefox/addon/discussions/"
-        title="Discussions around the web extension">Get the Firefox extension</a>.
+        <a href="https://addons.mozilla.org/en-US/firefox/addon/discussions/"
+                title="Discussions around the web extension">Get the Firefox extension</a>.
 </p>
 
 <h3>Chrome and Chromium <i class="bi bi-browser-chrome"></i></h3>
 <p>
-    <a href="https://chrome.google.com/webstore/detail/mihejilgifecplfpdfhjghfmhbhajcke"
-        title="Discussions around the web extension">Get the Chrome/Chromium extension</a>.
+        <a href="https://chrome.google.com/webstore/detail/mihejilgifecplfpdfhjghfmhbhajcke"
+                title="Discussions around the web extension">Get the Chrome/Chromium extension</a>.
 </p>
 
 <h3>Bookmarklet <i class="bi bi-bookmark-star"></i></h3>
