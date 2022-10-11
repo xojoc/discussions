@@ -8,7 +8,7 @@
 {% endblock title %}
 
 {% block meta_description %}
-Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials about {{ctx.topic.name}}.
+{{ctx.topic.name}} recap for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials.
 {% endblock meta_description %}
 
 {% block main %}
@@ -81,14 +81,12 @@ Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials a
     {% endfor %}
 </div>
 
-
-
 <p class="smaller-font-1 mt-5">
     This is an archived issue from the <a href="{% url 'web:weekly_topic' ctx.topic_key %}"
         title="Weekly {{ctx.topic.name}} newsletter">{{ctx.topic.name}}
         newsletter</a>.
 </p>
 
-
 {% include "web/weekly_fragment_follow.html" %}
+
 {% endblock main %}

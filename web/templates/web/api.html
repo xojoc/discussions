@@ -1,0 +1,64 @@
+{% extends "web/base.html" %}
+{% load util %}
+{% load humanize %}
+
+{% block title %}Discussions and comments API - discu.eu{% endblock %}
+
+{% block main %}
+
+<h1>Discussions and comments API</h1>
+<p class="lead">Lookup milliions of discussions and comments for a given URL.</p>
+
+<div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mt-5 mb-5">
+    <div class="w-min-content w-min-16ch"><i class="bi bi-chat-right-text m-auto text-dark fs-3em"></i>
+        <h3>Context</h3>
+        <span class="lead mb-0">Find where people talk about you</span>
+    </div>
+    <div class="w-min-content w-min-16ch"><i class="bi bi-speedometer m-auto text-dark fs-3em"></i>
+        <h3>Fast</h3>
+        <span class="lead mb-0">Lightining fast API</span>
+    </div>
+    <div class="w-min-content w-min-16ch"><i class="bi bi-archive-fill m-auto text-dark fs-3em"></i>
+        <h3>Thorough</h3>
+        <span class="lead mb-0">Millions of discussions across platforms</span>
+    </div>
+</div>
+
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-info">
+            <tr>
+                <th scope="col">Platform</th>
+                <th scope="col">Total discussions</th>
+                <th scope="col">Total comments</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for platform in ctx.statistics.platform %}
+            <tr>
+                <td><a href="{{platform.platform_url}}" title="{{platform.platform_name}}"
+                        rel="nofollow">{{platform.platform_name}}</a>
+                </td>
+                <td>{{platform.discussion_count|intcomma}}</td>
+                <td>{{platform.comment_count|intcomma}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2 class="mt-3">Use cases</h2>
+<ul>
+    <li>Show discussions and comments <a href="{% url 'web:website' %}" title="Discussions for your website">on your
+            website or blog</a>.</li>
+    <li>Develop <a href="{% url 'web:extension' %}" title="Browser extension showing discussions">extensions</a> or
+        plugins.</li>.
+</ul>
+
+
+<div class="text-center mt-5 mb-5">
+    <a href="/api/v0/docs" title="Discussions API documentation" class="btn btn-info">API documentation</a>
+</div>
+
+{% endblock main %}

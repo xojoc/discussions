@@ -8,7 +8,17 @@
 {% endblock title %}
 
 {% block meta_description %}
-Weekly newsletter about {{ctx.topic.name}} with articles, projects and tutorials.
+{% if ctx.topic_key == 'hackernews' %}
+Each monday the most interesting and thought-provoking articles from Hacker News.
+{% elif ctx.topic_key == 'laarc' %}
+Each monday the most interesting and thought-provoking articles from Laarc.
+{% elif ctx.topic_key == 'unix' %}
+Each monday articles, projects and news about Unix, GNU/Linux and the BSD family.
+{% else %}
+Get the latest articles, projects and tutorials about {{ctx.topic.name}}. {% if ctx.topic.noun %}Stay up to date, save
+time and become a better {{ctx.topic.noun}}.{% else %}Collated, filtered and delivered straight to you each
+monday.{% endif %}
+{% endif %}
 {% endblock meta_description %}
 
 {% block html_tag_attributes %}vocab="https://schema.org/" typeof="FAQPage"{% endblock %}

@@ -8,16 +8,14 @@ from ninja.security import HttpBearer
 from . import models, util
 
 api = NinjaAPI(version="v0")
-api.title = "Discussions API"
+api.title = "Discussions and comments API"
 
-api.description = """<p>
-API for <a href="https://discu.eu" title="Discussions around the web">discu.eu</a>.
-</p>
+api.description = """
 <p>
 To get a Bearer token <a href="/account/signup/" title="Sign Up">create a free account</a>.
 </p>
 <p>
-If you just want to try out the API then use the token <strong>test</strong>.
+If you just want to try out the API then use the following token: <strong>test</strong>.
 </p>
 """
 

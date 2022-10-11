@@ -770,3 +770,10 @@ def reading_list_topic(request, topic):
     ctx["articles"] = reading_list.get_reading_list_cached(topic, "article")
 
     return render(request, "web/reading_list_topic.html", {"ctx": ctx})
+
+
+def api_view(request):
+    ctx = {}
+    ctx["statistics"] = models.Statistics.all_statistics()
+
+    return render(request, "web/api.html", {"ctx": ctx})

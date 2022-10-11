@@ -145,4 +145,5 @@ urlpatterns = [
         views.reading_list_topic,
         name="reading_list_topic",
     ),
+    path("api/", views.api_view, name="api"),
 ]

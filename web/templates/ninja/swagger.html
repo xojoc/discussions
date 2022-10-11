@@ -1,46 +1,41 @@
-{% load static %}
-<!DOCTYPE html>
-<html>
+{% extends "web/base.html" %}
+{% load util %}
 
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+{% block title %}Discussions and comments API V0 documentation - discu.eu{% endblock %}
+{% block extra_head %}
+<link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.51.2/swagger-ui.css">
+{% endblock %}
 
-        <link type="text/css" rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.51.2/swagger-ui.css">
+{% block main %}
+<div id="swagger-ui">
+</div>
 
-        <link rel="icon" type="image/png" href="{% static "favicon-32x32.png" %}" />
-        <title>{{ api.title }}</title>
+<noscript>
+    <p>Interactive documentation for the <a href="{% url 'web:api' %}" title="Discussions API">discussions and comments
+            API</a>.</p>
+</noscript>
 
-        <meta name="description" content="REST API to retrieve discussions count" />
-        <script defer data-domain="discu.eu" src="https://plausible.xojoc.pw/js/plausible.js"></script>
-    </head>
-
-    <body>
-        <div id="swagger-ui">
-        </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.51.2/swagger-ui-bundle.js"></script>
-        <script>
-            const ui = SwaggerUIBundle({
-                url: '{{ openapi_json_url }}',
-                dom_id: '#swagger-ui',
-                presets: [
-                    SwaggerUIBundle.presets.apis,
-                    SwaggerUIBundle.SwaggerUIStandalonePreset
-                ],
-                layout: "BaseLayout",
+<script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.51.2/swagger-ui-bundle.js"></script>
+<script>
+    const ui = SwaggerUIBundle({
+        url: '{{ openapi_json_url }}',
+        dom_id: '#swagger-ui',
+        presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIBundle.SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout",
         {% if api.csrf and csrf_token %}
-            requestInterceptor: (req) => {
-                req.headers['X-CSRFToken'] = "{{csrf_token}}"
-                return req;
-            },
-                {% endif %}
-            deepLinking: true,
-                tryItOutEnabled: true,
-                    persistAuthorization: true
+    requestInterceptor: (req) => {
+        req.headers['X-CSRFToken'] = "{{csrf_token}}"
+        return req;
+    },
+        {% endif %}
+    deepLinking: true,
+        tryItOutEnabled: true,
+            persistAuthorization: true
         })
-        </script>
-    </body>
+</script>
 
-</html>
+
+{% endblock %}
