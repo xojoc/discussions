@@ -247,6 +247,8 @@ def extract_html(resource):
         if not href:
             continue
 
+        # todo: ignore relative and #id urls
+
         to = models.Resource.by_url(href)
         if not to:
             # xojoc: todo: call add_to_queue? so next time the relationship is created?

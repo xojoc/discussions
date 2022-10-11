@@ -105,6 +105,19 @@ def process_mentions(sender, instance: models.Discussion, created, **kwargs):
         logger.error(f"Process mentions: {e}")
 
 
+def __render_mention_notification(m):
+    ctx = {
+        "user": m.mention.user,
+        "discussions": [m.discussion],
+        "discussion": m.discussion,
+        "mention_rule": m.mention,
+    }
+    return template_loader.render_to_string(
+        "web/mention_email_digest.txt",
+        {"ctx": ctx},
+    )
+
+
 @shared_task(bind=True, ignore_result=True)
 def email_notification(self):
     mentions = (
@@ -114,7 +127,6 @@ def email_notification(self):
         .exclude(mention__user__isnull=True)
         .order_by("entry_created_at")
     )
-    # todo: count sent recently
 
     for m in mentions:
         if not m.discussion:
@@ -125,16 +137,7 @@ def email_notification(self):
         if m.mention.user.notifications_sent(15) >= 3:
             continue
 
-        ctx = {
-            "user": m.mention.user,
-            "discussions": [m.discussion],
-            "discussion": m.discussion,
-            "mention_rule": m.mention,
-        }
-        text_content = template_loader.render_to_string(
-            "web/mention_email_digest.txt",
-            {"ctx": ctx},
-        )
+        text_content = __render_mention_notification(m)
 
         email_util.send(
             f"[Discu] New discussion for you ({m.mention})",

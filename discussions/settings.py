@@ -124,6 +124,14 @@ TEMPLATES = [
             ],
         },
     },
+    {
+        "BACKEND": "django.template.backends.jinja2.Jinja2",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "environment": "web.jinja2.environment",
+        },
+    },
 ]
 
 WSGI_APPLICATION = "discussions.wsgi.application"

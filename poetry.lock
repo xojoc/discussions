@@ -869,6 +869,20 @@ qa = ["flake8 (==3.8.3)", "mypy (==0.782)"]
 testing = ["Django (<3.1)", "colorama", "docopt", "pytest (<7.0.0)"]
 
 [[package]]
+name = "jinja2"
+version = "3.1.2"
+description = "A very fast and expressive template engine."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+MarkupSafe = ">=2.0"
+
+[package.extras]
+i18n = ["Babel (>=2.7)"]
+
+[[package]]
 name = "jinxed"
 version = "1.2.0"
 description = "Jinxed Terminal Library"
@@ -953,6 +967,14 @@ importlib-metadata = {version = ">=4.4", markers = "python_version < \"3.10\""}
 
 [package.extras]
 testing = ["coverage", "pyyaml"]
+
+[[package]]
+name = "markupsafe"
+version = "2.1.1"
+description = "Safely add untrusted strings to HTML/XML markup."
+category = "main"
+optional = false
+python-versions = ">=3.7"
 
 [[package]]
 name = "matplotlib-inline"
@@ -1831,7 +1853,7 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "e4cb8de3499345fbe4c640043603b4ad885890dc2600ebd52de145b26598336d"
+content-hash = "48fdae4bc8d289090c150f42a1ffc10be84086354241140e7e067b832cbcd641"
 
 [metadata.files]
 amqp = [
@@ -2017,6 +2039,7 @@ incremental = [
 ]
 ipython = []
 jedi = []
+jinja2 = []
 jinxed = []
 joblib = []
 kombu = [
@@ -2026,6 +2049,7 @@ kombu = [
 libsass = []
 lxml = []
 markdown = []
+markupsafe = []
 matplotlib-inline = []
 mccabe = []
 minify-html = []
