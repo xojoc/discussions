@@ -166,6 +166,32 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	</div>
 	{% endif %}
 
+	{% if ctx.outbound_resources %}
+	<div class="my-5"></div>
+	<h6>Linked pages</h6>
+	<div>
+		<ul class="list-unstyled">
+			{% for outbound_resource in ctx.outbound_resources %}
+			<!-- Outbound resource id: {{outbound_resource.id}} -->
+			<li class="mb-2"><a href="{{outbound_resource.complete_url}}"
+					title="{% firstof outbound_resource.title outbound_resource.complete_url %}" rel="nofollow"
+					class="d-flex flex-column text-body">
+					{{outbound_resource.title}}
+					<span
+						class="d-inline-block smaller-font url-max-width text-truncate">{{outbound_resource.complete_url}}</span>
+				</a>
+
+				<a href="{{outbound_resource.complete_url | discussions_url}}"
+					title="Discussions for «{% firstof outbound_resource.title outbound_resource.complete_url %}»">
+					<strong>{{ outbound_resource.discussions_comment_count }}
+						comment{{outbound_resource.discussions_comment_count|pluralize:",s"}}</strong>
+				</a>
+			</li>
+			{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+
 
 
 	{% if ctx.submit_links %}

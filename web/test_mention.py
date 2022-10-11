@@ -70,8 +70,6 @@ class Mention(TestCase):
         d4 = models.Discussion.objects.create(
             platform_id="l4",
             created_at=timezone.now(),
-            scheme_of_story_url="https",
-            schemeless_story_url="discu.eu",
             title="title with keywords, they are two.",
         )
 

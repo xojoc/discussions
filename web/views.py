@@ -159,6 +159,10 @@ def discussions_context(q):
         if ctx["inbound_resources"] is not None:
             ctx["inbound_resources"] = ctx["inbound_resources"][:20]
 
+        ctx["outbound_resources"] = ctx["resource"].outbound_resources()
+        if ctx["outbound_resources"] is not None:
+            ctx["outbound_resources"] = ctx["outbound_resources"][:20]
+
     if not ctx.get("title"):
         if uds and (q.startswith("http://") or q.startswith("https://")):
 

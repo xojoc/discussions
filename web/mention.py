@@ -23,10 +23,6 @@ def __process_mentions(sender, instance: models.Discussion, created, **kwargs):
     if instance.created_at < three_days_ago:
         return
 
-    # fixme: include mentions without urls?
-    if not instance.schemeless_story_url:
-        return
-
     rules = (
         models.Mention.objects.filter(disabled=False)
         .filter(min_comments__lte=instance.comment_count)
@@ -43,6 +39,9 @@ def __process_mentions(sender, instance: models.Discussion, created, **kwargs):
 
     for r in rules:
         if r.base_url:
+            if not instance.story_url:
+                continue
+
             base_url = ""
             cu = cleanurl.cleanurl(r.base_url, generic=True, host_remap=False)
             if cu:
@@ -76,25 +75,6 @@ def __process_mentions(sender, instance: models.Discussion, created, **kwargs):
                 )
             ):
                 continue
-
-        # if r.url_pattern:
-        #     pat = re.escape(r.url_pattern)
-        #     pat = pat.replace("%", ".*")
-        #     if not (
-        #         re.match(
-        #             pat, instance.canonical_story_url or "", re.IGNORECASE
-        #         )
-        #         or re.match(
-        #             pat, instance.schemeless_story_url or "", re.IGNORECASE
-        #         )
-        #     ):
-        #         continue
-
-        # if r.title_pattern:
-        #     pat = re.escape(r.title_pattern)
-        #     pat = pat.replace("%", ".*")
-        #     if not (re.match(pat, instance.title or "", re.IGNORECASE)):
-        #         continue
 
         if r.keyword:
             keyword_set = set(title.normalize(r.keyword, stem=False).split())

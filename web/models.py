@@ -711,6 +711,26 @@ class Resource(models.Model):
 
         return r
 
+    def outbound_resources(self):
+        ols = self.links.all().distinct()
+        ols = ols.annotate(
+            discussions_comment_count=Coalesce(
+                Subquery(
+                    Discussion.objects.filter(
+                        canonical_story_url=OuterRef("canonical_url")
+                    )
+                    .values("canonical_story_url")
+                    .annotate(comment_count=Sum("comment_count"))
+                    .values("comment_count")
+                ),
+                Value(0),
+            )
+        )
+
+        ols = ols.order_by("-discussions_comment_count")
+
+        return ols
+
     def inbound_resources(self):
         ils = self.inbound_link.all().distinct()
         ils = ils.annotate(
