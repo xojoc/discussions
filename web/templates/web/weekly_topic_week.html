@@ -31,6 +31,7 @@ Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials a
         {% for story in stories %}
         <li>
             <p class="d-flex flex-column">
+                {% if story.story_url %}
                 <a href="{{story.story_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
 
                 {% if story.total_comments %}
@@ -40,6 +41,10 @@ Issue for week {{ctx.week}}/{{ctx.year}} with articles, projects and tutorials a
                         comment{{story.total_comments|pluralize}}</a> <span class="smaller-font-2">in
                         {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</span>
                 </span>
+                {% endif %}
+                {% else %}
+                <a href="{{story.discussion_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
+                <span>{{story.comment_count}} comment{{story.comment_count|pluralize}}</span>
                 {% endif %}
             </p>
         </li>

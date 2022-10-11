@@ -9,6 +9,10 @@ categories = {
         "name": "Articles",
         "sort": 10,
     },
+    "askplatform": {
+        "name": "Ask",
+        "sort": 15,
+    },
     "release": {
         "name": "Releases",
         "sort": 20,
@@ -35,6 +39,8 @@ def derive(story):
     if u:
         path = u.path or ""
         host = u.host or ""
+
+    title = (story.title or "").lower().strip()
     title_tokens = (story.normalized_title or "").split()
 
     if "programming" in story.normalized_tags:
@@ -74,4 +80,18 @@ def derive(story):
     if host in ("youtu.be", "youtube.com", "vimeo.com"):
         return "video"
 
+    if (
+        story.platform == "h"
+        and (title.startswith("ask hn") or title.endswith("?"))
+        and not story.story_url
+    ):
+        return "askplatform"
+
     return "article"
+
+
+def name(cat, platform=None):
+    if platform == "h" and cat == "askplatform":
+        return "Ask HN"
+    else:
+        return categories[cat].get("name")

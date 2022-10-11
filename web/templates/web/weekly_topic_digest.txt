@@ -4,8 +4,10 @@ here's the recap {% if ctx.topic.topic_key == 'hackernews' or ctx.topic.topic_ke
 {% for category, category_name, stories in ctx.digest %}# {{category_name|safe}}
 {% for story in stories %}
   -> {{story.title|safe}}
-     {{story|story_short_url|safe}}  [{{story.story_url|url_root|safe}}]
+{% if story.story_url %}     {{story|story_short_url|safe}}  [{{story.story_url|url_root|safe}}]
 {% if story.total_comments %}     {{story.total_comments}} comment{{story.total_comments|pluralize}} in {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}: {{story|short_url|safe}}
+{% endif %}{% else %}     {{story.discussion_url}}
+     {{story.comment_count}} comment{{story.comment_count|pluralize}}
 {% endif %}{% endfor %}
 
 {% endfor %}Thanks for reading,

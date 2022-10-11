@@ -8,6 +8,7 @@
 <ul style="padding-left: 0">
     {% for story in stories %}
     <li>
+        {% if story.story_url %}
         <p>
             <a href="{{story.story_url}}" title="{{story.title}}">{{story.title}}</a>
         </p>
@@ -19,6 +20,14 @@
                     comment{{story.total_comments|pluralize}}</a> <small>in
                     {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</small>
             </span>
+        </p>
+        {% endif %}
+        {% else %}
+        <p>
+            <a href="{{story.discussion_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
+        </p>
+        <p>
+            <span>{{story.comment_count}} comment{{story.comment_count|pluralize}}</span>
         </p>
         {% endif %}
     </li>

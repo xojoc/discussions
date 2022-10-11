@@ -34,12 +34,9 @@ logger = logging.getLogger(__name__)
 
 def base_query(topic):
     qs = (
-        models.Discussion.objects.exclude(schemeless_story_url__isnull=True)
-        .exclude(schemeless_story_url="")
-        .exclude(scheme_of_story_url__isnull=True)
-        .exclude(scheme_of_story_url="")
-        .exclude(canonical_story_url__startswith="discu.eu/weekly")
-        .exclude(created_at__isnull=True)
+        models.Discussion.objects.exclude(
+            canonical_story_url__startswith="discu.eu/weekly"
+        ).exclude(created_at__isnull=True)
         # .filter(comment_count__gte=1)
         .filter(score__gte=2)
     )
@@ -48,6 +45,13 @@ def base_query(topic):
         qs = qs.filter(normalized_tags__overlap=list(tags))
     if topics.topics[topic].get("platform"):
         qs = qs.filter(platform=topics.topics[topic].get("platform"))
+    else:
+        qs = (
+            qs.exclude(schemeless_story_url__isnull=True)
+            .exclude(schemeless_story_url="")
+            .exclude(scheme_of_story_url__isnull=True)
+            .exclude(scheme_of_story_url="")
+        )
 
     return qs
 
@@ -224,10 +228,11 @@ def __get_stories(topic, year, week):
 
 
 def _get_digest(topic, year, week):
+    platform = topics.topics[topic].get("platform")
     stories = __get_stories(topic, year, week)
     stories = sorted(stories, key=lambda x: x.category)
     digest = [
-        (cat, category.categories[cat]["name"], list(stories))
+        (cat, category.name(cat, platform), list(stories))
         for cat, stories in itertools.groupby(stories, lambda x: x.category)
     ]
 
@@ -243,6 +248,8 @@ def _get_digest(topic, year, week):
             stories[:] = stories[:15]
         elif cat == "project":
             stories[:] = stories[:10]
+        elif cat == "askplatform":
+            stories[:] = stories[:3]
         elif cat == "release":
             stories[:] = stories[:10]
         elif cat == "video":

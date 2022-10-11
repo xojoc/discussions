@@ -1,7 +1,4 @@
-{% load humanize %}
-{% load util %}
-
-<p>Hey 👋<br />
+{% load humanize %}{% load util %}<p>Hey 👋<br />
     here's the recap
     {% if ctx.topic.topic_key == 'hackernews' or ctx.topic.topic_key == 'laarc' %}for{% else %}about{% endif %}
     {{ctx.topic.name}} for last week:
@@ -12,6 +9,7 @@
 <ul style="padding-left: 0">
     {% for story in stories %}
     <li>
+        {% if story.story_url %}
         <p>
             <a href="{{story|story_short_url}}" title="{{story.title}}">{{story.title}}</a>
         </p>
@@ -24,6 +22,13 @@
                     {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</small>
             </span>
         </p>
+        {% endif %}
+        {% else %}
+        <p>
+            <a href="{{story.discussion_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
+        </p>
+        <p><span>{{story.comment_count}} comment{{story.comment_count|pluralize}}</span></p>
+
         {% endif %}
     </li>
     {% endfor %}

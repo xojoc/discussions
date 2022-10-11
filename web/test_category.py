@@ -36,10 +36,15 @@ class Category(unittest.TestCase):
             "article",
             ("h", "devops", ["devops"], "dev.tube/video/oX8af9kLhlk"),
             "video",
-            # ("", "", [], ""),
-            # "",
-            # ("", "", [], ""),
-            # "",
+            ("h", "Is this a question?", [], ""),
+            "askplatform",
+            (
+                "h",
+                "Ask HN: Developers in rural locations: Do you feel you are missing out?",
+                [],
+                "",
+            ),
+            "askplatform",
         ]
 
         for u, r in zip(tests[0::2], tests[1::2]):
