@@ -57,6 +57,11 @@ def worker_update_discussions(self):
     for story in stories.iterator(chunk_size=10_000):
         dirty = False
 
+        if story.story_url:
+            resource = models.Resource.by_url(story.story_url)
+            if resource is not None and not resource.exists():
+                crawler.add_to_queue(story.story_url, priority=3)
+
         canonical_story_url = story.canonical_story_url
         normalized_title = story.normalized_title
         normalized_tags = story.normalized_tags
