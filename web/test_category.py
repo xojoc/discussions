@@ -45,6 +45,13 @@ class Category(unittest.TestCase):
                 "",
             ),
             "askplatform",
+            (
+                "h",
+                "Tell HN: important point",
+                [],
+                "",
+            ),
+            "tellplatform",
         ]
 
         for u, r in zip(tests[0::2], tests[1::2]):

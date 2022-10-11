@@ -174,7 +174,7 @@ def __get_stories(topic, year, week):
         base_query(topic)
         .filter(created_at__gte=ws)
         .filter(created_at__lt=we)
-        .distinct("canonical_story_url")
+        # .distinct("canonical_story_url")
         # .order_by("comment_count")
         # .order_by("created_at")
     )
@@ -221,10 +221,27 @@ def __get_stories(topic, year, week):
             f"weekly: {topic} {ws} {we}: stories count {stories.count()}"
         )
 
+    unique_stories = []
+    unique_urls = set()
+
     for story in stories:
+        if (
+            story.canonical_story_url
+            and story.canonical_story_url in unique_urls
+        ):
+            logger.debug(
+                f"weekly: duplicate: {story.platform_id} - {story.canonical_story_url} - {story.title}"
+            )
+            continue
+
         story.category = category.derive(story)
 
-    return stories
+        unique_stories.append(story)
+
+        if story.canonical_story_url:
+            unique_urls.add(story.canonical_story_url)
+
+    return unique_stories
 
 
 def _get_digest(topic, year, week):
@@ -250,6 +267,8 @@ def _get_digest(topic, year, week):
             stories[:] = stories[:10]
         elif cat == "askplatform":
             stories[:] = stories[:3]
+        elif cat == "tellplatform":
+            stories[:] = stories[:2]
         elif cat == "release":
             stories[:] = stories[:10]
         elif cat == "video":

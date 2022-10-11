@@ -13,6 +13,10 @@ categories = {
         "name": "Ask",
         "sort": 15,
     },
+    "tellplatform": {
+        "name": "Tell",
+        "sort": 17,
+    },
     "release": {
         "name": "Releases",
         "sort": 20,
@@ -87,11 +91,20 @@ def derive(story):
     ):
         return "askplatform"
 
+    if (
+        story.platform == "h"
+        and title.startswith("tell hn")
+        and not story.story_url
+    ):
+        return "tellplatform"
+
     return "article"
 
 
 def name(cat, platform=None):
     if platform == "h" and cat == "askplatform":
         return "Ask HN"
+    elif platform == "h" and cat == "tellplatform":
+        return "Tell HN"
     else:
         return categories[cat].get("name")
