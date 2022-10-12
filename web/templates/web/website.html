@@ -3,7 +3,7 @@
 {% load util %}
 
 {% block title %}
-Display comments on your website - discu.eu
+Discussions and comments for your website - discu.eu
 {% endblock title %}
 
 {% block meta_description %}
@@ -27,15 +27,22 @@ decides to submit your story to a platform.
         title="Platforms">others</a>.</p>
 
 <p>
-    If you want to include a link only on pages with relevant dicussions then first call the <a href="/api/v0/docs"
-        title="Discussions API">API</a> (use the <b>discussions_counts</b> method).
+    If you want to include a link only on pages with relevant dicussions then call our <a href="/api/v0/docs"
+        title="Discussions API">API</a> first (use the <b>discussions_counts</b> method).
 </p>
 <p>
-    The API returns the total count of comments and the number of comments for each platform and subreddit. This way you
-    can include a link only if you're interested in the comments of a specific platform or subreddit.
+    The API returns the comments and discussions count for each platform and subreddit. This way
+    you
+    can include a link only if you're interested in a specific platform or subreddit.
 </p>
 
-<h3>Examples</h3>
+<p>
+    Check out Bèr's tutorial on how to <a
+        href="https://berk.es/2022/10/12/blog-comments-on-a-static-site-via-social-networks/"
+        title="Blog comments on a static site via social networks">display discussions on a static website</a>.
+</p>
+
+<h3 class="fs-4">Examples</h3>
 <ul>
     <li><a href="https://comment.ctrl.blog/discussion/dht-privacy-discovery-hash">How a Hypercore P2P innovation could
             bring more privacy to IPFS</a> on Ctrl.blog which points to <a
@@ -52,13 +59,15 @@ decides to submit your story to a platform.
 </ul>
 
 
-<h2>Widget</h2>
+<h2 class="fs-4">Widget</h2>
 <p>
-    Coming soon: widget to display discussions directly on your website
+    Use <a href="https://github.com/berkes/discueu.js" title="discueu.js">berkes/discueu.js</a> as a template to include
+    discussions on
+    your blog or website.
 </p>
 
 
-<h2>Whole site search</h2>
+<h4 class="fs-5 mt-4">Whole site search</h4>
 <p>
     Pro tip: if would like to see all the discussions for your whole site, use the <b>site:</b> prefix when searching.
     Example <a href="{{'site:xojoc.pw'|discussions_url}}" title="Whole site search">site:xojoc.pw</a>.
