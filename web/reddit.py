@@ -418,6 +418,20 @@ def __process_post(p):
         ).save()
 
 
+def search_url(url: str, c=None, sub=None):
+    if not url:
+        return
+    if not c:
+        c = client()
+    if not sub:
+        sub = c.subreddit("all")
+
+    submissions = sub.search(f'url:"{url}"')
+    for s in submissions:
+        c += 1
+        __process_post(s)
+
+
 def search_urls(url_pattern: str):
     reddit = client()
     all = reddit.subreddit("all")
@@ -433,11 +447,10 @@ def search_urls(url_pattern: str):
 
     c = 0
     for url in urls:
-        u = url["schemeless_story_url"]
-        submissions = all.search(f'url:"{u}"')
-        for s in submissions:
-            c += 1
-            __process_post(s)
+        u = url.get("schemeless_story_url")
+        if not u:
+            continue
+        search_url(u, reddit, all)
 
     print(f"reddit search submissions: count {c}")
 
@@ -492,7 +505,7 @@ def fetch_discussions(index):
 
         logger.debug(f"reddit update: {name}: median {delay}")
 
-        delay = max(60 * 15, min(delay, 60 * 60 * 24 * 3))
+        delay = max(60 * 15, min(delay, 60 * 60 * 24))
 
         td = datetime.timedelta(seconds=delay)
         logger.debug(f"reddit update: {name}: delay {td}")

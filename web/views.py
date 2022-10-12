@@ -611,6 +611,10 @@ def dashboard_mentions_edit(request, pk):
     if mention.user != request.user:
         raise Http404("404")
 
+    if mention.disabled:
+        messages.warning(request, "This rule no longer exists")
+        return redirect(reverse("web:dashboard_mentions"))
+
     edit_form = forms.EditMentionForm(instance=mention)
 
     logger.info("a")

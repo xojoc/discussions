@@ -112,3 +112,13 @@ def url_root(url):
             return url.hostname + "/web/" + parts[1]
 
     return url.hostname
+
+
+def is_sublist(lst, sublist):
+    for i in range(len(lst) - len(sublist) + 1):
+        for j in range(len(sublist)):
+            if lst[i + j] != sublist[j]:
+                break
+        else:
+            return True
+    return False

@@ -2,6 +2,7 @@ from web import crawler, http, extract
 import logging
 import re
 import time
+import feedparser
 
 
 logger = logging.getLogger(__name__)
@@ -45,6 +46,16 @@ def this_week_in_rust():
         time.sleep(5)
 
 
+def feed_to_queue(feed):
+    f = feedparser.parse(feed)
+    for e in f["entries"]:
+        crawler.add_to_queue(e["link"])
+
+
 def all():
-    this_week_in_rust()
+    # this_week_in_rust()
+    feed_to_queue("https://blog.rust-lang.org/feed.xml")
+    feed_to_queue("https://blog.rust-lang.org/inside-rust/feed.xml")
+    feed_to_queue("https://andrewkelley.me/rss.xml")
+    feed_to_queue("https://planet.gnome.org/atom.xml")
     # https://zigmonthly.org/letters/2021/october/

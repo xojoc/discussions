@@ -1,33 +1,172 @@
-from web import title as web_title
+import re
+
 import cleanurl
+
+from web import title as web_title
+from web import util
 
 
 def __augment_tags(title, tags, keyword, atleast_tags=None, new_tag=None):
     if atleast_tags:
         if len(tags & atleast_tags) == 0:
-            return tags
+            return
 
     if not new_tag and keyword:
-        new_tag = keyword.lower()
+        new_tag = keyword
 
     if not new_tag:
-        return tags
+        return
 
     if new_tag in tags:
-        return tags
+        return
 
-    if keyword:
-        if keyword.lower() not in title.lower().split():
-            return tags
+    if keyword and keyword not in title:
+        return
 
-    return tags | {new_tag}
+    tags.add(new_tag)
 
 
-def __replace_tag(tags, old_tag, new_tag):
-    if old_tag not in tags:
-        return tags
+def __is_nim_game(title, url=None):
+    if util.is_sublist(title, ["nim", "game"]) or util.is_sublist(
+        title, ["game", "of", "nim"]
+    ):
+        return True
 
-    return (tags - {old_tag}) | {new_tag}
+    if url:
+        pass
+
+    return False
+
+
+def __topic_nim(tags, title, url, platform):
+    if platform in ("h", "u") and not __is_nim_game(title, url):
+        __augment_tags(title, tags, "nim", None, "nimlang")
+        __augment_tags(title, tags, "nim", None, "nimlang")
+
+    __augment_tags(title, tags, "nimlang")
+
+    if not __is_nim_game(title, url):
+        __augment_tags(
+            title, tags, "nim", {"programming", "gamedev"}, "nimlang"
+        )
+
+    if (
+        url
+        and "nim" in title
+        and (
+            "nim-lang.org" in url.hostname
+            or (
+                url.hostname == "github.com"
+                and (url.path or "").startswith("/nim-lang")
+            )
+        )
+    ):
+        tags |= {"nimlang"}
+
+
+def __topic_unix(tags, title, url, platform):
+    __augment_tags(title, tags, "unix")
+    __augment_tags(title, tags, "linux")
+    __augment_tags(title, tags, "dragonflybsd")
+    __augment_tags(title, tags, "freebsd")
+    __augment_tags(title, tags, "netbsd")
+    __augment_tags(title, tags, "openbsd")
+
+    __augment_tags(
+        title,
+        tags,
+        None,
+        {
+            "opensuse",
+        },
+        "linux",
+    )
+
+    __augment_tags(
+        title,
+        tags,
+        None,
+        {
+            "dragonflybsd",
+            "freebsd",
+            "linux",
+            "netbsd",
+            "openbsd_gaming",
+            "openbsd",
+            "plan9",
+        },
+        "unix",
+    )
+
+
+def __topic_webdev(tags, title, url, platform):
+    __augment_tags(title, tags, "node.js", None, "nodejs")
+    __augment_tags(title, tags, "javascript")
+    __augment_tags(None, tags, None, {"nodejs"}, "javascript")
+
+    __augment_tags(
+        title,
+        tags,
+        None,
+        {"django", "flask", "javascript", "typescript", "rails"},
+        "webdev",
+    )
+
+
+def __topic_zig(tags, title, url, platform):
+    if platform in ("h", "u"):
+        __augment_tags(title, tags, "zig", None, "ziglang")
+
+    __augment_tags(title, tags, "ziglang")
+
+    if "zag" not in title:
+        __augment_tags(
+            title, tags, "zig", {"programming", "gamedev"}, "ziglang"
+        )
+
+    if (
+        url
+        and "zig" in title
+        and (
+            "ziglang.org" in url.hostname
+            or (
+                url.hostname == "github.com"
+                and (url.path or "").startswith("/ziglang")
+            )
+        )
+    ):
+        tags.add("ziglang")
+
+
+def __topic_java(tags, title, url, platform):
+    if platform == "u":
+        __augment_tags(title, tags, "java")
+    __augment_tags(title, tags, "java", {"programming", "gamedev", "webdev"})
+    __augment_tags(title, tags, "openjdk", None, "java")
+
+    try:
+        ji = title.index("java")
+        if title[ji + 1].isdigit() or (
+            title[ji + 1] == "ee" and title[ji + 2].isdigit()
+        ):
+            tags.add("java")
+
+    except Exception:
+        pass
+
+    if (
+        url
+        and "java" in title
+        and (
+            "java.net" in url.hostname
+            or "openjdk.org" in url.hostname
+            or (
+                url.hostname == "github.com"
+                and (url.path or "").startswith("/openjdk")
+            )
+        )
+    ):
+        tags.add("java")
 
 
 def __lobsters(tags, title):
@@ -45,7 +184,7 @@ def __lobsters(tags, title):
         "meta",
     }
 
-    tags = __augment_tags(
+    __augment_tags(
         title,
         tags,
         None,
@@ -65,12 +204,13 @@ def __lobsters(tags, title):
         "programming",
     )
 
-    tags = __augment_tags(
+    __augment_tags(
         title,
         tags,
         None,
         {
             "ai",
+            "compilers",
             "distributed",
             "formalmethods",
             "graphics",
@@ -82,11 +222,9 @@ def __lobsters(tags, title):
         "compsci",
     )
 
-    return tags
-
 
 def __reddit(tags, title):
-    tags = __augment_tags(
+    __augment_tags(
         title,
         tags,
         None,
@@ -104,13 +242,13 @@ def __reddit(tags, title):
         },
         "sport",
     )
-    tags = __augment_tags(title, tags, None, {"nfl"}, "football")
-    tags = __augment_tags(title, tags, None, {"nba"}, "basketball")
-    tags = __augment_tags(title, tags, None, {"apple"}, "technology")
-    tags = __augment_tags(title, tags, None, {"spacex"}, "space")
-    tags = __augment_tags(title, tags, None, {"laravel"}, "php")
+    __augment_tags(title, tags, None, {"nfl"}, "football")
+    __augment_tags(title, tags, None, {"nba"}, "basketball")
+    __augment_tags(title, tags, None, {"apple"}, "technology")
+    __augment_tags(title, tags, None, {"spacex"}, "space")
+    __augment_tags(title, tags, None, {"laravel"}, "php")
 
-    tags = __augment_tags(
+    __augment_tags(
         title,
         tags,
         None,
@@ -123,161 +261,103 @@ def __reddit(tags, title):
         },
         "compsci",
     )
-    return tags
 
 
 def __hacker_news(tags, title):
-    tags = __augment_tags(title, tags, "docker")
-    tags = __augment_tags(title, tags, "javascript")
-    tags = __augment_tags(title, tags, "lisp")
-    tags = __augment_tags(title, tags, "nim", None, "nimlang")
-    tags = __augment_tags(title, tags, "python")
-    # tags = __augment_tags(title, tags, "rust", None, "rustlang")
-    tags = __augment_tags(title, tags, "rustc", None, "rustlang")
-    tags = __augment_tags(title, tags, "typescript")
-    tags = __augment_tags(title, tags, "zig", None, "ziglang")
-    return tags
+    __augment_tags(title, tags, "docker")
+    __augment_tags(title, tags, "lisp")
+    __augment_tags(title, tags, "python")
+    # __augment_tags(title, tags, "rust", None, "rustlang")
+    __augment_tags(title, tags, "rustc", None, "rustlang")
+    __augment_tags(title, tags, "typescript")
 
 
 def __lambda_the_ultimate(tags, title):
-    new_tags = set()
     for t in tags:
         t = t.replace(" ", "-")
         t = t.replace("/", "-")
-        new_tags.add(t)
+        tags.discard(t)
+        tags.add(t)
 
-    new_tags = __augment_tags(title, new_tags, "haskell")
-    new_tags = __augment_tags(title, new_tags, "java")
-    new_tags = __augment_tags(title, new_tags, "lisp")
-    new_tags = __augment_tags(title, new_tags, "nim", None, "nimlang")
-    new_tags = __augment_tags(title, new_tags, "python")
-    new_tags = __augment_tags(title, new_tags, "scheme")
-    new_tags = __augment_tags(title, new_tags, "zig", None, "ziglang")
+    __augment_tags(title, tags, "haskell")
+    __augment_tags(title, tags, "lisp")
+    __augment_tags(title, tags, "python")
+    __augment_tags(title, tags, "scheme")
 
-    return new_tags - {
-        "admin",
-        "discussion",
-        "general",
-        "guest-bloggers",
-        "here",
-        "ltu-forum",
-        "previously-on-ltu",
-        "previously",
-        "recent-discussion",
-        "recently",
-        "site-discussion",
-    }
+    tags.difference_update(
+        {
+            "admin",
+            "discussion",
+            "general",
+            "guest-bloggers",
+            "here",
+            "ltu-forum",
+            "previously-on-ltu",
+            "previously",
+            "recent-discussion",
+            "recently",
+            "site-discussion",
+        }
+    )
 
 
 def __laarc(tags, title):
-    return tags - {"news", "meta", "laarc", "ask"}
+    tags -= {"news", "meta", "laarc", "ask"}
 
 
 def __from_title_url(tags, title, url):
-    tags = __augment_tags(
+    __augment_tags(
         title, tags, "python", {"programming", "webdev", "gamedev", "compsci"}
     )
-    tags = __augment_tags(title, tags, "golang")
-    tags = __augment_tags(title, tags, "rustlang")
-    tags = __augment_tags(
+    __augment_tags(title, tags, "golang")
+    __augment_tags(title, tags, "rustlang")
+    __augment_tags(
         title, tags, "rust", {"programming", "gamedev", "compsci"}, "rustlang"
     )
-    tags = __augment_tags(title, tags, "cpp")
-    tags = __augment_tags(title, tags, "csharp")
-    tags = __augment_tags(title, tags, "haskell")
-    tags = __augment_tags(
-        title, tags, "django", {"python", "webdev", "programming"}
-    )
-    tags = __augment_tags(
-        title, tags, "flask", {"python", "webdev", "programming"}
-    )
+    __augment_tags(title, tags, "cpp")
+    __augment_tags(title, tags, "csharp")
+    __augment_tags(title, tags, "haskell")
+    __augment_tags(title, tags, "django", {"python", "webdev", "programming"})
+    __augment_tags(title, tags, "flask", {"python", "webdev", "programming"})
 
-    tags = __augment_tags(
-        title, tags, "rails", {"python", "webdev", "programming"}
-    )
+    __augment_tags(title, tags, "rails", {"python", "webdev", "programming"})
 
-    tags = __augment_tags(title, tags, "perl", {"programming", "gamedev"})
-    tags = __augment_tags(title, tags, "webassembly")
-    tags = __augment_tags(title, tags, "linux")
-    tags = __augment_tags(title, tags, "dragonflybsd")
-    tags = __augment_tags(title, tags, "freebsd")
-    tags = __augment_tags(title, tags, "netbsd")
-    tags = __augment_tags(title, tags, "openbsd")
-    tags = __augment_tags(title, tags, "spacex")
-    tags = __augment_tags(title, tags, "nintendo")
-    tags = __augment_tags(title, tags, "linkedin")
+    __augment_tags(title, tags, "perl", {"programming", "gamedev"})
+    __augment_tags(title, tags, "webassembly")
 
-    tokens = title.split()
+    __augment_tags(title, tags, "spacex")
+    __augment_tags(title, tags, "nintendo")
+    __augment_tags(title, tags, "linkedin")
 
-    if "metaprogramming" in tokens:
+    if "metaprogramming" in title:
         tags |= {"programming"}
 
     if (
         url
-        and "swift" in tokens
+        and "swift" in title
         and (url.hostname == "swift.org" or "swiftlang" in url.path)
     ):
         tags |= {"swiftlang"}
 
-    if "quantum" in tokens and (
-        "language" in tokens
-        or "languages" in tokens
-        or "computer" in tokens
-        or "computers" in tokens
-        or "computing" in tokens
-        or "programming" in tokens
-        or "algorithm" in tokens
+    if "quantum" in title and (
+        "language" in title
+        or "languages" in title
+        or "computer" in title
+        or "computers" in title
+        or "computing" in title
+        or "programming" in title
+        or "algorithm" in title
     ):
         tags |= {"quantumcomputing", "programming"}
 
-    tags = __augment_tags(title, tags, "nimlang")
-    tags = __augment_tags(
-        title, tags, "nim", {"programming", "gamedev"}, "nimlang"
-    )
+    __augment_tags(title, tags, "kotlin", {"programming", "gamedev"})
+
+    __augment_tags(title, tags, "php", {"programming", "gamedev", "webdev"})
+
+    __augment_tags(title, tags, "apl", {"programming"})
     if (
         url
-        and "nim" in tokens
-        and (
-            "nim-lang.org" in url.hostname
-            or (
-                url.hostname == "github.com"
-                and (url.path or "").startswith("/nim-lang")
-            )
-        )
-    ):
-        tags |= {"nimlang"}
-
-    tags = __augment_tags(title, tags, "ziglang")
-    tags = __augment_tags(
-        title, tags, "zig", {"programming", "gamedev"}, "ziglang"
-    )
-    if (
-        url
-        and "zig" in tokens
-        and (
-            "ziglang.org" in url.hostname
-            or (
-                url.hostname == "github.com"
-                and (url.path or "").startswith("/ziglang")
-            )
-        )
-    ):
-        tags |= {"ziglang"}
-
-    tags = __augment_tags(
-        title, tags, "java", {"programming", "gamedev", "webdev"}
-    )
-
-    tags = __augment_tags(title, tags, "kotlin", {"programming", "gamedev"})
-
-    tags = __augment_tags(
-        title, tags, "php", {"programming", "gamedev", "webdev"}
-    )
-
-    tags = __augment_tags(title, tags, "apl", {"programming"})
-    if (
-        url
-        and "j" in tokens
+        and "j" in title
         and (
             "jsoftware.com" in url.hostname
             or (
@@ -288,15 +368,18 @@ def __from_title_url(tags, title, url):
     ):
         tags |= {"apl"}
 
-    if url and "apl" in tokens and ("github.com" in url.hostname):
+    if url and "apl" in title and ("github.com" in url.hostname):
         tags |= {"apl"}
 
-    if "programming" in tokens and (
-        "language" in tokens or "languages" in tokens
+    if "programming" in title and (
+        "language" in title or "languages" in title
     ):
         tags |= {"programming"}
 
-    return tags
+    if "programming" in tags and re.match(
+        r".*(^v?|\sv?)(\d+\.?){2,4}[^ ]* release", " ".join(title)
+    ):
+        tags.add("release")
 
 
 def __rename(tags, title, platform=None):
@@ -355,11 +438,9 @@ def __rename(tags, title, platform=None):
         else:
             tags |= {p[1]}
 
-    return tags
-
 
 def __enrich(tags, title):
-    tags = __augment_tags(
+    __augment_tags(
         title,
         tags,
         None,
@@ -405,36 +486,11 @@ def __enrich(tags, title):
         "programming",
     )
 
-    tags = __augment_tags(title, tags, None, {"django", "flask"}, "python")
-    tags = __augment_tags(
-        title,
-        tags,
-        None,
-        {"django", "flask", "javascript", "typescript", "rails"},
-        "webdev",
-    )
+    __augment_tags(title, tags, None, {"django", "flask"}, "python")
 
-    tags = __augment_tags(title, tags, None, {"rails"}, "ruby")
+    __augment_tags(title, tags, None, {"rails"}, "ruby")
 
-    tags = __augment_tags(
-        title,
-        tags,
-        None,
-        {
-            "dragonflybsd",
-            "freebsd",
-            "linux",
-            "netbsd",
-            "openbsd_gaming",
-            "openbsd",
-            "plan9",
-        },
-        "unix",
-    )
-
-    tags = __augment_tags(
-        title, tags, None, {"docker", "kubernetes"}, "devops"
-    )
+    __augment_tags(title, tags, None, {"docker", "kubernetes"}, "devops")
 
     return tags
 
@@ -444,33 +500,39 @@ def __special_cases(tags, platform, title, url):
         tags.discard("bitcoin")
         tags.discard("italy")
 
-    return tags
-
 
 def normalize(tags, platform=None, title="", url=""):
     tags = tags or []
     tags = set(t.lower().strip() for t in tags)
     title = web_title.normalize(title, platform, url, tags, stem=False)
+    title_tokens = title.split()
+
     url = (url or "").lower()
     curl = cleanurl.cleanurl(url)
 
     for _ in range(3):
-        tags = __from_title_url(tags, title, curl)
+        __topic_java(tags, title_tokens, curl, platform)
+        __topic_nim(tags, title_tokens, curl, platform)
+        __topic_unix(tags, title_tokens, curl, platform)
+        __topic_webdev(tags, title_tokens, curl, platform)
+        __topic_zig(tags, title_tokens, curl, platform)
+
+        __from_title_url(tags, title_tokens, curl)
 
         if platform == "l":
-            tags = __lobsters(tags, title)
+            __lobsters(tags, title_tokens)
         elif platform == "r":
-            tags = __reddit(tags, title)
+            __reddit(tags, title_tokens)
         elif platform == "h":
-            tags = __hacker_news(tags, title)
+            __hacker_news(tags, title_tokens)
         elif platform == "a":
-            tags = __laarc(tags, title)
+            __laarc(tags, title_tokens)
         elif platform == "u":
-            tags = __lambda_the_ultimate(tags, title)
+            __lambda_the_ultimate(tags, title_tokens)
 
-        tags = __rename(tags, title, platform)
-        tags = __enrich(tags, title)
+        __rename(tags, title_tokens, platform)
+        __enrich(tags, title_tokens)
 
-    tags = __special_cases(tags, platform, title, curl)
+    __special_cases(tags, platform, title_tokens, curl)
 
     return sorted(list(tags))

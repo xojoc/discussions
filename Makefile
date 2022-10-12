@@ -64,5 +64,8 @@ lint:
 test:
 	@poetry run python -Wa manage.py test --shuffle --keepdb --failfast
 
+utest:
+	@poetry run python -Wa manage.py test --failfast -k 'Unit'
+
 superuser:
 	poetry run python manage.py createsuperuser
