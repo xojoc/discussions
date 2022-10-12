@@ -26,6 +26,28 @@ def __augment_tags(title, tags, keyword, atleast_tags=None, new_tag=None):
     tags.add(new_tag)
 
 
+def __is_programming_related(title, url=None):
+    return (
+        set(title)
+        & {
+            "algorithm",
+            "algorithms",
+            "code",
+            "function",
+            "lambda",
+            "library",
+            "tutorial",
+        }
+    ) or (url and url.hostname and "github.com" in url.hostname)
+
+
+def __programming_keyword(tags, title, url, keyword, new_tag=None):
+    if not new_tag:
+        new_tag = keyword
+    if keyword in title and __is_programming_related(title, url):
+        tags.add(new_tag)
+
+
 def __is_nim_game(title, url=None):
     if util.is_sublist(title, ["nim", "game"]) or util.is_sublist(
         title, ["game", "of", "nim"]
@@ -154,6 +176,11 @@ def __topic_java(tags, title, url, platform):
     except Exception:
         pass
 
+    if "java" in title and "spring" in title:
+        tags.add("java")
+
+    __programming_keyword(tags, title, url, "java")
+
     if (
         url
         and "java" in title
@@ -167,6 +194,55 @@ def __topic_java(tags, title, url, platform):
         )
     ):
         tags.add("java")
+
+
+def __topic_php(tags, title, url, platform):
+    __augment_tags(title, tags, None, {"laravel"}, "php")
+    __augment_tags(title, tags, "php", {"programming", "gamedev", "webdev"})
+    __programming_keyword(tags, title, url, "php")
+    if platform == "h" and "php" in title:
+        tags.add("php")
+    if url and (url.hostname or "").startswith("php.net"):
+        tags.add("php")
+
+
+def __topic_rust(tags, title, url, platform):
+    __augment_tags(title, tags, "rustlang")
+    __augment_tags(
+        title, tags, "rust", {"programming", "gamedev", "compsci"}, "rustlang"
+    )
+
+    __programming_keyword(tags, title, url, "rust", "rustlang")
+
+    if "rust" in title and ("gcc" in title or "kernel" in title):
+        tags.add("rust")
+
+    __augment_tags(title, tags, "rustc", None, "rustlang")
+
+
+def __topic_golang(tags, title, url, platform, original_title):
+    __augment_tags(title, tags, "golang")
+
+    if (
+        ("programming" in tags or __is_programming_related(tags, url))
+        and "Go" in original_title.split()
+        and "game" not in title
+    ):
+        tags.add("golang")
+
+    if (
+        "go" in title
+        and url
+        and url.hostname
+        and (
+            "golang.org" in url.hostname
+            or "go.dev" in url.hostname
+            or (
+                url.hostname == "github.com" and url.path.startswith("/golang")
+            )
+        )
+    ):
+        tags.add("golang")
 
 
 def __lobsters(tags, title):
@@ -246,7 +322,6 @@ def __reddit(tags, title):
     __augment_tags(title, tags, None, {"nba"}, "basketball")
     __augment_tags(title, tags, None, {"apple"}, "technology")
     __augment_tags(title, tags, None, {"spacex"}, "space")
-    __augment_tags(title, tags, None, {"laravel"}, "php")
 
     __augment_tags(
         title,
@@ -267,8 +342,6 @@ def __hacker_news(tags, title):
     __augment_tags(title, tags, "docker")
     __augment_tags(title, tags, "lisp")
     __augment_tags(title, tags, "python")
-    # __augment_tags(title, tags, "rust", None, "rustlang")
-    __augment_tags(title, tags, "rustc", None, "rustlang")
     __augment_tags(title, tags, "typescript")
 
 
@@ -309,11 +382,6 @@ def __from_title_url(tags, title, url):
     __augment_tags(
         title, tags, "python", {"programming", "webdev", "gamedev", "compsci"}
     )
-    __augment_tags(title, tags, "golang")
-    __augment_tags(title, tags, "rustlang")
-    __augment_tags(
-        title, tags, "rust", {"programming", "gamedev", "compsci"}, "rustlang"
-    )
     __augment_tags(title, tags, "cpp")
     __augment_tags(title, tags, "csharp")
     __augment_tags(title, tags, "haskell")
@@ -351,8 +419,6 @@ def __from_title_url(tags, title, url):
         tags |= {"quantumcomputing", "programming"}
 
     __augment_tags(title, tags, "kotlin", {"programming", "gamedev"})
-
-    __augment_tags(title, tags, "php", {"programming", "gamedev", "webdev"})
 
     __augment_tags(title, tags, "apl", {"programming"})
     if (
@@ -407,6 +473,7 @@ def __rename(tags, title, platform=None):
         ("ml", "ocaml", "l"),
         ("moderatepolitics", "politics", "r"),
         ("nim", "nimlang", "r"),
+        ("node", "nodejs", "r"),
         ("reddit.com", "reddit", "r"),
         ("rubylang", "ruby", "r"),
         ("rust_gamedev", ["gamedev", "rustlang"], "r"),
@@ -504,6 +571,7 @@ def __special_cases(tags, platform, title, url):
 def normalize(tags, platform=None, title="", url=""):
     tags = tags or []
     tags = set(t.lower().strip() for t in tags)
+    original_title = title or ""
     title = web_title.normalize(title, platform, url, tags, stem=False)
     title_tokens = title.split()
 
@@ -513,9 +581,12 @@ def normalize(tags, platform=None, title="", url=""):
     for _ in range(3):
         __topic_java(tags, title_tokens, curl, platform)
         __topic_nim(tags, title_tokens, curl, platform)
+        __topic_php(tags, title_tokens, curl, platform)
+        __topic_rust(tags, title_tokens, curl, platform)
         __topic_unix(tags, title_tokens, curl, platform)
         __topic_webdev(tags, title_tokens, curl, platform)
         __topic_zig(tags, title_tokens, curl, platform)
+        __topic_golang(tags, title_tokens, curl, platform, original_title)
 
         __from_title_url(tags, title_tokens, curl)
 

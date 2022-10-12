@@ -103,6 +103,13 @@ class UnitTags(unittest.TestCase):
                 "https://www.infoq.com/news/2016/09/java-ee-delayed-2017",
             ),
             {"java"},
+            n(
+                [],
+                "h",
+                "Comparing Java Lambda Expressions to Scala Functions",
+                "https://blog.madhukaraphatak.com/latest-java-2",
+            ),
+            {"java"},
         ]
 
         for nts, ets in zip(normalization[0::2], normalization[1::2]):

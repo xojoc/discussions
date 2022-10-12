@@ -178,6 +178,8 @@ class Discussion(models.Model):
             (self.story_url or ""),
         )
 
+        self.normalized_tags = sorted(self.normalized_tags or [])
+
         self.category = category.derive(self)
 
     def save(self, *args, **kwargs):
@@ -808,6 +810,44 @@ class Resource(models.Model):
                 pass
 
         return author
+
+    def _pre_save(self):
+        self.tags = self.tags or []
+        self.title = self.title or ""
+
+        self.title = self.title.replace("\x00", "")
+
+        if self.url:
+            u = cleanurl.cleanurl("//" + self.url)
+            if u:
+                self.canonical_url = u.schemeless_url
+            else:
+                self.canonical_url = None
+
+        if not self.canonical_url:
+            self.canonical_url = self.url
+
+        self.normalized_title = title.normalize(
+            self.title,
+            None,
+            (self.story_url or ""),
+            self.tags,
+            stem=False,
+        )
+
+        self.normalized_tags = (
+            tags.normalize(
+                self.tags,
+                None,
+                self.title,
+                (self.story_url or ""),
+            )
+            or []
+        )
+
+    def save(self, *args, **kwargs):
+        self._pre_save()
+        super(Resource, self).save(*args, **kwargs)
 
 
 class Link(models.Model):
