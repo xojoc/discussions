@@ -38,7 +38,11 @@ def __is_programming_related(title, url=None):
             "library",
             "tutorial",
         }
-    ) or (url and url.hostname and "github.com" in url.hostname)
+    ) or (
+        url
+        and url.hostname
+        and ("github.com" in url.hostname or "gitlab.com" in url.hostname)
+    )
 
 
 def __programming_keyword(tags, title, url, keyword, new_tag=None):
@@ -245,6 +249,91 @@ def __topic_golang(tags, title, url, platform, original_title):
         tags.add("golang")
 
 
+def __topic_python(tags, title, url, platform):
+    if platform in ("h", "u"):
+        __augment_tags(title, tags, "python")
+
+    __augment_tags(
+        title, tags, "python", {"programming", "webdev", "gamedev", "compsci"}
+    )
+    __programming_keyword(tags, title, url, "python")
+    __augment_tags(title, tags, "django", {"python", "webdev", "programming"})
+    __augment_tags(title, tags, "flask", {"python", "webdev", "programming"})
+    __augment_tags(title, tags, None, {"django", "flask"}, "python")
+
+
+def __topic_haskell(tags, title, url, platform, original_title):
+    __augment_tags(title, tags, "haskell")
+
+    if "GHC" in original_title.split() and (
+        __is_programming_related(title, url)
+        or (url and url.hostname and "haskell.org" in url.hostname)
+    ):
+        tags.add("haskell")
+
+
+def __topic_lisp_scheme(tags, title, url, platform, original_title):
+    if platform in ("h", "u"):
+        __augment_tags(title, tags, "lisp")
+
+    __programming_keyword(tags, title, url, "lisp")
+    __programming_keyword(tags, title, url, "scheme")
+    __programming_keyword(tags, title, url, "racket")
+    __augment_tags(title, tags, None, {"racket"}, "scheme")
+    if "guile" in title and (
+        "gnu" in title
+        or "scheme" in title
+        or "lisp" in title
+        or "emacs" in title
+    ):
+        tags.add("scheme")
+
+
+def __topic_ruby(tags, title, url, platform, original_title):
+    __augment_tags(title, tags, None, {"rails"}, "ruby")
+    __programming_keyword(tags, title, url, "ruby")
+    if "ruby" in title and "rails" in title:
+        tags.add("ruby")
+
+
+def __topic_erlang_elixir(tags, title, url, platform, original_title):
+    if platform == "u":
+        if "erlang" in title:
+            tags.add("erlang")
+        if "elixir" in title:
+            tags.add("elixir")
+    if platform == "h":
+        if "elixir" in title:
+            tags.add("elixir")
+
+    __programming_keyword(tags, title, url, "erlang")
+    __programming_keyword(tags, title, url, "elixir")
+    if "erlang" in title and "vm" in title:
+        tags.add("erlang")
+    if "erlang" in title:
+        tags.add("erlang")
+
+
+def __topic_apl(tags, title, url, platform, original_title):
+    __augment_tags(title, tags, "apl", {"programming"})
+
+    if (
+        url
+        and url.hostname
+        and "j" in title
+        and (
+            "jsoftware.com" in url.hostname
+            or (
+                url.hostname == "github.com"
+                and (url.path or "").startswith("/jsoftware")
+            )
+        )
+    ):
+        tags.add("apl")
+
+    __programming_keyword(tags, title, url, "apl")
+
+
 def __lobsters(tags, title):
     tags -= {
         "ask",
@@ -340,8 +429,6 @@ def __reddit(tags, title):
 
 def __hacker_news(tags, title):
     __augment_tags(title, tags, "docker")
-    __augment_tags(title, tags, "lisp")
-    __augment_tags(title, tags, "python")
     __augment_tags(title, tags, "typescript")
 
 
@@ -351,11 +438,6 @@ def __lambda_the_ultimate(tags, title):
         t = t.replace("/", "-")
         tags.discard(t)
         tags.add(t)
-
-    __augment_tags(title, tags, "haskell")
-    __augment_tags(title, tags, "lisp")
-    __augment_tags(title, tags, "python")
-    __augment_tags(title, tags, "scheme")
 
     tags.difference_update(
         {
@@ -379,14 +461,8 @@ def __laarc(tags, title):
 
 
 def __from_title_url(tags, title, url):
-    __augment_tags(
-        title, tags, "python", {"programming", "webdev", "gamedev", "compsci"}
-    )
     __augment_tags(title, tags, "cpp")
     __augment_tags(title, tags, "csharp")
-    __augment_tags(title, tags, "haskell")
-    __augment_tags(title, tags, "django", {"python", "webdev", "programming"})
-    __augment_tags(title, tags, "flask", {"python", "webdev", "programming"})
 
     __augment_tags(title, tags, "rails", {"python", "webdev", "programming"})
 
@@ -420,23 +496,6 @@ def __from_title_url(tags, title, url):
 
     __augment_tags(title, tags, "kotlin", {"programming", "gamedev"})
 
-    __augment_tags(title, tags, "apl", {"programming"})
-    if (
-        url
-        and "j" in title
-        and (
-            "jsoftware.com" in url.hostname
-            or (
-                url.hostname == "github.com"
-                and (url.path or "").startswith("/jsoftware")
-            )
-        )
-    ):
-        tags |= {"apl"}
-
-    if url and "apl" in title and ("github.com" in url.hostname):
-        tags |= {"apl"}
-
     if "programming" in title and (
         "language" in title or "languages" in title
     ):
@@ -457,6 +516,7 @@ def __rename(tags, title, platform=None):
         ("c_programming", "c", "r"),
         ("c#", "csharp"),
         ("c++", "cpp"),
+        ("common_lisp", "lisp", "r"),
         ("coding", "programming", "r"),
         ("crypto", "cryptography", "r"),
         ("d_language", "dlang", "r"),
@@ -553,10 +613,6 @@ def __enrich(tags, title):
         "programming",
     )
 
-    __augment_tags(title, tags, None, {"django", "flask"}, "python")
-
-    __augment_tags(title, tags, None, {"rails"}, "ruby")
-
     __augment_tags(title, tags, None, {"docker", "kubernetes"}, "devops")
 
     return tags
@@ -587,6 +643,14 @@ def normalize(tags, platform=None, title="", url=""):
         __topic_webdev(tags, title_tokens, curl, platform)
         __topic_zig(tags, title_tokens, curl, platform)
         __topic_golang(tags, title_tokens, curl, platform, original_title)
+        __topic_python(tags, title_tokens, curl, platform)
+        __topic_haskell(tags, title_tokens, curl, platform, original_title)
+        __topic_lisp_scheme(tags, title_tokens, curl, platform, original_title)
+        __topic_ruby(tags, title_tokens, curl, platform, original_title)
+        __topic_erlang_elixir(
+            tags, title_tokens, curl, platform, original_title
+        )
+        __topic_apl(tags, title_tokens, curl, platform, original_title)
 
         __from_title_url(tags, title_tokens, curl)
 
