@@ -218,3 +218,11 @@ p {
 .vertical-align-baseline {
     vertical-align: baseline;
 }
+
+.text-underline-hover {
+    text-decoration: none;
+}
+
+.text-underline-hover:hover {
+    text-decoration: underline;
+}

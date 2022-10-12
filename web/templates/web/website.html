@@ -14,17 +14,18 @@ Display discussions and comments across platforms (Hacker News, Reddit, Lobsters
 
 <h2>Display comments on your website</h2>
 <p>
-    To display discussions for a page on your website, just include a link to discu.eu:
+    To display discussions for a page on your website or blog, just include a link to discu.eu:
 
 <pre>
     https://discu.eu/?q=<b>URL</b>&submit_title=<b>article title</b></pre>
 
-the <b>submit_title</b> parameter is optional, but when included it will prefill the submission title if the user
+where <b>URL</b> is the address of your page and <b>submit_title</b> is an optional parameter, which when included is
+used to prefill the submission title if the user
 decides to submit your story to a platform.
 </p>
 
 <p>Discussions are fetched from Hacker News, Reddit, Lobsters and <a href="{% url 'web:statistics' %}#platforms"
-        title="Platforms">others</a>.</p>
+        title="Platforms">others</a> and are updated frequently.</p>
 
 <p>
     If you want to include a link only on pages with relevant dicussions then call our <a href="/api/v0/docs"

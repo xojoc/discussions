@@ -101,21 +101,37 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	<div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mb-5">
 		<div class="w-min-content w-min-16ch"><a href="{% url 'web:weekly_index' %}" title="Weekly newsletters"
-				class="text-decoration-none text-body"><i class="bi bi-newspaper m-auto text-primary fs-5em"></i>
+				class="text-underline-hover text-body"><i class="bi bi-newspaper m-auto text-primary fs-5em"></i>
 				<h3>Weekly newsletters</h3>
 				<span class="lead mb-0">Each week on topic recaps with articles, projects and tutorials.</span>
 			</a>
 		</div>
-		<div class="w-min-content w-min-16ch"><a href="{% url 'web:extension' %}" class="text-decoration-none text-body"
+		<div class="w-min-content w-min-16ch"><a href="{% url 'web:extension' %}" class="text-underline-hover text-body"
 				title="Discussions browser extension"><i class="bi bi-browser-firefox m-auto text-primary fs-5em"></i>
 				<h3>Browser extension</h3>
 				<span class="lead mb-0">See if the page you are on has been discussed before.</span>
 			</a>
 		</div>
-		<div class="w-min-content w-min-16ch"><a href="{% url 'web:social' %}" class="text-decoration-none text-body"
+		<div class="w-min-content w-min-16ch"><a href="{% url 'web:social' %}" class="text-underline-hover text-body"
 				title="Social accounts and bots"><i class="bi bi-twitter m-auto text-primary fs-5em"></i>
 				<h3>Twitter & Mastodon</h3>
 				<span class="lead mb-0">On topic bots posting articles, projects and tutorials.</span>
+			</a>
+		</div>
+	</div>
+
+	<h2 class="fs-3 mt-4em text-center mb-3">Are you a developer?</h2>
+	<div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mb-5">
+		<div class="w-min-content w-min-16ch"><a href="{% url 'web:api' %}" title="Discussions and comments API"
+				class="text-underline-hover text-body"><i class="bi bi-plug m-auto text-dark fs-2em"></i>
+				<h3 class="fs-4">API</h3>
+				<span class="mb-0">Lookup millions of discussions across different platforms.</span>
+			</a>
+		</div>
+		<div class="w-min-content w-min-16ch"><a href="{% url 'web:website' %}" class="text-underline-hover text-body"
+				title="Discussions for your website"><i class="bi bi-link-45deg m-auto text-dark fs-2em"></i>
+				<h3 class="fs-4">Website</h3>
+				<span class="mb-0">Discussions from the web directly on your website.</span>
 			</a>
 		</div>
 	</div>
