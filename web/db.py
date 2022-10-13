@@ -158,12 +158,20 @@ def admin_send_recap_email(self):
         .count()
     )
 
+    mention_rules_count = models.Mention.objects.all().count()
+    mention_notifications_count = (
+        models.MentionNotification.objects.all().count()
+    )
+
     body = f"""
 Users: {users_count}
 Premium users: {users_premium_count}
 Subscribers: {subscribers}
 Unconfirmed: {unconfirmed}
 Unsubscribed: {unsubscribed}
+
+Mention rules: {mention_rules_count}
+  notifications: {mention_notifications_count}
 
 """
 

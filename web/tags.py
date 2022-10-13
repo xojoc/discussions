@@ -359,6 +359,8 @@ def __topic_apl(tags, title, url, platform, original_title):
         tags.add("apl")
 
     __programming_keyword(tags, title, url, "apl")
+    __programming_keyword(tags, title, url, "apl2", "apl")
+    __programming_keyword(tags, title, url, "dyalog", "apl")
 
     if platform in ("h", "u", "t", "l"):
         if re.search(r"\bAPL\b", original_title):

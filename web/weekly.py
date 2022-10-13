@@ -595,7 +595,7 @@ def share_weekly_issue(self):
 
         htags = tags.normalize(topic.get("tags"))
 
-        status = f"""Issue for week {week}/{year} is out 🎉
+        status = f"""{topic['name']} recap for week {week}/{year}
 
 {issue_url}
 """
