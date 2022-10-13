@@ -59,7 +59,7 @@ def worker_update_discussions(self):
 
         if story.story_url:
             resource = models.Resource.by_url(story.story_url)
-            if resource is not None and not resource.exists():
+            if resource is None:
                 crawler.add_to_queue(story.story_url, priority=3)
 
         canonical_story_url = story.canonical_story_url
