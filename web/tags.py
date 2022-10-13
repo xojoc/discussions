@@ -28,20 +28,25 @@ def __augment_tags(title, tags, keyword, atleast_tags=None, new_tag=None):
 
 def __is_programming_related(title, url=None):
     return (
-        set(title)
-        & {
-            "algorithm",
-            "algorithms",
-            "code",
-            "function",
-            "lambda",
-            "library",
-            "tutorial",
-        }
-    ) or (
-        url
-        and url.hostname
-        and ("github.com" in url.hostname or "gitlab.com" in url.hostname)
+        (
+            set(title)
+            & {
+                "algorithm",
+                "algorithms",
+                "code",
+                "function",
+                "lambda",
+                "library",
+                "tutorial",
+                "multithreading",
+            }
+        )
+        or ("programming" in title and "language" in title)
+        or (
+            url
+            and url.hostname
+            and ("github.com" in url.hostname or "gitlab.com" in url.hostname)
+        )
     )
 
 
@@ -104,6 +109,9 @@ def __topic_unix(tags, title, url, platform):
         None,
         {
             "opensuse",
+            "manjarolinux",
+            "archlinux",
+            "debian",
         },
         "linux",
     )
@@ -128,6 +136,7 @@ def __topic_unix(tags, title, url, platform):
 def __topic_webdev(tags, title, url, platform):
     __augment_tags(title, tags, "node.js", None, "nodejs")
     __augment_tags(title, tags, "javascript")
+    __augment_tags(title, tags, "typescript")
     __augment_tags(None, tags, None, {"nodejs"}, "javascript")
 
     __augment_tags(
@@ -149,6 +158,7 @@ def __topic_zig(tags, title, url, platform):
         __augment_tags(
             title, tags, "zig", {"programming", "gamedev"}, "ziglang"
         )
+        __programming_keyword(tags, title, url, "zig", "ziglang")
 
     if (
         url
@@ -164,10 +174,11 @@ def __topic_zig(tags, title, url, platform):
         tags.add("ziglang")
 
 
-def __topic_java(tags, title, url, platform):
+def __topic_java(tags, title, url, platform, original_title):
     if platform == "u":
         __augment_tags(title, tags, "java")
     __augment_tags(title, tags, "java", {"programming", "gamedev", "webdev"})
+    __programming_keyword(tags, title, url, "java")
     __augment_tags(title, tags, "openjdk", None, "java")
 
     try:
@@ -180,10 +191,9 @@ def __topic_java(tags, title, url, platform):
     except Exception:
         pass
 
-    if "java" in title and "spring" in title:
+    if "java" in title and ("spring" in title or "jvm" in title):
         tags.add("java")
-
-    __programming_keyword(tags, title, url, "java")
+        tags.add("jvm")
 
     if (
         url
@@ -199,11 +209,26 @@ def __topic_java(tags, title, url, platform):
     ):
         tags.add("java")
 
+    if platform in ("h", "u", "t", "l") or __is_programming_related(
+        title, url
+    ):
+        if re.search(r"\bJVM\b", original_title):
+            tags.add("jvm")
+
+    __augment_tags(
+        title, tags, "kotlin", {"programming", "gamedev", "compsci"}
+    )
+    __programming_keyword(tags, title, url, "kotlin")
+    if "kotlin" in title and "jvm" in title:
+        tags.add("kotlin")
+        tags.add("jvm")
+
 
 def __topic_php(tags, title, url, platform):
     __augment_tags(title, tags, None, {"laravel"}, "php")
     __augment_tags(title, tags, "php", {"programming", "gamedev", "webdev"})
     __programming_keyword(tags, title, url, "php")
+    __programming_keyword(tags, title, url, "laravel")
     if platform == "h" and "php" in title:
         tags.add("php")
     if url and (url.hostname or "").startswith("php.net"):
@@ -212,13 +237,15 @@ def __topic_php(tags, title, url, platform):
 
 def __topic_rust(tags, title, url, platform):
     __augment_tags(title, tags, "rustlang")
-    __augment_tags(
-        title, tags, "rust", {"programming", "gamedev", "compsci"}, "rustlang"
-    )
+    __augment_tags(title, tags, "rust", {"programming", "compsci"}, "rustlang")
 
     __programming_keyword(tags, title, url, "rust", "rustlang")
 
-    if "rust" in title and ("gcc" in title or "kernel" in title):
+    if "rust" in title and (
+        "gcc" in title
+        or "kernel" in title
+        or ("linux" in title and "driver" in title)
+    ):
         tags.add("rust")
 
     __augment_tags(title, tags, "rustc", None, "rustlang")
@@ -228,8 +255,8 @@ def __topic_golang(tags, title, url, platform, original_title):
     __augment_tags(title, tags, "golang")
 
     if (
-        ("programming" in tags or __is_programming_related(tags, url))
-        and "Go" in original_title.split()
+        ("programming" in tags or __is_programming_related(title, url))
+        and re.search(r"\bGo\b", original_title)
         and "game" not in title
     ):
         tags.add("golang")
@@ -333,6 +360,18 @@ def __topic_apl(tags, title, url, platform, original_title):
 
     __programming_keyword(tags, title, url, "apl")
 
+    if platform in ("h", "u", "t", "l"):
+        if re.search(r"\bAPL\b", original_title):
+            tags.add("apl")
+        # if url and url.hostname and "github" in url.hostname:
+        #     if re.search(r"\K\b", original_title):
+        #         tags.add("apl")
+        if (
+            re.search(r"\bK\b", original_title)
+            or re.search(r"\bJ\b", original_title)
+        ) and ("programming" in title or "concatenative" in title):
+            tags.add("apl")
+
 
 def __lobsters(tags, title):
     tags -= {
@@ -429,7 +468,6 @@ def __reddit(tags, title):
 
 def __hacker_news(tags, title):
     __augment_tags(title, tags, "docker")
-    __augment_tags(title, tags, "typescript")
 
 
 def __lambda_the_ultimate(tags, title):
@@ -493,8 +531,6 @@ def __from_title_url(tags, title, url):
         or "algorithm" in title
     ):
         tags |= {"quantumcomputing", "programming"}
-
-    __augment_tags(title, tags, "kotlin", {"programming", "gamedev"})
 
     if "programming" in title and (
         "language" in title or "languages" in title
@@ -635,7 +671,7 @@ def normalize(tags, platform=None, title="", url=""):
     curl = cleanurl.cleanurl(url)
 
     for _ in range(3):
-        __topic_java(tags, title_tokens, curl, platform)
+        __topic_java(tags, title_tokens, curl, platform, original_title)
         __topic_nim(tags, title_tokens, curl, platform)
         __topic_php(tags, title_tokens, curl, platform)
         __topic_rust(tags, title_tokens, curl, platform)

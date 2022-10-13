@@ -1,9 +1,11 @@
+import datetime
 import os
 import unicodedata
 from difflib import SequenceMatcher
 from urllib.parse import quote
 
 import cleanurl
+from django.utils import timezone
 
 from discussions import settings
 
@@ -122,3 +124,7 @@ def is_sublist(lst, sublist):
         else:
             return True
     return False
+
+
+def days_ago(days):
+    return timezone.now() - datetime.timedelta(days=days)
