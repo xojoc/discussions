@@ -292,7 +292,7 @@ def __topic_python(tags, title, url, platform):
 def __topic_haskell(tags, title, url, platform, original_title):
     __augment_tags(title, tags, "haskell")
 
-    if "GHC" in original_title.split() and (
+    if re.search(r"\bGHC\b", original_title) and (
         __is_programming_related(title, url)
         or (url and url.hostname and "haskell.org" in url.hostname)
     ):
@@ -371,6 +371,39 @@ def __topic_apl(tags, title, url, platform, original_title):
             or re.search(r"\bJ\b", original_title)
         ) and ("programming" in title or "concatenative" in title):
             tags.add("apl")
+
+
+def __topic_devops(tags, title, url, platform, original_title):
+    if platform != "r" or "devops" in tags:
+        __augment_tags(title, tags, "docker")
+
+    __augment_tags(title, tags, "kubernetes")
+    if re.search(r"\bk8s\b", original_title, re.IGNORECASE) or re.search(
+        r"\bmicrok8s\b", original_title, re.IGNORECASE
+    ):
+        tags.add("kubernetes")
+
+    if (
+        platform == "r"
+        and "selfhosted" in tags
+        and re.search(r"\bdocker\b", original_title, re.IGNORECASE)
+    ):
+        tags.add("docker")
+
+    if re.search(r"\bCI/CD\b", original_title):
+        tags.add("devops")
+
+    __augment_tags(
+        title,
+        tags,
+        None,
+        {"docker", "kubernetes", "ansible", "terraform"},
+        "devops",
+    )
+
+
+def __hacker_news(tags, title):
+    return
 
 
 def __lobsters(tags, title):
@@ -466,10 +499,6 @@ def __reddit(tags, title):
     )
 
 
-def __hacker_news(tags, title):
-    __augment_tags(title, tags, "docker")
-
-
 def __lambda_the_ultimate(tags, title):
     for t in tags:
         t = t.replace(" ", "-")
@@ -547,6 +576,10 @@ def __rename(tags, title, platform=None):
     to_replace = [
         (".net", "dotnet"),
         ("ai", "machinelearning", "l"),
+        ("aws", ["aws", "devops"], "r"),
+        ("azure", ["azure", "devops"], "r"),
+        ("azuredevops", ["azure", "devops"], "r"),
+        ("googlecloud", ["googlecloud", "devops"], "r"),
         ("apljk", "apl", "r"),
         ("btc", "bitcoin", "r"),
         ("c_programming", "c", "r"),
@@ -649,8 +682,6 @@ def __enrich(tags, title):
         "programming",
     )
 
-    __augment_tags(title, tags, None, {"docker", "kubernetes"}, "devops")
-
     return tags
 
 
@@ -687,6 +718,7 @@ def normalize(tags, platform=None, title="", url=""):
             tags, title_tokens, curl, platform, original_title
         )
         __topic_apl(tags, title_tokens, curl, platform, original_title)
+        __topic_devops(tags, title_tokens, curl, platform, original_title)
 
         __from_title_url(tags, title_tokens, curl)
 
