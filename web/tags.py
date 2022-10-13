@@ -502,11 +502,11 @@ def __reddit(tags, title):
 
 
 def __lambda_the_ultimate(tags, title):
-    for t in tags:
-        t = t.replace(" ", "-")
-        t = t.replace("/", "-")
-        tags.discard(t)
-        tags.add(t)
+    for t in tags.copy():
+        nt = t.replace(" ", "-").replace("/", "-")
+        if nt != t:
+            tags.discard(t)
+            tags.add(nt)
 
     tags.difference_update(
         {

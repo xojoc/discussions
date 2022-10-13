@@ -342,10 +342,6 @@ def submit_discussions():
     _submit_discussions()
 
 
-# todo: post only stories in the third quantile
-#       https://stackoverflow.com/questions/59686945/django-postgres-percentile-median-and-group-by
-
-
 def _submit_discussions():
     cache_prefix = "hn:submitted:"
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
