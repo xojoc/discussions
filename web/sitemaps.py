@@ -11,7 +11,8 @@ class StaticViewSitemap(Sitemap):
 
     def items(self):
         return [
-            "api-v0:openapi-swagger",
+            # "api-v0:openapi-swagger",
+            "web:api",
             "web:bookmarklet",
             "web:extension",
             "web:pricing",
