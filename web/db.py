@@ -133,12 +133,25 @@ def update_pagerank(self):
 
     r = models.Resource
 
-    updated_count = models.Resource.objects.bulk_update(
-        (r(pk=pk, pagerank=pr) for pk, pr in pagerank.items()),
-        ["pagerank"],
-    )
+    resources = []
 
-    logger.info(f"update_pagerank: {updated_count}")
+    def __update(resources):
+        if not resources:
+            return
+        updated_count = models.Resource.objects.bulk_update(
+            resources,
+            ["pagerank"],
+        )
+        logger.info(f"update_pagerank: updated: {updated_count}")
+        resources[:] = []
+
+    for pk, pr in pagerank.items():
+        resources.append(r(pk=pk, pagerank=pr))
+
+        if len(resources) >= 2000:
+            __update(resources)
+
+    __update(resources)
 
 
 @shared_task(ignore_result=True, bind=True)
