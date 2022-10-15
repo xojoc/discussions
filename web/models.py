@@ -688,6 +688,8 @@ class Resource(models.Model):
         "self", symmetrical=False, through="Link", related_name="inbound_link"
     )
 
+    pagerank = models.FloatField(null=True)
+
     @property
     def complete_url(self):
         return self.scheme + "://" + self.url

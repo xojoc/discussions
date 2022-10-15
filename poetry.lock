@@ -421,6 +421,24 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "contourpy"
+version = "1.0.5"
+description = "Python library for calculating contours of 2D quadrilateral grids"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+numpy = ">=1.16"
+
+[package.extras]
+test-no-codebase = ["pillow", "matplotlib", "pytest"]
+test-minimal = ["pytest"]
+test = ["isort", "flake8", "pillow", "matplotlib", "pytest"]
+docs = ["sphinx-rtd-theme", "sphinx", "docutils (<0.18)"]
+bokeh = ["selenium", "bokeh"]
+
+[[package]]
 name = "crispy-bootstrap5"
 version = "0.7"
 description = "Bootstrap5 template pack for django-crispy-forms"
@@ -473,6 +491,14 @@ description = "Python bindings for wc(s)width"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
+
+[[package]]
+name = "cycler"
+version = "0.11.0"
+description = "Composable style cycles"
+category = "main"
+optional = false
+python-versions = ">=3.6"
 
 [[package]]
 name = "daphne"
@@ -744,6 +770,28 @@ pytz = "*"
 tornado = ">=5.0.0,<7.0.0"
 
 [[package]]
+name = "fonttools"
+version = "4.37.4"
+description = "Tools to manipulate font files"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+all = ["fs (>=2.2.0,<3)", "lxml (>=4.0,<5)", "zopfli (>=0.1.4)", "lz4 (>=1.7.4.2)", "matplotlib", "sympy", "skia-pathops (>=0.5.0)", "uharfbuzz (>=0.23.0)", "brotlicffi (>=0.8.0)", "scipy", "brotli (>=1.0.1)", "munkres", "unicodedata2 (>=14.0.0)", "xattr"]
+graphite = ["lz4 (>=1.7.4.2)"]
+interpolatable = ["scipy", "munkres"]
+lxml = ["lxml (>=4.0,<5)"]
+pathops = ["skia-pathops (>=0.5.0)"]
+plot = ["matplotlib"]
+repacker = ["uharfbuzz (>=0.23.0)"]
+symfont = ["sympy"]
+type1 = ["xattr"]
+ufo = ["fs (>=2.2.0,<3)"]
+unicode = ["unicodedata2 (>=14.0.0)"]
+woff = ["zopfli (>=0.1.4)", "brotlicffi (>=0.8.0)", "brotli (>=1.0.1)"]
+
+[[package]]
 name = "gevent"
 version = "22.10.1"
 description = "Coroutine-based network library"
@@ -804,6 +852,26 @@ description = "Internationalized Domain Names in Applications (IDNA)"
 category = "main"
 optional = false
 python-versions = ">=3.5"
+
+[[package]]
+name = "igraph"
+version = "0.10.1"
+description = "High performance graph data structures and algorithms"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+texttable = ">=1.6.2"
+
+[package.extras]
+cairo = ["cairocffi (>=1.2.0)"]
+doc = ["Sphinx (>=4.2.0)", "sphinxbootstrap4theme (>=0.6.0)"]
+matplotlib = ["matplotlib (>=3.3.0)"]
+plotly = ["plotly (>=5.3.0)"]
+plotting = ["cairocffi (>=1.2.0)"]
+test = ["networkx (>=2.5)", "pytest (>=7.0.1)", "plotly (>=5.3.0)", "numpy (>=1.19.0)", "pandas (>=1.1.0)", "scipy (>=1.5.0)", "matplotlib (>=3.3.4)", "Pillow (>=8,<8.4)"]
+test-musl = ["networkx (>=2.5)", "pytest (>=7.0.1)"]
 
 [[package]]
 name = "importlib-metadata"
@@ -916,6 +984,14 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "kiwisolver"
+version = "1.4.4"
+description = "A fast implementation of the Cassowary constraint solver"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "kombu"
 version = "5.2.4"
 description = "Messaging library for Python."
@@ -1002,6 +1078,26 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "matplotlib"
+version = "3.6.1"
+description = "Python plotting package"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+contourpy = ">=1.0.1"
+cycler = ">=0.10"
+fonttools = ">=4.22.0"
+kiwisolver = ">=1.0.1"
+numpy = ">=1.19"
+packaging = ">=20.0"
+pillow = ">=6.2.0"
+pyparsing = ">=2.2.1"
+python-dateutil = ">=2.7"
+setuptools_scm = ">=7"
+
+[[package]]
 name = "matplotlib-inline"
 version = "0.1.6"
 description = "Inline Matplotlib backend for Jupyter"
@@ -1063,6 +1159,21 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "networkx"
+version = "2.8.7"
+description = "Python package for creating and manipulating graphs and networks"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.extras]
+default = ["numpy (>=1.19)", "scipy (>=1.8)", "matplotlib (>=3.4)", "pandas (>=1.3)"]
+developer = ["pre-commit (>=2.20)", "mypy (>=0.981)"]
+doc = ["sphinx (>=5)", "pydata-sphinx-theme (>=0.9)", "sphinx-gallery (>=0.10)", "numpydoc (>=1.4)", "pillow (>=9.1)", "nb2plots (>=0.6)", "texext (>=0.6.6)"]
+extra = ["lxml (>=4.6)", "pygraphviz (>=1.9)", "pydot (>=1.4.2)", "sympy (>=1.10)"]
+test = ["pytest (>=7.1)", "pytest-cov (>=3.0)", "codecov (>=2.1)"]
+
+[[package]]
 name = "nltk"
 version = "3.7"
 description = "Natural Language Toolkit"
@@ -1083,6 +1194,14 @@ machine_learning = ["numpy", "python-crfsuite", "scikit-learn", "scipy"]
 plot = ["matplotlib"]
 tgrep = ["pyparsing"]
 twitter = ["twython"]
+
+[[package]]
+name = "numpy"
+version = "1.23.4"
+description = "NumPy is the fundamental package for array computing with Python."
+category = "main"
+optional = false
+python-versions = ">=3.8"
 
 [[package]]
 name = "oauthlib"
@@ -1146,6 +1265,18 @@ description = "Tiny 'shelve'-like database with concurrency support"
 category = "dev"
 optional = false
 python-versions = "*"
+
+[[package]]
+name = "pillow"
+version = "9.2.0"
+description = "Python Imaging Library (Fork)"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+docs = ["furo", "olefile", "sphinx (>=2.4)", "sphinx-copybutton", "sphinx-issues (>=3.0.1)", "sphinx-removed-in", "sphinxext-opengraph"]
+tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "packaging", "pyroma", "pytest", "pytest-cov", "pytest-timeout"]
 
 [[package]]
 name = "platformdirs"
@@ -1263,6 +1394,14 @@ python-versions = "*"
 
 [package.dependencies]
 pyasn1 = ">=0.4.6,<0.5.0"
+
+[[package]]
+name = "pycairo"
+version = "1.21.0"
+description = "Python interface for cairo"
+category = "main"
+optional = false
+python-versions = ">=3.7"
 
 [[package]]
 name = "pycodestyle"
@@ -1474,6 +1613,22 @@ requests = ">=2.0.0"
 rsa = ["oauthlib[signedtoken] (>=3.0.0)"]
 
 [[package]]
+name = "scipy"
+version = "1.9.2"
+description = "Fundamental algorithms for scientific computing in Python"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+numpy = ">=1.18.5,<1.26.0"
+
+[package.extras]
+test = ["pytest", "pytest-cov", "pytest-xdist", "asv", "mpmath", "gmpy2", "threadpoolctl", "scikit-umfpack"]
+doc = ["sphinx (!=4.1.0)", "pydata-sphinx-theme (==0.9.0)", "sphinx-panels (>=0.5.2)", "matplotlib (>2)", "numpydoc", "sphinx-tabs"]
+dev = ["mypy", "typing-extensions", "pycodestyle", "flake8"]
+
+[[package]]
 name = "sentry-sdk"
 version = "1.9.10"
 description = "Python client for Sentry (https://sentry.io)"
@@ -1525,6 +1680,23 @@ dev = ["coverage[toml] (>=5.0.2)", "pytest", "sphinx", "furo", "idna", "pyopenss
 docs = ["sphinx", "furo"]
 idna = ["idna"]
 tests = ["coverage[toml] (>=5.0.2)", "pytest"]
+
+[[package]]
+name = "setuptools-scm"
+version = "7.0.5"
+description = "the blessed package to manage your versions by scm tags"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+packaging = ">=20.0"
+tomli = ">=1.0.0"
+typing-extensions = "*"
+
+[package.extras]
+test = ["pytest (>=6.2)", "virtualenv (>20)"]
+toml = ["setuptools (>=42)"]
 
 [[package]]
 name = "sgmllib3k"
@@ -1586,6 +1758,14 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 requests = {version = ">=2.20", markers = "python_version >= \"3.0\""}
 
 [[package]]
+name = "texttable"
+version = "1.6.4"
+description = "module for creating simple ASCII tables"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -1597,7 +1777,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -1886,7 +2066,7 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "29c5edbeca958aa1b09079e2ed2dc08bfce3226696955c45f7ea4581471a130a"
+content-hash = "d298375b4f12cbcda33f49378823d3f4a3040fc697ebffc3649c21dddfcce958"
 
 [metadata.files]
 amqp = [
@@ -1967,10 +2147,12 @@ constantly = [
     {file = "constantly-15.1.0-py2.py3-none-any.whl", hash = "sha256:dd2fa9d6b1a51a83f0d7dd76293d734046aa176e384bf6e33b7e44880eb37c5d"},
     {file = "constantly-15.1.0.tar.gz", hash = "sha256:586372eb92059873e29eba4f9dec8381541b4d3834660707faf8ba59146dfc35"},
 ]
+contourpy = []
 crispy-bootstrap5 = []
 cryptography = []
 curtsies = []
 cwcwidth = []
+cycler = []
 daphne = []
 decorator = []
 defusedxml = [
@@ -2018,6 +2200,7 @@ executing = []
 feedparser = []
 flake8 = []
 flower = []
+fonttools = []
 gevent = []
 greenlet = []
 humanize = []
@@ -2026,6 +2209,7 @@ hyperlink = [
     {file = "hyperlink-21.0.0.tar.gz", hash = "sha256:427af957daa58bc909471c6c40f74c5450fa123dd093fc53efd2e91d2705a56b"},
 ]
 idna = []
+igraph = []
 importlib-metadata = []
 incremental = [
     {file = "incremental-21.3.0-py2.py3-none-any.whl", hash = "sha256:92014aebc6a20b78a8084cdd5645eeaa7f74b8933f70fa3ada2cfbd1e3b54321"},
@@ -2036,6 +2220,7 @@ jedi = []
 jinja2 = []
 jinxed = []
 joblib = []
+kiwisolver = []
 kombu = [
     {file = "kombu-5.2.4-py3-none-any.whl", hash = "sha256:8b213b24293d3417bcf0d2f5537b7f756079e3ea232a8386dcc89a59fd2361a4"},
     {file = "kombu-5.2.4.tar.gz", hash = "sha256:37cee3ee725f94ea8bb173eaab7c1760203ea53bbebae226328600f9d2799610"},
@@ -2045,6 +2230,7 @@ libsass = []
 lxml = []
 markdown = []
 markupsafe = []
+matplotlib = []
 matplotlib-inline = []
 mccabe = []
 minify-html = []
@@ -2107,10 +2293,12 @@ mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
 ]
+networkx = []
 nltk = [
     {file = "nltk-3.7-py3-none-any.whl", hash = "sha256:ba3de02490308b248f9b94c8bc1ac0683e9aa2ec49ee78536d8667afb5e3eec8"},
     {file = "nltk-3.7.zip", hash = "sha256:d6507d6460cec76d70afea4242a226a7542f85c669177b9c7f562b7cf1b05502"},
 ]
+numpy = []
 oauthlib = []
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
@@ -2120,6 +2308,7 @@ parso = []
 pathspec = []
 pexpect = []
 pickleshare = []
+pillow = []
 platformdirs = [
     {file = "platformdirs-2.5.2-py3-none-any.whl", hash = "sha256:027d8e83a2d7de06bbac4e5ef7e023c02b863d7ea5d079477e722bb41ab25788"},
     {file = "platformdirs-2.5.2.tar.gz", hash = "sha256:58c8abb07dcb441e6ee4b11d8df0ac856038f944ab98b7be6b27b2a3c7feef19"},
@@ -2167,6 +2356,7 @@ pyasn1-modules = [
     {file = "pyasn1_modules-0.2.8-py3.6.egg", hash = "sha256:cbac4bc38d117f2a49aeedec4407d23e8866ea4ac27ff2cf7fb3e5b570df19e0"},
     {file = "pyasn1_modules-0.2.8-py3.7.egg", hash = "sha256:c29a5e5cc7a3f05926aff34e097e84f8589cd790ce0ed41b67aed6857b26aafd"},
 ]
+pycairo = []
 pycodestyle = []
 pycparser = [
     {file = "pycparser-2.21-py2.py3-none-any.whl", hash = "sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9"},
@@ -2201,11 +2391,13 @@ requests-oauthlib = [
     {file = "requests-oauthlib-1.3.1.tar.gz", hash = "sha256:75beac4a47881eeb94d5ea5d6ad31ef88856affe2332b9aafb52c6452ccf0d7a"},
     {file = "requests_oauthlib-1.3.1-py2.py3-none-any.whl", hash = "sha256:2577c501a2fb8d05a304c09d090d6e47c306fef15809d102b327cf8364bddab5"},
 ]
+scipy = []
 sentry-sdk = []
 service-identity = [
     {file = "service-identity-21.1.0.tar.gz", hash = "sha256:6e6c6086ca271dc11b033d17c3a8bea9f24ebff920c587da090afc9519419d34"},
     {file = "service_identity-21.1.0-py2.py3-none-any.whl", hash = "sha256:f0b0caac3d40627c3c04d7a51b6e06721857a0e10a8775f2d1d7e72901b3a7db"},
 ]
+setuptools-scm = []
 sgmllib3k = []
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
@@ -2218,6 +2410,7 @@ soupsieve = [
 sqlparse = []
 stack-data = []
 stripe = []
+texttable = []
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},

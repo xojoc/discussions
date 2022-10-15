@@ -294,12 +294,6 @@ def index(request, path_q=None):
     if ctx["nothing_found"]:
         response.status_code = 404
 
-    # messages.debug(request, "debug")
-    # messages.info(request, "info")
-    # messages.success(request, "success")
-    # messages.warning(request, "warning")
-    # messages.error(request, "error")
-
     return response
 
 

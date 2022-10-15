@@ -15,6 +15,7 @@ from web import (
     topics,
     twitter,
     worker,
+    rank,
 )
 
 logger = logging.getLogger(__name__)
@@ -123,6 +124,21 @@ def worker_update_resources(self):
             last_checkpoint = time.monotonic()
 
     logger.info(f"db update resources: {time.monotonic() - start_time}")
+
+
+@shared_task(ignore_result=True, bind=True)
+def update_pagerank(self):
+    g = rank.links_to_graph()
+    pagerank = rank.pagerank(g)
+
+    r = models.Resource
+
+    updated_count = models.Resource.objects.bulk_update(
+        (r(pk=pk, pagerank=pr) for pk, pr in pagerank.items()),
+        ["pagerank"],
+    )
+
+    logger.info(f"update_pagerank: {updated_count}")
 
 
 @shared_task(ignore_result=True, bind=True)

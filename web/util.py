@@ -32,7 +32,7 @@ def discussions_canonical_url(q, with_domain=True):
 
     cu = cleanurl.cleanurl(q)
 
-    if cu.scheme in ("http", "https"):
+    if cu and cu.scheme in ("http", "https"):
         q = cu.url or ""
         q = q.replace("http://", "https://")
 
