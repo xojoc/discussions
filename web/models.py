@@ -688,7 +688,7 @@ class Resource(models.Model):
         "self", symmetrical=False, through="Link", related_name="inbound_link"
     )
 
-    pagerank = models.FloatField(null=True)
+    pagerank = models.FloatField(default=0, null=False)
 
     @property
     def complete_url(self):

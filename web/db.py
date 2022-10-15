@@ -131,8 +131,7 @@ def update_pagerank(self):
     g = rank.links_to_graph()
     pagerank = rank.pagerank(g)
 
-    r = models.Resource
-
+    total_updated_count = 0
     resources = []
 
     def __update(resources):
@@ -142,16 +141,19 @@ def update_pagerank(self):
             resources,
             ["pagerank"],
         )
-        logger.info(f"update_pagerank: updated: {updated_count}")
+        nonlocal total_updated_count
+        total_updated_count += updated_count
         resources[:] = []
 
     for pk, pr in pagerank.items():
-        resources.append(r(pk=pk, pagerank=pr))
+        resources.append(models.Resource(pk=pk, pagerank=pr))
 
         if len(resources) >= 2000:
             __update(resources)
 
     __update(resources)
+
+    logger.info(f"update_pagerank: updated: {total_updated_count}")
 
 
 @shared_task(ignore_result=True, bind=True)

@@ -136,17 +136,6 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 		</div>
 	</div>
 
-	<!-- <p class="mt-5">discu.eu tracks and makes accessible discussions on Hacker News, Lobsters, Reddit, Lambda the
-		Ultimate and <a href="/statistics#platforms" title="Platforms">others</a>.
-	</p>
-
-	<div class="text-center mb-5">
-		<a href="{% url 'web:pricing' %}" title="Pricing and features"
-			class="btn btn-primary text-white fw-bold fs-1">See
-			all the
-			features</a>
-	</div> -->
-
 	{% endif %}
 
 	{% endif %}
@@ -176,6 +165,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 					<strong>{{ inbound_resource.discussions_comment_count }}
 						comment{{inbound_resource.discussions_comment_count|pluralize:",s"}}</strong>
 				</a>
+
+				<!-- Pagerank: {{inbound_resource.pagerank}} -->
 			</li>
 			{% endfor %}
 		</ul>
@@ -202,6 +193,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 					<strong>{{ outbound_resource.discussions_comment_count }}
 						comment{{outbound_resource.discussions_comment_count|pluralize:",s"}}</strong>
 				</a>
+
+				<!-- Pagerank: {{outbound_resource.pagerank}} -->
 			</li>
 			{% endfor %}
 		</ul>
