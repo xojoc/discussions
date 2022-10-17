@@ -138,12 +138,19 @@ def __topic_webdev(tags, title, url, platform):
     __augment_tags(title, tags, "javascript")
     __augment_tags(title, tags, "typescript")
     __augment_tags(None, tags, None, {"nodejs"}, "javascript")
+    __augment_tags(None, tags, None, {"jquery"}, "javascript")
 
     __augment_tags(
         title,
         tags,
         None,
-        {"django", "flask", "javascript", "typescript", "rails"},
+        {
+            "django",
+            "flask",
+            "javascript",
+            "typescript",
+            "rails",
+        },
         "webdev",
     )
 
@@ -226,6 +233,7 @@ def __topic_java(tags, title, url, platform, original_title):
 
 def __topic_php(tags, title, url, platform):
     __augment_tags(title, tags, None, {"laravel"}, "php")
+    __augment_tags(title, tags, None, {"cakephp"}, "php")
     __augment_tags(title, tags, "php", {"programming", "gamedev", "webdev"})
     __programming_keyword(tags, title, url, "php")
     __programming_keyword(tags, title, url, "laravel")
@@ -491,6 +499,7 @@ def __reddit(tags, title):
         tags,
         None,
         {
+            "algorithms",
             "compilers",
             "emudev",
             "cryptography",
@@ -585,10 +594,15 @@ def __rename(tags, title, platform=None):
         ("apljk", "apl", "r"),
         ("btc", "bitcoin", "r"),
         ("c_programming", "c", "r"),
+        ("cprog", "c", "r"),
+        ("cprogramming", "c", "r"),
+        ("c_language", "c", "r"),
+        ("cplusplus", "cpp", "r"),
         ("c#", "csharp"),
         ("c++", "cpp"),
         ("common_lisp", "lisp", "r"),
         ("coding", "programming", "r"),
+        ("computerscience", "compsci", "r"),
         ("crypto", "cryptography", "r"),
         ("d_language", "dlang", "r"),
         ("d", "dlang", "l"),

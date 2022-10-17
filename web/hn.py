@@ -190,9 +190,9 @@ def _worker_fetch(task, platform):
 
             queue_loops_c = 0
 
-        logger.info(
-            f"hn {platform} queue ({len(queue)}): {queue_loops_c} {queue_max_loops} {skip_timeout_weight}"
-        )
+        # logger.info(
+        #     f"hn {platform} queue ({len(queue)}): {queue_loops_c} {queue_max_loops} {skip_timeout_weight}"
+        # )
 
         queue_loops_c += 1
 
@@ -215,7 +215,7 @@ def _worker_fetch(task, platform):
             max_item = client.get(f"{bu}/v0/maxitem.json").content
             max_item = int(max_item)
 
-        logger.info(f"hn {platform} fetch: current_item {current_item}")
+        # logger.info(f"hn {platform} fetch: current_item {current_item}")
         end = time.monotonic() + 60
         while time.monotonic() < end:
             __fetch_process_item(platform, current_item, client, redis)
