@@ -181,7 +181,6 @@ mypy-extensions = ">=0.4.3"
 pathspec = ">=0.9.0"
 platformdirs = ">=2"
 tomli = {version = ">=1.1.0", markers = "python_full_version < \"3.11.0a7\""}
-typing-extensions = {version = ">=3.10.0.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
@@ -548,14 +547,14 @@ dev = ["tox", "bump2version (<1)", "sphinx (<2)", "importlib-metadata (<3)", "im
 
 [[package]]
 name = "django"
-version = "4.0.8"
+version = "4.1.2"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
 python-versions = ">=3.8"
 
 [package.dependencies]
-asgiref = ">=3.4.1,<4"
+asgiref = ">=3.5.2,<4"
 sqlparse = ">=0.2.2"
 tzdata = {version = "*", markers = "sys_platform == \"win32\""}
 
@@ -580,7 +579,7 @@ requests-oauthlib = ">=0.3.0"
 
 [[package]]
 name = "django-celery-beat"
-version = "2.3.0"
+version = "2.4.0"
 description = "Database-backed Periodic Tasks."
 category = "main"
 optional = false
@@ -588,7 +587,7 @@ python-versions = "*"
 
 [package.dependencies]
 celery = ">=5.2.3,<6.0"
-Django = ">=2.2,<4.1"
+Django = ">=2.2,<4.2"
 django-timezone-field = ">=5.0"
 python-crontab = ">=2.3.4"
 tzdata = "*"
@@ -855,7 +854,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "igraph"
-version = "0.10.1"
+version = "0.10.2"
 description = "High performance graph data structures and algorithms"
 category = "main"
 optional = false
@@ -867,11 +866,11 @@ texttable = ">=1.6.2"
 [package.extras]
 cairo = ["cairocffi (>=1.2.0)"]
 doc = ["Sphinx (>=4.2.0)", "sphinxbootstrap4theme (>=0.6.0)"]
-matplotlib = ["matplotlib (>=3.3.0)"]
+matplotlib = ["matplotlib (>=3.5.0,<3.6.0)"]
 plotly = ["plotly (>=5.3.0)"]
 plotting = ["cairocffi (>=1.2.0)"]
-test = ["networkx (>=2.5)", "pytest (>=7.0.1)", "plotly (>=5.3.0)", "numpy (>=1.19.0)", "pandas (>=1.1.0)", "scipy (>=1.5.0)", "matplotlib (>=3.3.4)", "Pillow (>=8,<8.4)"]
-test-musl = ["networkx (>=2.5)", "pytest (>=7.0.1)"]
+test = ["networkx (>=2.5)", "pytest (>=7.0.1)", "pytest-timeout (>=2.1.0)", "plotly (>=5.3.0)", "numpy (>=1.19.0)", "pandas (>=1.1.0)", "scipy (>=1.5.0)", "Pillow (>=9)", "matplotlib (>=3.6.0)"]
+test-musl = ["networkx (>=2.5)", "pytest (>=7.0.1)", "pytest-timeout (>=2.1.0)"]
 
 [[package]]
 name = "importlib-metadata"
@@ -891,13 +890,14 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "flake8 
 
 [[package]]
 name = "incremental"
-version = "21.3.0"
-description = "A small library that versions your Python projects."
+version = "22.10.0"
+description = "\"A small library that versions your Python projects.\""
 category = "main"
 optional = false
 python-versions = "*"
 
 [package.extras]
+mypy = ["click (>=6.0)", "twisted (>=16.4.0)", "mypy (==0.812)"]
 scripts = ["click (>=6.0)", "twisted (>=16.4.0)"]
 
 [[package]]
@@ -1063,9 +1063,6 @@ category = "main"
 optional = false
 python-versions = ">=3.7"
 
-[package.dependencies]
-importlib-metadata = {version = ">=4.4", markers = "python_version < \"3.10\""}
-
 [package.extras]
 testing = ["coverage", "pyyaml"]
 
@@ -1205,7 +1202,7 @@ python-versions = ">=3.8"
 
 [[package]]
 name = "oauthlib"
-version = "3.2.1"
+version = "3.2.2"
 description = "A generic, spec-compliant, thorough implementation of the OAuth request-signing logic"
 category = "main"
 optional = false
@@ -1396,14 +1393,6 @@ python-versions = "*"
 pyasn1 = ">=0.4.6,<0.5.0"
 
 [[package]]
-name = "pycairo"
-version = "1.21.0"
-description = "Python interface for cairo"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-
-[[package]]
 name = "pycodestyle"
 version = "2.9.1"
 description = "Python style guide checker"
@@ -1540,7 +1529,7 @@ postgresql = ["psycopg2"]
 
 [[package]]
 name = "pytz"
-version = "2022.4"
+version = "2022.5"
 description = "World timezone definitions, modern and historical"
 category = "main"
 optional = false
@@ -1808,13 +1797,14 @@ telegram = ["requests"]
 
 [[package]]
 name = "traitlets"
-version = "5.4.0"
+version = "5.5.0"
 description = ""
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 
 [package.extras]
+docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["pre-commit", "pytest"]
 
 [[package]]
@@ -1897,7 +1887,7 @@ twisted = ["zope.interface (>=5.2.0)", "twisted (>=20.3.0)"]
 
 [[package]]
 name = "types-cryptography"
-version = "3.3.23"
+version = "3.3.23.1"
 description = "Typing stubs for cryptography"
 category = "main"
 optional = false
@@ -1905,7 +1895,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-pytz"
-version = "2022.4.0.0"
+version = "2022.5.0.0"
 description = "Typing stubs for pytz"
 category = "dev"
 optional = false
@@ -2065,8 +2055,8 @@ cffi = ["cffi (>=1.11)"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.9"
-content-hash = "d298375b4f12cbcda33f49378823d3f4a3040fc697ebffc3649c21dddfcce958"
+python-versions = "^3.10"
+content-hash = "aeeaffbdcee191d2006498d215d89356153fca1279c610bd100f769964c9bd17"
 
 [metadata.files]
 amqp = [
@@ -2165,10 +2155,7 @@ deprecated = [
 ]
 django = []
 django-allauth = []
-django-celery-beat = [
-    {file = "django-celery-beat-2.3.0.tar.gz", hash = "sha256:ba24f86ed956ba0ee2b43237a49303ebf5aa7e0fb0ccb7e0542b7e31a463dcba"},
-    {file = "django_celery_beat-2.3.0-py3-none-any.whl", hash = "sha256:ff694e1d30f84de3d2b78822c90005c6c7c1462768e845ae162af71a6a46f1eb"},
-]
+django-celery-beat = []
 django-celerybeat-status = [
     {file = "django-celerybeat-status-0.0.10.tar.gz", hash = "sha256:2077aecc46997619a4d12aad0bcc53289cff2edced4c116f0c6b5593631ca707"},
 ]
@@ -2211,10 +2198,7 @@ hyperlink = [
 idna = []
 igraph = []
 importlib-metadata = []
-incremental = [
-    {file = "incremental-21.3.0-py2.py3-none-any.whl", hash = "sha256:92014aebc6a20b78a8084cdd5645eeaa7f74b8933f70fa3ada2cfbd1e3b54321"},
-    {file = "incremental-21.3.0.tar.gz", hash = "sha256:02f5de5aff48f6b9f665d99d48bfc7ec03b6e3943210de7cfc88856d755d6f57"},
-]
+incremental = []
 ipython = []
 jedi = []
 jinja2 = []
@@ -2356,7 +2340,6 @@ pyasn1-modules = [
     {file = "pyasn1_modules-0.2.8-py3.6.egg", hash = "sha256:cbac4bc38d117f2a49aeedec4407d23e8866ea4ac27ff2cf7fb3e5b570df19e0"},
     {file = "pyasn1_modules-0.2.8-py3.7.egg", hash = "sha256:c29a5e5cc7a3f05926aff34e097e84f8589cd790ce0ed41b67aed6857b26aafd"},
 ]
-pycairo = []
 pycodestyle = []
 pycparser = [
     {file = "pycparser-2.21-py2.py3-none-any.whl", hash = "sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9"},

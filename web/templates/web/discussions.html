@@ -55,7 +55,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	{% if ctx.nothing_found %}
 	<h4>Discussions not found</h4>
 	<p>Sorry, we couldn't find anything for <strong>{{ctx.url}}</strong>.</p>
-	<p>See some <a href="{% url 'web:search' %}" title="How to search">search examples</a>.</p>
+	<p class="smaller-font-1">See some <a href="{% url 'web:search' %}" title="How to search">search examples</a>.</p>
 	{% else %}
 
 	{% if ctx.display_discussions %}
@@ -203,26 +203,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	{% endif %}
 
 
-
-	{% if ctx.submit_links %}
-	<div class='submit_links mt-5 smaller-font-2'>
-		<details {% if ctx.submit_links_visible %}open{% endif %}>
-			<summary>Submit link to:</summary>
-			<ul>
-				{% for submit_platform, submit_link in ctx.submit_links.items %}
-				<li>
-					<a href="{{submit_link}}" title="Submit to {{submit_platform}}" rel="nofollow noreferrer noopener"
-						target="_blank">{{submit_platform}}</a>
-				</li>
-				{% endfor %}
-			</ul>
-		</details>
-	</div>
-	{% endif %}
-
 	{% if ctx.try_with_site_prefix or ctx.try_with_title %}
-
-	<details {% if ctx.nothing_found %}open{% endif %} class="smaller-font-2">
+	<details {% if ctx.nothing_found %}open{% endif %} class="smaller-font-2 mt-5">
 		<summary>Related searches:</summary>
 
 		{% if ctx.try_with_site_prefix %}
@@ -246,8 +228,24 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 				to search</a>.</p>
 
 	</details>
-
 	{% endif %}
+
+	{% if ctx.submit_links %}
+	<div class='submit_links smaller-font-2'>
+		<details {% if ctx.submit_links_visible %}open{% endif %}>
+			<summary>Submit link to:</summary>
+			<ul>
+				{% for submit_platform, submit_link in ctx.submit_links.items %}
+				<li>
+					<a href="{{submit_link}}" title="Submit to {{submit_platform}}" rel="nofollow noreferrer noopener"
+						target="_blank">{{submit_platform}}</a>
+				</li>
+				{% endfor %}
+			</ul>
+		</details>
+	</div>
+	{% endif %}
+
 
 </div>
 

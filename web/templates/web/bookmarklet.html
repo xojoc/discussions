@@ -1,7 +1,7 @@
 {% extends "web/base.html" %}
 
 {% block title %}
-Bookmarklets - discu.eu
+Bookmarklet - discu.eu
 {% endblock title %}
 
 {% block meta_description %}
@@ -9,23 +9,28 @@ Bookmarklet for looking up discussions and comments for the current page.
 {% endblock %}
 
 {% block main %}
-<h2>Bookmarklets</h2>
+<h2>Bookmarklet <i class="bi bi-bookmark-star"></i></h2>
 
-<p>Use the following bookmarklet to find discussions anywhere you go:</p>
+<p>Bookmark the following link and click on it to lookup the discussions of the websites you visit:</p>
 <p>
-    <a href="{% include 'web/discussions_bookmarklet.js' %}" title="Discussions by url bookmarklet">Discussions</a>
+    <a href="{% include 'web/discussions_bookmarklet.js' %}" title="Discussions by url">Discussions</a>
 </p>
-<p>Bookmark the above link and click on it on any page to be redirected here. For more information about
-    bookmarklets see <a href="https://support.mozilla.org/en-US/kb/bookmarklets-perform-common-web-page-tasks">Firefox's
+
+<p>The above bookmarklet searches by url. To search discussions by title, use:</p>
+<p>
+    <a href="{% include 'web/discussions_title_bookmarklet.js' %}" title="Discussions by title">Discussions</a>
+</p>
+
+<p>Discussions are fetched from Hacker News, Reddit, Lobsters and <a href="{% url 'web:statistics' %}#platforms"
+        title="Platforms">others</a>.</p>
+
+<p class="mt-4 smaller-font-1">For more information
+    about
+    bookmarklets see <a href="https://support.mozilla.org/en-US/kb/bookmarklets-perform-common-web-page-tasks"
+        title="How Bookmarklets work">Firefox's
         help pages</a>.</p>
 
-<p>The above bookmarklet searches by url. To search discussions by title, use the following bookmarklet:</p>
-<p>
-    <a href="{% include 'web/discussions_title_bookmarklet.js' %}"
-        title="Discussions by title bookmarklet">Discussions</a>
-</p>
-
-<h3>Browser extension</h3>
+<h3 class="mt-5">Browser extension</h3>
 
 <p>Alternatively you can install the <a href="{% url 'web:extension' %}" title="Browser extensions">browser
         extension</a>.

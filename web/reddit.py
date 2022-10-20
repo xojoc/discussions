@@ -316,15 +316,47 @@ class EndOfSubreddits(Exception):
     pass
 
 
-def client(with_cache=False, with_retries=True):
+def client(with_cache=False, with_retries=True, username=None, password=None):
     c = praw.Reddit(
         client_id=settings.REDDIT_CLIENT_ID,
         client_secret=settings.REDDIT_CLIENT_SECRET,
         user_agent=settings.USERAGENT,
         ratelimit_seconds=60 * 14,
         timeout=60,
+        username=username,
+        password=password,
     )
     return c
+
+
+def client_username(with_cache=False, with_retries=True):
+    return client(
+        with_cache,
+        with_retries,
+        os.getenv("REDDIT_USERNAME"),
+        os.getenv("REDDIT_PASSWORD"),
+    )
+
+
+def submit(subreddit, title, url=None, selftext=None, c=None):
+    if not c:
+        c = client_username()
+
+    print(c.user.me())
+
+    sub = c.subreddit(subreddit)
+
+    story = None
+    try:
+        story = sub.submit(
+            title=title, url=url, selftext=selftext, resubmit=False
+        )
+    except Exception as e:
+        logger.error(f"Reddit submit: {e}")
+
+    # print(story.id)
+
+    return story
 
 
 def get_subreddit(

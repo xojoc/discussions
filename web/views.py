@@ -63,14 +63,16 @@ def discussions_context_cached(q):
     touch_key = "touch:" + key
     ctx = cache.get(key)
 
+    timeout = 5*60
+
     if ctx:
         if cache.get(touch_key):
-            cache.touch(key, 30)
+            cache.touch(key, timeout)
     else:
         ctx = discussions_context(q)
         if ctx and ctx["nothing_found"] is False:
-            cache.set(key, ctx, 60)
-            cache.set(touch_key, 1, timeout=60 * 3)
+            cache.set(key, ctx, timeout)
+            cache.set(touch_key, 1, 3*timeout)
 
     return ctx
 

@@ -6,18 +6,19 @@
 
 {% for category, category_name, stories in ctx.digest %}
 <h3>{{category_name}}</h3>
-<ul style="padding-left: 0">
+<ul style="padding-left: 0;">
     {% for story in stories %}
     <li>
         {% if story.story_url %}
         <p>
-            <a href="{{story|story_short_url}}" title="{{story.title}}">{{story.title}}</a>
+            <a href="{{story|story_short_url}}" title="{{story.title}}"
+                style="text-decoration: none !important;">{{story.title}}</a>
         </p>
         {% if story.total_comments %}
         <p>
             <span>
-                <a href="{{story.story_url|discussions_url_domain}}"
-                    title="Discussions for «{{story.title}}»">{{story.total_comments}}
+                <a href="{{story.story_url|discussions_url_domain}}" title="Discussions for «{{story.title}}»"
+                    style="text-decoration: none !important;">{{story.total_comments}}
                     comment{{story.total_comments|pluralize}}</a> <small>in
                     {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</small>
             </span>
@@ -25,7 +26,8 @@
         {% endif %}
         {% else %}
         <p>
-            <a href="{{story.discussion_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
+            <a href="{{story.discussion_url}}" title="{{story.title}}"
+                style="text-decoration: none !important;">{{story.title}}</a>
         </p>
         <p><span>{{story.comment_count}} comment{{story.comment_count|pluralize}}</span></p>
 
@@ -42,11 +44,13 @@
     —
 </p>
 <p>
-    If you prefer RSS feeds sign up for <a href="https://discu.eu/premium">the premium plan</a>.
+    If you prefer RSS feeds sign up for <a href="https://discu.eu/premium"
+        style="color: green !important; font-weight: bold; text-decoration: none !important;">the premium
+        plan</a>.
 </p>
 <p>
-    <a href="{{ctx.web_link}}">View issue online</a>
+    <a href="{{ctx.web_link}}" style="text-decoration: none !important;">View issue online</a>
 </p>
 <p>
-    <a href="{{ctx.subscriber.unsubscribe_url}}">Unsubscribe</a>
+    <a href="{{ctx.subscriber.unsubscribe_url}}" style="text-decoration: none !important;">Unsubscribe</a>
 </p>

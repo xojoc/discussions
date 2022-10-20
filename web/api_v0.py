@@ -24,8 +24,19 @@ cache_prefix = "api"
 
 class AuthBearer(HttpBearer):
     def authenticate(self, request, token):
+        key = f"{cache_prefix}:token:{token}"
+
+        api_client = cache.get(key)
+        if api_client:
+            return api_client
+
+        timeout = 30 * 60
         try:
-            return models.APIClient.objects.get(token=token, limited=False)
+            api_client = models.APIClient.objects.get(
+                token=token, limited=False
+            )
+            cache.set(key, api_client, timeout)
+            return api_client
         except models.APIClient.DoesNotExist:
             return None
 
@@ -78,16 +89,18 @@ def get_discussions(request, url: str, only_relevant_stories: bool = True):
 
     ds = cache.get(key)
 
+    timeout = 5 * 60
+
     if ds:
         if cache.get(touch_key):
-            cache.touch(key, 30)
+            cache.touch(key, timeout)
         return ds
 
     ds, _, _ = models.Discussion.of_url(url, only_relevant_stories)
 
     if ds:
-        cache.set(key, ds, 60)
-        cache.set(touch_key, 1, timeout=60 * 3)
+        cache.set(key, ds, timeout)
+        cache.set(touch_key, 1, timeout=timeout * 3)
 
     return ds
 
@@ -118,9 +131,11 @@ def get_discussion_counts(request, url: str):
 
     dcs = cache.get(key)
 
+    timeout = 5 * 60
+
     if dcs:
         if cache.get(touch_key):
-            cache.touch(key, 30)
+            cache.touch(key, timeout)
         return dcs
 
     dcs = DiscussionCounts()
@@ -168,8 +183,8 @@ def get_discussion_counts(request, url: str):
             dcs.articles_count = ir.count()
 
     if dcs:
-        cache.set(key, dcs, 60)
-        cache.set(touch_key, 1, timeout=60 * 3)
+        cache.set(key, dcs, timeout)
+        cache.set(touch_key, 1, timeout=timeout * 3)
 
     return dcs
 
