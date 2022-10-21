@@ -186,7 +186,7 @@ def post_discussions_scheduled(filter_topic=None):
 
     stories = (
         models.Discussion.objects.filter(created_at__gte=five_days_ago)
-        .filter(comment_count__gte=min_comment_count)
+        # .filter(comment_count__gte=min_comment_count)
         .filter(score__gte=min_score)
         # .exclude(schemeless_story_url__isnull=True)
         # .exclude(schemeless_story_url="")
@@ -239,6 +239,7 @@ def post_discussions_scheduled(filter_topic=None):
         for story in topic_stories:
             if cache.get(key_prefix + story.platform_id):
                 continue
+
             related_discussions, _, _ = models.Discussion.of_url(
                 story.story_url, only_relevant_stories=False
             )
