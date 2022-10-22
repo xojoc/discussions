@@ -37,8 +37,9 @@ def __is_programming_related(title, url=None):
                 "function",
                 "lambda",
                 "library",
-                "tutorial",
                 "multithreading",
+                "parsing",
+                "tutorial",
             }
         )
         or ("programming" in title and "language" in title)

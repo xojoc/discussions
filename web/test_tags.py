@@ -110,6 +110,13 @@ class UnitTags(unittest.TestCase):
                 "https://blog.madhukaraphatak.com/latest-java-2",
             ),
             {"java"},
+            n(
+                [],
+                "h",
+                "Incremental Parsing in Go",
+                "https://dev-nonsense.com/posts/incremental-parsing-in-go/",
+            ),
+            {"golang"},
         ]
 
         for nts, ets in zip(normalization[0::2], normalization[1::2]):
