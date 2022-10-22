@@ -117,6 +117,13 @@ class UnitTags(unittest.TestCase):
                 "https://dev-nonsense.com/posts/incremental-parsing-in-go/",
             ),
             {"golang"},
+            n(
+                ["programming"],
+                "l",
+                "RISC In 2022",
+                "https://wiki.alopex.li/RiscIn2022",
+            ),
+            {"compsci"},
         ]
 
         for nts, ets in zip(normalization[0::2], normalization[1::2]):
