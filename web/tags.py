@@ -97,24 +97,32 @@ def __topic_nim(tags, title, url, platform):
 
 
 def __topic_unix(tags, title, url, platform, original_title):
-    __augment_tags(title, tags, "unix")
-    __augment_tags(title, tags, "linux")
+    __augment_tags(title, tags, "centos")
+    __augment_tags(title, tags, "debian", None, "linux")
     __augment_tags(title, tags, "dragonflybsd")
     __augment_tags(title, tags, "freebsd")
+    __augment_tags(title, tags, "linux")
     __augment_tags(title, tags, "netbsd")
     __augment_tags(title, tags, "openbsd")
     __augment_tags(title, tags, "pop_os", None, "linux")
     __augment_tags(title, tags, "pop!_os", None, "linux")
+    __augment_tags(title, tags, "ubuntu")
+    __augment_tags(title, tags, "unix")
+
+    if re.search(r"\bFedora\b", original_title):
+        tags.add("linux")
 
     __augment_tags(
         title,
         tags,
         None,
         {
-            "opensuse",
-            "manjarolinux",
             "archlinux",
             "debian",
+            "manjarolinux",
+            "opensuse",
+            "ubuntu",
+            "centos",
         },
         "linux",
     )
@@ -398,12 +406,6 @@ def __topic_devops(tags, title, url, platform, original_title):
     if platform != "r" or "devops" in tags:
         __augment_tags(title, tags, "docker")
 
-    __augment_tags(title, tags, "kubernetes")
-    if re.search(r"\bk8s\b", original_title, re.IGNORECASE) or re.search(
-        r"\bmicrok8s\b", original_title, re.IGNORECASE
-    ):
-        tags.add("kubernetes")
-
     if (
         platform == "r"
         and "selfhosted" in tags
@@ -411,7 +413,22 @@ def __topic_devops(tags, title, url, platform, original_title):
     ):
         tags.add("docker")
 
+    __augment_tags(title, tags, "devops")
+
     if re.search(r"\bCI/CD\b", original_title):
+        tags.add("devops")
+
+    __augment_tags(title, tags, "kubernetes")
+    if re.search(r"\bk8s\b", original_title, re.IGNORECASE) or re.search(
+        r"\bmicrok8s\b", original_title, re.IGNORECASE
+    ):
+        tags.add("kubernetes")
+
+    if (
+        platform in ("h", "l", "u")
+        or "programming" in tags
+        or __is_programming_related(title, url)
+    ) and re.search(r"\bHeroku\b", original_title):
         tags.add("devops")
 
     __augment_tags(
@@ -421,13 +438,6 @@ def __topic_devops(tags, title, url, platform, original_title):
         {"docker", "kubernetes", "ansible", "terraform"},
         "devops",
     )
-
-    if (
-        platform in ("h", "l", "u")
-        or "programming" in tags
-        or __is_programming_related(title, url)
-    ) and re.search(r"\bHeroku\b", original_title):
-        tags.add("devops")
 
 
 def __topic_compsci(tags, title, url, platform, original_title):
