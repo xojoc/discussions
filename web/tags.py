@@ -96,13 +96,15 @@ def __topic_nim(tags, title, url, platform):
         tags |= {"nimlang"}
 
 
-def __topic_unix(tags, title, url, platform):
+def __topic_unix(tags, title, url, platform, original_title):
     __augment_tags(title, tags, "unix")
     __augment_tags(title, tags, "linux")
     __augment_tags(title, tags, "dragonflybsd")
     __augment_tags(title, tags, "freebsd")
     __augment_tags(title, tags, "netbsd")
     __augment_tags(title, tags, "openbsd")
+    __augment_tags(title, tags, "pop_os", None, "linux")
+    __augment_tags(title, tags, "pop!_os", None, "linux")
 
     __augment_tags(
         title,
@@ -134,7 +136,7 @@ def __topic_unix(tags, title, url, platform):
     )
 
 
-def __topic_webdev(tags, title, url, platform):
+def __topic_webdev(tags, title, url, platform, original_title):
     __augment_tags(title, tags, "node.js", None, "nodejs")
     __augment_tags(title, tags, "javascript")
     __augment_tags(title, tags, "typescript")
@@ -154,6 +156,14 @@ def __topic_webdev(tags, title, url, platform):
         },
         "webdev",
     )
+
+    if (
+        "programming" in tags or __is_programming_related(title, url)
+    ) and re.search(r"\bCORS\b", original_title):
+        tags.add("webdev")
+
+    if re.search(r"\btailwind css\b", original_title, re.IGNORECASE):
+        tags.add("webdev")
 
 
 def __topic_zig(tags, title, url, platform):
@@ -412,14 +422,43 @@ def __topic_devops(tags, title, url, platform, original_title):
         "devops",
     )
 
+    if (
+        platform in ("h", "l", "u")
+        or "programming" in tags
+        or __is_programming_related(title, url)
+    ) and re.search(r"\bHeroku\b", original_title):
+        tags.add("devops")
+
 
 def __topic_compsci(tags, title, url, platform, original_title):
     # todo: https://news.ycombinator.com/item?id=33295944
 
     if (
-        "programming" in tags or __is_programming_related(title, url)
+        "assembly" in tags
+        or "programming" in tags
+        or __is_programming_related(title, url)
     ) and re.search(r"\bRISC\b", original_title):
         tags.add("compsci")
+
+    if (
+        platform in ("h", "u")
+        or "programming" in tags
+        or __is_programming_related(title, url)
+    ) and (
+        re.search(r"\bAI\b", original_title)
+        and ({"model", "models", "robot", "robots"} & set(title))
+    ):
+        tags.add("machinelearning")
+
+    __augment_tags(
+        title,
+        tags,
+        None,
+        {
+            "machinelearning",
+        },
+        "compsci",
+    )
 
 
 def __hacker_news(tags, title):
@@ -732,8 +771,8 @@ def normalize(tags, platform=None, title="", url=""):
         __topic_nim(tags, title_tokens, curl, platform)
         __topic_php(tags, title_tokens, curl, platform)
         __topic_rust(tags, title_tokens, curl, platform)
-        __topic_unix(tags, title_tokens, curl, platform)
-        __topic_webdev(tags, title_tokens, curl, platform)
+        __topic_unix(tags, title_tokens, curl, platform, original_title)
+        __topic_webdev(tags, title_tokens, curl, platform, original_title)
         __topic_zig(tags, title_tokens, curl, platform)
         __topic_golang(tags, title_tokens, curl, platform, original_title)
         __topic_python(tags, title_tokens, curl, platform)

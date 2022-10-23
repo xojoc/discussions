@@ -124,6 +124,41 @@ class UnitTags(unittest.TestCase):
                 "https://wiki.alopex.li/RiscIn2022",
             ),
             {"compsci"},
+            n(
+                ["programming"],
+                "r",
+                "CORS: An Introduction",
+                "https://simplelocalize.io/blog/posts/what-is-cors/",
+            ),
+            {"webdev"},
+            n(
+                [],
+                "h",
+                "Heroku Free Alternatives",
+                "https://github.com/Engagespot/heroku-free-alternatives",
+            ),
+            {"devops"},
+            n(
+                [],
+                "h",
+                "Tailwind CSS v3.2: revisiting my “feature creep” warning",
+                "https://www.brycewray.com/posts/2022/10/tailwind-css-v3-2-revisiting-feature-creep-warning/",
+            ),
+            {"webdev"},
+            n(
+                [],
+                "h",
+                "5 Years of Pop_OS",
+                "https://blog.system76.com/post/celebrating-5-years-of-pop_os/",
+            ),
+            {"linux"},
+            n(
+                [],
+                "h",
+                "AI models that predict disease are not as accurate as reports might suggest",
+                "https://www.scientificamerican.com/article/ai-in-medicine-is-overhyped/",
+            ),
+            {"machinelearning", "compsci"},
         ]
 
         for nts, ets in zip(normalization[0::2], normalization[1::2]):
