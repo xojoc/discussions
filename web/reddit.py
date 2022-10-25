@@ -675,3 +675,18 @@ def worker_update_all_discussions(self):
         cache.set(cache_current_index_key, current_index, timeout=None)
 
         time.sleep(5)
+
+
+@shared_task(bind=True, ignore_result=True)
+@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+def worker_stream(self):
+    reddit = client()
+
+    subs = "+".join(subreddit_whitelist)
+
+    for p in reddit.subreddit(subs).stream.submissions(pause_after=0):
+        if p:
+            __process_post(p)
+        if worker.graceful_exit(self):
+            logger.info("reddit stream: graceful exit")
+            break
