@@ -142,12 +142,21 @@ WSGI_APPLICATION = "discussions.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
+        # "ENGINE": "django_postgrespool2",
         "HOST": os.environ.get("DATABASE_HOST"),
         "NAME": os.environ.get("DATABASE_NAME"),
         "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
         "USER": os.environ.get("DATABASE_USER"),
     }
 }
+
+# DATABASE_POOL_CLASS = "sqlalchemy.pool.QueuePool"
+
+# DATABASE_POOL_ARGS = {
+#     "max_overflow": 50,
+#     "pool_size": 50,
+#     "recycle": 300,
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

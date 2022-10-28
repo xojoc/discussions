@@ -47,6 +47,7 @@ tweepy = "^4"
 urllib3 = "^1"
 whitenoise = "^6"
 zstandard = "*"
+django-postgrespool2 = "^2.0.5"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "*"

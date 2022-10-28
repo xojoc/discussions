@@ -375,7 +375,7 @@ def get_subreddit(
         )
 
     for story in list:
-        _ = story.title  # force load
+        # _ = story.title  # force load
         stories.add(story)
 
     return stories
@@ -507,6 +507,7 @@ def fetch_discussions(index):
             stories = get_subreddit(name, reddit)
         except Exception as e:
             logger.warning(f"reddit: subreddit {name}: {e}")
+            cache.set(skip_sub_key_prefix + name, 1, timeout=60 * 60 * 8)
             continue
 
         created_at = []
@@ -522,6 +523,7 @@ def fetch_discussions(index):
             prawcore.exceptions.PrawcoreException,
         ) as e:
             logger.warning(f"reddit: subreddit {name}: {e}")
+            cache.set(skip_sub_key_prefix + name, 1, timeout=60 * 60 * 8)
             continue
 
         created_at = sorted(created_at)
@@ -537,7 +539,7 @@ def fetch_discussions(index):
 
         logger.debug(f"reddit update: {name}: median {delay}")
 
-        delay = max(60 * 15, min(delay, 60 * 60 * 24))
+        delay = max(60 * 15, min(delay, 60 * 60 * 3))
 
         td = datetime.timedelta(seconds=delay)
         logger.debug(f"reddit update: {name}: delay {td}")
