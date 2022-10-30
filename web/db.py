@@ -206,6 +206,8 @@ Mention rules: {mention_rules_count}
 
 """
 
+    body += f"{'topic':20} => {'subs':<10} {'mastodon':<10} {'twitter':<10}"
+
     for topic_key, topic in sorted_topics.items():
         twitter_count = 0
         mastodon_count = 0
@@ -219,7 +221,7 @@ Mention rules: {mention_rules_count}
 
         topic_subscribers = models.Subscriber.mailing_list(topic_key).count()
 
-        body += f"{topic_key:20} => {topic_subscribers:9,} {mastodon_count:9,} {twitter_count:9,}\n"
+        body += f"{topic_key:20} => {topic_subscribers:<10} {mastodon_count:<10} {twitter_count:<10}\n"
 
     body += "\n"
 

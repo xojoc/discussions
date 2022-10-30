@@ -293,6 +293,10 @@ LOGGING = {
             "propagate": False,
             "filters": ["change_404_to_info"],
         },
+        "django.security.DisallowedHost": {
+            "handlers": ["null"],
+            "propagate": False,
+        },
         "daphne": {
             "handlers": ["console"],
             "level": "WARNING",
