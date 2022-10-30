@@ -206,7 +206,7 @@ Mention rules: {mention_rules_count}
 
 """
 
-    body += f"{'topic':20} => {'subs':<10} {'mastodon':<10} {'twitter':<10}"
+    body += f"{'topic':20} => {'subs':<10} {'mastodon':<10} {'twitter':<10}\n"
 
     for topic_key, topic in sorted_topics.items():
         twitter_count = 0
