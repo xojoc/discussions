@@ -183,6 +183,7 @@ def admin_send_recap_email(self):
     mastodon_followers_count = mastodon.get_followers_count(mastodon_usernames)
 
     users_count = models.CustomUser.objects.count()
+
     users_premium_count = (
         models.CustomUser.objects.filter(premium_active=True)
         .filter(premium_cancelled=False)
