@@ -351,7 +351,7 @@ ADMINS = [("xojoc", "hi@xojoc.pw")]
 MANAGERS = ADMINS
 SERVER_EMAIL = "hi@discu.eu"
 
-EMAIL_HOST = "smtp.fastmail.com"
+EMAIL_HOST = os.getenv("EMAIL_SMTP_HOST", "smtp.fastmail.com")
 EMAIL_PORT = "465"
 EMAIL_HOST_USER = os.getenv("EMAIL_SMTP_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_SMTP_PASSWORD")
