@@ -54,6 +54,7 @@ class SubscriberAdmin(admin.ModelAdmin):
         "entry_created_at",
     ]
     list_filter = ["confirmed", "unsubscribed", "topic"]
+    search_fields = ("email",)
     ordering = [
         "-entry_created_at",
     ]
@@ -73,7 +74,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         "date_joined",
     ]
     list_filter = ["premium_active", "premium_cancelled", "is_active"]
-    search_fields = ("complete_name",)
+    search_fields = ("complete_name", "email")
     ordering = [
         "-date_joined",
     ]
