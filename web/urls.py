@@ -146,4 +146,5 @@ urlpatterns = [
         name="reading_list_topic",
     ),
     path("api/", views.api_view, name="api"),
+    path("mentions/", views.mentions, name="mentions"),
 ]

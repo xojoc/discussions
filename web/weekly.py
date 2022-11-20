@@ -607,6 +607,11 @@ def share_weekly_issue(self):
             twitter_status += f"\n{' '.join(twitter.build_hashtags(htags))}"
             mastodon_status += f"\n{' '.join(mastodon.build_hashtags(htags))}"
 
+        after_status = "\n\nGet RSS feeds and support this bot with the premium plan: https://discu.eu/premium"
+
+        twitter_status += after_status
+        mastodon_status += after_status
+
         if topic.get("twitter"):
             try:
                 twitter.tweet(

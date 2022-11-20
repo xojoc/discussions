@@ -781,3 +781,8 @@ def api_view(request):
     ctx["statistics"] = models.Statistics.all_statistics()
 
     return render(request, "web/api.html", {"ctx": ctx})
+
+
+def mentions(request):
+    ctx = {}
+    return render(request, "web/mentions.html", {"ctx": ctx})

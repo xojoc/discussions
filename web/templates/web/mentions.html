@@ -1,0 +1,25 @@
+{% extends "web/base.html" %}
+
+{% load humanize %}
+{% load util %}
+{% block title %}
+Mentions - discu.eu
+{% endblock title %}
+
+{% block meta_description %}
+Findout who mentions you on Reddit, Hacker News and lobsters.
+{% endblock meta_description %}
+
+
+{% block main %}
+<h1 class="mt-5 text-center">Get notified when you are <span class="highlight">mentioned</span></h1>
+
+<p class="lead">Receive an email when someone mentions your website, GitHub repo or blog on Reddit, Lobsters and Hacker
+    News.</p>
+
+
+<a class="btn btn-lg btn-primary mb-2 mt-2" href="{% url 'web:pricing' %}" title="Premium plan & features">Go
+    premium</a>
+
+
+{% endblock main %}
