@@ -785,4 +785,5 @@ def api_view(request):
 
 def mentions(request):
     ctx = {}
+
     return render(request, "web/mentions.html", {"ctx": ctx})
