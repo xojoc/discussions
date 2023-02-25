@@ -10,7 +10,7 @@ from web import api_v0, sitemaps
 from . import settings
 
 sitemaps_dict = {
-    "discussions": sitemaps.DiscussionsSitemap,
+    # "discussions": sitemaps.DiscussionsSitemap,
     "static": sitemaps.StaticViewSitemap,
     "weekly": sitemaps.WeeklySitemap,
 }
