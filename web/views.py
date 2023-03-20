@@ -427,14 +427,25 @@ def __weekly_topic_subscribe_form(request, topic, ctx):
         subscriber = form.save()
 
         if subscriber.suspected_spam:
-            logging.error(
+            #             logger.error(
+            #                 f"""
+            # Suspected spammer:
+            # {pformat(subscriber)}
+
+            # User agent:
+            # {request.META['HTTP_USER_AGENT']}
+            # """
+            #             )
+
+            email_util.send_admins(
+                "Suspected spammer",
                 f"""
 Suspected spammer:
 {pformat(subscriber)}
 
-User agent:
-{request.META['HTTP_USER_AGENT']}
-"""
+Headers:
+{pformat(request.META, sort_dicts=True)}
+""",
             )
         else:
             subscriber.send_confirmation_email()
