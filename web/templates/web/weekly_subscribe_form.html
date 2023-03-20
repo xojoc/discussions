@@ -10,11 +10,15 @@
             from previous
             week.</p>
         {% endif %}
-        <form method="POST">
+
+
+        {% crispy ctx.weekly_subscribe_form %}
+
+        <!-- <form method="POST">
             {% csrf_token %}
             {{ ctx.weekly_subscribe_form | crispy }}
             <input type="submit" value="Subscribe for Free!" class="btn btn-primary">
-        </form>
+        </form> -->
     </div>
 </div>
 <div class="my-5"></div>

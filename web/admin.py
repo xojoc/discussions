@@ -52,9 +52,15 @@ class SubscriberAdmin(admin.ModelAdmin):
         "email",
         "subscribed_from",
         "entry_created_at",
+        "suspected_spam",
     ]
-    list_filter = ["confirmed", "unsubscribed", "topic"]
-    search_fields = ("email",)
+    list_filter = [
+        "confirmed",
+        "unsubscribed",
+        "topic",
+        "suspected_spam",
+    ]
+    search_fields = ("email", "verification_code")
     ordering = [
         "-entry_created_at",
     ]

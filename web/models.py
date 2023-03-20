@@ -906,6 +906,7 @@ class Subscriber(models.Model):
             )
         ]
 
+    suspected_spam = models.BooleanField(default=False)
     email = models.EmailField()
     topic = models.CharField(max_length=255, choices=topics.topics_choices)
     verification_code = models.CharField(max_length=15)

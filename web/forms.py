@@ -1,7 +1,7 @@
 import logging
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Field, Submit
+from crispy_forms.layout import Field, Submit, Layout, Div
 from django import forms
 
 # from crispy_bootstrap5.bootstrap5 import FloatingField
@@ -24,9 +24,38 @@ class QueryForm(forms.Form):
 
 
 class SubscriberForm(forms.ModelForm):
+    contact_email_only = forms.BooleanField(required=False, label="By email *")
+
     class Meta:
         model = models.Subscriber
         fields = ["topic", "email"]
+
+    def __init__(self, *args, **kwargs):
+        super(SubscriberForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_method = "POST"
+        self.helper.layout = Layout(
+            Field("topic"),
+            Field("email"),
+            Div(
+                Field(
+                    "contact_email_only",
+                    autocomplete="off",
+                    tabindex="-1",
+                ),
+                css_class="d-none",
+            ),
+            Submit("submit", "Subscribe for Free!"),
+        )
+
+    def save(self, commit=True):
+        instance = super(SubscriberForm, self).save(commit=False)
+        if self.cleaned_data.get("contact_email_only"):
+            instance.suspected_spam = True
+        if commit:
+            instance.save()
+        return instance
 
 
 class UnsubscribeForm(forms.ModelForm):
@@ -217,7 +246,6 @@ class MentionForm(forms.ModelForm):
         return data
 
     def clean(self):
-        logger.info("clean")
         cleaned_data = super(MentionForm, self).clean()
         base_url = cleaned_data.get("base_url")
         keyword = cleaned_data.get("keyword")

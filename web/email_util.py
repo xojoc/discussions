@@ -35,6 +35,15 @@ def send(subject: str, body: str, from_email: str, to_emails: str | List[str]):
     send_task.delay(subject, body, from_email, to_emails)
 
 
+def send_admins(subject, body):
+    send(
+        f"[discu.eu]: {subject}",
+        body,
+        settings.SERVER_EMAIL,
+        settings.ADMINS[0][1],
+    )
+
+
 def imap_client():
     m = imaplib.IMAP4_SSL(settings.EMAIL_IMAP_HOST)
     m.login(settings.EMAIL_IMAP_USER, settings.EMAIL_IMAP_PASSWORD)

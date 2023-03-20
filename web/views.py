@@ -1,9 +1,10 @@
 import itertools
 import logging
+from pprint import pformat, pprint
 import random
 from urllib.parse import quote
 from urllib.parse import unquote as url_unquote
-
+import django
 import stripe
 import urllib3
 from django.contrib import messages
@@ -18,6 +19,7 @@ from django.views.decorators.http import require_http_methods
 from django_redis import get_redis_connection
 
 from discussions import settings
+from web import email_util
 
 from . import (
     discussions,
@@ -63,7 +65,7 @@ def discussions_context_cached(q):
     touch_key = "touch:" + key
     ctx = cache.get(key)
 
-    timeout = 5*60
+    timeout = 5 * 60
 
     if ctx:
         if cache.get(touch_key):
@@ -72,7 +74,7 @@ def discussions_context_cached(q):
         ctx = discussions_context(q)
         if ctx and ctx["nothing_found"] is False:
             cache.set(key, ctx, timeout)
-            cache.set(touch_key, 1, 3*timeout)
+            cache.set(touch_key, 1, 3 * timeout)
 
     return ctx
 
@@ -167,7 +169,6 @@ def discussions_context(q):
 
     if not ctx.get("title"):
         if uds and (q.startswith("http://") or q.startswith("https://")):
-
             ctx["title"] = uds[0].title
         else:
             ctx["title"] = ctx["original_query"]
@@ -424,7 +425,19 @@ def __weekly_topic_subscribe_form(request, topic, ctx):
 
     if form.is_valid():
         subscriber = form.save()
-        subscriber.send_confirmation_email()
+
+        if subscriber.suspected_spam:
+            logging.error(
+                f"""
+Suspected spammer:
+{pformat(subscriber)}
+
+User agent:
+{request.META['HTTP_USER_AGENT']}
+"""
+            )
+        else:
+            subscriber.send_confirmation_email()
 
         messages.success(
             request,
