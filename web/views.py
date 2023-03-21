@@ -851,7 +851,7 @@ def aws_bounce_handler(request):
                     continue
 
                 subscriber.unsubscribe()
-                subscriber.aws_notification = request.body
+                subscriber.aws_notification = request.body.decode("utf-8")
                 subscriber.unsubscribed_from = "aws"
                 subscriber.save()
 
