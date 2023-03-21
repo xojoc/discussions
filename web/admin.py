@@ -49,6 +49,7 @@ class SubscriberAdmin(admin.ModelAdmin):
         "confirmed",
         "unsubscribed",
         "unsubscribed_at",
+        "unsubscribed_from",
         "email",
         "subscribed_from",
         "entry_created_at",
@@ -57,6 +58,8 @@ class SubscriberAdmin(admin.ModelAdmin):
     list_filter = [
         "confirmed",
         "unsubscribed",
+        "unsubscribed_from",
+        "subscribed_from",
         "topic",
         "suspected_spam",
     ]

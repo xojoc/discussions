@@ -834,7 +834,7 @@ def aws_bounce_handler(request):
                 unsubscribe = True
             for recipient in bounce.get("bouncedRecipients"):
                 destinations.append(recipient.get("emailAddress"))
-        elif notification_type == "complaint":
+        elif notification_type == "Complaint":
             unsubscribe = True
             complaint = message.get("complaint")
             for recipient in complaint.get("complainedRecipients"):
