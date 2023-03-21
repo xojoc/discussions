@@ -1,16 +1,22 @@
 import itertools
+import json
 import logging
-from pprint import pformat, pprint
+from pprint import pformat
 import random
 from urllib.parse import quote
 from urllib.parse import unquote as url_unquote
-import django
+import requests
 import stripe
 import urllib3
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponsePermanentRedirect,
+    JsonResponse,
+)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -425,6 +431,8 @@ def __weekly_topic_subscribe_form(request, topic, ctx):
 
     if form.is_valid():
         subscriber = form.save()
+        subscriber.http_headers = dict(request.headers)
+        subscriber.save()
 
         if subscriber.suspected_spam:
             #             logger.error(
@@ -811,3 +819,11 @@ def mentions(request):
     ctx = {}
 
     return render(request, "web/mentions.html", {"ctx": ctx})
+
+
+@csrf_exempt
+def aws_bounce_handler(request):
+    if request.body.decode("utf-8"):
+        requests.get(json.loads(request.body)["SubscribeURL"])
+
+    return JsonResponse({})

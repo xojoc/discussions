@@ -922,6 +922,8 @@ class Subscriber(models.Model):
     unsubscribed = models.BooleanField(default=False)
     unsubscribed_at = models.DateTimeField(null=True, blank=True)
 
+    http_headers = models.JSONField(null=True)
+
     def __str__(self):
         return f"{self.email} {self.topic} ({self.confirmed} confirmed, {self.unsubscribed} unsubscribed)"
 

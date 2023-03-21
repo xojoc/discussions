@@ -147,4 +147,9 @@ urlpatterns = [
     ),
     path("api/", views.api_view, name="api"),
     path("mentions/", views.mentions, name="mentions"),
+    path(
+        "aws_bounce_handler/",
+        views.aws_bounce_handler,
+        name="aws_bounce_handler",
+    ),
 ]
