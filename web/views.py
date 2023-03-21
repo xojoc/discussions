@@ -5,7 +5,6 @@ from pprint import pformat
 import random
 from urllib.parse import quote
 from urllib.parse import unquote as url_unquote
-import requests
 import stripe
 import urllib3
 from django.contrib import messages
@@ -824,6 +823,36 @@ def mentions(request):
 @csrf_exempt
 def aws_bounce_handler(request):
     if request.body.decode("utf-8"):
-        requests.get(json.loads(request.body)["SubscribeURL"])
+        unsubscribe = False
+        destinations = []
+
+        message = json.loads(json.loads(request.body)["Message"])
+        notification_type = message.get("notificationType")
+        if notification_type == "Bounce":
+            bounce = message.get("bounce")
+            if bounce.get("bounceType") in ["Undetermined", "Permanent"]:
+                unsubscribe = True
+            for recipient in bounce.get("bouncedRecipients"):
+                destinations.push(recipient.get("emailAddress"))
+        elif notification_type == "complaint":
+            unsubscribe = True
+            complaint = message.get("complaint")
+            for recipient in complaint.get("complainedRecipients"):
+                destinations.push(recipient.get("emailAddress"))
+
+        if unsubscribe:
+            from_email = message.get("email").get("source")
+            topic_key, topic = topics.get_topic_by_email(from_email)
+            for destination in destinations:
+                subscriber = models.Subscriber.objects.filter(
+                    topic=topic_key, email=destination
+                ).first()
+                if not subscriber:
+                    continue
+
+                subscriber.unsubscribe()
+                subscriber.aws_notification = request.body
+                subscriber.unsubscribed_from = "aws"
+                subscriber.save()
 
     return JsonResponse({})

@@ -919,10 +919,19 @@ class Subscriber(models.Model):
     )
     entry_created_at = models.DateTimeField(auto_now_add=True)
     entry_updated_at = models.DateTimeField(auto_now=True)
+
+    unsubscribed_from = models.CharField(
+        max_length=3,
+        null=True,
+        blank=True,
+        choices=[("wf", "Web Form"), ("em", "Email Comand"), ("aws", "AWS")],
+    )
     unsubscribed = models.BooleanField(default=False)
     unsubscribed_at = models.DateTimeField(null=True, blank=True)
 
     http_headers = models.JSONField(null=True)
+
+    aws_notification = models.JSONField(null=True)
 
     def __str__(self):
         return f"{self.email} {self.topic} ({self.confirmed} confirmed, {self.unsubscribed} unsubscribed)"

@@ -267,3 +267,11 @@ def get_account_configuration(platform, username):
         topic_account = topic.get("twitter").get("account")
         if topic_account and topic_account.lower() == username.lower():
             return topic.get(platform)
+
+
+def get_topic_by_email(email):
+    for topic_key, topic in topics.items():
+        if topic.get("email") == email:
+            return topic_key, topic
+
+    return None, None
