@@ -841,7 +841,7 @@ def aws_bounce_handler(request):
                 destinations.append(recipient.get("emailAddress"))
 
         if unsubscribe:
-            from_email = message.get("email").get("source")
+            from_email = message.get("mail").get("source")
             topic_key, topic = topics.get_topic_by_email(from_email)
             for destination in destinations:
                 subscriber = models.Subscriber.objects.filter(
