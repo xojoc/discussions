@@ -117,11 +117,28 @@ class MentionNotificationAdmin(admin.ModelAdmin):
     raw_id_fields = ["discussion"]
 
 
+class APIClientAdmin(admin.ModelAdmin):
+    list_display = [
+        "pk",
+        "name",
+        "customuser",
+        "limited",
+        "email",
+        "url",
+        "get_statistics",
+    ]
+    list_filter = ["limited"]
+    search_fields = ("name", "token", "email", "url")
+    ordering = [
+        "-created_at",
+    ]
+
+
 admin.site.register(models.Discussion, DiscussionAdmin)
 admin.site.register(models.Resource)
 admin.site.register(models.Subscriber, SubscriberAdmin)
-
-admin.site.register([models.APIClient, models.Tweet, models.Statistics])
+admin.site.register(models.APIClient, APIClientAdmin)
+admin.site.register([models.Tweet, models.Statistics])
 
 admin.site.register(models.CustomUser, CustomUserAdmin)
 admin.site.register([models.AD])

@@ -5,7 +5,7 @@ from django.core.cache import cache
 from ninja import ModelSchema, NinjaAPI, Schema
 from ninja.security import HttpBearer
 
-from . import models, util
+from . import models, util, api_statistics
 
 api = NinjaAPI(version="v0")
 api.title = "Discussions and comments API"
@@ -83,6 +83,8 @@ class Message(Schema):
 def get_discussions(request, url: str, only_relevant_stories: bool = True):
     """Get all discussions for a given URL."""
 
+    api_statistics.track(request)
+
     suffix = (url or "").lower().strip()
     key = f"{cache_prefix}:get_discussions:{only_relevant_stories}:{suffix}"
     touch_key = "touch:" + key
@@ -124,6 +126,8 @@ def options_get_discussions(
 )
 def get_discussion_counts(request, url: str):
     """Get discussion counts for a given URL."""
+
+    api_statistics.track(request)
 
     suffix = (url or "").lower().strip()
     key = f"{cache_prefix}:get_discussion_counts:{suffix}"
@@ -212,6 +216,8 @@ class Platform(Schema):
 )
 def platforms(request):
     """All platforms on which discussions are tracked at the moment."""
+
+    api_statistics.track(request)
 
     pfs = models.Discussion.platforms()
     return [{"code": k, "name": v[0], "url": v[1]} for k, v in pfs.items()]

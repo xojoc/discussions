@@ -26,6 +26,8 @@ from django.db.models.functions import Coalesce, Round, Upper
 from django.db.models.lookups import PostgresOperatorLookup
 from django.utils import timezone
 
+from web import api_statistics
+
 
 from . import (
     category,
@@ -885,6 +887,9 @@ class APIClient(models.Model):
     email = models.TextField(null=True, blank=True)
     url = models.TextField(null=True, blank=True)
 
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
     def __str__(self):
         return f"{self.name} - {self.email}"
 
@@ -896,6 +901,9 @@ class APIClient(models.Model):
         if not self.token:
             self.token = self.generate_token()
         super(APIClient, self).save(*args, **kwargs)
+
+    def get_statistics(self, endpoint=None):
+        return api_statistics.get("api-v0", self.token, endpoint)
 
 
 class Subscriber(models.Model):
@@ -1295,6 +1303,15 @@ Title must have this keyword. It could be your brand, name or a product you are 
         blank=True,
         help_text="""
 Platforms you are interested in. Leave empty to select all.
+        """,
+    )
+
+    exclude_platforms = postgres_fields.ArrayField(
+        models.CharField(max_length=1, blank=True),
+        blank=True,
+        null=True,
+        help_text="""
+Platforms you are NOT interested in.
         """,
     )
 

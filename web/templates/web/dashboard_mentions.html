@@ -90,7 +90,12 @@
     {% endif %}
 
     <h5>New mention rule</h5>
-    {% crispy ctx.mention_form %}
+    <div id="dashboard_mentions_form_new">
+        {% crispy ctx.mention_form %}
+    </div>
+
+    <!-- <h6>Live preview</h6>
+    <div id="mention_live_preview">...</div> -->
 </div>
 
 

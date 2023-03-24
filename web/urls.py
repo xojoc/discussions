@@ -99,6 +99,11 @@ urlpatterns = [
         name="dashboard_mentions_edit",
     ),
     path(
+        "mention_live_preview",
+        views.mention_live_preview,
+        name="mention_live_preview",
+    ),
+    path(
         "stripe/checkout/",
         views.stripe_checkout,
         name="stripe_checkout",

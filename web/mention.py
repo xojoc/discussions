@@ -15,14 +15,63 @@ from web import email_util, models, title
 logger = logging.getLogger(__name__)
 
 
-def __process_mentions(sender, instance: models.Discussion, created, **kwargs):
-    three_days_ago = timezone.now() - datetime.timedelta(days=3)
-    if not instance.created_at:
-        return
+def __rule_matches(instance: models.Discussion, rule: models.Mention):
+    story_title = title.normalize(instance.title, stem=False)
 
-    if instance.created_at < three_days_ago:
-        return
+    if rule.base_url:
+        if not instance.story_url:
+            return
 
+        base_url = ""
+        cu = cleanurl.cleanurl(rule.base_url, generic=True, host_remap=False)
+        if cu:
+            base_url = cu.schemeless_url
+
+        base_url_remapped = ""
+        cu = cleanurl.cleanurl(rule.base_url, generic=True, host_remap=True)
+        if cu:
+            base_url_remapped = cu.schemeless_url
+
+        if not (
+            (
+                base_url_remapped
+                and (
+                    base_url_remapped == instance.canonical_story_url
+                    or instance.canonical_story_url
+                    and instance.canonical_story_url.startswith(
+                        base_url_remapped + "/"
+                    )
+                )
+            )
+            or (
+                base_url
+                and (
+                    base_url == instance.schemeless_story_url
+                    or instance.schemeless_story_url
+                    and instance.schemeless_story_url.startswith(
+                        base_url + "/"
+                    )
+                )
+            )
+        ):
+            return
+
+    if rule.keyword:
+        keyword_set = set(title.normalize(rule.keyword, stem=False).split())
+        if not keyword_set.issubset(set(story_title.split())):
+            return
+
+    if instance.platform == "r":
+        tags: list[str] = instance.tags or []
+        if rule.subreddits_only and tags[0] not in rule.subreddits_only:
+            return
+        if rule.subreddits_exclude and tags[0] in rule.subreddits_exclude:
+            return
+
+    return True
+
+
+def __matching_rules(instance: models.Discussion):
     rules = (
         models.Mention.objects.filter(disabled=False)
         .filter(min_comments__lte=instance.comment_count)
@@ -33,62 +82,22 @@ def __process_mentions(sender, instance: models.Discussion, created, **kwargs):
 
     matched_rules = []
 
-    # breakpoint()
-
-    story_title = title.normalize(instance.title, stem=False)
-
     for r in rules:
-        if r.base_url:
-            if not instance.story_url:
-                continue
+        if __rule_matches(instance, r):
+            matched_rules.append(r)
 
-            base_url = ""
-            cu = cleanurl.cleanurl(r.base_url, generic=True, host_remap=False)
-            if cu:
-                base_url = cu.schemeless_url
+    return matched_rules
 
-            base_url_remapped = ""
-            cu = cleanurl.cleanurl(r.base_url, generic=True, host_remap=True)
-            if cu:
-                base_url_remapped = cu.schemeless_url
 
-            if not (
-                (
-                    base_url_remapped
-                    and (
-                        base_url_remapped == instance.canonical_story_url
-                        or instance.canonical_story_url
-                        and instance.canonical_story_url.startswith(
-                            base_url_remapped + "/"
-                        )
-                    )
-                )
-                or (
-                    base_url
-                    and (
-                        base_url == instance.schemeless_story_url
-                        or instance.schemeless_story_url
-                        and instance.schemeless_story_url.startswith(
-                            base_url + "/"
-                        )
-                    )
-                )
-            ):
-                continue
+def __process_mentions(sender, instance: models.Discussion, created, **kwargs):
+    three_days_ago = timezone.now() - datetime.timedelta(days=3)
+    if not instance.created_at:
+        return
 
-        if r.keyword:
-            keyword_set = set(title.normalize(r.keyword, stem=False).split())
-            if not keyword_set.issubset(set(story_title.split())):
-                continue
+    if instance.created_at < three_days_ago:
+        return
 
-        if instance.platform == "r":
-            tags: list[str] = instance.tags or []
-            if r.subreddits_only and tags[0] not in r.subreddits_only:
-                continue
-            if r.subreddits_exclude and tags[0] in r.subreddits_exclude:
-                continue
-
-        matched_rules.append(r)
+    matched_rules = __matching_rules(instance)
 
     for r in matched_rules:
         models.MentionNotification.objects.create(

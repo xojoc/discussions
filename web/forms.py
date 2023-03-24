@@ -167,8 +167,10 @@ def _platform_choices():
 
 
 class MentionForm(forms.ModelForm):
-    platforms = forms.MultipleChoiceField(
-        help_text=models.Mention._meta.get_field("platforms").help_text,
+    exclude_platforms = forms.MultipleChoiceField(
+        help_text=models.Mention._meta.get_field(
+            "exclude_platforms"
+        ).help_text,
         widget=forms.CheckboxSelectMultiple(),
     )
 
@@ -177,8 +179,8 @@ class MentionForm(forms.ModelForm):
         fields = [
             "base_url",
             "keyword",
-            "platforms",
-            "subreddits_only",
+            "exclude_platforms",
+            # "subreddits_only",
             "subreddits_exclude",
             "min_comments",
             "min_score",
@@ -192,13 +194,13 @@ class MentionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(MentionForm, self).__init__(*args, **kwargs)
-        self.fields["platforms"].choices = _platform_choices()
-        self.fields["platforms"].required = False
+        self.fields["exclude_platforms"].choices = _platform_choices()
+        self.fields["exclude_platforms"].required = False
         self.fields["min_comments"].required = False
         self.fields["min_score"].required = False
 
         self.helper = FormHelper(self)
-        self.helper["platforms"].wrap(
+        self.helper["exclude_platforms"].wrap(
             Field, css_class="overflow-y-scroll h-max-10em ms-2"
         )
 

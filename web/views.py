@@ -1,3 +1,4 @@
+import datetime
 import itertools
 import json
 import logging
@@ -7,6 +8,7 @@ from urllib.parse import quote
 from urllib.parse import unquote as url_unquote
 import stripe
 import urllib3
+import cleanurl
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -24,7 +26,7 @@ from django.views.decorators.http import require_http_methods
 from django_redis import get_redis_connection
 
 from discussions import settings
-from web import email_util
+from web import email_util, title
 
 from . import (
     discussions,
@@ -856,3 +858,39 @@ def aws_bounce_handler(request):
                 subscriber.save()
 
     return JsonResponse({})
+
+
+@csrf_exempt
+@login_required
+def mention_live_preview(request):
+    # todo: caching
+    rule = json.loads(request.body.decode("utf-8"))
+    logger.debug(rule)
+
+    title.normalize(rule.get("keyword", ""), stem=False).split()
+
+    cu = cleanurl.cleanurl(
+        rule.get("base_url"), generic=True, host_remap=False
+    )
+    base_url = ""
+    if cu:
+        base_url = cu.schemeless_url
+
+    ago = timezone.now() - datetime.timedelta(days=365)
+
+    ds = (
+        models.Discussion.objects.filter(
+            comment_count__gte=rule.get("min_comments", 0)
+        )
+        .filter(score__gte=rule.get("min_score", 0))
+        .exclude(platform__in=rule.get("exclude_platforms", []))
+        .filter(schemeless_story_url__startswith=base_url)
+        .filter(created_at__gt=ago)
+    )
+
+    filtered_ds = ds.order_by("-created_at")[:10]
+
+    ctx = {"discussions": filtered_ds}
+    return render(
+        request, "web/dashboard_mentions_live_preview.html", {"ctx": ctx}
+    )

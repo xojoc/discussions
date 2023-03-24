@@ -72,6 +72,7 @@ def __url_blacklisted_selftext(url):
             "amazon.com",
             "github.com",
             "self.data",
+            "self.name",
         )
         or url == "crates.io"
         or url == "crates.io/"
@@ -362,7 +363,6 @@ def submit(subreddit, title, url=None, selftext=None, c=None):
 def get_subreddit(
     subreddit, reddit_client, listing="new", listing_argument="", limit=100
 ):
-
     subreddit = subreddit.lower()
 
     stories = set()
