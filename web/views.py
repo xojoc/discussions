@@ -26,7 +26,7 @@ from django.views.decorators.http import require_http_methods
 from django_redis import get_redis_connection
 
 from discussions import settings
-from web import email_util, title
+from web import email_util, spam, title
 
 from . import (
     discussions,
@@ -435,17 +435,9 @@ def __weekly_topic_subscribe_form(request, topic, ctx):
         subscriber.http_headers = dict(request.headers)
         subscriber.save()
 
-        if subscriber.suspected_spam:
-            #             logger.error(
-            #                 f"""
-            # Suspected spammer:
-            # {pformat(subscriber)}
-
-            # User agent:
-            # {request.META['HTTP_USER_AGENT']}
-            # """
-            #             )
-
+        if spam.is_form_spammer(request, form):
+            subscriber.delete()
+        elif subscriber.suspected_spam:
             email_util.send_admins(
                 "Suspected spammer",
                 f"""
