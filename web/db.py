@@ -179,8 +179,12 @@ def admin_send_recap_email(self):
             user = topic["mastodon"]["account"].split("@")[1]
             mastodon_usernames.append(user)
 
-    twitter_followers_count = twitter.get_followers_count(twitter_usernames)
-    mastodon_followers_count = mastodon.get_followers_count(mastodon_usernames)
+    twitter_followers_count = (
+        twitter.get_followers_count(twitter_usernames) or {}
+    )
+    mastodon_followers_count = (
+        mastodon.get_followers_count(mastodon_usernames) or {}
+    )
     users_count = models.CustomUser.objects.count()
 
     users_premium_count = (
@@ -213,11 +217,11 @@ Mention rules: {mention_rules_count}
         mastodon_count = 0
         if topic.get("twitter"):
             twitter_count = twitter_followers_count.get(
-                topic["twitter"]["account"]
+                topic["twitter"]["account"], 0
             )
         if topic.get("mastodon"):
             user = topic["mastodon"]["account"].split("@")[1]
-            mastodon_count = mastodon_followers_count.get(user)
+            mastodon_count = mastodon_followers_count.get(user, 0)
 
         topic_subscribers = models.Subscriber.mailing_list(topic_key).count()
 

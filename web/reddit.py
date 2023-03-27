@@ -7,6 +7,7 @@ import re
 import shutil
 import statistics
 import time
+import typing
 
 import cleanurl
 import markdown
@@ -28,8 +29,8 @@ from . import celery_util, http, models, util, worker
 logger = logging.getLogger(__name__)
 
 # filled in apps.WebConfig.ready
-subreddit_blacklist = set()
-subreddit_whitelist = set()
+subreddit_blacklist: typing.Set[str] = set()
+subreddit_whitelist: typing.Set[str] = set()
 
 
 def _url_blacklisted(url):

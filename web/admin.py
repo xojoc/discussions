@@ -81,8 +81,13 @@ class CustomUserAdmin(admin.ModelAdmin):
         "email_verified",
         "is_active",
         "date_joined",
+        "last_login",
     ]
-    list_filter = ["premium_active", "premium_cancelled", "is_active"]
+    list_filter = [
+        "premium_active",
+        "premium_cancelled",
+        "is_active",
+    ]
     search_fields = ("complete_name", "email")
     ordering = [
         "-date_joined",

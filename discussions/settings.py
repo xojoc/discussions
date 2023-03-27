@@ -142,7 +142,6 @@ WSGI_APPLICATION = "discussions.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        # "ENGINE": "django_postgrespool2",
         "HOST": os.environ.get("DATABASE_HOST"),
         "NAME": os.environ.get("DATABASE_NAME"),
         "PASSWORD": os.environ.get("DATABASE_PASSWORD"),

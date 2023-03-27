@@ -333,7 +333,7 @@ def get_followers_count(usernames):
             followers_count[username] = fc
         else:
             parameters["q"] = username
-            res = client.get(api_url, data=parameters, headers=auth)
+            res = client.get(api_url, params=parameters, headers=auth)
 
             if not res.ok:
                 continue

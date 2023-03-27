@@ -7,7 +7,8 @@ poetry_export:
 # Disable hashes for now since the installation of pycparser fails.
 
 # Reenable them in the future.
-	@poetry export --without-hashes  -f requirements.txt --output requirements.txt
+# --without-hashes
+	@poetry export   -f requirements.txt --output requirements.txt
 
 sass_compile:
 	@poetry run ./manage.py sass web/static/style.scss web/static/style.css
@@ -71,3 +72,7 @@ utest:
 
 superuser:
 	poetry run python manage.py createsuperuser
+
+update:
+	@poetry update
+	@poetry types update
