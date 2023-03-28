@@ -99,7 +99,7 @@
         title="Manage your emails">all your emails</a> or subscribe <a href="/weekly/">to a newsletter</a>.</p>
 {% endif %}
 
-{% if user.rss_id and user.email_verified %}
+{% if user.rss_id %}
 <h4 class="mt-5">RSS feeds</h4>
 
 {% if not user.is_premium %}
@@ -137,16 +137,20 @@
 </p>
 {% endif %}
 
-{% if ctx.user_verified_email %}
+
 <div class="card mt-5">
     <h5 class="card-header">Manage mention rules</h5>
     <div class="card-body">
         <p class="card-text">Update, add and delete mention rules.</p>
 
+        {% if ctx.user_verified_email %}
         <a href="{% url 'web:dashboard_mentions' %}" class="btn btn-secondary">Mentions</a>
+        {% else %}
+        <p class="card-text alert alert-warning">Verify your <a href="{% url 'account_email' %}"
+                title="Manage your emails">email</a> to create a new mention rule</p>
+        {% endif %}
     </div>
 </div>
-{% endif %}
 
 <div class="my-5"></div>
 
@@ -177,15 +181,28 @@
 </div>
 {% endif %}
 
-<h5 class="mt-5">Contacts</h5>
-<p>
-    Check out our <a href="https://www.reddit.com/r/discueu/" title="Discu.eu's subreddit">subreddit</a> for questions,
-    feedback or support.
-</p>
-{% if user.is_premium %}
-<p>To contact us by email write to <a href="mailto:hi@discu.eu">hi@discu.eu</a>.</p>
-{% else %}
-<p>Get the <a href="#dashboard-get-premium" title="Premium plan">premium plan</a> for email support.</p>
-{% endif %}
+
+<div class="my-5"></div>
+
+<div class="card">
+    <h5 class="card-header">Contacts</h5>
+    <div class="card-body">
+        <div class="card-text">
+            Check out our <a href="https://www.reddit.com/r/discueu/" title="Discu.eu's subreddit">subreddit</a> for
+            questions,
+            feedback or support.
+        </div>
+        {% if user.is_premium %}
+        <div class="card-text mt-1">To contact us by email write to <a
+                href="mailto:support@discu.eu">support@discu.eu</a>.</div>
+        {% else %}
+        <div class="card-text mt-1">Get the <a href="#dashboard-get-premium" title="Premium plan">premium plan</a> for
+            email
+            support.</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mb-5"></div>
 
 {% endblock main %}

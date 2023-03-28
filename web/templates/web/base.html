@@ -80,6 +80,10 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 									title="Weekly Newsletters">Newsletters</a>
 							</li>
 							<li class="nav-item">
+								<a class="nav-link text-light" href="{% url 'web:mentions' %}"
+									title="Mentions">Mentions</a>
+							</li>
+							<li class="nav-item">
 								<a class="nav-link text-light" href="{% url 'web:extension' %}"
 									title="Firefox and Chrome extensions">Extension</a>
 							</li>
@@ -158,6 +162,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 				<div class=" w-min-16ch">
 					<h6>Developers</h6>
 					<ul class="list-unstyled">
+						<li><a href="{% url 'web:mentions' %}" title="Mentions" class="text-white">Mentions</a></li>
 						<li><a href="{% url 'web:api' %}" title="Discussions and comments API"
 								class="text-white">API</a></li>
 						<li><a href="/website" title="Display discussions on your website"

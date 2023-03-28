@@ -12,14 +12,30 @@ Findout who mentions you on Reddit, Hacker News and lobsters.
 
 
 {% block main %}
-<h1 class="mt-5 text-center">Get notified when you are <span class="highlight">mentioned</span></h1>
+<h1 class="text-center">Get notified when people <span class="highlight">talk about you</span></h1>
 
-<p class="lead">Receive an email when someone mentions your website, GitHub repo or blog on Reddit, Lobsters and Hacker
+<p class="lead">Receive an email when someone posts your website, GitHub repo or blog on Reddit, Lobsters and Hacker
     News.</p>
 
 
-<a class="btn btn-lg btn-primary mb-2 mt-2" href="{% url 'web:pricing' %}" title="Premium plan & features">Go
-    premium</a>
+<div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mt-5 mb-5">
+    <div class="w-min-content w-min-16ch"><i class="bi bi-chat-left-quote m-auto text-dark fs-3em"></i>
+        <h3>Context</h3>
+        <span class="lead mb-0">Find where people talk about you</span>
+    </div>
+    <div class="w-min-content w-min-16ch"><i class="bi bi-activity m-auto text-dark fs-3em"></i>
+        <h3>Stay on top</h3>
+        <span class="lead mb-0">Jump straight into the discussion</span>
+    </div>
+    <div class="w-min-content w-min-16ch"><i class="bi bi-archive-fill m-auto text-dark fs-3em"></i>
+        <h3>Thorough</h3>
+        <span class="lead mb-0">Discussions are constantly updated</span>
+    </div>
+</div>
 
+<div class="text-center mt-5 mb-5">
+    <a class="btn btn-lg btn-primary mb-2 mt-2" href="{% url 'web:pricing' %}" title="Premium plan & features">Go
+        premium</a>
+</div>
 
 {% endblock main %}

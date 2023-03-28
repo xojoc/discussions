@@ -122,6 +122,15 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	<h2 class="fs-3 mt-4em text-center mb-4">Are you a developer?</h2>
 	<div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mb-5">
+
+		<div class="w-min-content w-min-16ch"><a href="{% url 'web:mentions' %}" class="text-underline-hover text-body"
+				title="Mentions"><i class="bi bi-activity m-auto text-dark fs-2em"></i>
+				<h3 class="fs-4">Mentions</h3>
+				<span class="mb-0">Get notified when you're mentioned and jump into the
+					discussion.</span>
+			</a>
+		</div>
+
 		<div class="w-min-content w-min-16ch"><a href="{% url 'web:api' %}" title="Discussions and comments API"
 				class="text-underline-hover text-body"><i class="bi bi-plug m-auto text-dark fs-2em"></i>
 				<h3 class="fs-4">API</h3>

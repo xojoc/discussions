@@ -51,7 +51,7 @@ Pricing and premium features (RSS Feeds, email support, API, etc.) for discu.eu
     </div>
     <div class="card mb-4 rounded-3 shadow-sm border-primary">
         <div class="card-header py-3 text-bg-primary border-primary ps-4 pe-4">
-            <h4 class="my-0 fw-normal text-light">Premium</h4>
+            <h4 class="my-0 fw-bold text-light">Premium</h4>
         </div>
         <div class="card-body d-flex flex-column ps-4 pe-4">
             <h1 class="card-title pricing-card-title">€5<small class="text-muted fw-light">/mo</small></h1>
@@ -59,6 +59,7 @@ Pricing and premium features (RSS Feeds, email support, API, etc.) for discu.eu
                 <li>Newsletters (RSS)</li>
                 <li>API</li>
                 <li>Email support</li>
+                <li>Mentions</li>
                 <li>No ads</li>
             </ul>
 
@@ -131,12 +132,18 @@ Pricing and premium features (RSS Feeds, email support, API, etc.) for discu.eu
                     <td><span class="bi bi-check2 fs-2"></span></td>
                 </tr>
                 <tr>
-                    <th scope="row" class="text-start align-middle">Ad-free</th>
+                    <th scope="row" class="text-start align-middle">Email support</th>
                     <td></td>
                     <td><span class="bi bi-check2-all fs-2 text-primary"></span></td>
                 </tr>
                 <tr>
-                    <th scope="row" class="text-start align-middle">Email support</th>
+                    <th scope="row" class="text-start align-middle"><a href="{% url 'web:mentions' %}"
+                            title="Get notified when people talk about you">Mentions</a></th>
+                    <td></td>
+                    <td><span class="bi bi-check2-all fs-2 text-primary"></span></td>
+                </tr>
+                <tr>
+                    <th scope="row" class="text-start align-middle">Ad-free</th>
                     <td></td>
                     <td><span class="bi bi-check2-all fs-2 text-primary"></span></td>
                 </tr>

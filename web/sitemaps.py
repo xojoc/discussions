@@ -15,6 +15,7 @@ class StaticViewSitemap(Sitemap):
             "web:api",
             "web:bookmarklet",
             "web:extension",
+            "web:mentions",
             "web:pricing",
             "web:search",
             "web:social",

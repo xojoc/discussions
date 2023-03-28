@@ -269,7 +269,7 @@ class MentionForm(forms.ModelForm):
             self.add_error("keywords", msg)
 
         for key in data:
-            if not key:
+            if not key.strip():
                 msg = "Empty keywords are not allowed"
                 self.add_error("keywords", msg)
                 break
