@@ -1339,7 +1339,7 @@ Coma separated list of subreddits to ignore.
         if self.base_url:
             return self.base_url
         if self.keywords:
-            return self.keywords
+            return ", ".join(self.keywords)
         return str(self.pk)
 
     def save(self, *args, **kwargs):
