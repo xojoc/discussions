@@ -1263,20 +1263,6 @@ If you have preferences for when to tweet or toot or anything else let us know h
 class Mention(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     rule_name = models.CharField(max_length=255, blank=True)
-    url_pattern = models.TextField(
-        help_text="""
-Insert a URL pattern without the protocol.<br/>
-Use % to represent any string.<br/>
-URLs are normalized so: https://discu.eu, http://www.discu.eu and https://mobile.discu.eu all match discu.eu/%<br/>
-matching is case insensitive.<br/>
-Examples:
-<ul>
-    <li>discu.eu/%</li>
-    <li>twitter.com/xojoc/%</li>
-</ul>
-    """
-    )
-    title_pattern = models.TextField(blank=True)
 
     base_url = models.TextField(
         blank=True,
@@ -1286,7 +1272,7 @@ The discussed URL must have this prefix.</br>
 It could be your website, your twitter profile, github profile, etc.<br/>
 For example: xojoc.pw, twitter.com/XojocXojoc, github.com/xojoc<br/>
 
-Common subdomains are ignored. So example.com matches www.example.com, m.example.com, example.com, etc.<br/>
+Common subdomains are ignored. So <i>example.com</i> matches <i>www.example.com</i>, <i>m.example.com</i>, <i>example.com</i>, etc.<br/>
 If you have different subdomains (like blog. forum. docs. etc.) you have to create a separate rule for them.
     """,
     )
@@ -1294,8 +1280,20 @@ If you have different subdomains (like blog. forum. docs. etc.) you have to crea
     keyword = models.TextField(
         blank=True,
         help_text="""
-Title must have this keyword. It could be your brand, name or a product you are interested in.
+The title of the <i>posted</i> story must have this keyword. It could be your brand, name or a product you are interested in.
     """,
+    )
+
+    keywords = postgres_fields.ArrayField(
+        models.TextField(blank=True),
+        blank=True,
+        null=True,
+        help_text="""
+Coma separated list of keywords. The title of the <i>posted</i> story must contain <i>one</i> of these keywords. It could be your brand, your name or a product you are interested in.<br/>
+Both the keyword and title of the thread are normalized. So the keywords <i>XOJOC,anotherkeyword</i> will match for example <i>Xojoc's new project</i>, etc.
+<br/>
+No more than 3 keywords are allowed.
+        """,
     )
 
     platforms = postgres_fields.ArrayField(
@@ -1315,30 +1313,20 @@ Platforms you are NOT interested in.
         """,
     )
 
-    subreddits_only = postgres_fields.ArrayField(
-        models.CharField(max_length=255, blank=True),
-        null=True,
-        blank=True,
-        verbose_name="Subreddits whitelist",
-        help_text="""
-        For Reddit discussions consider only these subreddits.
-        """,
-    )
-
     subreddits_exclude = postgres_fields.ArrayField(
         models.CharField(max_length=255, blank=True),
         null=True,
         blank=True,
-        verbose_name="Subreddits blacklist",
+        verbose_name="Exclude subreddits",
         help_text="""
-Ignore discussions in these subreddits.
+Coma separated list of subreddits to ignore.
         """,
     )
 
     min_comments = models.PositiveIntegerField(default=0)
     min_score = models.IntegerField(default=0)
 
-    disabled = models.BooleanField(default=False)
+    disabled = models.BooleanField(default=False, verbose_name="Disable")
 
     entry_created_at = models.DateTimeField(auto_now_add=True)
     entry_updated_at = models.DateTimeField(auto_now=True)
@@ -1346,35 +1334,34 @@ Ignore discussions in these subreddits.
     def __str__(self):
         if self.rule_name:
             return self.rule_name
-        if self.base_url and self.keyword:
-            return f"{self.base_url} - {self.keyword}"
+        if self.base_url and self.keywords:
+            return f"{self.base_url} - {self.keywords}"
         if self.base_url:
             return self.base_url
-        if self.keyword:
-            return self.keyword
+        if self.keywords:
+            return self.keywords
         return str(self.pk)
 
     def save(self, *args, **kwargs):
         self.platforms = self.platforms or []
 
-        self.subreddits_only = self.subreddits_only or []
-        self.subreddits_only = [
-            s.strip().lower() for s in self.subreddits_only
-        ]
-        self.subreddits_only = [s for s in self.subreddits_only if s]
+        self.exclude_platforms = self.exclude_platforms or []
+        self.exclude_platforms = sorted(self.exclude_platforms)
 
         self.subreddits_exclude = self.subreddits_exclude or []
         self.subreddits_exclude = [
             s.strip().lower() for s in self.subreddits_exclude
         ]
         self.subreddits_exclude = [s for s in self.subreddits_exclude if s]
+        self.subreddits_exclude = sorted(self.subreddits_exclude)
 
-        self.url_pattern = self.url_pattern or ""
-        self.url_pattern = self.url_pattern.strip()
-        if self.url_pattern and "%" not in self.url_pattern:
-            if not self.url_pattern.endswith("/"):
-                self.url_pattern += "/"
-            self.url_pattern += "%"
+        if self.keyword and not self.keywords:
+            self.keywords = [self.keyword]
+
+        self.keywords = self.keywords or []
+        self.keywords = [s.strip().lower() for s in self.keywords]
+        self.keywords = [s for s in self.keywords if s]
+        self.keywords = sorted(self.keywords)
 
         super(Mention, self).save(*args, **kwargs)
 

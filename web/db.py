@@ -3,7 +3,6 @@ import logging
 import time
 
 from celery import shared_task
-from django.conf import settings
 from django.utils import timezone
 
 from web import (
@@ -229,9 +228,4 @@ Mention rules: {mention_rules_count}
 
     body += "\n"
 
-    email_util.send(
-        "[discu.eu] Weekly overview",
-        body,
-        settings.SERVER_EMAIL,
-        settings.ADMINS[0][1],
-    )
+    email_util.send_admins("[discu.eu] Weekly overview", body)

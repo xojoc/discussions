@@ -8,7 +8,13 @@
 
 <h5>Edit rule {{ctx.mention}}</h5>
 
-{% crispy ctx.form %}
+<div id="dashboard_mentions_form">
+    {% crispy ctx.form %}
+</div>
+
+<h6>Live preview</h6>
+<div id="mention_live_preview">Click on "Live Preview" to see some examples of notifications you would receive...
+</div>
 
 <a href="{% url 'web:dashboard_mentions' %}" title="Mention rules" class="btn btn-outline-dark mt-4">ᐸ All rules</a>
 

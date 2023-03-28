@@ -137,6 +137,17 @@
 </p>
 {% endif %}
 
+{% if ctx.user_verified_email %}
+<div class="card mt-5">
+    <h5 class="card-header">Manage mention rules</h5>
+    <div class="card-body">
+        <p class="card-text">Update, add and delete mention rules.</p>
+
+        <a href="{% url 'web:dashboard_mentions' %}" class="btn btn-secondary">Mentions</a>
+    </div>
+</div>
+{% endif %}
+
 <div class="my-5"></div>
 
 <div class="card">
@@ -148,16 +159,6 @@
     </div>
 </div>
 
-{% if ctx.user_verified_email %}
-<div class="card mt-5">
-    <h5 class="card-header">Manage mention rules</h5>
-    <div class="card-body">
-        <p class="card-text">Update, add and delete mention rules.</p>
-
-        <a href="{% url 'web:dashboard_mentions' %}" class="btn btn-secondary">Mentions</a>
-    </div>
-</div>
-{% endif %}
 
 <div class="my-5"></div>
 

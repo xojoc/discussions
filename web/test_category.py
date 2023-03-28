@@ -1,8 +1,9 @@
+# import unittest
+from django.test import TestCase
 from web import category, models
-import unittest
 
 
-class Category(unittest.TestCase):
+class Category(TestCase):
     def test_normalization(self):
         def d(platform, title, tags, url):
             s = models.Discussion(

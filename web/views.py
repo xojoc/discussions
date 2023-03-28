@@ -1,14 +1,14 @@
-import datetime
 import itertools
 import json
 import logging
+
+
 from pprint import pformat
 import random
 from urllib.parse import quote
 from urllib.parse import unquote as url_unquote
 import stripe
 import urllib3
-import cleanurl
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -26,7 +26,7 @@ from django.views.decorators.http import require_http_methods
 from django_redis import get_redis_connection
 
 from discussions import settings
-from web import email_util, spam, title
+from web import email_util, mention, spam
 
 from . import (
     discussions,
@@ -613,14 +613,13 @@ def dashboard_mentions(request):
             mention = get_object_or_404(models.Mention, pk=pk)
             if mention.user != request.user:
                 raise Http404("404")
-            mention.disabled = True
-            mention.save()
+            mention.delete()
             messages.success(request, f"Rule {mention} deleted!")
             return redirect(request.get_full_path(), permanent=False)
 
     ctx["mention_form"] = mention_form
 
-    ctx["mentions"] = request.user.mention_set.all().filter(disabled=False)
+    ctx["mentions"] = request.user.mention_set.all()
 
     return render(request, "web/dashboard_mentions.html", {"ctx": ctx})
 
@@ -632,13 +631,11 @@ def dashboard_mentions_edit(request, pk):
     if mention.user != request.user:
         raise Http404("404")
 
-    if mention.disabled:
-        messages.warning(request, "This rule no longer exists")
-        return redirect(reverse("web:dashboard_mentions"))
+    # if mention.disabled:
+    #     messages.warning(request, "This rule no longer exists")
+    #     return redirect(reverse("web:dashboard_mentions"))
 
     edit_form = forms.EditMentionForm(instance=mention)
-
-    logger.info("a")
 
     if request.method == "POST":
         edit_form = forms.EditMentionForm(request.POST, instance=mention)
@@ -855,34 +852,75 @@ def aws_bounce_handler(request):
 @csrf_exempt
 @login_required
 def mention_live_preview(request):
-    # todo: caching
+    ctx = {}
     rule = json.loads(request.body.decode("utf-8"))
-    logger.debug(rule)
+    ruleForm = forms.MentionForm(rule)
+    ctx["errors"] = ruleForm.errors
+    ctx["form"] = ruleForm
+    ctx["discussions"] = []
+    if ruleForm.is_valid():
+        ruleModel = ruleForm.save(commit=False)
+        ctx["discussions"] = mention.discussions(ruleModel) or []
 
-    title.normalize(rule.get("keyword", ""), stem=False).split()
+    ctx["discussions"] = ctx["discussions"][:10]
 
-    cu = cleanurl.cleanurl(
-        rule.get("base_url"), generic=True, host_remap=False
-    )
-    base_url = ""
-    if cu:
-        base_url = cu.schemeless_url
-
-    ago = timezone.now() - datetime.timedelta(days=365)
-
-    ds = (
-        models.Discussion.objects.filter(
-            comment_count__gte=rule.get("min_comments", 0)
-        )
-        .filter(score__gte=rule.get("min_score", 0))
-        .exclude(platform__in=rule.get("exclude_platforms", []))
-        .filter(schemeless_story_url__startswith=base_url)
-        .filter(created_at__gt=ago)
-    )
-
-    filtered_ds = ds.order_by("-created_at")[:10]
-
-    ctx = {"discussions": filtered_ds}
     return render(
         request, "web/dashboard_mentions_live_preview.html", {"ctx": ctx}
     )
+
+    # keywords = ruleForm.cleaned_data.get("keywords") or []
+    # for i, k in enumerate(keywords):
+    #     keywords[i] = title.normalize(k, stem=False)
+
+    # cu = cleanurl.cleanurl(
+    #     rule.get("base_url"), generic=True, host_remap=False
+    # )
+    # base_url = ""
+    # if cu:
+    #     base_url = cu.schemeless_url
+
+    # subreddits_exclude = ruleForm.cleaned_data.get("subreddits_exclude", [])
+
+    # ago = timezone.now() - datetime.timedelta(days=365)
+
+    # ds = (
+    #     models.Discussion.objects.filter(
+    #         comment_count__gte=ruleForm.cleaned_data.get("min_comments", 0)
+    #     )
+    #     .filter(score__gte=ruleForm.cleaned_data.get("min_score", 0))
+    #     .exclude(
+    #         platform__in=ruleForm.cleaned_data.get("exclude_platforms", [])
+    #     )
+    #     .filter(created_at__gt=ago)
+    # )
+
+    # if base_url:
+    #     ds = ds.filter(schemeless_story_url__startswith=base_url)
+
+    # if keywords:
+    #     ds = ds.filter(
+    #         reduce(or_, [Q(normalized_title__icontains=k) for k in keywords])
+    #     )
+
+    # if subreddits_exclude:
+    #     ds = ds.exclude(Q(platform="r") & Q(tags__overlap=subreddits_exclude))
+
+    # ctx["discussions"] = []
+
+    # for d in ds.order_by("-created_at")[:15]:
+    #     if not keywords:
+    #         ctx["discussions"].append(d)
+    #         continue
+
+    #     ok = False
+    #     for k in keywords:
+    #         if re.search(r"\b" + k + r"\b", d.normalized_title):
+    #             ok = True
+    #             break
+    #         if re.search(r"\b" + k + r"\b", " ".join(d.title.lower().split())):
+    #             ok = True
+    #             break
+
+    #     if ok:
+    #         ctx["discussions"].append(d)
+    #         continue

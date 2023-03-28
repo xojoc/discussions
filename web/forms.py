@@ -1,7 +1,7 @@
 import logging
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Field, Submit, Layout, Div
+from crispy_forms.layout import Field, Submit, Layout, Div, Button
 from django import forms
 
 # from crispy_bootstrap5.bootstrap5 import FloatingField
@@ -178,9 +178,8 @@ class MentionForm(forms.ModelForm):
         model = models.Mention
         fields = [
             "base_url",
-            "keyword",
+            "keywords",
             "exclude_platforms",
-            # "subreddits_only",
             "subreddits_exclude",
             "min_comments",
             "min_score",
@@ -217,6 +216,13 @@ class MentionForm(forms.ModelForm):
                 css_class="btn btn-secondary",
             )
         )
+        self.helper.add_input(
+            Button(
+                "live-preview-mention-rule",
+                "Live preview",
+                css_class="btn btn-info",
+            )
+        )
 
     def clean_min_comments(self):
         data = self.cleaned_data["min_comments"]
@@ -242,38 +248,77 @@ class MentionForm(forms.ModelForm):
                 break
             prev_data = data
 
-        if data and not data.endswith("/"):
-            data += "/"
+        if data:
+            if "." not in data:
+                msg = "Must contain at least one dot (.)"
+                self.add_error("base_url", msg)
+
+            min_len = 3
+            if len(data) < min_len:
+                msg = f"Must be at least {min_len} characters long"
+                self.add_error("base_url", msg)
 
         return data
+
+    def clean_keywords(self):
+        data = self.cleaned_data["keywords"] or []
+
+        max_len = 3
+        if len(data) > max_len:
+            msg = f"No more than {max_len} keywords are allowed"
+            self.add_error("keywords", msg)
+
+        for key in data:
+            if not key:
+                msg = "Empty keywords are not allowed"
+                self.add_error("keywords", msg)
+                break
+
+        return data
+
+    def clean_subreddits_exclude(self):
+        data = self.cleaned_data.get("subreddits_exclude") or []
+        new_list = []
+        for sub in data:
+            sub = sub.removeprefix("/r/")
+            sub = sub.removeprefix("r/")
+            sub = sub.strip().lower()
+            new_list.append(sub)
+
+        return new_list
 
     def clean(self):
         cleaned_data = super(MentionForm, self).clean()
         base_url = cleaned_data.get("base_url")
-        keyword = cleaned_data.get("keyword")
-        subreddits_only = cleaned_data.get("subreddits_only")
-        subreddits_exclude = cleaned_data.get("subreddits_exclude")
+        keywords = cleaned_data.get("keywords")
 
-        if not base_url and not keyword:
-            msg = "Please fill at least one of URL prefix or Keyword."
+        if not base_url and not keywords:
+            msg = "Please fill at least one of URL prefix or keywords."
             self.add_error("base_url", msg)
-            self.add_error("keyword", msg)
-
-        if subreddits_only and subreddits_exclude:
-            msg = "Please fill only one of Subreddits whitelist or Subreddits blacklist."
-            self.add_error("subreddits_only", msg)
-            self.add_error("subreddits_exclude", msg)
+            self.add_error("keywords", msg)
 
 
 class EditMentionForm(MentionForm):
+    class Meta(MentionForm.Meta):
+        fields = MentionForm.Meta.fields + ["disabled"]
+
     def __init__(self, *args, **kwargs):
         super(EditMentionForm, self).__init__(*args, **kwargs)
 
-        self.helper.inputs.pop()
+        self.helper.inputs = []
+
         self.helper.add_input(
             Submit(
                 "submit-edit-mention-rule",
                 "Update rule",
                 css_class="btn btn-secondary",
+            )
+        )
+
+        self.helper.add_input(
+            Button(
+                "live-preview-mention-rule",
+                "Live preview",
+                css_class="btn btn-info",
             )
         )

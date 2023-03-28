@@ -100,8 +100,8 @@ class MentionAdmin(admin.ModelAdmin):
         "rule_name",
         "user",
         "base_url",
-        "keyword",
-        "platforms",
+        "keywords",
+        "exclude_platforms",
         "disabled",
         "entry_created_at",
     ]

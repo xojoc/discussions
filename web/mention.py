@@ -1,5 +1,8 @@
 import datetime
+from functools import reduce
 import logging
+from operator import or_
+import re
 
 import cleanurl
 import django.template.loader as template_loader
@@ -15,60 +18,147 @@ from web import email_util, models, title
 logger = logging.getLogger(__name__)
 
 
-def __rule_matches(instance: models.Discussion, rule: models.Mention):
-    story_title = title.normalize(instance.title, stem=False)
+def discussions(rule: models.Mention, pk=None):
+    keywords = rule.keywords or []
+    if rule.keyword and not rule.keywords:
+        keywords = [rule.keyword]
+    for i, k in enumerate(keywords):
+        keywords[i] = title.normalize(k, stem=False)
 
-    if rule.base_url:
-        if not instance.story_url:
-            return
+    rurl = rule.base_url or ""
+    if rurl:
+        rurl = "//" + rurl
 
-        base_url = ""
-        cu = cleanurl.cleanurl(rule.base_url, generic=True, host_remap=False)
-        if cu:
-            base_url = cu.schemeless_url
+    cu = cleanurl.cleanurl(rurl, generic=True, host_remap=False)
+    base_url = rule.base_url or ""
+    if cu:
+        base_url = cu.schemeless_url
 
-        base_url_remapped = ""
-        cu = cleanurl.cleanurl(rule.base_url, generic=True, host_remap=True)
-        if cu:
-            base_url_remapped = cu.schemeless_url
+    cbase_url = ""
+    ccu = cleanurl.cleanurl(rurl)
+    if ccu:
+        cbase_url = ccu.schemeless_url
 
-        if not (
-            (
-                base_url_remapped
-                and (
-                    base_url_remapped == instance.canonical_story_url
-                    or instance.canonical_story_url
-                    and instance.canonical_story_url.startswith(
-                        base_url_remapped + "/"
-                    )
-                )
+    subreddits_exclude = rule.subreddits_exclude or []
+
+    ago = timezone.now() - datetime.timedelta(days=365)
+
+    ds = (
+        models.Discussion.objects.filter(comment_count__gte=rule.min_comments)
+        .filter(score__gte=rule.min_score)
+        .exclude(platform__in=(rule.exclude_platforms or []))
+        .filter(created_at__gt=ago)
+    )
+
+    if base_url:
+        q_filter = Q(schemeless_story_url__startswith=rule.base_url) | Q(
+            canonical_story_url__startswith=rule.base_url
+        )
+
+        q_filter = (
+            q_filter
+            | Q(schemeless_story_url__startswith=base_url)
+            | Q(canonical_story_url__startswith=base_url)
+        )
+
+        if cbase_url:
+            q_filter = (
+                q_filter
+                | Q(schemeless_story_url__startswith=cbase_url)
+                | Q(canonical_story_url__startswith=cbase_url)
             )
-            or (
-                base_url
-                and (
-                    base_url == instance.schemeless_story_url
-                    or instance.schemeless_story_url
-                    and instance.schemeless_story_url.startswith(
-                        base_url + "/"
-                    )
-                )
-            )
-        ):
-            return
 
-    if rule.keyword:
-        keyword_set = set(title.normalize(rule.keyword, stem=False).split())
-        if not keyword_set.issubset(set(story_title.split())):
-            return
+        ds = ds.filter(q_filter)
 
-    if instance.platform == "r":
-        tags: list[str] = instance.tags or []
-        if rule.subreddits_only and tags[0] not in rule.subreddits_only:
-            return
-        if rule.subreddits_exclude and tags[0] in rule.subreddits_exclude:
-            return
+    if keywords:
+        ds = ds.filter(
+            reduce(or_, [Q(normalized_title__icontains=k) for k in keywords])
+        )
 
-    return True
+    if pk:
+        ds = ds.filter(pk=pk)
+
+    if subreddits_exclude:
+        ds = ds.exclude(Q(platform="r") & Q(tags__overlap=subreddits_exclude))
+
+    dsa = []
+
+    for d in ds.order_by("-created_at")[:15]:
+        if not keywords:
+            dsa.append(d)
+            continue
+
+        ok = False
+        for k in keywords:
+            if re.search(r"\b" + k + r"\b", d.normalized_title or ""):
+                ok = True
+                break
+            if re.search(
+                r"\b" + k + r"\b", " ".join((d.title or "").lower().split())
+            ):
+                ok = True
+                break
+
+        if ok:
+            dsa.append(d)
+            continue
+
+    return dsa
+
+
+def __rule_matches(rule: models.Mention, instance: models.Discussion):
+    return discussions(rule, instance.pk)
+    # story_title = title.normalize(instance.title, stem=False)
+
+    # if rule.base_url:
+    #     if not instance.story_url:
+    #         return
+
+    #     base_url = ""
+    #     cu = cleanurl.cleanurl(rule.base_url, generic=True, host_remap=False)
+    #     if cu:
+    #         base_url = cu.schemeless_url
+
+    #     base_url_remapped = ""
+    #     cu = cleanurl.cleanurl(rule.base_url, generic=True, host_remap=True)
+    #     if cu:
+    #         base_url_remapped = cu.schemeless_url
+
+    #     if not (
+    #         (
+    #             base_url_remapped
+    #             and (
+    #                 base_url_remapped == instance.canonical_story_url
+    #                 or instance.canonical_story_url
+    #                 and instance.canonical_story_url.startswith(
+    #                     base_url_remapped + "/"
+    #                 )
+    #             )
+    #         )
+    #         or (
+    #             base_url
+    #             and (
+    #                 base_url == instance.schemeless_story_url
+    #                 or instance.schemeless_story_url
+    #                 and instance.schemeless_story_url.startswith(
+    #                     base_url + "/"
+    #                 )
+    #             )
+    #         )
+    #     ):
+    #         return
+
+    # if rule.keyword:
+    #     keyword_set = set(title.normalize(rule.keyword, stem=False).split())
+    #     if not keyword_set.issubset(set(story_title.split())):
+    #         return
+
+    # if instance.platform == "r":
+    #     tags: list[str] = instance.tags or []
+    #     if rule.subreddits_exclude and tags[0] in rule.subreddits_exclude:
+    #         return
+
+    # return True
 
 
 def __matching_rules(instance: models.Discussion):
@@ -76,14 +166,14 @@ def __matching_rules(instance: models.Discussion):
         models.Mention.objects.filter(disabled=False)
         .filter(min_comments__lte=instance.comment_count)
         .filter(min_score__lte=instance.score)
-        .filter(Q(platforms__contains=[instance.platform]) | Q(platforms=[]))
+        .exclude(exclude_platforms__contains=[instance.platform])
         .exclude(mentionnotification__discussion=instance)
     )
 
     matched_rules = []
 
     for r in rules:
-        if __rule_matches(instance, r):
+        if discussions(r, instance.pk):
             matched_rules.append(r)
 
     return matched_rules
