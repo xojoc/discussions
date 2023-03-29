@@ -318,6 +318,12 @@ def story_short_url(request, platform_id):
     return redirect(d.story_url, permanent=False)
 
 
+# def short_link(request, code):
+#     sl = get_object_or_404(models.ShortLink, code=code)
+#     sl.open()
+#     return redirect(sl.target_url, permanent=False)
+
+
 def weekly_confirm_email(request):
     topic = request.GET.get("topic")
     subscriber_email = request.GET.get("email")

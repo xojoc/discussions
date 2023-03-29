@@ -24,10 +24,11 @@ from django.db.models.functions import Coalesce, Round, Upper
 
 # from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models.lookups import PostgresOperatorLookup
+
+# from django.urls import reverse
 from django.utils import timezone
 
 from web import api_statistics
-
 
 from . import (
     category,
@@ -1384,3 +1385,63 @@ class MentionNotification(models.Model):
 
     entry_created_at = models.DateTimeField(auto_now_add=True)
     entry_updated_at = models.DateTimeField(auto_now=True)
+
+
+# class ShortLink(models.Model):
+#     class Meta:
+#         indexes = [
+#             models.Index(fields=["code"]),
+#         ]
+
+#     code = models.TextField(blank=False, null=False)
+#     opened = models.BooleanField(default=False)
+#     target_url = models.TextField(blank=False, null=False)
+
+#     discussion = models.ForeignKey(
+#         Discussion, on_delete=models.SET_NULL, null=True
+#     )
+
+#     tweet = models.ForeignKey(Tweet, on_delete=models.SET_NULL, null=True)
+
+#     mastodon_post = models.ForeignKey(
+#         MastodonPost, on_delete=models.SET_NULL, null=True
+#     )
+
+#     resource = models.ForeignKey(
+#         Resource, on_delete=models.SET_NULL, null=True
+#     )
+
+#     subscriber = models.ForeignKey(
+#         Subscriber, on_delete=models.SET_NULL, null=True
+#     )
+
+#     def save(self, *args, **kwargs):
+#         if not self.code:
+#             self.code = self.generate_code()
+#         super(ShortLink, self).save(*args, **kwargs)
+
+#     @classmethod
+#     def generate_code(cls):
+#         import secrets
+
+#         code = None
+#         for _ in range(5):
+#             code = secrets.token_urlsafe(5)
+#             if models.ShortLink.objects.filter(code=code).exists():
+#                 continue
+#             break
+
+#         return code
+
+#     def short_link(self):
+#         return reverse("web:short_link", args=[self.code])
+
+#     def open(self):
+#         self.opened = True
+#         self.save()
+
+#     @classmethod
+#     def generate_short_link(target_url):
+#         sl = models.ShortLink.create(target_url=target_url)
+
+#         return sl.short_link()
