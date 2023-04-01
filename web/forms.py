@@ -4,9 +4,11 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Field, Submit, Layout, Div, Button
 from django import forms
 
+from web import weekly
+
 # from crispy_bootstrap5.bootstrap5 import FloatingField
 
-from . import models, topics
+from . import models
 
 logger = logging.getLogger(__name__)
 
@@ -61,8 +63,16 @@ class SubscriberForm(forms.ModelForm):
 class UnsubscribeForm(forms.ModelForm):
     class Meta:
         model = models.Subscriber
-        fields = ["topic", "email", "verification_code"]
-        widgets = {"verification_code": forms.HiddenInput()}
+        fields = [
+            "topic",
+            "email",
+            "verification_code",
+            "unsubscribed_feedback",
+        ]
+        widgets = {
+            "verification_code": forms.HiddenInput(),
+            "unsubscribed_feedback": forms.Textarea(attrs={"rows": 4}),
+        }
 
 
 class ProfileForm(forms.ModelForm):
@@ -79,7 +89,7 @@ class ProfileForm(forms.ModelForm):
 
 class SimulateADForm(forms.ModelForm):
     topics = forms.MultipleChoiceField(
-        choices=topics.topics_choices,
+        choices=weekly.topics_open_rate(),
         help_text=models.AD._meta.get_field("topics").help_text,
         widget=forms.CheckboxSelectMultiple(),
     )
@@ -117,7 +127,8 @@ class SimulateADForm(forms.ModelForm):
 
 class ADForm(forms.ModelForm):
     topics = forms.MultipleChoiceField(
-        choices=topics.topics_choices,
+        # choices=topics.topics_choices,
+        choices=weekly.topics_open_rate(),
         help_text=models.AD._meta.get_field("topics").help_text,
         widget=forms.CheckboxSelectMultiple(),
     )

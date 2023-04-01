@@ -221,6 +221,25 @@ def get_submit_links(request, ctx):
         ctx["submit_links_visible"] = True
 
 
+def __suggest_topic(ctx):
+    if ctx.get("is_url"):
+        filtered_topics = []
+        for d in ctx.get("discussions", []):
+            for ftk, ft in topics.topics.items():
+                if not ft.get("tags"):
+                    continue
+                if ftk == "programming":
+                    continue
+                if set(d.normalized_tags) & ft.get("tags"):
+                    filtered_topics.append(ft)
+
+        if len(filtered_topics) == 1:
+            ft = filtered_topics[0]
+            ctx["suggested_topic"] = ft["topic_key"]
+            ctx["suggested_topic_name"] = ft["name"]
+            ctx["suggested_topic_short_description"] = ft["short_description"]
+
+
 def index(request, path_q=None):
     host = request.get_host().partition(":")[0]
     if not request.path.startswith("/.well-known/"):
@@ -298,6 +317,8 @@ def index(request, path_q=None):
         __log_query(q)
     except Exception as e:
         logger.warn(e)
+
+    __suggest_topic(ctx)
 
     response = render(request, "web/discussions.html", {"ctx": ctx})
 
@@ -404,6 +425,9 @@ def weekly_confirm_unsubscription(request):
             subscriber and subscriber.confirmed and not subscriber.unsubscribed
         ):
             subscriber.unsubscribe()
+            subscriber.unsubscribed_feedback = request.POST.get(
+                "unsubscribed_feedback"
+            )
             subscriber.save()
             messages.success(request, "You're now unsubscribed. Thank you!")
         else:
@@ -874,59 +898,22 @@ def mention_live_preview(request):
         request, "web/dashboard_mentions_live_preview.html", {"ctx": ctx}
     )
 
-    # keywords = ruleForm.cleaned_data.get("keywords") or []
-    # for i, k in enumerate(keywords):
-    #     keywords[i] = title.normalize(k, stem=False)
 
-    # cu = cleanurl.cleanurl(
-    #     rule.get("base_url"), generic=True, host_remap=False
-    # )
-    # base_url = ""
-    # if cu:
-    #     base_url = cu.schemeless_url
+def click(request):
+    url = request.GET.get("url")
+    if not url:
+        raise Http404("404")
+    sub = request.GET.get("subscriber")
+    year = request.GET.get("year")
+    week = request.GET.get("week")
+    # topic = request.GET.get("topic")
+    if sub:
+        try:
+            subscriber = models.Subscriber.objects.get(pk=sub)
+        except models.Subscriber.DoesNotExist:
+            subscriber = None
+        if subscriber:
+            subscriber.clicked(year, week)
+            subscriber.save()
 
-    # subreddits_exclude = ruleForm.cleaned_data.get("subreddits_exclude", [])
-
-    # ago = timezone.now() - datetime.timedelta(days=365)
-
-    # ds = (
-    #     models.Discussion.objects.filter(
-    #         comment_count__gte=ruleForm.cleaned_data.get("min_comments", 0)
-    #     )
-    #     .filter(score__gte=ruleForm.cleaned_data.get("min_score", 0))
-    #     .exclude(
-    #         platform__in=ruleForm.cleaned_data.get("exclude_platforms", [])
-    #     )
-    #     .filter(created_at__gt=ago)
-    # )
-
-    # if base_url:
-    #     ds = ds.filter(schemeless_story_url__startswith=base_url)
-
-    # if keywords:
-    #     ds = ds.filter(
-    #         reduce(or_, [Q(normalized_title__icontains=k) for k in keywords])
-    #     )
-
-    # if subreddits_exclude:
-    #     ds = ds.exclude(Q(platform="r") & Q(tags__overlap=subreddits_exclude))
-
-    # ctx["discussions"] = []
-
-    # for d in ds.order_by("-created_at")[:15]:
-    #     if not keywords:
-    #         ctx["discussions"].append(d)
-    #         continue
-
-    #     ok = False
-    #     for k in keywords:
-    #         if re.search(r"\b" + k + r"\b", d.normalized_title):
-    #             ok = True
-    #             break
-    #         if re.search(r"\b" + k + r"\b", " ".join(d.title.lower().split())):
-    #             ok = True
-    #             break
-
-    #     if ok:
-    #         ctx["discussions"].append(d)
-    #         continue
+    return redirect(url, permanent=False)

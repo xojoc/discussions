@@ -942,6 +942,17 @@ class Subscriber(models.Model):
 
     aws_notification = models.JSONField(null=True)
 
+    weeks_clicked = postgres_fields.ArrayField(
+        models.CharField(max_length=6), null=True
+    )
+
+    unsubscribed_feedback = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name="Unsubscription reason",
+        help_text="Let us know how to improve.",
+    )
+
     def __str__(self):
         return f"{self.email} {self.topic} ({self.confirmed} confirmed, {self.unsubscribed} unsubscribed)"
 
@@ -963,6 +974,10 @@ class Subscriber(models.Model):
     def save(self, *args, **kwargs):
         if not self.verification_code:
             self.verification_code = self.generate_verification_code()
+
+        if self.weeks_clicked:
+            self.weeks_clicked = sorted(self.weeks_clicked, reverse=True)
+
         super(Subscriber, self).save(*args, **kwargs)
 
     def send_confirmation_email(self):
@@ -1040,6 +1055,11 @@ class Subscriber(models.Model):
             topics.topics[self.topic]["from_email"],
             self.email,
         )
+
+    def clicked(self, year, week):
+        weeks_clicked = self.weeks_clicked or []
+        weeks_clicked.append(f"{year}{week}")
+        self.weeks_clicked = sorted(set(weeks_clicked), reverse=True)
 
 
 class CustomUser(AbstractUser):

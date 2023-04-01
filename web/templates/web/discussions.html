@@ -211,9 +211,19 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	</div>
 	{% endif %}
 
+	<div class="mt-5"></div>
+
+	{% if ctx.suggested_topic %}
+	<div class="smaller-font-2 mb-3">
+		Would you like to stay up to date with {{ctx.suggested_topic_name}}? Checkout <a
+			href="{% url 'web:weekly_topic' ctx.suggested_topic %}"
+			title="{{ctx.suggested_topic_short_description}} newsletter">{{ctx.suggested_topic_name}} Weekly</a>.
+	</div>
+	{% endif %}
+
 
 	{% if ctx.try_with_site_prefix or ctx.try_with_title %}
-	<details {% if ctx.nothing_found %}open{% endif %} class="smaller-font-2 mt-5">
+	<details {% if ctx.nothing_found %}open{% endif %} class="smaller-font-2">
 		<summary>Related searches:</summary>
 
 		{% if ctx.try_with_site_prefix %}
@@ -240,7 +250,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	{% endif %}
 
 	{% if ctx.submit_links %}
-	<div class='submit_links smaller-font-2'>
+	<div class='submit_links smaller-font-2 mt-2'>
 		<details {% if ctx.submit_links_visible %}open{% endif %}>
 			<summary>Submit link to:</summary>
 			<ul>

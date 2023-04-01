@@ -2,7 +2,8 @@ import datetime
 import os
 import unicodedata
 from difflib import SequenceMatcher
-from urllib.parse import quote
+from urllib.parse import quote, quote_plus
+from django.urls import reverse
 
 import cleanurl
 from django.utils import timezone
@@ -128,3 +129,18 @@ def is_sublist(lst, sublist):
 
 def days_ago(days):
     return timezone.now() - datetime.timedelta(days=days)
+
+
+def click_url(url, subscriber=None, topic=None, year=None, week=None):
+    path = reverse("web:click")
+    path += f"?url={quote_plus(url)}"
+    if subscriber:
+        path += f"&subscriber={subscriber.pk}"
+    if topic:
+        path += f"&topic={topic}"
+    if year:
+        path += f"&year={year}"
+    if week:
+        path += f"&week={week}"
+
+    return path_with_domain(path)

@@ -337,6 +337,9 @@ if not os.environ.get("DJANGO_DEVELOPMENT"):
             sentry_logging,
         ],
         traces_sample_rate=0.1,
+        _experiments={
+            "profiles_sample_rate": 0.1,
+        },
     )
 
 REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID")

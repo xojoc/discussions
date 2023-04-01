@@ -16,12 +16,9 @@ Please confirm unsubscription - discu.eu
     <form id="weekly_unsubscribe_form" method="POST">
         {% csrf_token %}
         {{ ctx.weekly_unsubscribe_form | crispy }}
-        <input type="submit" value="Confirm" class="btn btn-primary">
+        <input type="submit" value="Unsubscribe" class="btn btn-primary">
     </form>
 
-    <!-- <p class="weekly-subscribe-by-email">You can also unsubscribe by writing <a
-            href="{{ctx.topic.mailto_unsubscribe}}">"unsubscribe"
-            to {{ctx.topic.email}}</a>. To re subscribe at any time reply with "subscribe".</p> -->
 </div>
 
 {%endif%}

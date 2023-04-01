@@ -11,13 +11,13 @@
     <li>
         {% if story.story_url %}
         <p>
-            <a href="{{story|story_short_url}}" title="{{story.title}}"
+            <a href="{{story.click_story_url}}" title="{{story.title}}"
                 style="text-decoration: none !important;">{{story.title}}</a>
         </p>
         {% if story.total_comments %}
         <p>
             <span>
-                <a href="{{story.story_url|discussions_url_domain}}" title="Discussions for «{{story.title}}»"
+                <a href="{{story.click_discussions_url}}" title="Discussions for «{{story.title}}»"
                     style="text-decoration: none !important;">{{story.total_comments}}
                     comment{{story.total_comments|pluralize}}</a> <small>in
                     {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</small>
@@ -26,7 +26,7 @@
         {% endif %}
         {% else %}
         <p>
-            <a href="{{story.discussion_url}}" title="{{story.title}}"
+            <a href="{{story.click_discussions_url}}" title="{{story.title}}"
                 style="text-decoration: none !important;">{{story.title}}</a>
         </p>
         <p><span>{{story.comment_count}} comment{{story.comment_count|pluralize}}</span></p>

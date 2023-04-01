@@ -508,6 +508,30 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
     return False
 
 
+def __rewrite_urls(ctx, subscriber, topic, year, week):
+    for cat, category_name, stories in ctx.get("digest"):
+        for story in stories:
+            if story.story_url:
+                story.__dict__["click_story_url"] = util.click_url(
+                    story.story_url, subscriber, topic, year, week
+                )
+                story.__dict__["click_discussions_url"] = util.click_url(
+                    util.discussions_url(story.story_url),
+                    subscriber,
+                    topic,
+                    year,
+                    week,
+                )
+            else:
+                story.__dict__["click_discussions_url"] = util.click_url(
+                    story.discussion_url,
+                    subscriber,
+                    topic,
+                    year,
+                    week,
+                )
+
+
 def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
     if only_subscribers:
         subscribers = only_subscribers
@@ -535,10 +559,14 @@ def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
 
     for subscriber in subscribers:
         ctx["subscriber"] = subscriber
+
+        __rewrite_urls(ctx, subscriber, topic, year, week)
+
         text_content = template_loader.render_to_string(
             "web/weekly_topic_digest.txt",
             {"ctx": ctx},
         )
+
         html_content = template_loader.render_to_string(
             "web/weekly_topic_week_email.html", {"ctx": ctx}
         )
@@ -630,3 +658,27 @@ def share_weekly_issue(self):
 
         if not util.is_dev():
             time.sleep(random.randint(50, 80))
+
+
+def open_rate(topic):
+    last_n = 1
+    yearweeks = last_nth_yearweeks(topic, last_n)
+    tor = 0
+    subs = models.Subscriber.mailing_list(topic).count()
+    for year, week in yearweeks:
+        orate = (
+            models.Subscriber.mailing_list(topic)
+            .filter(weeks_clicked__contains=[f"{year}{week}"])
+            .count()
+        )
+        if subs > 0:
+            tor += orate / subs * 100
+
+    return round(tor / last_n, 2)
+
+
+def topics_open_rate():
+    choices = []
+    for t, n in topics.topics_choices:
+        choices.append((t, f"{n} ({open_rate(t)}%)"))
+    return choices
