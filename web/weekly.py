@@ -678,6 +678,7 @@ def open_rate(topic):
 
 
 def topics_open_rate():
+    return topics.topics_choices
     choices = []
     for t, n in topics.topics_choices:
         choices.append((t, f"{n} ({open_rate(t)}%)"))
