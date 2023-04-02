@@ -233,7 +233,7 @@ def __suggest_topic(ctx):
                 if set(d.normalized_tags) & ft.get("tags"):
                     filtered_topics.append(ft)
 
-        if len(filtered_topics) == 1:
+        if len({ft["topic_key"] for ft in filtered_topics}) == 1:
             ft = filtered_topics[0]
             ctx["suggested_topic"] = ft["topic_key"]
             ctx["suggested_topic_name"] = ft["name"]
@@ -797,6 +797,7 @@ def new_ad(request):
                     Total price is {model.estimated_total_euro}€
                     We'll let you know once the ad is approved.""",
                 )
+                email_util.send_admins("New ad", "new ad")
 
         if "simulate-new-ad" in request.POST:
             simulate_ad_form = forms.SimulateADForm(request.POST)
