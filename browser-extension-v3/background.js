@@ -14,7 +14,7 @@ function openDiscussionsURL(url, tab) {
 
 function openDiscussionsURLTabs(tabs) {
 	for (const tab of tabs) {
-		var url = 'https://discu.eu/?q=' + encodeURIComponent(tab.url) + '&submit_title=' + encodeURIComponent(tab.title);
+		var url = 'https://discu.eu/?q=' + encodeURIComponent(tab.url) + '&submit_title=' + encodeURIComponent(tab.title) + '&utm_source=browser-extension';
 
 		openDiscussionsURL(url, tab);
 	}

@@ -24,7 +24,7 @@
     {% for category, category_name, stories in ctx.digest %}
 
     <h2 id="weekly-{{category}}" class="fs-4">{{category_name}} <a href="#weekly-{{category}}" title="{{category_name}}"
-            class="relative-url smaller-font-3 text-body">#</a>
+            class="relative-url smaller-font-3 text-body align-middle">#</a>
     </h2>
 
     <ul>
@@ -53,25 +53,32 @@
 
     {% for k, v in ctx.digest_old_stories.items %}
     {% if k == category and v %}
-    <span class="fs-4">Blast from the past</span>
-    <ul class="weekly-stories">
+    <h3 class="smaller-font-1 fw-normal">Blast from the past <a href="#weekly-{{category}}-past"
+            title="{{category_name}} from the past" class="relative-url smaller-font-3 text-body align-middle">#</a>
+    </h3>
+    <ul>
         {% for old_story in v %}
         <li>
-            <p>
+            <p class="d-flex flex-column">
+                {% if old_story.story_url %}
                 <a href="{{old_story.story_url}}" title="{{old_story.title}}" rel="nofollow">{{old_story.title}}</a>
-            </p>
 
-            {% if old_story.total_comments %}
-            <p class="weekly-discussions">
-                <a href="{{old_story.story_url|discussions_url}}" title="Discussions for «{{old_story.title}}»"
-                    class="bold">{{old_story.total_comments}}
-                    comment{{old_story.total_comments|pluralize}}</a> <span class="weekly-discussions-count">in
-                    {{old_story.total_discussions}} discussion{{old_story.total_discussions|pluralize}}</span>
-                <span class="weekly-discussions-date"><time
-                        datetime="{{old_story.created_at | date:'c'}}">{{old_story.created_at | date}}</time></span>
-            </p>
-            {% endif %}
 
+                {% if old_story.total_comments %}
+                <span>
+                    <a href="{{old_story.story_url|discussions_url}}"
+                        title="Discussions for «{{old_story.title}}»">{{old_story.total_comments}}
+                        comment{{old_story.total_comments|pluralize}}</a> <span class="smaller-font-2">in
+                        {{old_story.total_discussions}} discussion{{old_story.total_discussions|pluralize}}</span>
+                    <span class="smaller-font-2"><time
+                            datetime="{{old_story.created_at | date:'c'}}">{{old_story.created_at | date}}</time></span>
+                </span>
+                {% endif %}
+                {% else %}
+                <a href="{{story.discussion_url}}" title="{{story.title}}" rel="nofollow">{{story.title}}</a>
+                <span>{{story.comment_count}} comment{{story.comment_count|pluralize}}</span>
+                {% endif %}
+            </p>
         </li>
         {% endfor %}
     </ul>

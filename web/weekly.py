@@ -121,30 +121,32 @@ def last_nth_yearweeks(topic, n):
 def __get_random_old_stories(topic, categories):
     found_categories = defaultdict(list)
     time_ago = datetime.datetime.now() - datetime.timedelta(days=365)
-    stories = (
-        base_query(topic)
-        .filter(created_at__lt=time_ago)
-        .filter(comment_count__gte=100)
-        .filter(score__gte=100)
-    )
-    count = stories.count()
-    if not count:
-        return found_categories
 
-    max_iter = sum(categories.values()) * 20
+    for cat, cat_count in categories.items():
+        stories = (
+            base_query(topic)
+            .filter(created_at__lt=time_ago)
+            .filter(comment_count__gte=100)
+            .filter(score__gte=100)
+            .filter(category=cat)
+        )
 
-    for i in range(max_iter):
-        if sum((len(v) for v in found_categories.values())) >= sum(
-            categories.values()
-        ):
-            break
+        if util.is_dev():
+            q = str(stories.query)
+            _ = q
 
-        j = random.randint(0, count - 1)
-        rs = stories[j]
-        cat = category.derive(rs)
-        if len(found_categories[cat]) >= categories.get(cat, 0):
+        count = stories.count()
+        if count < cat_count * 2:
             continue
-        if rs not in found_categories[cat]:
+
+        for _ in range(cat_count * 2):
+            if len(found_categories[cat]) >= categories.get(cat, 0):
+                break
+            j = random.randint(0, count - 1)
+            rs = stories[j]
+            if rs in found_categories[cat]:
+                continue
+
             discussions, _, _ = models.Discussion.of_url(
                 rs.story_url, only_relevant_stories=True
             )
@@ -164,6 +166,52 @@ def __get_random_old_stories(topic, categories):
             found_categories[cat].append(rs)
 
     return found_categories
+
+    # found_categories = defaultdict(list)
+    # time_ago = datetime.datetime.now() - datetime.timedelta(days=365)
+    # stories = (
+    #     base_query(topic)
+    #     .filter(created_at__lt=time_ago)
+    #     .filter(comment_count__gte=100)
+    #     .filter(score__gte=100)
+    # )
+    # count = stories.count()
+    # if not count:
+    #     return found_categories
+
+    # max_iter = sum(categories.values()) * 20
+
+    # for i in range(max_iter):
+    #     if sum((len(v) for v in found_categories.values())) >= sum(
+    #         categories.values()
+    #     ):
+    #         break
+
+    #     j = random.randint(0, count - 1)
+    #     rs = stories[j]
+    #     cat = category.derive(rs)
+    #     if len(found_categories[cat]) >= categories.get(cat, 0):
+    #         continue
+    #     if rs not in found_categories[cat]:
+    #         discussions, _, _ = models.Discussion.of_url(
+    #             rs.story_url, only_relevant_stories=True
+    #         )
+    #         discussion_counts = (
+    #             discussions.aggregate(
+    #                 total_comments=Coalesce(Sum("comment_count"), 0),
+    #                 total_discussions=Coalesce(Count("platform_id"), 0),
+    #             )
+    #             or {}
+    #         )
+    #         rs.__dict__["total_comments"] = discussion_counts.get(
+    #             "total_comments"
+    #         )
+    #         rs.__dict__["total_discussions"] = discussion_counts.get(
+    #             "total_discussions"
+    #         )
+    #         found_categories[cat].append(rs)
+
+    # return found_categories
 
 
 def __get_stories(topic, year, week):
@@ -276,9 +324,12 @@ def _get_digest(topic, year, week):
     return digest
 
 
-def __get_digest_old_stories(topic):
+def __get_digest_old_stories(topic, year=None, week=None):
     return {}
-    # old_stories = __get_random_old_stories(topic, {"article": 2, "project": 2})
+    # cats = {"article": 2}
+    # if topics.topics[topic].get("platform"):
+    #     cats["askplatform"] = 1
+    # old_stories = __get_random_old_stories(topic, cats)
     # old_stories.default_factory = None
     # return old_stories
 
@@ -382,7 +433,9 @@ def topic_week_context(topic, year, week):
         return None
     # ctx["stories"] = __get_stories(topic, year, week)
     ctx["digest"] = _get_digest(topic, year, week)
-    ctx["digest_old_stories"] = __get_digest_old_stories(topic)
+    ctx["digest_old_stories"] = __get_digest_old_stories(
+        topic, year=None, week=None
+    )
     ctx["breadcrumbs"] = __generate_breadcrumbs(topic, year, week)
     ctx[
         "web_link"

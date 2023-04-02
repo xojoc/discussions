@@ -76,3 +76,8 @@ superuser:
 update:
 	@poetry update
 	@poetry types update
+
+
+extension-build:
+	cd browser-extension-v3; web-ext build --overwrite-dest
+	cd browser-extension; web-ext build --overwrite-dest

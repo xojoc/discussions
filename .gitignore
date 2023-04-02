@@ -7,3 +7,8 @@ staticfiles/
 .vscode/
 extension.zip
 extension-v3.zip
+node_modules
+browser-extension-v3/web-ext-artifacts/
+browser-extension/web-ext-artifacts/
+package.json
+package-lock.json

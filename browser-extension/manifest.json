@@ -1,45 +1,42 @@
 {
     "manifest_version": 2,
     "name": "Discussions on HN, Reddit and Lobsters",
-    "version": "1.0.1",
-
+    "version": "1.0.2",
     "author": "Alexandru Cojocaru",
-
     "description": "Get the discussions on Hacker News, Lobsters, Reddit and others about a page",
     "homepage_url": "https://discu.eu",
-
     "icons": {
-	"32": "icons/favicon-32x32.png"
+        "32": "icons/favicon-32x32.png"
     },
-
     "permissions": [
-	"*://discu.eu/*", "activeTab", "tabs"
+        "*://discu.eu/*",
+        "activeTab",
+        "tabs"
     ],
-
     "browser_action": {
-	"default_icon": "icons/favicon-32x32.png",
-	"default_title": "Discussions"
+        "default_icon": "icons/favicon-32x32.png",
+        "default_title": "Discussions"
     },
-
     "background": {
-	"scripts": ["browser-polyfill.js", "background.js"]
+        "scripts": [
+            "browser-polyfill.js",
+            "background.js"
+        ]
     },
-
     "browser_specific_settings": {
-	"gecko": {
-	    "id": "discussions@discu.eu",
-	    "strict_min_version": "65.0"
-	}
+        "gecko": {
+            "id": "discussions@discu.eu",
+            "strict_min_version": "65.0"
+        }
     },
-
     "chrome_settings_overrides": {
-	"search_provider": {
-	    "name": "Discussions",
-	    "search_url": "https://discu.eu/?q={searchTerms}",
-	    "keyword": "discu",
-	    "favicon_url": "https://discu.eu/static/favicon-32x32.png",
-	    "is_default": false,
-	    "encoding": "UTF-8"
-	}
+        "search_provider": {
+            "name": "Discussions",
+            "search_url": "https://discu.eu/?q={searchTerms}",
+            "keyword": "discu",
+            "favicon_url": "https://discu.eu/static/favicon-32x32.png",
+            "is_default": false,
+            "encoding": "UTF-8"
+        }
     }
 }
