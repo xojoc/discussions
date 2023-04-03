@@ -47,6 +47,7 @@ tweepy = "^4"
 urllib3 = "^1"
 whitenoise = "^6"
 zstandard = "*"
+crawlerdetect = "^0.1.5"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "*"

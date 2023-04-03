@@ -253,6 +253,9 @@ contourpy==1.0.7 ; python_version >= "3.11" and python_version < "4.0" \
     --hash=sha256:f99e9486bf1bb979d95d5cffed40689cb595abb2b841f2991fc894b3452290e8 \
     --hash=sha256:fc1464c97579da9f3ab16763c32e5c5d5bb5fa1ec7ce509a4ca6108b61b84fab \
     --hash=sha256:fd7dc0e6812b799a34f6d12fcb1000539098c249c8da54f3566c6a6461d0dbad
+crawlerdetect==0.1.5 ; python_version >= "3.11" and python_version < "4" \
+    --hash=sha256:528468a540b807cf173c0734309a695a974b7a6cb76c210588652e915aa5c126 \
+    --hash=sha256:8e10591af6caa513044e611b238446c802feb3798b7a1429cc687bb550116df3
 crispy-bootstrap5==0.7 ; python_version >= "3.11" and python_version < "4.0" \
     --hash=sha256:0745a67199619149b7feca87dab7a45664876ed50fb582b38fd2aeb3f8a8d869 \
     --hash=sha256:f3ff1ef5cb379fe80b1b02e245008f276444098a4bdb8d855bed84c623798a85

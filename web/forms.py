@@ -4,7 +4,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Field, Submit, Layout, Div, Button
 from django import forms
 
-from web import weekly
+from web import weekly, topics
 
 # from crispy_bootstrap5.bootstrap5 import FloatingField
 
@@ -89,7 +89,7 @@ class ProfileForm(forms.ModelForm):
 
 class SimulateADForm(forms.ModelForm):
     topics = forms.MultipleChoiceField(
-        choices=weekly.topics_open_rate(),
+        choices=topics.topics_choices,
         help_text=models.AD._meta.get_field("topics").help_text,
         widget=forms.CheckboxSelectMultiple(),
     )
@@ -110,6 +110,7 @@ class SimulateADForm(forms.ModelForm):
         self.fields["consecutive_weeks"].initial = 1
         self.fields["consecutive_weeks"].min_value = 1
         self.fields["consecutive_weeks"].max_value = 4
+        self.fields["topics"].choices = weekly.topics_open_rate()
 
         self.helper = FormHelper(self)
         self.helper["topics"].wrap(
@@ -158,6 +159,7 @@ class ADForm(forms.ModelForm):
         self.fields["consecutive_weeks"].initial = 1
         self.fields["consecutive_weeks"].min_value = 1
         self.fields["consecutive_weeks"].max_value = 4
+        self.fields["topics"].choices = weekly.topics_open_rate()
 
         self.helper = FormHelper(self)
         self.helper["topics"].wrap(

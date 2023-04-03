@@ -1,14 +1,14 @@
 import itertools
 import json
 import logging
-
-
-from pprint import pformat
 import random
+from pprint import pformat
 from urllib.parse import quote
 from urllib.parse import unquote as url_unquote
+
 import stripe
 import urllib3
+from crawlerdetect import CrawlerDetect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -33,10 +33,10 @@ from . import (
     forms,
     mastodon,
     models,
+    reading_list,
     topics,
     util,
     weekly,
-    reading_list,
 )
 
 logger = logging.getLogger(__name__)
@@ -908,7 +908,11 @@ def click(request):
     year = request.GET.get("year")
     week = request.GET.get("week")
     # topic = request.GET.get("topic")
-    if sub:
+
+    crawler_detect = CrawlerDetect(headers=request.headers)
+    is_crawler = crawler_detect.isCrawler()
+
+    if not is_crawler and sub:
         try:
             subscriber = models.Subscriber.objects.get(pk=sub)
         except models.Subscriber.DoesNotExist:
