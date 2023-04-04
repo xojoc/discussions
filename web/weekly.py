@@ -131,9 +131,9 @@ def __get_random_old_stories(topic, categories):
             .filter(category=cat)
         )
 
-        if util.is_dev():
-            q = str(stories.query)
-            _ = q
+        # if util.is_dev():
+        #     q = str(stories.query)
+        #     _ = q
 
         count = stories.count()
         if count < cat_count * 2:

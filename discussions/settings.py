@@ -146,6 +146,10 @@ DATABASES = {
         "NAME": os.environ.get("DATABASE_NAME"),
         "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
         "USER": os.environ.get("DATABASE_USER"),
+        # "DISABLE_SERVER_SIDE_CURSORS": True
+        # "OPTIONS": {
+        #     "server_side_binding": True,
+        # },
     }
 }
 
@@ -198,8 +202,15 @@ STATIC_URL = "/static/"
 STATIC_ROOT = STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # todo: re introduce manifest
 # STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
-
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 USERAGENT = "Discu.eu bot/0.1"
 

@@ -159,6 +159,13 @@ class UnitTags(unittest.TestCase):
                 "https://www.scientificamerican.com/article/ai-in-medicine-is-overhyped/",
             ),
             {"machinelearning", "compsci"},
+            n(
+                [],
+                "h",
+                "C++17 creates a practical use of the backward array index operator",
+                "https://devblogs.microsoft.com/oldnewthing/20230403-00/?p=108005",
+            ),
+            {"cpp"},
         ]
 
         for nts, ets in zip(normalization[0::2], normalization[1::2]):

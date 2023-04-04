@@ -128,8 +128,7 @@ class SimulateADForm(forms.ModelForm):
 
 class ADForm(forms.ModelForm):
     topics = forms.MultipleChoiceField(
-        # choices=topics.topics_choices,
-        choices=weekly.topics_open_rate(),
+        choices=topics.topics_choices,
         help_text=models.AD._meta.get_field("topics").help_text,
         widget=forms.CheckboxSelectMultiple(),
     )

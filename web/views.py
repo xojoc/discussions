@@ -130,6 +130,7 @@ def discussions_context(q):
     except Exception as e:
         logger.warn(e)
         uds = []
+        # raise e
 
     # tds = tds[:11]
     tds = None

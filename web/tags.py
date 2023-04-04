@@ -471,6 +471,11 @@ def __topic_compsci(tags, title, url, platform, original_title):
     )
 
 
+def __topic_cpp(tags, title, url, platform, original_title):
+    if re.search(r"\bC\+\+\d+\b", original_title):
+        tags.add("c++")
+
+
 def __hacker_news(tags, title):
     return
 
@@ -795,6 +800,7 @@ def normalize(tags, platform=None, title="", url=""):
         __topic_apl(tags, title_tokens, curl, platform, original_title)
         __topic_devops(tags, title_tokens, curl, platform, original_title)
         __topic_compsci(tags, title_tokens, curl, platform, original_title)
+        __topic_cpp(tags, title_tokens, curl, platform, original_title)
 
         __from_title_url(tags, title_tokens, curl)
 
