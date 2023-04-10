@@ -10,6 +10,7 @@ You can find it at [https://discu.eu](https://discu.eu). The page contains instr
 
 *Discussions* was written by [Alexandru Cojocaru](https://xojoc.pw).
 
+
 # License
 
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html) or later.
