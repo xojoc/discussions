@@ -8,6 +8,9 @@ from django.contrib.messages import constants as messages
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
+from sentry_sdk.integrations.logging import (
+    ignore_logger as sentry_ignore_logger,
+)
 from sentry_sdk.integrations.redis import RedisIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -352,6 +355,9 @@ if not os.environ.get("DJANGO_DEVELOPMENT"):
             "profiles_sample_rate": 0.1,
         },
     )
+
+
+sentry_ignore_logger("django.security.DisallowedHost")
 
 REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID")
 REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET")
