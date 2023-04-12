@@ -715,7 +715,7 @@ def share_weekly_issue(self):
 
 def open_rate(topic):
     last_n = 1
-    yearweeks = last_nth_yearweeks(topic, last_n)
+    yearweeks = last_nth_yearweeks(topic, last_n + 1)[1:]
     tor = 0
     subs = models.Subscriber.mailing_list(topic).count()
     for year, week in yearweeks:
@@ -734,5 +734,7 @@ def topics_open_rate():
     # return topics.topics_choices
     choices = []
     for t, n in topics.topics_choices:
+        if t == "laarc":
+            continue
         choices.append((t, f"{n} ({open_rate(t)}%)"))
     return choices
