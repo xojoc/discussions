@@ -92,8 +92,15 @@ def __url_blacklisted_selftext(url):
     return False
 
 
-def _url_from_selftext(selftext):
+def _url_from_selftext(selftext, title=None):
     if not selftext:
+        return
+
+    title = (title or "").strip().lower()
+    if title.endswith("?"):
+        return
+
+    if "help" in title:
         return
 
     h = http.parse_html(markdown.markdown(selftext))
@@ -174,7 +181,7 @@ def __process_archive_line(line):
 
     scheme, url, story_url = None, None, None
     if p.get("is_self"):
-        url = _url_from_selftext(p.get("selftext"))
+        url = _url_from_selftext(p.get("selftext"), p.get("title"))
     else:
         url = p.get("url")
 
@@ -400,7 +407,7 @@ def __process_post(p):
     url = None
     if p.is_self:
         if not p.stickied:
-            url = _url_from_selftext(p.selftext)
+            url = _url_from_selftext(p.selftext, p.title)
     else:
         url = p.url
 
@@ -644,7 +651,7 @@ def worker_update_all_discussions(self):
 
             if p.is_self:
                 if not p.stickied:
-                    url = _url_from_selftext(p.selftext)
+                    url = _url_from_selftext(p.selftext, p.title)
             else:
                 url = p.url
 

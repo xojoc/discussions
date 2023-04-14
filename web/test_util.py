@@ -2,7 +2,7 @@ from web import util
 import unittest
 
 
-class Title(unittest.TestCase):
+class UnitTitle(unittest.TestCase):
     def test_url_root(self):
         tests = [
             "https://xojoc.pw/games2d/4snakes",

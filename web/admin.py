@@ -112,14 +112,19 @@ class MentionAdmin(admin.ModelAdmin):
 class MentionNotificationAdmin(admin.ModelAdmin):
     list_display = [
         "mention",
-        "discussion",
+        "get_user",
         "email_sent",
         "email_sent_at",
         "entry_created_at",
+        "discussion",
     ]
     list_filter = ["email_sent"]
     ordering = ["-entry_created_at"]
     raw_id_fields = ["discussion"]
+
+    @admin.display(ordering="mention__user", description="User")
+    def get_user(self, obj):
+        return obj.mention.user
 
 
 class APIClientAdmin(admin.ModelAdmin):

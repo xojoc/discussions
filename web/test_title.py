@@ -2,7 +2,7 @@ from web import title
 import unittest
 
 
-class Title(unittest.TestCase):
+class UnitTitle(unittest.TestCase):
     def test_normalization(self):
         n = title.normalize
         self.assertEqual(

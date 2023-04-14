@@ -33,6 +33,43 @@ def __base_url(platform):
         return "https://laarrc.firebaseio.com"
 
 
+def _url_from_selftext(selftext, title=None):
+    if not selftext:
+        return
+
+    title = (title or "").strip().lower()
+
+    h = http.parse_html(selftext)
+    if not h:
+        return
+
+    links = []
+
+    for a in h.select("a") or []:
+        if a and a.get("href"):
+            u = cleanurl.cleanurl(
+                a["href"],
+                generic=True,
+                respect_semantics=True,
+                host_remap=False,
+            )
+            if not u:
+                continue
+            if u.scheme not in ("http", "https", "ftp"):
+                continue
+            if not u.parsed_url.netloc or not u.parsed_url.hostname:
+                continue
+            if u.schemeless_url.startswith("news.ycombinator.com"):
+                continue
+
+            links.append(a["href"])
+
+    if len(links) == 1:
+        return links[0]
+
+    return None
+
+
 def process_item(platform, item, redis=None, skip_timeout=0):
     if not item:
         return
@@ -77,7 +114,11 @@ def process_item(platform, item, redis=None, skip_timeout=0):
 
     scheme, url = None, None
 
-    if item.get("url"):
+    iurl = item.get("url")
+    if not iurl:
+        iurl = _url_from_selftext(item.get("text"), item.get("title"))
+
+    if iurl:
         u = cleanurl.cleanurl(
             item.get("url"),
             generic=True,

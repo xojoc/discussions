@@ -35,6 +35,12 @@ class SubscriberForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SubscriberForm, self).__init__(*args, **kwargs)
 
+        self.fields["topic"].choices = [
+            (k, v)
+            for (k, v) in self.fields["topic"].choices
+            if k not in ["laarc"]
+        ]
+
         self.helper = FormHelper()
         self.helper.form_method = "POST"
         self.helper.layout = Layout(

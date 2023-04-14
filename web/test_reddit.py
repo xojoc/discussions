@@ -2,7 +2,7 @@ from web import reddit
 import unittest
 
 
-class Reddit(unittest.TestCase):
+class UnitReddit(unittest.TestCase):
     def test_selftext_url(self):
         tests = [
             "[IPv4](http://0.0.0.0:33769)",
@@ -37,6 +37,19 @@ class Reddit(unittest.TestCase):
         for h, u in zip(tests[0::2], tests[1::2]):
             hu = reddit._url_from_selftext(h)
             self.assertEqual(u, hu, msg=h)
+
+        self.assertEqual(
+            None,
+            reddit._url_from_selftext(
+                "[Single link](https://discu.eu/)", "Help me with discu.eu"
+            ),
+        )
+        self.assertEqual(
+            None,
+            reddit._url_from_selftext(
+                "[Yes](https://xojoc.pw/)", "Is this X?"
+            ),
+        )
 
     def test_url(self):
         tests = [

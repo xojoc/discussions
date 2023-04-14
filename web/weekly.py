@@ -377,7 +377,9 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
 
 def index_context():
     ctx = {}
-    ctx["topics"] = topics.topics
+    ctx["topics"] = {
+        k: v for k, v in topics.topics.items() if k not in ["laarc"]
+    }
     ctx["breadcrumbs"] = __generate_breadcrumbs()
     return ctx
 

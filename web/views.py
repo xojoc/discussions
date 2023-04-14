@@ -535,6 +535,8 @@ def statistics(request):
 def __social_context(request):
     twitter_bots = []
     for topic_key, topic in topics.topics.items():
+        if topic_key in ["laarc"]:
+            continue
         if not topic.get("twitter"):
             continue
         bot_name = topic.get("twitter").get("account")
@@ -550,6 +552,8 @@ def __social_context(request):
 
     mastodon_bots = []
     for topic_key, topic in topics.topics.items():
+        if topic_key in ["laarc"]:
+            continue
         if not topic.get("mastodon"):
             continue
         bot_name = topic.get("mastodon").get("account")
