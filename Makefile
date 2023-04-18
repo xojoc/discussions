@@ -33,8 +33,10 @@ run: sass_compile
 	stripe listen --forward-to localhost:7777/stripe/webhook/&
 	@poetry run ./docker-entrypoint.sh 7777
 
-cp: lint test poetry_export
+pre-commit: lint test poetry_export
 	@git add web/migrations
+
+cp: pre-commit
 	@git commit -a
 #@poetry export -f requirements.txt --output requirements.txt
 #@git add requirements.txt
@@ -61,7 +63,8 @@ shell:
 	poetry run python manage.py shell_plus --bpython
 
 lint:
-	@poetry run flake8 --extend-ignore E501,E741,E203 | tac
+	@poetry run ruff check . | tac
+	# @poetry run flake8 --extend-ignore E501,E741,E203 | tac
 	# @poetry run mypy --install-types --non-interactive .
 
 test:

@@ -18,14 +18,8 @@ from django.contrib.postgres.search import (
 from django.core import serializers
 from django.db import models
 from django.db.models import OuterRef, Q, Subquery, Sum, Value
-
-# from django.db.models import Func, F
 from django.db.models.functions import Coalesce, Round, Upper
-
-# from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models.lookups import PostgresOperatorLookup
-
-# from django.urls import reverse
 from django.utils import timezone
 
 from web import api_statistics

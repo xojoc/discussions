@@ -3,7 +3,6 @@ import time
 
 import bs4
 import cachecontrol
-
 import minify_html
 import requests
 import urllib3

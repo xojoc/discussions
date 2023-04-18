@@ -5,7 +5,7 @@ from django.core.cache import cache
 from ninja import ModelSchema, NinjaAPI, Schema
 from ninja.security import HttpBearer
 
-from . import models, util, api_statistics
+from . import api_statistics, models, util
 
 api = NinjaAPI(version="v0")
 api.title = "Discussions and comments API"

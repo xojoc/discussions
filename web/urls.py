@@ -19,6 +19,11 @@ urlpatterns = [
     path("s/<str:platform_id>", views.short_url, name="short_url"),
     path("u/<str:platform_id>", views.story_short_url, name="story_short_url"),
     path("c", views.click, name="click"),
+    path(
+        "c/<str:type>/<int:subscriber>/<int:year>/<int:week>/<int:discussion>/",
+        views.click_subscriber,
+        name="click_subscriber",
+    ),
     # path("l/<str:code>", views.short_link, name="short_link"),
     path("weekly/", views.weekly_index, name="weekly_index"),
     path(

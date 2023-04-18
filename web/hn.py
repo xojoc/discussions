@@ -1,17 +1,17 @@
-from web import util, archiveis
-from web import http, models
-from web import celery_util, worker
-import os
-import logging
-import time
 import datetime
+import logging
+import os
+import time
+
+import cleanurl
+from celery import shared_task
+from django.core.cache import cache
+from django.db.models import Q
+from django.utils import timezone
 from django.utils.timezone import make_aware
 from django_redis import get_redis_connection
-from celery import shared_task
-from django.utils import timezone
-from django.db.models import Q
-from django.core.cache import cache
-import cleanurl
+
+from web import archiveis, celery_util, http, models, util, worker
 
 logger = logging.getLogger(__name__)
 

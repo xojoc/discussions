@@ -1,7 +1,6 @@
 import re
-
-# import nltk
 import unicodedata
+
 from . import util
 
 
@@ -12,8 +11,15 @@ def __lobsters(title):
     title = title.removeprefix("show lobste rs ")
 
 
+
+
+
+
+
 def __reddit(title):
     return title
+
+
 
 
 def __hacker_news(title):
@@ -200,4 +206,5 @@ def normalize(title, platform=None, url="", tags=[], stem=True):
     if stem:
         title = __stem(title)
 
+    return title
     return title

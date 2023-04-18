@@ -504,6 +504,8 @@ def weekly_index(request):
 
 
 def weekly_topic(request, topic):
+    if topic == "scheme":
+        topic = "lisp"
     ctx = weekly.topic_context(topic)
     if not ctx:
         raise Http404("404")
@@ -927,3 +929,26 @@ def click(request):
             subscriber.save()
 
     return redirect(url, permanent=False)
+
+
+def click_subscriber(request, typ, subscriber, year, week, discussion):
+    crawler_detect = CrawlerDetect(headers=request.headers)
+    is_crawler = crawler_detect.isCrawler()
+
+    if not is_crawler:
+        try:
+            subscriber = models.Subscriber.objects.get(pk=subscriber)
+        except models.Subscriber.DoesNotExist:
+            subscriber = None
+        if subscriber:
+            subscriber.clicked(year, week)
+            subscriber.save()
+
+    discussion = get_object_or_404(models.Discussion, pk=discussion)
+
+    if typ == "d":
+        return redirect(
+            reverse("web:index", args=[discussion.story_url]), permanent=False
+        )
+    else:
+        return redirect(discussion.story_url, permanent=False)

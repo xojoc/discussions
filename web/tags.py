@@ -821,3 +821,4 @@ def normalize(tags, platform=None, title="", url=""):
     __special_cases(tags, platform, title_tokens, curl)
 
     return sorted(list(tags))
+    return sorted(list(tags))

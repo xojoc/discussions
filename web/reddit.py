@@ -28,6 +28,7 @@ from . import celery_util, http, models, util, worker
 
 logger = logging.getLogger(__name__)
 
+
 # filled in apps.WebConfig.ready
 subreddit_blacklist: typing.Set[str] = set()
 subreddit_whitelist: typing.Set[str] = set()

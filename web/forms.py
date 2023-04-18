@@ -1,14 +1,15 @@
 import logging
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Field, Submit, Layout, Div, Button
+from crispy_forms.layout import Button, Div, Field, Layout, Submit
 from django import forms
 
-from web import weekly, topics
+from web import topics, weekly
+
+from . import models
 
 # from crispy_bootstrap5.bootstrap5 import FloatingField
 
-from . import models
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,6 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
-# from django.db.models import Sum, Count, Max
 from . import topics, util, weekly
 from .models import Discussion
 

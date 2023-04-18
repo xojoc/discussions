@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.template.response import TemplateResponse
 from django.urls import path
+
 from . import models
 
 
@@ -147,6 +148,7 @@ class APIClientAdmin(admin.ModelAdmin):
 admin.site.register(models.Discussion, DiscussionAdmin)
 admin.site.register(models.Resource)
 admin.site.register(models.Subscriber, SubscriberAdmin)
+
 admin.site.register(models.APIClient, APIClientAdmin)
 admin.site.register([models.Tweet, models.Statistics])
 

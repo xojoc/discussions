@@ -14,11 +14,11 @@ def iplot(g):
     plt.show()
 
 
-def __link_to_edge(l):
+def __link_to_edge(link):
     return (
-        l["from_resource_id"],
-        l["to_resource_id"],
-        {"anchor_text": l["anchor_text"]},
+        link["from_resource_id"],
+        link["to_resource_id"],
+        {"anchor_text": link["anchor_text"]},
     )
 
 
@@ -29,7 +29,7 @@ def links_to_graph():
 
     g = nx.DiGraph()
 
-    edges = (__link_to_edge(l) for l in links.iterator(chunk_size=2000))
+    edges = (__link_to_edge(link) for link in links.iterator(chunk_size=2000))
 
     g.add_edges_from(edges)
 
