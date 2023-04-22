@@ -6,38 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0059_ad_estimated_mastodon_followers_and_more'),
+        ("web", "0059_ad_estimated_mastodon_followers_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ad',
-            name='body',
-            field=models.TextField(help_text='For now only <strong>plain text</strong> is accepted.\n        If you selected Twitter above please take in consideration character limits.', verbose_name='Ad message'),
+            model_name="ad",
+            name="body",
+            field=models.TextField(help_text="For now only <strong>plain text</strong> is accepted.\n        If you selected Twitter above please take in consideration character limits.", verbose_name="Ad message"),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='floss_repository',
-            field=models.TextField(blank=True, help_text='FLOSS projects get a 20% discount', null=True),
+            model_name="ad",
+            name="floss_repository",
+            field=models.TextField(blank=True, help_text="FLOSS projects get a 20% discount", null=True),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='mastodon',
+            model_name="ad",
+            name="mastodon",
             field=models.BooleanField(default=False, help_text='Would you like to advertise on <a href="/social#mastodon">Mastodon</a>?'),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='newsletter',
+            model_name="ad",
+            name="newsletter",
             field=models.BooleanField(default=True, help_text='Would you like to advertise in the <a href="/weekly/">newsletters</a>?'),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='twitter',
+            model_name="ad",
+            name="twitter",
             field=models.BooleanField(default=False, help_text='Would you like to advertise on <a href="/social#twitter">Twitter</a>?'),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='url',
-            field=models.TextField(blank=True, null=True, verbose_name='Ad URL'),
+            model_name="ad",
+            name="url",
+            field=models.TextField(blank=True, null=True, verbose_name="Ad URL"),
         ),
     ]

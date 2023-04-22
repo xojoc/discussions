@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0029_alter_resource_links'),
+        ("web", "0029_alter_resource_links"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='resource',
-            name='last_processed',
+            model_name="resource",
+            name="last_processed",
             field=models.DateTimeField(null=True),
         ),
     ]

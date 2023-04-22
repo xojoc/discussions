@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 def base_query(topic):
     qs = (
         models.Discussion.objects.exclude(
-            canonical_story_url__startswith="discu.eu/weekly"
+            canonical_story_url__startswith="discu.eu/weekly",
         ).exclude(created_at__isnull=True)
         # .filter(comment_count__gte=1)
         .filter(score__gte=2)
@@ -93,19 +93,7 @@ def all_yearweeks(topic):
 
 
 def last_nth_yearweeks(topic, n):
-    # days_ago = datetime.datetime.now() - datetime.timedelta(days=(n * 1.3) * 7)
-    # yearweeks = set()
-    # stories = (
-    #     base_query(topic)
-    #     .filter(created_at__gte=days_ago)
-    #     .annotate(created_at_date=TruncDay("created_at"))
-    #     .values("created_at_date")
-    #     .distinct()
-    #     .order_by()
-    # )
-    # for s in stories.iterator():
-    #     ic = s["created_at_date"].isocalendar()
-    #     yearweeks.add((ic.year, ic.week))
+    del topic
 
     yearweeks = set()
     d = datetime.datetime.now()
@@ -117,7 +105,6 @@ def last_nth_yearweeks(topic, n):
     return sorted(yearweeks, reverse=True)[:n]
 
 
-# from web import weekly; fc = weekly.__get_random_old_stories('hackernews', {'article': 3, 'project': 5})
 def __get_random_old_stories(topic, categories):
     found_categories = defaultdict(list)
     time_ago = datetime.datetime.now() - datetime.timedelta(days=365)
@@ -132,8 +119,6 @@ def __get_random_old_stories(topic, categories):
         )
 
         # if util.is_dev():
-        #     q = str(stories.query)
-        #     _ = q
 
         count = stories.count()
         if count < cat_count * 2:
@@ -142,13 +127,14 @@ def __get_random_old_stories(topic, categories):
         for _ in range(cat_count * 2):
             if len(found_categories[cat]) >= categories.get(cat, 0):
                 break
-            j = random.randint(0, count - 1)
+            j = random.randint(0, count - 1)  # noqa S311
             rs = stories[j]
             if rs in found_categories[cat]:
                 continue
 
             discussions, _, _ = models.Discussion.of_url(
-                rs.story_url, only_relevant_stories=True
+                rs.story_url,
+                only_relevant_stories=True,
             )
             discussion_counts = (
                 discussions.aggregate(
@@ -158,60 +144,14 @@ def __get_random_old_stories(topic, categories):
                 or {}
             )
             rs.__dict__["total_comments"] = discussion_counts.get(
-                "total_comments"
+                "total_comments",
             )
             rs.__dict__["total_discussions"] = discussion_counts.get(
-                "total_discussions"
+                "total_discussions",
             )
             found_categories[cat].append(rs)
 
     return found_categories
-
-    # found_categories = defaultdict(list)
-    # time_ago = datetime.datetime.now() - datetime.timedelta(days=365)
-    # stories = (
-    #     base_query(topic)
-    #     .filter(created_at__lt=time_ago)
-    #     .filter(comment_count__gte=100)
-    #     .filter(score__gte=100)
-    # )
-    # count = stories.count()
-    # if not count:
-    #     return found_categories
-
-    # max_iter = sum(categories.values()) * 20
-
-    # for i in range(max_iter):
-    #     if sum((len(v) for v in found_categories.values())) >= sum(
-    #         categories.values()
-    #     ):
-    #         break
-
-    #     j = random.randint(0, count - 1)
-    #     rs = stories[j]
-    #     cat = category.derive(rs)
-    #     if len(found_categories[cat]) >= categories.get(cat, 0):
-    #         continue
-    #     if rs not in found_categories[cat]:
-    #         discussions, _, _ = models.Discussion.of_url(
-    #             rs.story_url, only_relevant_stories=True
-    #         )
-    #         discussion_counts = (
-    #             discussions.aggregate(
-    #                 total_comments=Coalesce(Sum("comment_count"), 0),
-    #                 total_discussions=Coalesce(Count("platform_id"), 0),
-    #             )
-    #             or {}
-    #         )
-    #         rs.__dict__["total_comments"] = discussion_counts.get(
-    #             "total_comments"
-    #         )
-    #         rs.__dict__["total_discussions"] = discussion_counts.get(
-    #             "total_discussions"
-    #         )
-    #         found_categories[cat].append(rs)
-
-    # return found_categories
 
 
 def __get_stories(topic, year, week):
@@ -234,39 +174,39 @@ def __get_stories(topic, year, week):
         total_comments=Coalesce(
             Subquery(
                 models.Discussion.objects.filter(
-                    canonical_story_url=OuterRef("canonical_story_url")
+                    canonical_story_url=OuterRef("canonical_story_url"),
                 )
                 .filter(score__gte=min_score)
                 .filter(comment_count__gte=min_comments)
                 .values("canonical_story_url")
                 .annotate(total_comments=Sum("comment_count"))
-                .values("total_comments")
+                .values("total_comments"),
             ),
             Value(0),
-        )
+        ),
     )
 
     stories = stories.annotate(
         total_discussions=Coalesce(
             Subquery(
                 models.Discussion.objects.filter(
-                    canonical_story_url=OuterRef("canonical_story_url")
+                    canonical_story_url=OuterRef("canonical_story_url"),
                 )
                 .filter(score__gte=min_score)
                 .filter(comment_count__gte=min_comments)
                 .values("canonical_story_url")
                 .annotate(total_discussions=Count("platform_id"))
-                .values("total_discussions")
+                .values("total_discussions"),
             ),
             Value(0),
-        )
+        ),
     )
 
     stories = stories.filter(total_discussions__lt=20)
 
     if util.is_dev():
         logger.debug(
-            f"weekly: {topic} {ws} {we}: stories count {stories.count()}"
+            f"weekly: {topic} {ws} {we}: stories count {stories.count()}",
         )
 
     unique_stories = []
@@ -278,7 +218,7 @@ def __get_stories(topic, year, week):
             and story.canonical_story_url in unique_urls
         ):
             logger.debug(
-                f"weekly: duplicate: {story.platform_id} - {story.canonical_story_url} - {story.title}"
+                f"weekly: duplicate: {story.platform_id} - {story.canonical_story_url} - {story.title}",
             )
             continue
 
@@ -303,7 +243,7 @@ def _get_digest(topic, year, week):
 
     digest = sorted(digest, key=lambda x: category.categories[x[0]]["sort"])
 
-    for cat, category_name, stories in digest:
+    for cat, _category_name, stories in digest:
         if topic == "hackernews":
             stories.sort(key=lambda x: x.comment_count, reverse=True)
         else:
@@ -325,13 +265,11 @@ def _get_digest(topic, year, week):
 
 
 def __get_digest_old_stories(topic, year=None, week=None):
+    del topic
+    del year
+    del week
     return {}
-    # cats = {"article": 2}
     # if topics.topics[topic].get("platform"):
-    #     cats["askplatform"] = 1
-    # old_stories = __get_random_old_stories(topic, cats)
-    # old_stories.default_factory = None
-    # return old_stories
 
 
 def __generate_breadcrumbs(topic=None, year=None, week=None):
@@ -342,8 +280,7 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
             "name": "Weekly newsletter",
             "title": "Weekly newsletter",
             "url": reverse("web:weekly_index"),
-            # "classes": "bold",
-        }
+        },
     )
     if topic:
         breadcrumbs.append(
@@ -351,7 +288,7 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
                 "name": topics.topics[topic]["name"],
                 "title": f"{topics.topics[topic]['name']} Weekly",
                 "url": reverse("web:weekly_topic", args=[topic]),
-            }
+            },
         )
     if topic and year and week:
         breadcrumbs.append(
@@ -359,12 +296,11 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
                 "name": f"Week {week}/{year}",
                 "title": f"{topics.topics[topic]['name']} recap for week {week}/{year}",
                 "url": reverse(
-                    "web:weekly_topic_week", args=[topic, year, week]
+                    "web:weekly_topic_week",
+                    args=[topic, year, week],
                 ),
-            }
+            },
         )
-
-    # breadcrumbs[-1]["url"] = None
 
     for breadcrumb in breadcrumbs:
         if breadcrumb.get("url"):
@@ -391,7 +327,6 @@ def topic_context(topic):
     if not ctx["topic"]:
         return None
     ctx["yearweeks"] = []
-    # yearweeks = all_yearweeks(topic)
     yearweeks = last_nth_yearweeks(topic, 3)
     for yearweek in yearweeks:
         ctx["yearweeks"].append(
@@ -400,7 +335,7 @@ def topic_context(topic):
                 "week": yearweek[1],
                 "week_start": week_start(yearweek),
                 "week_end": week_end(yearweek) - datetime.timedelta(days=1),
-            }
+            },
         )
     ctx["breadcrumbs"] = __generate_breadcrumbs(topic)
 
@@ -413,7 +348,7 @@ def topic_context(topic):
             "@" + mastodon_cfg.get("account").split("@")[1]
         )
         ctx["mastodon_account_url"] = mastodon.profile_url(
-            mastodon_cfg.get("account")
+            mastodon_cfg.get("account"),
         )
 
     return ctx
@@ -430,19 +365,20 @@ def topic_week_context(topic, year, week):
     try:
         ctx["week_start"] = week_start(year, week)
         ctx["week_end"] = week_end(year, week) - datetime.timedelta(minutes=1)
-        # ctx["date_published"] = ctx["week_end"] + datetime.timedelta(days=1)
     except ValueError:
         return None
-    # ctx["stories"] = __get_stories(topic, year, week)
     ctx["digest"] = _get_digest(topic, year, week)
     ctx["digest_old_stories"] = __get_digest_old_stories(
-        topic, year=None, week=None
+        topic,
+        year=None,
+        week=None,
     )
     ctx["breadcrumbs"] = __generate_breadcrumbs(topic, year, week)
     ctx[
         "web_link"
     ] = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}" + reverse(
-        "web:weekly_topic_week", args=[topic, year, week]
+        "web:weekly_topic_week",
+        args=[topic, year, week],
     )
     twitter = topics.topics[topic].get("twitter")
     if twitter.get("account"):
@@ -453,7 +389,7 @@ def topic_week_context(topic, year, week):
             "@" + mastodon_cfg.get("account").split("@")[1]
         )
         ctx["mastodon_account_url"] = mastodon.profile_url(
-            mastodon_cfg.get("account")
+            mastodon_cfg.get("account"),
         )
     return ctx
 
@@ -496,7 +432,7 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
     Subject: {subject}
     ---
     {body}
-    """
+    """,
     )
 
     try:
@@ -509,7 +445,7 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
         return False
 
     if settings.EMAIL_TO_PREFIX and not to_email.startswith(
-        settings.EMAIL_TO_PREFIX
+        settings.EMAIL_TO_PREFIX,
     ):
         logger.debug(f"Weekly email NOT dev: '{topic_key}' '{from_email}'")
         return False
@@ -518,12 +454,13 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
     if len(tokens) > 0 and tokens[0] == "subscribe":
         try:
             subscriber = models.Subscriber.objects.get(
-                topic=topic_key, email=from_email
+                topic=topic_key,
+                email=from_email,
             )
             if subscriber.confirmed and not subscriber.unsubscribed:
                 subscriber = None
                 logger.info(
-                    f"Subsription exists for {from_email} topic {topic_key}"
+                    f"Subsription exists for {from_email} topic {topic_key}",
                 )
             else:
                 subscriber.subscribe()
@@ -536,18 +473,19 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
         if subscriber:
             subscriber.send_subscription_confirmation_email()
             logger.info(
-                f"Confirmation email sent to {from_email} topic {topic_key}"
+                f"Confirmation email sent to {from_email} topic {topic_key}",
             )
             return True
 
     if len(tokens) > 0 and tokens[0] == "unsubscribe":
         try:
             subscriber = models.Subscriber.objects.get(
-                topic=topic_key, email=from_email
+                topic=topic_key,
+                email=from_email,
             )
         except models.Subscriber.DoesNotExist:
             logger.info(
-                f"No subscription found for '{topic_key}' '{from_email}'"
+                f"No subscription found for '{topic_key}' '{from_email}'",
             )
             subscriber = None
 
@@ -556,7 +494,7 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
             subscriber.save()
             subscriber.send_unsubscribe_confirmation_email()
             logger.info(
-                f"Unsubscribtion email sent to {from_email} topic {topic_key}"
+                f"Unsubscribtion email sent to {from_email} topic {topic_key}",
             )
             return True
 
@@ -564,11 +502,15 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
 
 
 def __rewrite_urls(ctx, subscriber, topic, year, week):
-    for cat, category_name, stories in ctx.get("digest"):
+    for _cat, _category_name, stories in ctx.get("digest"):
         for story in stories:
             if story.story_url:
                 story.__dict__["click_story_url"] = util.click_url(
-                    story.story_url, subscriber, topic, year, week
+                    story.story_url,
+                    subscriber,
+                    topic,
+                    year,
+                    week,
                 )
                 story.__dict__["click_discussions_url"] = util.click_url(
                     util.discussions_url(story.story_url),
@@ -596,7 +538,7 @@ def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
     random.shuffle(subscribers)
 
     logger.info(
-        f"weekly: sending mail to {len(subscribers)} subscribers for {topic} {week}/{year}"
+        f"weekly: sending mail to {len(subscribers)} subscribers for {topic} {week}/{year}",
     )
     ctx = topic_week_context(topic, year, week)
 
@@ -623,11 +565,15 @@ def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
         )
 
         html_content = template_loader.render_to_string(
-            "web/weekly_topic_week_email.html", {"ctx": ctx}
+            "web/weekly_topic_week_email.html",
+            {"ctx": ctx},
         )
 
         msg = EmailMultiAlternatives(
-            subject, text_content, from_email, [subscriber.email]
+            subject,
+            text_content,
+            from_email,
+            [subscriber.email],
         )
         msg.attach_alternative(html_content, "text/html")
 
@@ -668,12 +614,13 @@ def share_weekly_issue(self):
 
         if not ctx.get("digest"):
             logger.warning(
-                f"weekly share issue: no articles {topic_key} {week}/{year}"
+                f"weekly share issue: no articles {topic_key} {week}/{year}",
             )
             continue
 
         issue_url = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}" + reverse(
-            "web:weekly_topic_week", args=[topic_key, year, week]
+            "web:weekly_topic_week",
+            args=[topic_key, year, week],
         )
 
         htags = tags.normalize(topic.get("tags"))
@@ -698,7 +645,8 @@ def share_weekly_issue(self):
         if topic.get("twitter"):
             try:
                 twitter.tweet(
-                    twitter_status, topic.get("twitter").get("account")
+                    twitter_status,
+                    topic.get("twitter").get("account"),
                 )
             except Exception as e:
                 logger.error(f"weekly share: {e}")
@@ -706,7 +654,8 @@ def share_weekly_issue(self):
         if topic.get("mastodon"):
             try:
                 mastodon.post(
-                    mastodon_status, topic.get("mastodon").get("account")
+                    mastodon_status,
+                    topic.get("mastodon").get("account"),
                 )
             except Exception as e:
                 logger.error(f"weekly share: {e}")
@@ -733,7 +682,6 @@ def open_rate(topic):
 
 
 def topics_open_rate():
-    # return topics.topics_choices
     choices = []
     for t, n in topics.topics_choices:
         if t == "laarc":

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0011_remove_tweet_id_alter_tweet_tweet_id'),
+        ("web", "0011_remove_tweet_id_alter_tweet_tweet_id"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='tweet',
-            name='tweet_id',
+            model_name="tweet",
+            name="tweet_id",
             field=models.BigIntegerField(primary_key=True, serialize=False),
         ),
     ]

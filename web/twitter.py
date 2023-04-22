@@ -32,18 +32,14 @@ def tweet(status, username):
     token_secret = account["token_secret"]
 
     if not api_key or not api_secret_key or not token or not token_secret:
-        logger.warn(f"Twitter bot: {username} non properly configured")
-        return
+        logger.warning(f"Twitter bot: {username} non properly configured")
+        return None
 
     if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         random.seed()
         print(username)
         print(status)
 
-        # print(api_key)
-        # print(api_secret_key)
-        # print(token)
-        # print(token_secret)
         return random.randint(1, 1_000_000)
 
     auth = tweepy.OAuthHandler(api_key, api_secret_key)
@@ -51,8 +47,6 @@ def tweet(status, username):
     api = tweepy.API(auth, wait_on_rate_limit=True)
     status = api.update_status(status)
     # if status.id:
-    #    __sleep(5, 9)
-    #    api.create_favorite(status.id)
     return status.id
 
 
@@ -66,21 +60,17 @@ def retweet(tweet_id, username):
     token_secret = account["token_secret"]
 
     if not api_key or not api_secret_key or not token or not token_secret:
-        logger.warn(f"Twitter bot: {username} non properly configured")
-        return
+        logger.warning(f"Twitter bot: {username} non properly configured")
+        return None
 
     if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         random.seed()
-        # print(username)
-        # print(tweet_id)
         return tweet_id
 
     auth = tweepy.OAuthHandler(api_key, api_secret_key)
     auth.set_access_token(token, token_secret)
     api = tweepy.API(auth, wait_on_rate_limit=True)
     api.retweet(tweet_id)
-    # __sleep(13, 25)
-    # api.create_favorite(tweet_id)
     return tweet_id
 
 
@@ -95,7 +85,7 @@ def build_hashtags(tags):
 
 
 def build_story_status(
-    title=None, url=None, tags=set(), author=None, story=None
+    title=None, url=None, tags=set(), author=None, story=None,
 ):
     hashtags = build_hashtags(tags)
 
@@ -139,9 +129,6 @@ Discussions: {'x' * URL_LENGTH}
     if author and author.twitter_account:
         status += f"\n\nby @{author.twitter_account}"
         status_len += f"\n\nby @{author.twitter_account}"
-    # elif author.twitter_site:
-    #     status += f"\n\nvia @{author.twitter_site}"
-    #     status_len += f"\n\nvia @{author.twitter_site}"
 
     title = unicodedata.normalize("NFC", title)
     title = "".join(c for c in title if c.isprintable())
@@ -229,23 +216,23 @@ def tweet_discussions_scheduled(filter_topic=None):
 
         if topic.get("tags"):
             topic_stories = stories.filter(
-                normalized_tags__overlap=list(topic["tags"])
+                normalized_tags__overlap=list(topic["tags"]),
             )
 
         topic_stories = topic_stories.exclude(
-            tweet__bot_names__contains=[topic.get("twitter").get("account")]
+            tweet__bot_names__contains=[topic.get("twitter").get("account")],
         )
 
         logger.debug(
-            f"twitter scheduled: topic {topic_key} potential stories {topic_stories.count()}"
+            f"twitter scheduled: topic {topic_key} potential stories {topic_stories.count()}",
         )
 
         if topic.get("platform"):
             topic_stories = topic_stories.filter(
-                platform=topic.get("platform")
+                platform=topic.get("platform"),
             )
             logger.debug(
-                f"twitter scheduled platform {topic.get('platform')}: topic {topic_key} potential stories {topic_stories.count()}"
+                f"twitter scheduled platform {topic.get('platform')}: topic {topic_key} potential stories {topic_stories.count()}",
             )
         else:
             topic_stories = (
@@ -260,21 +247,21 @@ def tweet_discussions_scheduled(filter_topic=None):
                 continue
 
             related_discussions, _, _ = models.Discussion.of_url(
-                story.story_url, only_relevant_stories=False
+                story.story_url, only_relevant_stories=False,
             )
 
             related_discussions = related_discussions.order_by(
-                "-comment_count", "-score", "created_at"
+                "-comment_count", "-score", "created_at",
             )
 
             if (
                 related_discussions.filter(
-                    tweet__created_at__gte=seven_days_ago
+                    tweet__created_at__gte=seven_days_ago,
                 )
                 .filter(
                     tweet__bot_names__contains=[
-                        topic.get("twitter").get("account")
-                    ]
+                        topic.get("twitter").get("account"),
+                    ],
                 )
                 .exists()
             ):
@@ -292,7 +279,7 @@ def tweet_discussions_scheduled(filter_topic=None):
 
                 if not existing_tweet:
                     existing_tweet = rd.tweet_set.order_by(
-                        "-created_at"
+                        "-created_at",
                     ).first()
 
             logger.debug(f"twitter {story.platform_id}: {tags}")
@@ -300,11 +287,11 @@ def tweet_discussions_scheduled(filter_topic=None):
             tweet_id = None
             try:
                 tweet_id = tweet_story_topic(
-                    story, tags, topic, existing_tweet
+                    story, tags, topic, existing_tweet,
                 )
             except tweepy.errors.Forbidden:
                 cache.set(
-                    key_prefix + story.platform_id, 1, timeout=60 * 60 * 5
+                    key_prefix + story.platform_id, 1, timeout=60 * 60 * 5,
                 )
                 continue
             except Exception as e:
@@ -318,7 +305,7 @@ def tweet_discussions_scheduled(filter_topic=None):
                 t = None
                 if existing_tweet:
                     existing_tweet.bot_names.append(
-                        topic.get("twitter").get("account")
+                        topic.get("twitter").get("account"),
                     )
                     t = existing_tweet
                 else:
@@ -459,8 +446,8 @@ def fetch_all_tweets():
     users_to_search = []
     for bot in twitter_bots:
         for fs in tweepy.Paginator(
-            c.get_users_following, bot, user_fields="id", max_results=1000
+            c.get_users_following, bot, user_fields="id", max_results=1000,
         ):
-            users_to_search.extend((u.id for u in fs.data))
+            users_to_search.extend(u.id for u in fs.data)
 
     print(users_to_search)

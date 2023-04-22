@@ -6,21 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0030_resource_last_processed'),
+        ("web", "0030_resource_last_processed"),
     ]
 
     operations = [
         migrations.RemoveIndex(
-            model_name='discussion',
-            name='gin_discussion_title',
+            model_name="discussion",
+            name="gin_discussion_title",
         ),
         migrations.RemoveIndex(
-            model_name='discussion',
-            name='gin_discussion_norm_title',
+            model_name="discussion",
+            name="gin_discussion_norm_title",
         ),
         migrations.AlterField(
-            model_name='link',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="link",
+            name="id",
+            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID"),
         ),
     ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0041_subscriber_subscriber_unique_email_topic'),
+        ("web", "0041_subscriber_subscriber_unique_email_topic"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subscriber',
-            name='topic',
+            model_name="subscriber",
+            name="topic",
             field=models.CharField(choices=[], max_length=255),
         ),
     ]

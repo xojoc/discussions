@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0039_apiclient_url_alter_apiclient_email_and_more'),
+        ("web", "0039_apiclient_url_alter_apiclient_email_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='link',
-            name='anchor_rel',
+            model_name="link",
+            name="anchor_rel",
             field=models.TextField(null=True),
         ),
     ]

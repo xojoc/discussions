@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0024_resource_resource_index_url_and_more'),
+        ("web", "0024_resource_resource_index_url_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='resource',
-            name='status_code',
+            model_name="resource",
+            name="status_code",
             field=models.IntegerField(null=True),
         ),
     ]

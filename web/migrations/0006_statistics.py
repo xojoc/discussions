@@ -7,15 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0005_discussion_gin_discussion_title'),
+        ("web", "0005_discussion_gin_discussion_title"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Statistics',
+            name="Statistics",
             fields=[
-                ('name', models.CharField(max_length=100, primary_key=True, serialize=False)),
-                ('statistics', models.JSONField(decoder=django.core.serializers.json.Deserializer, encoder=django.core.serializers.json.DjangoJSONEncoder)),
+                ("name", models.CharField(max_length=100, primary_key=True, serialize=False)),
+                ("statistics", models.JSONField(decoder=django.core.serializers.json.Deserializer, encoder=django.core.serializers.json.DjangoJSONEncoder)),
             ],
         ),
     ]

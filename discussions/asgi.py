@@ -1,5 +1,4 @@
-"""
-ASGI config for discussions project.
+"""ASGI config for discussions project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

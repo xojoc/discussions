@@ -3,8 +3,7 @@ import json
 import logging
 import random
 from pprint import pformat
-from urllib.parse import quote
-from urllib.parse import unquote as url_unquote
+from urllib.parse import quote, unquote as url_unquote
 
 import stripe
 import urllib3
@@ -49,7 +48,7 @@ def __log_query(q):
     q = q.strip().lower()
 
     r = get_redis_connection()
-    if q.startswith("http://") or q.startswith("https://"):
+    if q.startswith(("http://", "https://")):
         r.zincrby("discussions:stats:query:url", 1, q)
     else:
         r.zincrby("discussions:stats:query:search", 1, q)
@@ -93,9 +92,8 @@ def discussions_context(q):
 
     url = (q or "").lower().strip()
 
-    # ctx['statistics'] = models.Statistics.all_statistics()
 
-    if url and not (url.startswith("http://") or url.startswith("https://")):
+    if url and not (url.startswith(("http://", "https://"))):
         ctx["absolute_url"] = "https://" + q
     else:
         ctx["absolute_url"] = q
@@ -106,7 +104,7 @@ def discussions_context(q):
     ctx["original_query"] = q
     ctx["url"] = url
     if (
-        (url.startswith("http://") or url.startswith("https://"))
+        (url.startswith(("http://", "https://")))
         and " " not in url
         and len(url) >= 10
     ):
@@ -128,16 +126,14 @@ def discussions_context(q):
     try:
         uds = list(uds)
     except Exception as e:
-        logger.warn(e)
+        logger.warning(e)
         uds = []
         # raise e
 
-    # tds = tds[:11]
     tds = None
 
     ctx["canonical_url"] = cu
 
-    # ds = sorted(ds, key=lambda x: x.platform_order)
     ctx["discussions"] = uds
     ctx["title_discussions"] = tds
 
@@ -161,7 +157,6 @@ def discussions_context(q):
         for platform, uds in itertools.groupby(uds, lambda x: x.platform)
     ]
 
-    # if q.startswith('http://') or\
     #    q.startswith('https://'):
 
     ctx["resource"] = models.Resource.by_url(cu)
@@ -176,7 +171,7 @@ def discussions_context(q):
             ctx["outbound_resources"] = ctx["outbound_resources"][:20]
 
     if not ctx.get("title"):
-        if uds and (q.startswith("http://") or q.startswith("https://")):
+        if uds and (q.startswith(("http://", "https://"))):
             ctx["title"] = uds[0].title
         else:
             ctx["title"] = ctx["original_query"]
@@ -243,15 +238,14 @@ def __suggest_topic(ctx):
 
 def index(request, path_q=None):
     host = request.get_host().partition(":")[0]
-    if not request.path.startswith("/.well-known/"):
-        if (
-            host != "localhost"
-            and host != "127.0.0.1"
-            and host != "testserver"
-            and host != settings.APP_DOMAIN
-        ):
-            r = "https://" + settings.APP_DOMAIN + request.get_full_path()
-            return HttpResponsePermanentRedirect(r)
+    if not request.path.startswith("/.well-known/") and (
+        host != "localhost"
+        and host != "127.0.0.1"
+        and host != "testserver"
+        and host != settings.APP_DOMAIN
+    ):
+        r = "https://" + settings.APP_DOMAIN + request.get_full_path()
+        return HttpResponsePermanentRedirect(r)
 
     if path_q:
         q = url_unquote(request.get_full_path()[len("/q/") :])
@@ -317,7 +311,7 @@ def index(request, path_q=None):
     try:
         __log_query(q)
     except Exception as e:
-        logger.warn(e)
+        logger.warning(e)
 
     __suggest_topic(ctx)
 
@@ -341,9 +335,6 @@ def story_short_url(request, platform_id):
 
 
 # def short_link(request, code):
-#     sl = get_object_or_404(models.ShortLink, code=code)
-#     sl.open()
-#     return redirect(sl.target_url, permanent=False)
 
 
 def weekly_confirm_email(request):
@@ -351,7 +342,7 @@ def weekly_confirm_email(request):
     subscriber_email = request.GET.get("email")
     try:
         subscriber = models.Subscriber.objects.get(
-            topic=topic, email=subscriber_email
+            topic=topic, email=subscriber_email,
         )
     except models.Subscriber.DoesNotExist:
         subscriber = None
@@ -362,13 +353,13 @@ def weekly_confirm_email(request):
             f"Email {subscriber_email} was already confirmed. If it wasn't you please write to hi@discu.eu",
         )
     elif subscriber and subscriber.verification_code == request.GET.get(
-        "verification_code"
+        "verification_code",
     ):
         subscriber.subscribe()
         subscriber.save()
 
         messages.success(
-            request, f"Email {subscriber_email} confirmed. Thank you!"
+            request, f"Email {subscriber_email} confirmed. Thank you!",
         )
     else:
         messages.error(
@@ -391,7 +382,7 @@ def weekly_confirm_unsubscription(request):
         subscriber_email = request.GET.get("email")
         try:
             subscriber = models.Subscriber.objects.get(
-                topic=topic, email=subscriber_email
+                topic=topic, email=subscriber_email,
             )
         except models.Subscriber.DoesNotExist:
             subscriber = None
@@ -403,7 +394,7 @@ def weekly_confirm_unsubscription(request):
             "topic": topics.topics.get(topic_key),
         }
         return render(
-            request, "web/weekly_unsubscribe_page.html", {"ctx": ctx}
+            request, "web/weekly_unsubscribe_page.html", {"ctx": ctx},
         )
     elif request.method == "POST":
         topic = request.POST.get("topic")
@@ -412,7 +403,7 @@ def weekly_confirm_unsubscription(request):
 
         try:
             subscriber = models.Subscriber.objects.get(
-                topic=topic, email=subscriber_email
+                topic=topic, email=subscriber_email,
             )
         except models.Subscriber.DoesNotExist:
             subscriber = None
@@ -427,7 +418,7 @@ def weekly_confirm_unsubscription(request):
         ):
             subscriber.unsubscribe()
             subscriber.unsubscribed_feedback = request.POST.get(
-                "unsubscribed_feedback"
+                "unsubscribed_feedback",
             )
             subscriber.save()
             messages.success(request, "You're now unsubscribed. Thank you!")
@@ -458,7 +449,7 @@ def __weekly_topic_subscribe_form(request, topic, ctx):
             subscriber = None
 
     form = forms.SubscriberForm(
-        request.POST or None, instance=subscriber, initial={"topic": topic}
+        request.POST or None, instance=subscriber, initial={"topic": topic},
     )
 
     if form.is_valid():
@@ -488,7 +479,6 @@ Headers:
         )
 
     ctx["weekly_subscribe_form"] = form
-    return None
 
 
 def weekly_index(request):
@@ -497,9 +487,6 @@ def weekly_index(request):
     if response:
         return response
     response = render(request, "web/weekly_index.html", {"ctx": ctx})
-    # messages.success(request, "Test success message")
-    # messages.warning(request, "Test warning message")
-    # messages.error(request, "Test error message")
     return response
 
 
@@ -585,7 +572,7 @@ def dashboard(request):
     if request.method == "POST":
         if "submit-update-user-profile" in request.POST:
             profile_form = forms.ProfileForm(
-                request.POST, instance=request.user
+                request.POST, instance=request.user,
             )
             if profile_form.is_valid():
                 profile_form.save()
@@ -594,10 +581,10 @@ def dashboard(request):
     ctx["profile_form"] = profile_form
 
     user_emails = request.user.emailaddress_set.filter(
-        verified=True
+        verified=True,
     ).values_list("email", flat=True)
     subscriptions = models.Subscriber.objects.filter(
-        email__in=user_emails
+        email__in=user_emails,
     ).order_by("topic")
     ctx["subscriptions"] = subscriptions
 
@@ -609,7 +596,7 @@ def dashboard(request):
 
     if not ctx["user_verified_email"]:
         messages.warning(
-            request, "Please verify your email to access all the features."
+            request, "Please verify your email to access all the features.",
         )
 
     ctx["topics"] = topics.topics
@@ -669,8 +656,6 @@ def dashboard_mentions_edit(request, pk):
         raise Http404("404")
 
     # if mention.disabled:
-    #     messages.warning(request, "This rule no longer exists")
-    #     return redirect(reverse("web:dashboard_mentions"))
 
     edit_form = forms.EditMentionForm(instance=mention)
 
@@ -687,7 +672,7 @@ def dashboard_mentions_edit(request, pk):
                     f"Rule {model} saved!",
                 )
                 return redirect(
-                    reverse("web:dashboard_mentions"), permanent=False
+                    reverse("web:dashboard_mentions"), permanent=False,
                 )
 
     ctx["form"] = edit_form
@@ -705,7 +690,7 @@ def stripe_webhook(request):
 
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET,
         )
     except ValueError:
         return HttpResponse(status=400)
@@ -725,7 +710,7 @@ def stripe_webhook(request):
     if event["type"] == "customer.subscription.deleted":
         subscription = event["data"]["object"]
         user = models.CustomUser.objects.get(
-            stripe_customer_id=subscription.customer
+            stripe_customer_id=subscription.customer,
         )
         user.premium_active = False
         user.premium_cancelled = True
@@ -739,7 +724,7 @@ def stripe_webhook(request):
 @require_http_methods(["POST"])
 def stripe_create_customer_portal_session(request):
     return_path = request.POST.get("return_to_path") or reverse(
-        "web:dashboard"
+        "web:dashboard",
     )
     stripe.api_key = settings.STRIPE_SECRET_KEY
     return_url = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}{return_path}"
@@ -780,7 +765,7 @@ def stripe_subscribe_cancel(request):
         "Oops. Something went wrong. No worries you can retry later or write to hi@discu.eu for support",
     )
     logger.error(
-        f"Stripe subscribe cancelled. User {request.user.pk} stripe id {request.user.stripe_customer_id}"
+        f"Stripe subscribe cancelled. User {request.user.pk} stripe id {request.user.stripe_customer_id}",
     )
     return redirect("web:dashboard", permanent=False)
 
@@ -874,7 +859,7 @@ def aws_bounce_handler(request):
             topic_key, topic = topics.get_topic_by_email(from_email)
             for destination in destinations:
                 subscriber = models.Subscriber.objects.filter(
-                    topic=topic_key, email=destination
+                    topic=topic_key, email=destination,
                 ).first()
                 if not subscriber:
                     continue
@@ -903,7 +888,7 @@ def mention_live_preview(request):
     ctx["discussions"] = ctx["discussions"][:10]
 
     return render(
-        request, "web/dashboard_mentions_live_preview.html", {"ctx": ctx}
+        request, "web/dashboard_mentions_live_preview.html", {"ctx": ctx},
     )
 
 
@@ -914,7 +899,6 @@ def click(request):
     sub = request.GET.get("subscriber")
     year = request.GET.get("year")
     week = request.GET.get("week")
-    # topic = request.GET.get("topic")
 
     crawler_detect = CrawlerDetect(headers=request.headers)
     is_crawler = crawler_detect.isCrawler()
@@ -948,7 +932,7 @@ def click_subscriber(request, typ, subscriber, year, week, discussion):
 
     if typ == "d":
         return redirect(
-            reverse("web:index", args=[discussion.story_url]), permanent=False
+            reverse("web:index", args=[discussion.story_url]), permanent=False,
         )
     else:
         return redirect(discussion.story_url, permanent=False)

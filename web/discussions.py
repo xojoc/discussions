@@ -1,9 +1,9 @@
 import logging
 from enum import Enum
 
-from web import models
-
 from celery import shared_task
+
+from web import models
 
 logger = logging.getLogger(__name__)
 

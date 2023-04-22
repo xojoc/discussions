@@ -1,12 +1,13 @@
 import datetime
 import logging
 import time
+
+import cleanurl
 from celery import shared_task
-from . import http, models
-from . import celery_util, worker
 from django.core.cache import cache
 from django.utils.timezone import make_aware
-import cleanurl
+
+from . import celery_util, http, models, worker
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +76,7 @@ def __worker_fetch(task, platform):
             page_url = f"{base_url}/api/getnews/latest/{index}/{count}"
             r = client.get(page_url, timeout=11.05)
             if not r.ok:
-                logger.warn(f"echojs not ok: {r.reason}: {current_index}")
+                logger.warning(f"echojs not ok: {r.reason}: {current_index}")
                 current_index = 0
                 break
 

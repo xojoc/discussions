@@ -1,7 +1,8 @@
-import networkx as nx
 import igraph as ig
-from web import models
 import matplotlib.pyplot as plt
+import networkx as nx
+
+from web import models
 
 
 def plot(g):
@@ -24,7 +25,7 @@ def __link_to_edge(link):
 
 def links_to_graph():
     links = models.Link.objects.all().values(
-        "from_resource_id", "to_resource_id", "anchor_text"
+        "from_resource_id", "to_resource_id", "anchor_text",
     )
 
     g = nx.DiGraph()

@@ -1,7 +1,9 @@
-from . import http
-import urllib
 import logging
+import urllib
+
 import cleanurl
+
+from . import http
 
 logger = logging.getLogger(__name__)
 
@@ -43,14 +45,14 @@ def __extract_author(article, h):
     if h:
         author.twitter_account = (
             h.select_one(
-                'meta[name="twitter:creator"], meta[property="twitter:creator"]'
+                'meta[name="twitter:creator"], meta[property="twitter:creator"]',
             )
             or {}
         ).get("content", "").removeprefix("@") or None
 
         author.twitter_site = (
             h.select_one(
-                'meta[name="twitter:site"], meta[property="twitter:site"]'
+                'meta[name="twitter:site"], meta[property="twitter:site"]',
             )
             or {}
         ).get("content", "").removeprefix("@") or None
@@ -78,33 +80,17 @@ def __extract_author(article, h):
             author.twitter_site = None
 
     # if not author.twitter_account:
-    #     domain = 'twitter.com'
-    #     twitter_links = []
     #     if article:
-    #         twitter_links = article.select(f'a[href*="{domain}" i]')
     #     if h:
-    #         twitter_links.extend(h.select(f'a[href*="{domain}" i]'))
-    #     possible_accounts = set()
 
     #     for t in twitter_links:
-    #         l = t.get('href', '')
-    #         l = l.removeprefix('https://')
-    #         l = l.removeprefix('http://')
-    #         parts = l.split('/')
-    #         parts = [p for p in parts if p]
     #         if len(parts) == 2:
     #             if parts[0] not in ('twitter.com', 'm.twitter.com', 'mobile.twitter.com', 'www.twitter.com'):
-    #                 continue
     #             if '?' in parts[1] or '&' in parts[1]:
-    #                 continue
     #             if parts[1] in ('signup', 'login', 'signin', 'about', 'share'):
-    #                 continue
-    #             possible_accounts.add(parts[1])
 
     #     if len(possible_accounts) == 1:
-    #         author.twitter_account = possible_accounts.pop()
     #         if author.twitter_account.lower() == (author.twitter_site or '').lower():
-    #             author.twitter_account = None
 
     return author
 
@@ -116,38 +102,38 @@ def __extract_title(h, s, url):
         except Exception:
             pass
 
-    nt = (s.title or '').strip(' -:~').lower()
+    nt = (s.title or "").strip(" -:~").lower()
 
     u = cleanurl.cleanurl(url)
 
     if u:
-        if u.hostname == 'youtu.be' and nt == 'youtube':
+        if u.hostname == "youtu.be" and nt == "youtube":
             s.title = None
 
-        if u.hostname == 'godbolt.org':
+        if u.hostname == "godbolt.org":
             s.title = None
 
-        if u.hostname == 'v.fodder.gg':
+        if u.hostname == "v.fodder.gg":
             s.title = None
 
-        if u.hostname == 'streamff.com':
+        if u.hostname == "streamff.com":
             s.title = None
 
-        if u.hostname == 'streamgg.com':
+        if u.hostname == "streamgg.com":
             s.title = None
 
-        if u.hostname == 'clips.twitch.tv' or u.hostname == 'twitch.tv':
+        if u.hostname == "clips.twitch.tv" or u.hostname == "twitch.tv":
             s.title = None
 
         # fixme: blocked in EU. Skip for now
-        if u.hostname == 'nydailynews.com':
+        if u.hostname == "nydailynews.com":
             s.title = None
 
         # fixme: requires login
-        if u.hostname == 'instagram.com':
+        if u.hostname == "instagram.com":
             s.title = None
 
-        if u.hostname == 'reddit-stream.com':
+        if u.hostname == "reddit-stream.com":
             s.title = None
 
 
@@ -165,9 +151,6 @@ def structure(h, url=None):
         pass
 
     if s.article:
-        # try:
-        #     s.title = s.article.select_one("h1, h2, h3").get_text().strip()
-        # except Exception:
         #     pass
 
         try:
@@ -196,43 +179,43 @@ def _fetch_parse_extract(u):
 
 def get_github_user_twitter(url):
     if not url:
-        return
+        return None
 
     u = None
     try:
         u = urllib.parse.urlparse(url)
     except Exception:
-        return
+        return None
 
     if not u:
-        return
+        return None
 
     if u.netloc != "github.com" and u.netloc != "www.github.com":
-        return
+        return None
 
     if not u.path:
-        return
+        return None
 
     parts = u.path.split("/")
 
     if len(parts) < 3:
-        return
+        return None
 
     api_url = f"https://api.github.com/repos/{parts[1]}/{parts[2]}"
 
     response = http.fetch(
-        api_url, timeout=30, with_retries=False, with_cache=True
+        api_url, timeout=30, with_retries=False, with_cache=True,
     )
 
     if not response or not response.ok:
-        return
+        return None
 
     js = response.json()
     if not js.get("owner"):
-        return
+        return None
 
     if not js.get("owner").get("url"):
-        return
+        return None
 
     response = http.fetch(
         js.get("owner").get("url"),
@@ -241,6 +224,6 @@ def get_github_user_twitter(url):
         with_cache=True,
     )
     if not response or not response.ok:
-        return
+        return None
 
     return response.json().get("twitter_username")

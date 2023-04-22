@@ -1,5 +1,4 @@
-"""
-WSGI config for discussions project.
+"""WSGI config for discussions project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

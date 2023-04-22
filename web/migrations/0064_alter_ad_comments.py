@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0063_ad_approved_alter_ad_floss_project_alter_ad_mastodon_and_more'),
+        ("web", "0063_ad_approved_alter_ad_floss_project_alter_ad_mastodon_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ad',
-            name='comments',
-            field=models.TextField(blank=True, help_text='Comments for the ad approver.<br/>\nIf you have preferences for when to tweet or toot or anything else let us know here.', null=True),
+            model_name="ad",
+            name="comments",
+            field=models.TextField(blank=True, help_text="Comments for the ad approver.<br/>\nIf you have preferences for when to tweet or toot or anything else let us know here.", null=True),
         ),
     ]

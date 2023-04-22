@@ -1,5 +1,6 @@
-from web import hn
 import unittest
+
+from web import hn
 
 
 class UnitHN(unittest.TestCase):
@@ -20,4 +21,4 @@ class UnitHN(unittest.TestCase):
         ]
         for h, u in zip(tests[0::2], tests[1::2]):
             hu = hn._url_from_selftext(h)
-            self.assertEqual(u, hu, msg=h)
+            assert u == hu, h

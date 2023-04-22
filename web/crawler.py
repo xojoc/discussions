@@ -71,6 +71,7 @@ def set_semaphore(url, timeout=60):
     r = get_redis_connection()
 
     r.set(redis_host_semaphore + ":" + u.host, 1, ex=timeout)
+    return None
 
 
 def fetch(url):
@@ -78,7 +79,7 @@ def fetch(url):
 
     cu = cleanurl.cleanurl(url)
     su = cleanurl.cleanurl(
-        url, generic=True, respect_semantics=True, host_remap=False
+        url, generic=True, respect_semantics=True, host_remap=False,
     )
     resource = models.Resource.by_url(url)
 
@@ -160,9 +161,7 @@ def process_next():
     if url.startswith("https://github.com"):
         timeout = 3
 
-    if url.startswith("https://twitter.com") or url.startswith(
-        "https://www.twitter.com"
-    ):
+    if url.startswith(("https://twitter.com", "https://www.twitter.com")):
         timeout = 3
 
     set_semaphore(url, timeout=timeout)
@@ -170,7 +169,7 @@ def process_next():
     try:
         fetch(url)
     except Exception as e:
-        logger.warn(f"process_next: fetch fail: {e}")
+        logger.warning(f"process_next: fetch fail: {e}")
 
     return False
 
@@ -187,18 +186,17 @@ def process():
 
 @receiver(post_save, sender=models.Discussion)
 def process_discussion(sender, instance, created, **kwargs):
-    if created:
-        if instance.story_url:
-            priority = 0
-            days_ago = timezone.now() - datetime.timedelta(days=14)
-            one_year_ago = timezone.now() - datetime.timedelta(days=365)
-            if instance.created_at:
-                if instance.created_at < one_year_ago:
-                    priority = 2
-                elif instance.created_at < days_ago:
-                    priority = 1
+    if created and instance.story_url:
+        priority = 0
+        days_ago = timezone.now() - datetime.timedelta(days=14)
+        one_year_ago = timezone.now() - datetime.timedelta(days=365)
+        if instance.created_at:
+            if instance.created_at < one_year_ago:
+                priority = 2
+            elif instance.created_at < days_ago:
+                priority = 1
 
-            add_to_queue(instance.story_url, priority=priority)
+        add_to_queue(instance.story_url, priority=priority)
 
 
 @shared_task(ignore_result=True)
@@ -272,7 +270,7 @@ def extract_html(resource):
 
     resource.normalized_title = title.normalize(resource.title)
     resource.normalized_tags = tags.normalize(
-        resource.tags, url=resource.story_url
+        resource.tags, url=resource.story_url,
     )
 
     resource.save()

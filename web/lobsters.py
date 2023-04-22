@@ -1,12 +1,13 @@
 import datetime
 import logging
 import time
-from celery import shared_task
-from . import http, models
-from . import celery_util, worker
-from django.core.cache import cache
-import django
+
 import cleanurl
+import django
+from celery import shared_task
+from django.core.cache import cache
+
+from . import celery_util, http, models, worker
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +70,6 @@ def __worker_fetch(task, platform):
             logger.info(f"lobsters {platform} fetch: graceful exit")
             break
 
-        # logger.info(f"lobsters {platform} fetch: page {current_page}")
 
         pages = [current_page]
 

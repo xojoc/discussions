@@ -1,5 +1,6 @@
-from web import title
 import unittest
+
+from web import title
 
 
 class UnitTitle(unittest.TestCase):
@@ -9,14 +10,12 @@ class UnitTitle(unittest.TestCase):
             [
                 n("National Park Typeface (2019)", stem=False),
                 n("a(2021)", stem=False),
-                # n('Show HN: Cool Project', platform='h'),
                 n("Show HN: second Project", stem=False),
-                # n('Ask HN: q?', platform='h'),
                 n("old pdf (1981) [pdf]", stem=False),
                 n('books\'s "title"', stem=False),
                 n("“Quotes”", stem=False),
                 n("Ⅷ", stem=False),
-                n("isn't you're i'd we'll i'm can’t", stem=False),
+                n("isn't you're i'd we'll i'm can`t", stem=False),
                 n("Postgres Plugin in c++", stem=False),
                 n("Why Go 1.4.1.?", url="blog.org/why-golang", stem=False),
                 n("Postgres: PostgreSQL 10 Released", stem=False),

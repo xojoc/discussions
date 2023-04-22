@@ -7,34 +7,34 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0069_alter_mention_rule_name_alter_mention_url_pattern'),
+        ("web", "0069_alter_mention_rule_name_alter_mention_url_pattern"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='mention',
-            name='base_url',
-            field=models.TextField(blank=True, help_text='\nDomain to track.\nwww.example.com example.com m.example.com and mobile.com are treated the same way.\nWeb Archive\n    '),
+            model_name="mention",
+            name="base_url",
+            field=models.TextField(blank=True, help_text="\nDomain to track.\nwww.example.com example.com m.example.com and mobile.com are treated the same way.\nWeb Archive\n    "),
         ),
         migrations.AlterField(
-            model_name='mention',
-            name='platforms',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, choices=[('h', 'Hacker News'), ('l', 'Lobsters')], max_length=1), blank=True, default=[], size=None),
+            model_name="mention",
+            name="platforms",
+            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, choices=[("h", "Hacker News"), ("l", "Lobsters")], max_length=1), blank=True, default=[], size=None),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='mention',
-            name='subreddits_exclude',
+            model_name="mention",
+            name="subreddits_exclude",
             field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=255), blank=True, null=True, size=None),
         ),
         migrations.AlterField(
-            model_name='mention',
-            name='subreddits_only',
+            model_name="mention",
+            name="subreddits_only",
             field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=255), blank=True, null=True, size=None),
         ),
         migrations.AlterField(
-            model_name='mention',
-            name='url_pattern',
-            field=models.TextField(help_text='\nInsert a URL pattern without the protocol.<br/>\nUse % to represent any string.<br/>\nURLs are normalized so: https://discu.eu, http://www.discu.eu and https://mobile.discu.eu all match discu.eu/%<br/>\nmatching is case insensitive.<br/>\nExamples:\n<ul>\n    <li>discu.eu/%</li>\n    <li>twitter.com/xojoc/%</li>\n</ul>\n    '),
+            model_name="mention",
+            name="url_pattern",
+            field=models.TextField(help_text="\nInsert a URL pattern without the protocol.<br/>\nUse % to represent any string.<br/>\nURLs are normalized so: https://discu.eu, http://www.discu.eu and https://mobile.discu.eu all match discu.eu/%<br/>\nmatching is case insensitive.<br/>\nExamples:\n<ul>\n    <li>discu.eu/%</li>\n    <li>twitter.com/xojoc/%</li>\n</ul>\n    "),
         ),
     ]

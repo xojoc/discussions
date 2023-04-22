@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0038_alter_apiclient_token'),
+        ("web", "0038_alter_apiclient_token"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='apiclient',
-            name='url',
+            model_name="apiclient",
+            name="url",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='apiclient',
-            name='email',
+            model_name="apiclient",
+            name="email",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='apiclient',
-            name='token',
+            model_name="apiclient",
+            name="token",
             field=models.TextField(blank=True, null=True),
         ),
     ]

@@ -1,16 +1,15 @@
 import debug_toolbar
 from django.contrib import admin
-from django.contrib.sitemaps.views import index as sitemap_index
-from django.contrib.sitemaps.views import sitemap
+from django.contrib.sitemaps.views import index as sitemap_index, sitemap
 from django.urls import include, path
 from django.views.decorators.cache import cache_page
 from django.views.generic.base import TemplateView
+
 from web import api_v0, sitemaps
 
 from . import settings
 
 sitemaps_dict = {
-    # "discussions": sitemaps.DiscussionsSitemap,
     "static": sitemaps.StaticViewSitemap,
     "weekly": sitemaps.WeeklySitemap,
 }
@@ -18,7 +17,6 @@ sitemaps_dict = {
 urlpatterns = [
     path("", include("web.urls")),
     path("admin/", admin.site.urls),
-    # path("accounts/", include("allauth.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
     path("api/v0/", api_v0.api.urls),
     path(
@@ -40,7 +38,7 @@ urlpatterns = [
             extra_context={
                 "sitemap_url": "https://"
                 + settings.APP_DOMAIN
-                + "/sitemap.xml"
+                + "/sitemap.xml",
             },
         ),
     ),

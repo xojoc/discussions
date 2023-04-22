@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0075_resource_pagerank'),
+        ("web", "0075_resource_pagerank"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='resource',
-            name='pagerank',
+            model_name="resource",
+            name="pagerank",
             field=models.FloatField(default=0),
         ),
     ]

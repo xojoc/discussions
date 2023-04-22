@@ -73,7 +73,7 @@ class WeeklyFeed(Feed):
         weeks = weekly.last_nth_yearweeks(obj["topic_key"], 10)
         if not obj["user"].is_premium:
             weeks = weeks[-2:]
-        return [(obj,) + e for e in weeks]
+        return [(obj, *e) for e in weeks]
 
     @filter_control_chars
     def item_title(self, item):
@@ -85,7 +85,7 @@ class WeeklyFeed(Feed):
         obj, year, week = item
         ctx = weekly.topic_week_context_cached(obj["topic_key"], year, week)
         content = template_loader.render_to_string(
-            "web/weekly_topic_week_feed.html", {"ctx": ctx}
+            "web/weekly_topic_week_feed.html", {"ctx": ctx},
         )
         return content
 
@@ -96,7 +96,7 @@ class WeeklyFeed(Feed):
             + "://"
             + settings.APP_DOMAIN
             + reverse(
-                "web:weekly_topic_week", args=[obj["topic_key"], year, week]
+                "web:weekly_topic_week", args=[obj["topic_key"], year, week],
             )
         )
 
@@ -162,22 +162,16 @@ class WeeklyFeedSingle(Feed):
 
     def item_link(self, item):
         return item.story_url
-        # return reverse("web:story_short_url", args=[item.platform_id])
 
     # def item_author_name(self, item):
-    #     return item.author
 
     # def item_author_email(self, item):
-    #     return item.author_email
 
     # def item_author_link(self, item):
-    #     return item.author_url
 
     # def item_pubdate(self, item):
-    #     return item.publication_date
 
     # def item_updateddate(self, item):
-    #     return item.update_date
 
     def item_categories(self, item):
         pass

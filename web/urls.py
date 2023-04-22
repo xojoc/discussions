@@ -2,9 +2,7 @@ from django.urls import path
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 
-# from django.views.decorators.cache import cache_page
-
-from . import views, feed
+from . import feed, views
 
 app_name = "web"
 
@@ -24,7 +22,6 @@ urlpatterns = [
         views.click_subscriber,
         name="click_subscriber",
     ),
-    # path("l/<str:code>", views.short_link, name="short_link"),
     path("weekly/", views.weekly_index, name="weekly_index"),
     path(
         "weekly/confirm_email/",

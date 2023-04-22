@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0010_discussion_web_discuss_created_9d621d_idx'),
+        ("web", "0010_discussion_web_discuss_created_9d621d_idx"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='tweet',
-            name='id',
+            model_name="tweet",
+            name="id",
         ),
         migrations.AlterField(
-            model_name='tweet',
-            name='tweet_id',
+            model_name="tweet",
+            name="tweet_id",
             field=models.IntegerField(primary_key=True, serialize=False),
         ),
     ]

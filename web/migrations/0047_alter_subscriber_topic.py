@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0046_alter_subscriber_unsubscribed_at'),
+        ("web", "0046_alter_subscriber_unsubscribed_at"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subscriber',
-            name='topic',
-            field=models.CharField(choices=[('apl', 'APL'), ('candcpp', 'C & C++'), ('compsci', 'Computer science'), ('devops', 'DevOps'), ('erlang', 'Erlang & Elixir'), ('golang', 'Golang'), ('hackernews', 'Hacker News'), ('haskell', 'Haskell'), ('java', 'Java'), ('laarc', 'Laarc'), ('lisp', 'Lisp & Scheme'), ('nim', 'Nim'), ('php', 'PHP'), ('programming', 'Software Development'), ('python', 'Python'), ('ruby', 'Ruby'), ('rust', 'Rust'), ('unix', 'Unix'), ('webdev', 'Web Development'), ('zig', 'Zig')], max_length=255),
+            model_name="subscriber",
+            name="topic",
+            field=models.CharField(choices=[("apl", "APL"), ("candcpp", "C & C++"), ("compsci", "Computer science"), ("devops", "DevOps"), ("erlang", "Erlang & Elixir"), ("golang", "Golang"), ("hackernews", "Hacker News"), ("haskell", "Haskell"), ("java", "Java"), ("laarc", "Laarc"), ("lisp", "Lisp & Scheme"), ("nim", "Nim"), ("php", "PHP"), ("programming", "Software Development"), ("python", "Python"), ("ruby", "Ruby"), ("rust", "Rust"), ("unix", "Unix"), ("webdev", "Web Development"), ("zig", "Zig")], max_length=255),
         ),
     ]

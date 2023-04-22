@@ -2,14 +2,12 @@ import re
 
 import cleanurl
 
-from web import title as web_title
-from web import util
+from web import title as web_title, util
 
 
 def __augment_tags(title, tags, keyword, atleast_tags=None, new_tag=None):
-    if atleast_tags:
-        if len(tags & atleast_tags) == 0:
-            return
+    if atleast_tags and len(tags & atleast_tags) == 0:
+        return
 
     if not new_tag and keyword:
         new_tag = keyword
@@ -60,7 +58,7 @@ def __programming_keyword(tags, title, url, keyword, new_tag=None):
 
 def __is_nim_game(title, url=None):
     if util.is_sublist(title, ["nim", "game"]) or util.is_sublist(
-        title, ["game", "of", "nim"]
+        title, ["game", "of", "nim"],
     ):
         return True
 
@@ -79,7 +77,7 @@ def __topic_nim(tags, title, url, platform):
 
     if not __is_nim_game(title, url):
         __augment_tags(
-            title, tags, "nim", {"programming", "gamedev"}, "nimlang"
+            title, tags, "nim", {"programming", "gamedev"}, "nimlang",
         )
 
     if (
@@ -182,7 +180,7 @@ def __topic_zig(tags, title, url, platform):
 
     if "zag" not in title:
         __augment_tags(
-            title, tags, "zig", {"programming", "gamedev"}, "ziglang"
+            title, tags, "zig", {"programming", "gamedev"}, "ziglang",
         )
         __programming_keyword(tags, title, url, "zig", "ziglang")
 
@@ -235,14 +233,13 @@ def __topic_java(tags, title, url, platform, original_title):
     ):
         tags.add("java")
 
-    if platform in ("h", "u", "t", "l") or __is_programming_related(
-        title, url
-    ):
-        if re.search(r"\bJVM\b", original_title):
-            tags.add("jvm")
+    if (platform in ("h", "u", "t", "l") or __is_programming_related(
+        title, url,
+    )) and re.search(r"\bJVM\b", original_title):
+        tags.add("jvm")
 
     __augment_tags(
-        title, tags, "kotlin", {"programming", "gamedev", "compsci"}
+        title, tags, "kotlin", {"programming", "gamedev", "compsci"},
     )
     __programming_keyword(tags, title, url, "kotlin")
     if "kotlin" in title and "jvm" in title:
@@ -308,7 +305,7 @@ def __topic_python(tags, title, url, platform):
         __augment_tags(title, tags, "python")
 
     __augment_tags(
-        title, tags, "python", {"programming", "webdev", "gamedev", "compsci"}
+        title, tags, "python", {"programming", "webdev", "gamedev", "compsci"},
     )
     __programming_keyword(tags, title, url, "python")
     __augment_tags(title, tags, "django", {"python", "webdev", "programming"})
@@ -356,9 +353,8 @@ def __topic_erlang_elixir(tags, title, url, platform, original_title):
             tags.add("erlang")
         if "elixir" in title:
             tags.add("elixir")
-    if platform == "h":
-        if "elixir" in title:
-            tags.add("elixir")
+    if platform == "h" and "elixir" in title:
+        tags.add("elixir")
 
     __programming_keyword(tags, title, url, "erlang")
     __programming_keyword(tags, title, url, "elixir")
@@ -394,7 +390,6 @@ def __topic_apl(tags, title, url, platform, original_title):
             tags.add("apl")
         # if url and url.hostname and "github" in url.hostname:
         #     if re.search(r"\K\b", original_title):
-        #         tags.add("apl")
         if (
             re.search(r"\bK\b", original_title)
             or re.search(r"\bJ\b", original_title)
@@ -420,7 +415,7 @@ def __topic_devops(tags, title, url, platform, original_title):
 
     __augment_tags(title, tags, "kubernetes")
     if re.search(r"\bk8s\b", original_title, re.IGNORECASE) or re.search(
-        r"\bmicrok8s\b", original_title, re.IGNORECASE
+        r"\bmicrok8s\b", original_title, re.IGNORECASE,
     ):
         tags.add("kubernetes")
 
@@ -594,7 +589,7 @@ def __lambda_the_ultimate(tags, title):
             "recent-discussion",
             "recently",
             "site-discussion",
-        }
+        },
     )
 
 
@@ -642,7 +637,7 @@ def __from_title_url(tags, title, url):
         tags |= {"programming"}
 
     if "programming" in tags and re.match(
-        r".*(^v?|\sv?)(\d+\.?){2,4}[^ ]* release", " ".join(title)
+        r".*(^v?|\sv?)(\d+\.?){2,4}[^ ]* release", " ".join(title),
     ):
         tags.add("release")
 
@@ -773,7 +768,7 @@ def __special_cases(tags, platform, title, url):
 
 def normalize(tags, platform=None, title="", url=""):
     tags = tags or []
-    tags = set(t.lower().strip() for t in tags)
+    tags = {t.lower().strip() for t in tags}
     original_title = title or ""
     title = web_title.normalize(title, platform, url, tags, stem=False)
     title_tokens = title.split()
@@ -795,7 +790,7 @@ def normalize(tags, platform=None, title="", url=""):
         __topic_lisp_scheme(tags, title_tokens, curl, platform, original_title)
         __topic_ruby(tags, title_tokens, curl, platform, original_title)
         __topic_erlang_elixir(
-            tags, title_tokens, curl, platform, original_title
+            tags, title_tokens, curl, platform, original_title,
         )
         __topic_apl(tags, title_tokens, curl, platform, original_title)
         __topic_devops(tags, title_tokens, curl, platform, original_title)
@@ -820,5 +815,5 @@ def normalize(tags, platform=None, title="", url=""):
 
     __special_cases(tags, platform, title_tokens, curl)
 
-    return sorted(list(tags))
-    return sorted(list(tags))
+    return sorted(tags)
+    return sorted(tags)

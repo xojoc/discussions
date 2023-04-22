@@ -7,7 +7,6 @@ import re
 import shutil
 import statistics
 import time
-import typing
 
 import cleanurl
 import markdown
@@ -30,8 +29,8 @@ logger = logging.getLogger(__name__)
 
 
 # filled in apps.WebConfig.ready
-subreddit_blacklist: typing.Set[str] = set()
-subreddit_whitelist: typing.Set[str] = set()
+subreddit_blacklist: set[str] = set()
+subreddit_whitelist: set[str] = set()
 
 
 def _url_blacklisted(url):
@@ -39,19 +38,7 @@ def _url_blacklisted(url):
         return False
 
     if (
-        url.startswith("i.imgur.com")
-        or url.startswith("imgur.com")
-        or url.startswith("www.imgur.com")
-        or url.startswith("gfycat.com")
-        or url.startswith("www.gfycat.com")
-        or url.startswith("i.redd.it")
-        or url.startswith("reddit.com/live")
-        or url.startswith("www.reddit.com/live")
-        or url.startswith("reddit.com/gallery/")
-        or url.startswith("www.reddit.com/gallery/")
-        or url.startswith("preview.redd.it")
-        or url
-        in ("reddit.com", "reddit.com/", "www.reddit.com", "www.reddit.com/")
+        url.startswith(("i.imgur.com", "imgur.com", "www.imgur.com", "gfycat.com", "www.gfycat.com", "i.redd.it", "reddit.com/live", "www.reddit.com/live", "reddit.com/gallery/", "www.reddit.com/gallery/", "preview.redd.it")) or url in ("reddit.com", "reddit.com/", "www.reddit.com", "www.reddit.com/")
     ):
         return True
 
@@ -63,30 +50,7 @@ def __url_blacklisted_selftext(url):
         return False
 
     if (
-        url
-        in (
-            "www.google.com",
-            "google.com",
-            "google.com/trends/explore",
-            "www.privacytools.io/#photos",
-            "example.com",
-            "itch.io",
-            "amazon.com",
-            "github.com",
-            "self.data",
-            "self.name",
-        )
-        or url == "crates.io"
-        or url == "crates.io/"
-        or url == "inventwithpython.com/bigbookpython/"
-        or url == "inventwithpython.com/bigbookpython"
-        or url == "learnopengl.com"
-        or url == "learnopengl.com/"
-        or url.startswith("discord.gg/python")
-        or url.startswith("reddit.com")
-        or url.startswith("www.reddit.com")
-        or url.startswith("old.reddit.com")
-        or url.startswith("preview.redd.it")
+        url in ("www.google.com", "google.com", "google.com/trends/explore", "www.privacytools.io/#photos", "example.com", "itch.io", "amazon.com", "github.com", "self.data", "self.name") or url == "crates.io" or url == "crates.io/" or url == "inventwithpython.com/bigbookpython/" or url == "inventwithpython.com/bigbookpython" or url == "learnopengl.com" or url == "learnopengl.com/" or url.startswith(("discord.gg/python", "reddit.com", "www.reddit.com", "old.reddit.com", "preview.redd.it"))
     ):
         return True
 
@@ -95,18 +59,18 @@ def __url_blacklisted_selftext(url):
 
 def _url_from_selftext(selftext, title=None):
     if not selftext:
-        return
+        return None
 
     title = (title or "").strip().lower()
     if title.endswith("?"):
-        return
+        return None
 
     if "help" in title:
-        return
+        return None
 
     h = http.parse_html(markdown.markdown(selftext))
     if not h:
-        return
+        return None
 
     links = []
 
@@ -129,7 +93,7 @@ def _url_from_selftext(selftext, title=None):
             if __url_blacklisted_selftext(u.schemeless_url):
                 continue
             if u.schemeless_url.startswith(
-                "reddit.com"
+                "reddit.com",
             ) or u.schemeless_url.startswith("www.reddit.com"):
                 continue
             if re.match(r"^[0-9\.:]+$", u.parsed_url.netloc):
@@ -141,13 +105,10 @@ def _url_from_selftext(selftext, title=None):
 
             lower_netloc = u.parsed_url.netloc.lower()
             if (
-                lower_netloc.endswith(".py")
-                or lower_netloc.endswith(".rs")
-                or lower_netloc.endswith(".net")
-                or lower_netloc.endswith(".md")
+                lower_netloc.endswith((".py", ".rs", ".net", ".md"))
             ) and (not u.parsed_url.path or u.parsed_url.path == "/"):
                 if lower_netloc == util.strip_punctuation(
-                    a.text.lower().replace(" ", "")
+                    a.text.lower().replace(" ", ""),
                 ):
                     continue
 
@@ -162,7 +123,6 @@ def _url_from_selftext(selftext, title=None):
 def __process_archive_line(line):
     p = json.loads(line)
     if p.get("subreddit") not in subreddit_whitelist:
-        # logger.debug(f"subreddit skipped {p.get('subreddit')}")
         return
 
     if p.get("over_18"):
@@ -172,7 +132,6 @@ def __process_archive_line(line):
     if p.get("hidden"):
         return
     # if p.get("media"):
-    #     return
     if (p.get("score") or 0) < 1:
         return
     if (p.get("num_comments") or 0) <= 2:
@@ -206,7 +165,7 @@ def __process_archive_line(line):
 
     subreddit = p.get("subreddit") or ""
     if not subreddit:
-        logger.warn(f"Reddi archive: no subreddit {platform_id}")
+        logger.warning(f"Reddi archive: no subreddit {platform_id}")
         return
 
     try:
@@ -288,7 +247,7 @@ def worker_fetch_reddit_archive(self):
         f = open(file_name, "rb")
 
         stream = zstandard.ZstdDecompressor(
-            max_window_size=2**31
+            max_window_size=2**31,
         ).stream_reader(f, read_across_frames=True)
 
         text = io.TextIOWrapper(stream)
@@ -316,7 +275,7 @@ def worker_fetch_reddit_archive(self):
 
         if not graceful_exit:
             cache.set(
-                f"{cache_prefix}:processed:{file}", 1, timeout=cache_timeout
+                f"{cache_prefix}:processed:{file}", 1, timeout=cache_timeout,
             )
 
         time.sleep(5)
@@ -359,18 +318,17 @@ def submit(subreddit, title, url=None, selftext=None, c=None):
     story = None
     try:
         story = sub.submit(
-            title=title, url=url, selftext=selftext, resubmit=False
+            title=title, url=url, selftext=selftext, resubmit=False,
         )
     except Exception as e:
         logger.error(f"Reddit submit: {e}")
 
-    # print(story.id)
 
     return story
 
 
 def get_subreddit(
-    subreddit, reddit_client, listing="new", listing_argument="", limit=100
+    subreddit, reddit_client, listing="new", listing_argument="", limit=100,
 ):
     subreddit = subreddit.lower()
 
@@ -380,11 +338,10 @@ def get_subreddit(
         list = reddit_client.subreddit(subreddit).new(limit=limit)
     if listing == "top":
         list = reddit_client.subreddit(subreddit).top(
-            listing_argument, limit=limit
+            listing_argument, limit=limit,
         )
 
     for story in list:
-        # _ = story.title  # force load
         stories.add(story)
 
     return stories
@@ -403,7 +360,6 @@ def __process_post(p):
         return
 
     # if p.media:
-    #     return
 
     url = None
     if p.is_self:
@@ -478,7 +434,7 @@ def search_urls(url_pattern: str):
     all = reddit.subreddit("all")
     urls = (
         models.Discussion.objects.filter(
-            schemeless_story_url__icontains=url_pattern
+            schemeless_story_url__icontains=url_pattern,
         )
         .values("schemeless_story_url")
         .distinct()
@@ -541,10 +497,7 @@ def fetch_discussions(index):
             for i in range(len(created_at) - 1)
         ]
 
-        if created_at_diff:
-            delay = statistics.median(created_at_diff)
-        else:
-            delay = 0
+        delay = statistics.median(created_at_diff) if created_at_diff else 0
 
         logger.debug(f"reddit update: {name}: median {delay}")
 
@@ -600,7 +553,6 @@ def worker_update_all_discussions(self):
             logger.info("reddit update all: graceful exit")
             break
 
-        # logger.info(f"reddit update: next step {current_index}")
 
         ps = []
         ds = []
@@ -615,7 +567,7 @@ def worker_update_all_discussions(self):
                 d.delete()
                 continue
             if _url_blacklisted(
-                d.canonical_story_url or d.schemeless_story_url
+                d.canonical_story_url or d.schemeless_story_url,
             ):
                 d.delete()
                 continue
@@ -626,7 +578,7 @@ def worker_update_all_discussions(self):
 
         if not query_has_results:
             logger.debug(
-                f"reddit update all: query with no results: {current_index}"
+                f"reddit update all: query with no results: {current_index}",
             )
             current_index = 0
             cache.set(cache_current_index_key, current_index, timeout=None)
@@ -674,7 +626,6 @@ def worker_update_all_discussions(self):
             d.comment_count = p.num_comments or 0
             d.score = p.score or 0
             d.title = p.title
-            # d.tags = [(p.subreddit.display_name or '').lower()]
             d.archived = p.archived
             d.scheme_of_story_url = scheme
             d.schemeless_story_url = story_url

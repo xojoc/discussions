@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             model_name="subscriber",
             name="weeks_clicked",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.CharField(max_length=6), null=True, size=None
+                base_field=models.CharField(max_length=6), null=True, size=None,
             ),
         ),
     ]

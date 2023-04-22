@@ -1,12 +1,13 @@
-from web import models, forms
 from django.test import TestCase
 from django.utils import timezone
+
+from web import forms, models
 
 
 class Mention(TestCase):
     def setUp(self):
         self.user = models.CustomUser.objects.create_user(
-            username="jacob", email="jacob@…", password="top_secret"
+            username="jacob", email="jacob@…", password="top_secret",
         )
 
     def __new_form(self, data):
@@ -27,11 +28,11 @@ class Mention(TestCase):
                 "subreddits_exclude": ["/r/programming"],
                 "min_comments": 4,
                 "min_score": 3,
-            }
+            },
         )
-        self.assertFalse(f1.errors)
-        self.assertEqual(r1.base_url, "m.xojoc.pw")
-        self.assertEqual(r1.subreddits_exclude, ["programming"])
+        assert not f1.errors
+        assert r1.base_url == "m.xojoc.pw"
+        assert r1.subreddits_exclude == ["programming"]
 
         d1 = models.Discussion.objects.create(
             platform_id="r1",
@@ -43,11 +44,9 @@ class Mention(TestCase):
             score=20,
             tags=["webdev"],
         )
-        self.assertEqual(d1.canonical_story_url, "xojoc.pw")
+        assert d1.canonical_story_url == "xojoc.pw"
 
-        self.assertTrue(
-            r1.mentionnotification_set.filter(discussion=d1).exists()
-        )
+        assert r1.mentionnotification_set.filter(discussion=d1).exists()
 
         d1_1 = models.Discussion.objects.create(
             platform_id="r1_1",
@@ -60,9 +59,7 @@ class Mention(TestCase):
             tags=["programming"],
         )
 
-        self.assertFalse(
-            r1.mentionnotification_set.filter(discussion=d1_1).exists()
-        )
+        assert not r1.mentionnotification_set.filter(discussion=d1_1).exists()
 
         r2 = models.Mention.objects.create(
             user=self.user,
@@ -76,9 +73,7 @@ class Mention(TestCase):
             schemeless_story_url="twitter.com/xojoc/status/12345",
         )
 
-        self.assertTrue(
-            r2.mentionnotification_set.filter(discussion=d2).exists()
-        )
+        assert r2.mentionnotification_set.filter(discussion=d2).exists()
 
         r3 = models.Mention.objects.create(user=self.user, keyword="discu.eu")
 
@@ -90,16 +85,14 @@ class Mention(TestCase):
             title="Discussions around the web - discu.eu",
         )
 
-        self.assertTrue(
-            r3.mentionnotification_set.filter(discussion=d3).exists()
-        )
+        assert r3.mentionnotification_set.filter(discussion=d3).exists()
 
         f4, r4 = self.__new_form(
             {
                 "keywords": [" two ", "   keywords"],
-            }
+            },
         )
-        self.assertFalse(f1.errors)
+        assert not f1.errors
 
         d4 = models.Discussion.objects.create(
             platform_id="l4",
@@ -107,6 +100,4 @@ class Mention(TestCase):
             title="title with keywords, they are two.",
         )
 
-        self.assertTrue(
-            r4.mentionnotification_set.filter(discussion=d4).exists()
-        )
+        assert r4.mentionnotification_set.filter(discussion=d4).exists()

@@ -49,15 +49,13 @@ class Discussion(models.Model):
     class Meta:
         indexes = [
             # GinIndex(name='gin_discussion_title',
-            #          fields=['title'],
             #          opclasses=['gin_trgm_ops']),
             # GinIndex(name='gin_discussion_norm_title',
-            #          fields=['normalized_title'],
             #          opclasses=['gin_trgm_ops']),
             GinIndex(name="gin_discussion_vec_title", fields=["title_vector"]),
             models.Index(
                 OpClass(
-                    Upper("schemeless_story_url"), name="varchar_pattern_ops"
+                    Upper("schemeless_story_url"), name="varchar_pattern_ops",
                 ),
                 name="index_schemeless_story_url",
             ),
@@ -81,10 +79,10 @@ class Discussion(models.Model):
     """Original URL of the story without the scheme"""
     schemeless_story_url = models.CharField(max_length=100_000, null=True)
     canonical_story_url = models.CharField(
-        max_length=100_000, blank=True, null=True
+        max_length=100_000, blank=True, null=True,
     )
     canonical_redirect_url = models.CharField(
-        max_length=100_000, blank=True, default=None, null=True
+        max_length=100_000, blank=True, default=None, null=True,
     )
 
     title = models.CharField(max_length=2048, null=True)
@@ -95,11 +93,11 @@ class Discussion(models.Model):
     score = models.IntegerField(default=0, null=True)
     """In case of Reddit tags will have only one entry which represents the subreddit"""
     tags = postgres_fields.ArrayField(
-        models.CharField(max_length=255, blank=True), null=True, blank=True
+        models.CharField(max_length=255, blank=True), null=True, blank=True,
     )
 
     normalized_tags = postgres_fields.ArrayField(
-        models.CharField(max_length=255, blank=True), null=True, blank=True
+        models.CharField(max_length=255, blank=True), null=True, blank=True,
     )
 
     category = models.TextField(null=True, blank=True)
@@ -181,7 +179,7 @@ class Discussion(models.Model):
 
     def save(self, *args, **kwargs):
         self._pre_save()
-        super(Discussion, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @property
     def id(self):
@@ -191,16 +189,19 @@ class Discussion(models.Model):
     def subreddit(self):
         if self.platform == "r":
             return self.tags[0]
+        return None
 
     def subreddit_name(self):
         if self.platform == "r":
             return f"/r/{self.subreddit}"
+        return None
 
     def subreddit_url(
-        self, preferred_external_url=discussions.PreferredExternalURL.Standard
+        self, preferred_external_url=discussions.PreferredExternalURL.Standard,
     ):
         if self.platform == "r":
             return f"{self.get_platform_url(self.platform, preferred_external_url)}/r/{self.subreddit}"
+        return None
 
     @classmethod
     def platform_order(self, platform):
@@ -229,7 +230,7 @@ class Discussion(models.Model):
 
     @classmethod
     def platforms(
-        cls, preferred_external_url=discussions.PreferredExternalURL.Standard
+        cls, preferred_external_url=discussions.PreferredExternalURL.Standard,
     ):
         ps = {}
         for p in sorted(
@@ -287,6 +288,7 @@ class Discussion(models.Model):
                 == discussions.PreferredExternalURL.Mobile
             ):
                 return "https://m.reddit.com"
+            return None
         elif platform == "h":
             return "https://news.ycombinator.com"
         elif platform == "u":
@@ -305,6 +307,7 @@ class Discussion(models.Model):
             return "https://echojs.com"
         elif platform == "a":
             return "https://www.laarc.io"
+        return None
 
     def platform_url(self):
         return self.get_platform_url(self.platform)
@@ -350,7 +353,7 @@ class Discussion(models.Model):
 
     @property
     def discussion_url(
-        self, preferred_external_url=discussions.PreferredExternalURL.Standard
+        self, preferred_external_url=discussions.PreferredExternalURL.Standard,
     ):
         bu = self.get_platform_url(self.platform, preferred_external_url)
         if self.platform == "r":
@@ -393,13 +396,13 @@ class Discussion(models.Model):
             ds = ds.filter(
                 Q(comment_count__gte=min_comments)
                 | Q(created_at__gt=seven_days_ago)
-                | Q(platform="u")
+                | Q(platform="u"),
             )
 
         ds = ds.annotate(word_similarity=Value(99))
 
         ds = ds.order_by(
-            "platform", "-word_similarity", "-created_at", "-platform_id"
+            "platform", "-word_similarity", "-created_at", "-platform_id",
         )
 
         return ds, cu, cu
@@ -440,10 +443,9 @@ class Discussion(models.Model):
         ds = ds.filter(
             Q(comment_count__gte=min_comments)
             | Q(created_at__gt=seven_days_ago)
-            | Q(platform="u")
+            | Q(platform="u"),
         )
 
-        # ds = ds[:50]
 
         ts = None
 
@@ -461,7 +463,7 @@ class Discussion(models.Model):
             tokens = url_or_title.split()
 
             if tokens[0].startswith(site_prefix) and len(tokens[0]) > len(
-                site_prefix
+                site_prefix,
             ):
                 query = " ".join(tokens[1:])
 
@@ -471,20 +473,20 @@ class Discussion(models.Model):
                 ts = (
                     cls.objects.filter(schemeless_story_url__iexact=url_prefix)
                     | cls.objects.filter(
-                        schemeless_story_url__iexact=url_prefix
+                        schemeless_story_url__iexact=url_prefix,
                     )
                     | cls.objects.filter(canonical_story_url=curl_prefix)
                     | cls.objects.filter(
-                        schemeless_story_url__istartswith=url_prefix
+                        schemeless_story_url__istartswith=url_prefix,
                     )
                     | cls.objects.filter(
-                        schemeless_story_url__istartswith=curl_prefix
+                        schemeless_story_url__istartswith=curl_prefix,
                     )
                     | cls.objects.filter(
-                        canonical_story_url__startswith=url_prefix
+                        canonical_story_url__startswith=url_prefix,
                     )
                     | cls.objects.filter(
-                        canonical_story_url__startswith=curl_prefix
+                        canonical_story_url__startswith=curl_prefix,
                     )
                 )
 
@@ -497,7 +499,7 @@ class Discussion(models.Model):
                     base = ts
 
                 ts = base.annotate(
-                    search_rank=Round(SearchRank("title_vector", psq), 2)
+                    search_rank=Round(SearchRank("title_vector", psq), 2),
                 )
                 ts = ts.filter(title_vector=psq)
             else:
@@ -511,7 +513,7 @@ class Discussion(models.Model):
                         & Q(score__gte=min_score)
                     )
                     | Q(created_at__gt=seven_days_ago)
-                    | Q(platform="u")
+                    | Q(platform="u"),
                 )
                 ts = ts.exclude(schemeless_story_url__isnull=True)
                 ts = ts.exclude(schemeless_story_url="")
@@ -532,7 +534,7 @@ class Discussion(models.Model):
         six_months_ago = timezone.now() - datetime.timedelta(days=30 * 6)
         (
             cls.objects.filter(comment_count=0).filter(
-                created_at__lte=six_months_ago
+                created_at__lte=six_months_ago,
             )
         ).delete()
 
@@ -552,25 +554,25 @@ class StatisticsDecoder(json.JSONDecoder):
 class Statistics(models.Model):
     name = models.CharField(primary_key=True, max_length=100)
     statistics = models.JSONField(
-        encoder=serializers.json.DjangoJSONEncoder, decoder=StatisticsDecoder
+        encoder=serializers.json.DjangoJSONEncoder, decoder=StatisticsDecoder,
     )
 
     @classmethod
     def update_platform_statistics(cls, statistics):
         cls.objects.update_or_create(
-            name="platform", defaults={"statistics": {"data": statistics}}
+            name="platform", defaults={"statistics": {"data": statistics}},
         )
 
     @classmethod
     def update_top_stories_statistics(cls, statistics):
         cls.objects.update_or_create(
-            name="top_stories", defaults={"statistics": {"data": statistics}}
+            name="top_stories", defaults={"statistics": {"data": statistics}},
         )
 
     @classmethod
     def update_top_domains_statistics(cls, statistics):
         cls.objects.update_or_create(
-            name="top_domains", defaults={"statistics": {"data": statistics}}
+            name="top_domains", defaults={"statistics": {"data": statistics}},
         )
 
     @classmethod
@@ -607,7 +609,7 @@ class Tweet(models.Model):
     tweet_id = models.BigIntegerField(primary_key=True, null=False)
     bot_name = models.CharField(max_length=255)
     bot_names = postgres_fields.ArrayField(
-        models.CharField(max_length=255), null=True, blank=True, default=list
+        models.CharField(max_length=255), null=True, blank=True, default=list,
     )
 
     discussions = models.ManyToManyField(Discussion)
@@ -621,13 +623,13 @@ class Tweet(models.Model):
 
         self.bot_names = sorted(set(self.bot_names or []))
 
-        super(Tweet, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class MastodonPost(models.Model):
     post_id = models.BigIntegerField(primary_key=True, null=False)
     bot_names = postgres_fields.ArrayField(
-        models.CharField(max_length=255), null=True, blank=True, default=list
+        models.CharField(max_length=255), null=True, blank=True, default=list,
     )
 
     discussions = models.ManyToManyField(Discussion)
@@ -656,7 +658,7 @@ class Resource(models.Model):
     scheme = models.CharField(max_length=25)
 
     url = models.CharField(
-        max_length=100_000, blank=True, default=None, null=True
+        max_length=100_000, blank=True, default=None, null=True,
     )
 
     canonical_url = models.CharField(max_length=100_000, blank=True, null=True)
@@ -665,11 +667,11 @@ class Resource(models.Model):
     normalized_title = models.CharField(max_length=2048, null=True, blank=True)
 
     tags = postgres_fields.ArrayField(
-        models.CharField(max_length=255, blank=True), null=True, blank=True
+        models.CharField(max_length=255, blank=True), null=True, blank=True,
     )
 
     normalized_tags = postgres_fields.ArrayField(
-        models.CharField(max_length=255, blank=True), null=True, blank=True
+        models.CharField(max_length=255, blank=True), null=True, blank=True,
     )
 
     clean_html = models.TextField(null=True)
@@ -682,7 +684,7 @@ class Resource(models.Model):
     status_code = models.IntegerField(null=True)
 
     links = models.ManyToManyField(
-        "self", symmetrical=False, through="Link", related_name="inbound_link"
+        "self", symmetrical=False, through="Link", related_name="inbound_link",
     )
 
     pagerank = models.FloatField(default=0, null=False)
@@ -698,7 +700,7 @@ class Resource(models.Model):
 
         cu = cleanurl.cleanurl(url)
         su = cleanurl.cleanurl(
-            url, generic=True, respect_semantics=True, host_remap=False
+            url, generic=True, respect_semantics=True, host_remap=False,
         )
 
         if not cu or not su:
@@ -718,14 +720,14 @@ class Resource(models.Model):
             discussions_comment_count=Coalesce(
                 Subquery(
                     Discussion.objects.filter(
-                        canonical_story_url=OuterRef("canonical_url")
+                        canonical_story_url=OuterRef("canonical_url"),
                     )
                     .values("canonical_story_url")
                     .annotate(comment_count=Sum("comment_count"))
-                    .values("comment_count")
+                    .values("comment_count"),
                 ),
                 Value(0),
-            )
+            ),
         )
 
         ols = ols.order_by("-discussions_comment_count")
@@ -738,17 +740,15 @@ class Resource(models.Model):
             discussions_comment_count=Coalesce(
                 Subquery(
                     Discussion.objects.filter(
-                        canonical_story_url=OuterRef("canonical_url")
+                        canonical_story_url=OuterRef("canonical_url"),
                     )
                     .values("canonical_story_url")
                     .annotate(comment_count=Sum("comment_count"))
-                    .values("comment_count")
+                    .values("comment_count"),
                 ),
                 Value(0),
-            )
+            ),
         )
-        # ils = ils.annotate(
-        #     discussions_normalized_tags=Subquery(
         #         Discussion.objects
         #         .filter(canonical_story_url=OuterRef('canonical_url'))
         #         .values('canonical_story_url')
@@ -758,9 +758,6 @@ class Resource(models.Model):
         #             .annotate(normalized_tag=Func(F('normalized_tags'),
         #                                           function='unnest'))))
         #         .aggregate(normalized_tags=ArrayAgg('unnest_tags')
-        #                    )))
-        # ils = ils.annotate(
-        #     discussions_normalized_tags=Subquery(
         #         Discussion.objects
         #         .filter(canonical_story_url=OuterRef('canonical_url'))
         #         .values('canonical_story_url')
@@ -769,7 +766,6 @@ class Resource(models.Model):
         #         .annotate(normalized_tags=ArrayAgg('normalized_tag'))
         #         .values('normalized_tags')))
 
-        # discussions_normalized_tags=ArrayAgg(Subquery(
         #     Discussion.objects
         #     .filter(canonical_story_url=OuterRef('canonical_url'))
         #     .values('canonical_story_url')
@@ -803,7 +799,7 @@ class Resource(models.Model):
         if not author.twitter_account:
             try:
                 author.twitter_account = extract.get_github_user_twitter(
-                    self.story_url
+                    self.story_url,
                 )
             except Exception:
                 pass
@@ -846,15 +842,15 @@ class Resource(models.Model):
 
     def save(self, *args, **kwargs):
         self._pre_save()
-        super(Resource, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class Link(models.Model):
     from_resource = models.ForeignKey(
-        Resource, on_delete=models.CASCADE, related_name="from_resource"
+        Resource, on_delete=models.CASCADE, related_name="from_resource",
     )
     to_resource = models.ForeignKey(
-        Resource, on_delete=models.CASCADE, related_name="to_resource"
+        Resource, on_delete=models.CASCADE, related_name="to_resource",
     )
 
     anchor_title = models.TextField(null=True)
@@ -864,15 +860,10 @@ class Link(models.Model):
 
 # class HackerNewsItem(models.Model):
 #     class Type(models.TextChoices):
-#         COMMENT = 'c'
-#         STORY = 's'
 
 
-#     id = models.BigAutoField(primary_key=True)
 
-#     parent = models.ForeignKey('self')
 
-#     type = models.CharField(max_length=1, choices = Type.choices)
 
 
 class APIClient(models.Model):
@@ -895,7 +886,7 @@ class APIClient(models.Model):
     def save(self, *args, **kwargs):
         if not self.token:
             self.token = self.generate_token()
-        super(APIClient, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def get_statistics(self, endpoint=None):
         return api_statistics.get("api-v0", self.token, endpoint)
@@ -905,8 +896,8 @@ class Subscriber(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["email", "topic"], name="unique_email_topic"
-            )
+                fields=["email", "topic"], name="unique_email_topic",
+            ),
         ]
 
     suspected_spam = models.BooleanField(default=False)
@@ -937,7 +928,7 @@ class Subscriber(models.Model):
     aws_notification = models.JSONField(null=True)
 
     weeks_clicked = postgres_fields.ArrayField(
-        models.CharField(max_length=6), null=True
+        models.CharField(max_length=6), null=True,
     )
 
     unsubscribed_feedback = models.TextField(
@@ -972,7 +963,7 @@ class Subscriber(models.Model):
         if self.weeks_clicked:
             self.weeks_clicked = sorted(self.weeks_clicked, reverse=True)
 
-        super(Subscriber, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def send_confirmation_email(self):
         confirmation_url = (
@@ -982,7 +973,7 @@ class Subscriber(models.Model):
                     ("topic", self.topic),
                     ("email", self.email),
                     ("verification_code", self.verification_code),
-                ]
+                ],
             )
         )
         email_util.send(
@@ -993,7 +984,7 @@ class Subscriber(models.Model):
                     "ctx": {
                         "topic": topics.topics[self.topic],
                         "confirmation_url": confirmation_url,
-                    }
+                    },
                 },
             ),
             topics.topics[self.topic]["from_email"],
@@ -1008,7 +999,7 @@ class Subscriber(models.Model):
                 {
                     "ctx": {
                         "topic": topics.topics[self.topic],
-                    }
+                    },
                 },
             ),
             topics.topics[self.topic]["from_email"],
@@ -1023,7 +1014,7 @@ class Subscriber(models.Model):
                     ("topic", self.topic),
                     ("email", self.email),
                     ("verification_code", self.verification_code),
-                ]
+                ],
             )
         )
 
@@ -1043,7 +1034,7 @@ class Subscriber(models.Model):
                 {
                     "ctx": {
                         "topic": topics.topics[self.topic],
-                    }
+                    },
                 },
             ),
             topics.topics[self.topic]["from_email"],
@@ -1073,7 +1064,7 @@ class CustomUser(AbstractUser):
         help_text="Show generic ads even if subscribed to premium",
     )
     job_ads = models.BooleanField(
-        default=False, help_text="Show job ads even if subscribed to premium"
+        default=False, help_text="Show job ads even if subscribed to premium",
     )
 
     api = models.OneToOneField(APIClient, on_delete=models.SET_NULL, null=True)
@@ -1091,7 +1082,7 @@ class CustomUser(AbstractUser):
         if not self.rss_id:
             self.rss_id = secrets.token_urlsafe(5)
 
-        super(CustomUser, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def trial_length_days(self):
         return 14
@@ -1133,7 +1124,7 @@ class CustomUser(AbstractUser):
 class AD(models.Model):
     topics = postgres_fields.ArrayField(
         models.CharField(
-            max_length=255, blank=True, choices=topics.topics_choices
+            max_length=255, blank=True, choices=topics.topics_choices,
         ),
         null=True,
         blank=True,
@@ -1168,7 +1159,7 @@ If you select multiple topics, duplicate emails are counted only once.
         help_text="FLOSS projects get a 20% discount",
     )
     floss_repository = models.TextField(
-        null=True, blank=True, help_text="FLOSS projects get a 20% discount"
+        null=True, blank=True, help_text="FLOSS projects get a 20% discount",
     )
 
     title = models.TextField(null=True, blank=True)
@@ -1187,11 +1178,11 @@ If you have preferences for when to tweet or toot or anything else let us know h
     )
 
     estimated_total_euro = models.DecimalField(
-        max_digits=19, decimal_places=4, null=True, blank=True
+        max_digits=19, decimal_places=4, null=True, blank=True,
     )
 
     estimated_newsletter_subscribers = models.IntegerField(
-        null=True, blank=True
+        null=True, blank=True,
     )
     estimated_twitter_followers = models.IntegerField(null=True, blank=True)
     estimated_mastodon_followers = models.IntegerField(null=True, blank=True)
@@ -1226,7 +1217,7 @@ If you have preferences for when to tweet or toot or anything else let us know h
                     username = topics.topics[topic]["twitter"]["account"]
                     if username:
                         twitter_followers += twitter.get_followers_count(
-                            [username]
+                            [username],
                         )[username]
                 except Exception:
                     pass
@@ -1242,7 +1233,7 @@ If you have preferences for when to tweet or toot or anything else let us know h
                     ].split("@")[1]
                     if username:
                         mastodon_followers += mastodon.get_followers_count(
-                            [username]
+                            [username],
                         )[username]
                 except Exception:
                     pass
@@ -1272,7 +1263,7 @@ If you have preferences for when to tweet or toot or anything else let us know h
         self.estimated_twitter_followers = e["twitter_followers"]
         self.estimated_mastodon_followers = e["mastodon_followers"]
 
-        super(AD, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class Mention(models.Model):
@@ -1378,7 +1369,7 @@ Coma separated list of subreddits to ignore.
         self.keywords = [s for s in self.keywords if s]
         self.keywords = sorted(self.keywords)
 
-        super(Mention, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def notifications_count(self, sent_only=False):
         qs = self.mentionnotification_set.all()
@@ -1391,7 +1382,7 @@ Coma separated list of subreddits to ignore.
 class MentionNotification(models.Model):
     mention = models.ForeignKey(Mention, on_delete=models.CASCADE)
     discussion = models.ForeignKey(
-        Discussion, on_delete=models.SET_NULL, null=True
+        Discussion, on_delete=models.SET_NULL, null=True,
     )
 
     email_sent = models.BooleanField(default=False)
@@ -1403,59 +1394,27 @@ class MentionNotification(models.Model):
 
 # class ShortLink(models.Model):
 #     class Meta:
-#         indexes = [
-#             models.Index(fields=["code"]),
-#         ]
 
-#     code = models.TextField(blank=False, null=False)
-#     opened = models.BooleanField(default=False)
-#     target_url = models.TextField(blank=False, null=False)
 
-#     discussion = models.ForeignKey(
-#         Discussion, on_delete=models.SET_NULL, null=True
-#     )
 
-#     tweet = models.ForeignKey(Tweet, on_delete=models.SET_NULL, null=True)
 
-#     mastodon_post = models.ForeignKey(
-#         MastodonPost, on_delete=models.SET_NULL, null=True
-#     )
 
-#     resource = models.ForeignKey(
-#         Resource, on_delete=models.SET_NULL, null=True
-#     )
 
-#     subscriber = models.ForeignKey(
-#         Subscriber, on_delete=models.SET_NULL, null=True
-#     )
 
 #     def save(self, *args, **kwargs):
 #         if not self.code:
-#             self.code = self.generate_code()
-#         super(ShortLink, self).save(*args, **kwargs)
 
 #     @classmethod
 #     def generate_code(cls):
-#         import secrets
 
-#         code = None
 #         for _ in range(5):
-#             code = secrets.token_urlsafe(5)
 #             if models.ShortLink.objects.filter(code=code).exists():
-#                 continue
-#             break
 
-#         return code
 
 #     def short_link(self):
-#         return reverse("web:short_link", args=[self.code])
 
 #     def open(self):
-#         self.opened = True
-#         self.save()
 
 #     @classmethod
 #     def generate_short_link(target_url):
-#         sl = models.ShortLink.create(target_url=target_url)
 
-#         return sl.short_link()

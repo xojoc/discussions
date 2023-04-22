@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0072_alter_mentionnotification_discussion'),
+        ("web", "0072_alter_mentionnotification_discussion"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='mention',
-            name='platforms',
+            model_name="mention",
+            name="platforms",
             field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=1), blank=True, size=None),
         ),
     ]

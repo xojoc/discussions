@@ -25,7 +25,7 @@ class WebConfig(AppConfig):
                 (
                     f"{topic['name']} Weekly",
                     topic["email"],
-                )
+                ),
             )
             topic[
                 "mailto_subscribe"
@@ -33,7 +33,7 @@ class WebConfig(AppConfig):
                 [
                     ("subject", f"Subscribe to {topic['name']}"),
                     ("body", "subscribe (must be first word)"),
-                ]
+                ],
             )
             topic[
                 "mailto_unsubscribe"
@@ -41,7 +41,7 @@ class WebConfig(AppConfig):
                 [
                     ("subject", f"Unsubscribe from {topic['name']}"),
                     ("body", "unsubscribe (must be first word)"),
-                ]
+                ],
             )
 
         for topic_key, topic in topics.topics.items():
@@ -93,14 +93,11 @@ class WebConfig(AppConfig):
 
     def __set_database_parameters(self):
         connection_created.connect(
-            WebConfig.__connection_created_signal_handler
+            WebConfig.__connection_created_signal_handler,
         )
 
     def __nltk_download_data(self):
         return
-        # import nltk
-        # nltk.download('punkt')
-        # nltk.download('stopwords')
 
     def __set_up_signals(self):
         from . import indexnow  # noqa F401

@@ -1,9 +1,10 @@
-from web import crawler, http, extract
 import logging
 import re
 import time
+
 import feedparser
 
+from web import crawler, extract, http
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ def this_week_in_rust():
             continue
 
         if not re.search(
-            r"this-week-in-rust.org/blog/\d\d\d\d/\d\d/\d\d/", href
+            r"this-week-in-rust.org/blog/\d\d\d\d/\d\d/\d\d/", href,
         ):
             logger.debug(f"not matching {href}")
             continue
@@ -53,7 +54,6 @@ def feed_to_queue(feed):
 
 
 def all():
-    # this_week_in_rust()
     feed_to_queue("https://blog.rust-lang.org/feed.xml")
     feed_to_queue("https://blog.rust-lang.org/inside-rust/feed.xml")
     feed_to_queue("https://andrewkelley.me/rss.xml")

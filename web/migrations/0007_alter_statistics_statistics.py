@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0006_statistics'),
+        ("web", "0006_statistics"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='statistics',
-            name='statistics',
+            model_name="statistics",
+            name="statistics",
             field=models.JSONField(encoder=django.core.serializers.json.DjangoJSONEncoder),
         ),
     ]

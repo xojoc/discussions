@@ -1,5 +1,6 @@
-from web import reddit
 import unittest
+
+from web import reddit
 
 
 class UnitReddit(unittest.TestCase):
@@ -36,20 +37,10 @@ class UnitReddit(unittest.TestCase):
         ]
         for h, u in zip(tests[0::2], tests[1::2]):
             hu = reddit._url_from_selftext(h)
-            self.assertEqual(u, hu, msg=h)
+            assert u == hu, h
 
-        self.assertEqual(
-            None,
-            reddit._url_from_selftext(
-                "[Single link](https://discu.eu/)", "Help me with discu.eu"
-            ),
-        )
-        self.assertEqual(
-            None,
-            reddit._url_from_selftext(
-                "[Yes](https://xojoc.pw/)", "Is this X?"
-            ),
-        )
+        assert None is reddit._url_from_selftext("[Single link](https://discu.eu/)", "Help me with discu.eu")
+        assert None is reddit._url_from_selftext("[Yes](https://xojoc.pw/)", "Is this X?")
 
     def test_url(self):
         tests = [
@@ -64,4 +55,4 @@ class UnitReddit(unittest.TestCase):
         ]
         for h, u in zip(tests[0::2], tests[1::2]):
             hu = reddit._url_blacklisted(h)
-            self.assertEqual(u, hu, msg=h)
+            assert u == hu, h

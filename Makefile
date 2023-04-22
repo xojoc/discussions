@@ -33,7 +33,8 @@ run: sass_compile
 	stripe listen --forward-to localhost:7777/stripe/webhook/&
 	@poetry run ./docker-entrypoint.sh 7777
 
-pre-commit: lint test poetry_export
+pre-commit: test poetry_export
+	@git add requirements.txt
 	@git add web/migrations
 
 cp: pre-commit

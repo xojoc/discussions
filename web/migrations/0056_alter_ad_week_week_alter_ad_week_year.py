@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0055_alter_ad_estimated_total_euro_and_more'),
+        ("web", "0055_alter_ad_estimated_total_euro_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ad',
-            name='week_week',
+            model_name="ad",
+            name="week_week",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='week_year',
+            model_name="ad",
+            name="week_year",
             field=models.IntegerField(blank=True, null=True),
         ),
     ]

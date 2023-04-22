@@ -35,13 +35,13 @@ def __base_url(platform):
 
 def _url_from_selftext(selftext, title=None):
     if not selftext:
-        return
+        return None
 
     title = (title or "").strip().lower()
 
     h = http.parse_html(selftext)
     if not h:
-        return
+        return None
 
     links = []
 
@@ -155,7 +155,7 @@ def fetch_item(platform, id, client=None):
         client = http.client(with_cache=False)
 
     if cache.get(__cache_skip_prefix(platform) + str(id)):
-        return
+        return None
 
     bu = __base_url(platform)
 
@@ -163,8 +163,8 @@ def fetch_item(platform, id, client=None):
         return client.get(f"{bu}/v0/item/{id}.json", timeout=11.05).json()
     except Exception as e:
         time.sleep(3)
-        logger.warn(f"fetch_item: {e}")
-        return
+        logger.warning(f"fetch_item: {e}")
+        return None
 
 
 def __fetch_process_item(platform, id, client, redis, skip_timeout=0):
@@ -208,12 +208,12 @@ def _worker_fetch(task, platform):
 
         if not queue:
             top_stories = client.get(
-                f"{bu}/v0/topstories.json", timeout=7.05
+                f"{bu}/v0/topstories.json", timeout=7.05,
             ).json()
             for i, id in enumerate(top_stories[:200]):
                 queue.append((id, i))
             new_stories = client.get(
-                f"{bu}/v0/newstories.json", timeout=7.05
+                f"{bu}/v0/newstories.json", timeout=7.05,
             ).json()
             for i, id in enumerate(new_stories[:200]):
                 queue.append((id, i))
@@ -232,8 +232,6 @@ def _worker_fetch(task, platform):
             queue_loops_c = 0
 
         # logger.info(
-        #     f"hn {platform} queue ({len(queue)}): {queue_loops_c} {queue_max_loops} {skip_timeout_weight}"
-        # )
 
         queue_loops_c += 1
 
@@ -256,7 +254,6 @@ def _worker_fetch(task, platform):
             max_item = client.get(f"{bu}/v0/maxitem.json").content
             max_item = int(max_item)
 
-        # logger.info(f"hn {platform} fetch: current_item {current_item}")
         end = time.monotonic() + 60
         while time.monotonic() < end:
             __fetch_process_item(platform, current_item, client, redis)
@@ -322,7 +319,7 @@ def submit_story(title, url, submit_from_dev=False):
 
     if post_response.status_code != 200:
         logger.error(
-            f"HN: submission failed {title} {url}: {post_response.status}"
+            f"HN: submission failed {title} {url}: {post_response.status}",
         )
         return False
 
@@ -370,7 +367,7 @@ def submit_comment(post_id, comment, submit_from_dev=False):
 
     if post_response.status_code != 200:
         logger.error(
-            f"HN: comment failed {post_id} {comment}: {post_response.status}"
+            f"HN: comment failed {post_id} {comment}: {post_response.status}",
         )
         return False
 
@@ -448,7 +445,7 @@ def _submit_discussions():
     stories = stories.filter(
         Q(platform="u")
         | Q(platform="l")
-        | (Q(platform="r") & Q(tags__overlap=subreddits))
+        | (Q(platform="r") & Q(tags__overlap=subreddits)),
     )
 
     logger.info(f"hn submit: potential stories: {stories.count()}")
@@ -461,7 +458,7 @@ def _submit_discussions():
             continue
 
         related_discussions, _, _ = models.Discussion.of_url(
-            story.story_url, only_relevant_stories=False
+            story.story_url, only_relevant_stories=False,
         )
 
         total_comment_count = 0
@@ -476,7 +473,7 @@ def _submit_discussions():
         if story.platform != "u":
             if not (total_comment_count > 20 or total_score > 100):
                 logger.info(
-                    f"hn submit: story not relevant {story} {total_comment_count} {total_score}"
+                    f"hn submit: story not relevant {story} {total_comment_count} {total_score}",
                 )
                 continue
 
@@ -558,11 +555,11 @@ def _submit_previous_discussions():
             continue
 
         related_discussions, _, _ = models.Discussion.of_url(
-            story.story_url, only_relevant_stories=False
+            story.story_url, only_relevant_stories=False,
         )
 
         related_discussions = related_discussions.exclude(
-            platform_id=story.platform_id
+            platform_id=story.platform_id,
         )
 
         related_discussions.order_by("-created_at", "-comment_count")
@@ -583,14 +580,14 @@ def _submit_previous_discussions():
 
         if not (total_comment_count > 150):
             logger.info(
-                f"hn prev submit: story not relevant {story} {total_comment_count} {total_score}"
+                f"hn prev submit: story not relevant {story} {total_comment_count} {total_score}",
             )
             if not os.getenv("DJANGO_DEVELOPMENT", ""):
                 continue
 
         if not len(related_discussions) > 2:
             logger.info(
-                f"hn prev submit: story not relevant {len(related_discussions)}"
+                f"hn prev submit: story not relevant {len(related_discussions)}",
             )
             if not os.getenv("DJANGO_DEVELOPMENT", ""):
                 continue
@@ -598,7 +595,7 @@ def _submit_previous_discussions():
         comment = previous_discussions_comment(story, related_discussions)
         if not comment:
             logger.info(
-                f"hn prev submit: not enough interesting discussions {story}"
+                f"hn prev submit: not enough interesting discussions {story}",
             )
             continue
 

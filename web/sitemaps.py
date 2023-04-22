@@ -10,7 +10,6 @@ class StaticViewSitemap(Sitemap):
 
     def items(self):
         return [
-            # "api-v0:openapi-swagger",
             "web:api",
             "web:bookmarklet",
             "web:extension",
@@ -39,7 +38,7 @@ class WeeklySitemap(Sitemap):
                     (
                         "web:weekly_topic_week",
                         [topic_key, yearweek[0], yearweek[1]],
-                    )
+                    ),
                 )
 
         return its
@@ -63,19 +62,11 @@ class DiscussionsSitemap(Sitemap):
         # xojoc: fixme: Group By is too slow. Disabled for now.
         #        fix extraction when the single page model will be introduced
 
-        # exclude(canonical_story_url__isnull=True).\
-        # values('canonical_story_url').\
         # annotate(comment_count=Sum('comment_count'),
-        #          discussion_count=Count('platform_id'),
-        #          entry_updated_at=Max('entry_updated_at'),
-        #          scheme_of_story_url=Max('scheme_of_story_url')).\
-        # filter(comment_count__gte=5).\
-        # order_by('canonical_story_url')
 
         return q
 
     # def lastmod(self, obj):
-    #     return obj.entry_updated_at
 
     def location(self, obj):
         url = obj.scheme_of_story_url + "://" + obj.canonical_story_url

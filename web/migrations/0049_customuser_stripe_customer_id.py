@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0048_customuser'),
+        ("web", "0048_customuser"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='customuser',
-            name='stripe_customer_id',
+            model_name="customuser",
+            name="stripe_customer_id",
             field=models.TextField(blank=True, null=True),
         ),
     ]

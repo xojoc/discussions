@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0014_discussion_entry_created_at_and_more'),
+        ("web", "0014_discussion_entry_created_at_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='discussion',
-            name='normalized_tags',
+            model_name="discussion",
+            name="normalized_tags",
             field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=255), blank=True, null=True, size=None),
         ),
     ]

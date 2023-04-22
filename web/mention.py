@@ -1,8 +1,9 @@
 import datetime
-from functools import reduce
 import logging
-from operator import or_
 import re
+from email.utils import formataddr
+from functools import reduce
+from operator import or_
 
 import cleanurl
 import django.template.loader as template_loader
@@ -11,7 +12,6 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from email.utils import formataddr
 
 from web import email_util, models, title
 
@@ -52,7 +52,7 @@ def discussions(rule: models.Mention, pk=None):
 
     if base_url:
         q_filter = Q(schemeless_story_url__startswith=rule.base_url) | Q(
-            canonical_story_url__startswith=rule.base_url
+            canonical_story_url__startswith=rule.base_url,
         )
 
         q_filter = (
@@ -72,7 +72,7 @@ def discussions(rule: models.Mention, pk=None):
 
     if keywords:
         ds = ds.filter(
-            reduce(or_, [Q(normalized_title__icontains=k) for k in keywords])
+            reduce(or_, [Q(normalized_title__icontains=k) for k in keywords]),
         )
 
     if pk:
@@ -94,7 +94,7 @@ def discussions(rule: models.Mention, pk=None):
                 ok = True
                 break
             if re.search(
-                r"\b" + k + r"\b", " ".join((d.title or "").lower().split())
+                r"\b" + k + r"\b", " ".join((d.title or "").lower().split()),
             ):
                 ok = True
                 break
@@ -108,57 +108,34 @@ def discussions(rule: models.Mention, pk=None):
 
 def __rule_matches(rule: models.Mention, instance: models.Discussion):
     return discussions(rule, instance.pk)
-    # story_title = title.normalize(instance.title, stem=False)
 
     # if rule.base_url:
     #     if not instance.story_url:
-    #         return
 
-    #     base_url = ""
-    #     cu = cleanurl.cleanurl(rule.base_url, generic=True, host_remap=False)
     #     if cu:
-    #         base_url = cu.schemeless_url
 
-    #     base_url_remapped = ""
-    #     cu = cleanurl.cleanurl(rule.base_url, generic=True, host_remap=True)
     #     if cu:
-    #         base_url_remapped = cu.schemeless_url
 
     #     if not (
-    #         (
     #             base_url_remapped
     #             and (
-    #                 base_url_remapped == instance.canonical_story_url
     #                 or instance.canonical_story_url
     #                 and instance.canonical_story_url.startswith(
     #                     base_url_remapped + "/"
-    #                 )
-    #             )
-    #         )
     #         or (
     #             base_url
     #             and (
-    #                 base_url == instance.schemeless_story_url
     #                 or instance.schemeless_story_url
     #                 and instance.schemeless_story_url.startswith(
     #                     base_url + "/"
-    #                 )
-    #             )
-    #         )
     #     ):
-    #         return
 
     # if rule.keyword:
-    #     keyword_set = set(title.normalize(rule.keyword, stem=False).split())
     #     if not keyword_set.issubset(set(story_title.split())):
-    #         return
 
     # if instance.platform == "r":
-    #     tags: list[str] = instance.tags or []
     #     if rule.subreddits_exclude and tags[0] in rule.subreddits_exclude:
-    #         return
 
-    # return True
 
 
 def __matching_rules(instance: models.Discussion):

@@ -1,5 +1,6 @@
-from web import models, topics
 import logging
+
+from web import models, topics
 
 logger = logging.getLogger(__name__)
 

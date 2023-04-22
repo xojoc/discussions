@@ -1,7 +1,7 @@
 from datetime import date
-from typing import List
 
 from django.core.cache import cache
+from django.http import HttpRequest
 from ninja import ModelSchema, NinjaAPI, Schema
 from ninja.security import HttpBearer
 
@@ -33,7 +33,8 @@ class AuthBearer(HttpBearer):
         timeout = 30 * 60
         try:
             api_client = models.APIClient.objects.get(
-                token=token, limited=False
+                token=token,
+                limited=False,
             )
             cache.set(key, api_client, timeout)
             return api_client
@@ -52,8 +53,8 @@ class Discussion(ModelSchema):
     platform: str
     id: str
     story_url: str = None
-    tags: List[str] = None
-    normalized_tags: List[str] = None
+    tags: list[str] = None
+    normalized_tags: list[str] = None
     discussion_url: str
     subreddit: str = None
 
@@ -77,12 +78,15 @@ class Message(Schema):
 
 @api.get(
     "/discussions/url/{path:url}",
-    response={200: List[Discussion]},
+    response={200: list[Discussion]},
     auth=auth_bearer,
 )
-def get_discussions(request, url: str, only_relevant_stories: bool = True):
+def get_discussions(
+    request: HttpRequest,
+    url: str,
+    only_relevant_stories: bool = True,
+) -> list[Discussion]:
     """Get all discussions for a given URL."""
-
     api_statistics.track(request)
 
     suffix = (url or "").lower().strip()
@@ -110,11 +114,13 @@ def get_discussions(request, url: str, only_relevant_stories: bool = True):
 @api.api_operation(
     ["OPTIONS"],
     "/discussions/url/{path:url}",
-    response={200: List[Discussion]},
+    response={200: list[Discussion]},
     include_in_schema=False,
 )
 def options_get_discussions(
-    request, url: str, only_relevant_stories: bool = True
+    request,
+    url: str,
+    only_relevant_stories: bool = True,
 ):
     return []
 
@@ -126,7 +132,6 @@ def options_get_discussions(
 )
 def get_discussion_counts(request, url: str):
     """Get discussion counts for a given URL."""
-
     api_statistics.track(request)
 
     suffix = (url or "").lower().strip()
@@ -211,12 +216,11 @@ class Platform(Schema):
 
 @api.get(
     "/platforms",
-    response={200: List[Platform]},
+    response={200: list[Platform]},
     auth=auth_bearer,
 )
 def platforms(request):
     """All platforms on which discussions are tracked at the moment."""
-
     api_statistics.track(request)
 
     pfs = models.Discussion.platforms()

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0065_alter_subscriber_subscribed_from'),
+        ("web", "0065_alter_subscriber_subscribed_from"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='discussion',
-            name='category',
+            model_name="discussion",
+            name="category",
             field=models.TextField(blank=True, null=True),
         ),
     ]

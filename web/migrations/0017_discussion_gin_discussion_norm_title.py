@@ -7,12 +7,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0016_discussion_normalized_title'),
+        ("web", "0016_discussion_normalized_title"),
     ]
 
     operations = [
         migrations.AddIndex(
-            model_name='discussion',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['normalized_title'], name='gin_discussion_norm_title', opclasses=['gin_trgm_ops']),
+            model_name="discussion",
+            index=django.contrib.postgres.indexes.GinIndex(fields=["normalized_title"], name="gin_discussion_norm_title", opclasses=["gin_trgm_ops"]),
         ),
     ]

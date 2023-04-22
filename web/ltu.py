@@ -1,15 +1,15 @@
 import datetime
 import logging
-import time
 import re
-from celery import shared_task
-from discussions.settings import APP_CELERY_TASK_MAX_TIME
-from web import http, models
-from web import celery_util
-from django_redis import get_redis_connection
-from web import util
-from django.utils.timezone import make_aware
+import time
+
 import cleanurl
+from celery import shared_task
+from django.utils.timezone import make_aware
+from django_redis import get_redis_connection
+
+from discussions.settings import APP_CELERY_TASK_MAX_TIME
+from web import celery_util, http, models, util
 
 logger = logging.getLogger(__name__)
 
@@ -34,15 +34,12 @@ def __filter_story_url(a):
         return False
 
     return not (
-        href.startswith("duckduckgo.")
-        or href.startswith("google.")
-        or href.startswith("lambda-the-ultimate.")
+        href.startswith(("duckduckgo.", "google.", "lambda-the-ultimate."))
     )
 
 
 @shared_task(ignore_result=True)
 def process_item(item, platform_prefix):
-    # breakpoint()
 
     try:
         slug = item.select_one(".title a").get("href").strip()
@@ -60,7 +57,7 @@ def process_item(item, platform_prefix):
         if not comment_count:
             try:
                 comment_count = re.match(
-                    r"(\d+) comment", link.get_text().strip().lower()
+                    r"(\d+) comment", link.get_text().strip().lower(),
                 ).group(1)
                 comment_count = int(comment_count)
             except Exception:
@@ -76,10 +73,7 @@ def process_item(item, platform_prefix):
         score = 0
 
     try:
-        tags = map(
-            lambda x: x.get_text().strip(),
-            item.select('.links a[href^="taxonomy/"]'),
-        )
+        tags = (x.get_text().strip() for x in item.select('.links a[href^="taxonomy/"]'))
         tags = list(tags)
     except Exception:
         tags = []
@@ -93,7 +87,7 @@ def process_item(item, platform_prefix):
 
     if not body_links or len(body_links) == 0:
         if not any(t.lower() == "admin" for t in tags):
-            logger.warn(f"LTU: no links after filter {platform_id}")
+            logger.warning(f"LTU: no links after filter {platform_id}")
         return
 
     if len(body_links) == 1:
@@ -101,7 +95,7 @@ def process_item(item, platform_prefix):
 
     if len(body_links) > 1:
         story_url = util.most_similar(
-            body_links, title, key=lambda x: x.get_text()
+            body_links, title, key=lambda x: x.get_text(),
         )
         story_url = story_url.get("href")
 
@@ -205,7 +199,7 @@ def fetch_all_ltu_discussions():
 
     try:
         current_index = fetch_discussions(
-            current_index, "u", "http://lambda-the-ultimate.org"
+            current_index, "u", "http://lambda-the-ultimate.org",
         )
     except EndOfPages:
         current_index = max_index + 1
@@ -238,7 +232,7 @@ def process_ltu_archived_item(item_href, base_url, platform_prefix, c):
         if not comment_count:
             try:
                 comment_count = re.match(
-                    r".*responses: (\d+).*", txt, re.DOTALL
+                    r".*responses: (\d+).*", txt, re.DOTALL,
                 ).group(1)
                 comment_count = int(comment_count)
             except Exception:
@@ -254,13 +248,13 @@ def process_ltu_archived_item(item_href, base_url, platform_prefix, c):
         if not created_at:
             try:
                 tst_match = re.search(
-                    r"(\d+/\d+/\d\d\d\d); (\d+:\d+:\d+ ..)", txt, re.DOTALL
+                    r"(\d+/\d+/\d\d\d\d); (\d+:\d+:\d+ ..)", txt, re.DOTALL,
                 )
 
                 date_match = tst_match.group(1)
                 time_match = tst_match.group(2).upper()
                 created_at = datetime.datetime.strptime(
-                    f"{date_match} {time_match}", "%m/%d/%Y %I:%M:%S %p"
+                    f"{date_match} {time_match}", "%m/%d/%Y %I:%M:%S %p",
                 )
                 created_at = make_aware(created_at)
             except Exception:
@@ -274,10 +268,7 @@ def process_ltu_archived_item(item_href, base_url, platform_prefix, c):
         return
 
     try:
-        tags = map(
-            lambda x: x.get_text().strip(),
-            item.select('b a:not([href*="/"])[href$=".html"]'),
-        )
+        tags = (x.get_text().strip() for x in item.select('b a:not([href*="/"])[href$=".html"]'))
         tags = list(tags)
     except Exception:
         tags = []
@@ -334,7 +325,7 @@ def fetch_ltu_archived_discussions(current_page, platform_prefix, base_url):
 
         for item in h.select("table tr td a"):
             process_ltu_archived_item(
-                item.get("href"), base_url, platform_prefix, c
+                item.get("href"), base_url, platform_prefix, c,
             )
 
         current_page += 1
@@ -364,7 +355,7 @@ def fetch_all_ltu_archived_discussions():
 
     try:
         current_index = fetch_ltu_archived_discussions(
-            current_index, "u", "http://lambda-the-ultimate.org/classic"
+            current_index, "u", "http://lambda-the-ultimate.org/classic",
         )
     except EndOfPages:
         current_index = max_index + 1

@@ -8,17 +8,17 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0017_discussion_gin_discussion_norm_title'),
+        ("web", "0017_discussion_gin_discussion_norm_title"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='discussion',
-            name='title_vector',
+            model_name="discussion",
+            name="title_vector",
             field=django.contrib.postgres.search.SearchVectorField(null=True),
         ),
         migrations.AddIndex(
-            model_name='discussion',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['title_vector'], name='gin_discussion_vec_title'),
+            model_name="discussion",
+            index=django.contrib.postgres.indexes.GinIndex(fields=["title_vector"], name="gin_discussion_vec_title"),
         ),
     ]

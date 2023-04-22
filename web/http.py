@@ -56,7 +56,7 @@ def client(with_cache=False, with_retries=True):
         redirect=15,
         raise_on_redirect=False,
         raise_on_status=False,
-        status_forcelist=set([429, 500, 502, 504]),
+        status_forcelist={429, 500, 502, 504},
     )
 
     session = requests.session()
@@ -66,7 +66,7 @@ def client(with_cache=False, with_retries=True):
 
     if with_cache:
         client = CacheControl(
-            session, cache=_CustomRedisCache(r), cache_etags=True
+            session, cache=_CustomRedisCache(r), cache_etags=True,
         )
 
     if with_retries:
@@ -81,6 +81,7 @@ def _rate_limit(r, host):
         time.sleep(2)
         return _rate_limit(host)
     r.set("discussions:rate_limit:" + host, 1, ex=3)
+    return None
 
 
 def fetch(
@@ -112,10 +113,7 @@ def fetch(
 
 def parse_html(res, safe_html=False, clean=False):
     html = None
-    if type(res) == str or type(res) == bytes:
-        html = res
-    else:
-        html = res.text
+    html = res if type(res) == str or type(res) == bytes else res.text
 
     if not html:
         return None

@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0053_ad'),
+        ("web", "0053_ad"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ad',
-            name='topics',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, choices=[('apl', 'APL'), ('candcpp', 'C & C++'), ('compsci', 'Computer science'), ('devops', 'DevOps'), ('erlang', 'Erlang & Elixir'), ('golang', 'Golang'), ('hackernews', 'Hacker News'), ('haskell', 'Haskell'), ('java', 'Java'), ('laarc', 'Laarc'), ('lisp', 'Lisp & Scheme'), ('nim', 'Nim'), ('php', 'PHP'), ('programming', 'Software Development'), ('python', 'Python'), ('ruby', 'Ruby'), ('rust', 'Rust'), ('unix', 'Unix'), ('webdev', 'Web Development'), ('zig', 'Zig')], max_length=255), blank=True, null=True, size=None),
+            model_name="ad",
+            name="topics",
+            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, choices=[("apl", "APL"), ("candcpp", "C & C++"), ("compsci", "Computer science"), ("devops", "DevOps"), ("erlang", "Erlang & Elixir"), ("golang", "Golang"), ("hackernews", "Hacker News"), ("haskell", "Haskell"), ("java", "Java"), ("laarc", "Laarc"), ("lisp", "Lisp & Scheme"), ("nim", "Nim"), ("php", "PHP"), ("programming", "Software Development"), ("python", "Python"), ("ruby", "Ruby"), ("rust", "Rust"), ("unix", "Unix"), ("webdev", "Web Development"), ("zig", "Zig")], max_length=255), blank=True, null=True, size=None),
         ),
     ]

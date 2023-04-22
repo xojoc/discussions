@@ -1,10 +1,12 @@
-import stripe
-from web import models
-from django.conf import settings
 import logging
+
+import stripe
 from celery import shared_task
+from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+from web import models
 
 logger = logging.getLogger(__name__)
 

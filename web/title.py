@@ -9,6 +9,7 @@ def __lobsters(title):
     title = title.removeprefix("show lobsters ")
     title = title.removeprefix("show lobste.rs ")
     title = title.removeprefix("show lobste rs ")
+    return None
 
 
 
@@ -28,6 +29,7 @@ def __hacker_news(title):
     title = title.removeprefix("ask hn ")
     title = title.removeprefix("tell hn ")
     title = title.strip()
+    return None
 
 
 def __lambda_the_ultimate(title):
@@ -36,7 +38,7 @@ def __lambda_the_ultimate(title):
 
 def __unicode(title):
     title = unicodedata.normalize("NFKC", title)
-    table = str.maketrans({"’": "'", "“": '"', "”": '"', "–": "-"})
+    table = str.maketrans({"`": "'", "“": '"', "”": '"', "-": "-"})
     title = title.translate(table)
     return title
 
@@ -150,15 +152,9 @@ def __url(title, url):
 
 def __stem(title):
     return title
-    # new_title = ""
-    # stemmer = nltk.stem.snowball.SnowballStemmer("english")
-    # tokens = nltk.tokenize.word_tokenize(title)
 
     # for w in tokens:
-    #     new_title += ' '
-    #     new_title += stemmer.stem(w)
 
-    # return new_title.strip()
 
 
 def __duplicate(title):

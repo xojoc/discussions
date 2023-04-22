@@ -1,5 +1,6 @@
-from web import util
 import unittest
+
+from web import util
 
 
 class UnitTitle(unittest.TestCase):
@@ -19,4 +20,4 @@ class UnitTitle(unittest.TestCase):
 
         for u, r in zip(tests[0::2], tests[1::2]):
             rr = util.url_root(u)
-            self.assertEqual(r, rr, msg=u)
+            assert r == rr, u

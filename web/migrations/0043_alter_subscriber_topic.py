@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0042_alter_subscriber_topic'),
+        ("web", "0042_alter_subscriber_topic"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subscriber',
-            name='topic',
-            field=models.CharField(choices=[('candcpp', 'C & C++'), ('compsci', 'Computer science'), ('devops', 'DevOps'), ('erlang', 'Erlang & Elixir'), ('golang', 'Golang'), ('hackernews', 'Hacker News'), ('haskell', 'Haskell'), ('lisp', 'Lisp & Scheme'), ('programming', 'Software Development'), ('python', 'Python'), ('ruby', 'Ruby'), ('rust', 'Rust')], max_length=255),
+            model_name="subscriber",
+            name="topic",
+            field=models.CharField(choices=[("candcpp", "C & C++"), ("compsci", "Computer science"), ("devops", "DevOps"), ("erlang", "Erlang & Elixir"), ("golang", "Golang"), ("hackernews", "Hacker News"), ("haskell", "Haskell"), ("lisp", "Lisp & Scheme"), ("programming", "Software Development"), ("python", "Python"), ("ruby", "Ruby"), ("rust", "Rust")], max_length=255),
         ),
     ]

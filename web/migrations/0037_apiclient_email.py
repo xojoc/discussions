@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0036_apiclient'),
+        ("web", "0036_apiclient"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='apiclient',
-            name='email',
+            model_name="apiclient",
+            name="email",
             field=models.TextField(null=True),
         ),
     ]

@@ -1,6 +1,7 @@
-from discussions import settings
 from django import template
 from django.urls import reverse
+
+from discussions import settings
 from web import util
 
 register = template.Library()

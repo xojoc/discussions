@@ -11,10 +11,10 @@ from web import (
     email_util,
     mastodon,
     models,
+    rank,
     topics,
     twitter,
     worker,
-    rank,
 )
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ def worker_update_discussions(self):
     count_dirty_resource = 0
     seven_days_ago = timezone.now() - datetime.timedelta(days=7)
     stories = models.Discussion.objects.filter(
-        entry_updated_at__lte=seven_days_ago
+        entry_updated_at__lte=seven_days_ago,
     ).order_by()
 
     logger.info(f"db update discussions: count {stories.count()}")
@@ -107,7 +107,7 @@ def worker_update_resources(self):
 
     seven_days_ago = timezone.now() - datetime.timedelta(days=7)
     resources = models.Resource.objects.filter(
-        last_processed__lte=seven_days_ago
+        last_processed__lte=seven_days_ago,
     ).order_by()
 
     logger.info(f"db update resources: count {resources.count()}")
@@ -216,7 +216,7 @@ Mention rules: {mention_rules_count}
         mastodon_count = 0
         if topic.get("twitter"):
             twitter_count = twitter_followers_count.get(
-                topic["twitter"]["account"], 0
+                topic["twitter"]["account"], 0,
             )
         if topic.get("mastodon"):
             user = topic["mastodon"]["account"].split("@")[1]

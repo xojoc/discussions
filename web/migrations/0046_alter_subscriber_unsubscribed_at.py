@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0045_alter_subscriber_topic'),
+        ("web", "0045_alter_subscriber_topic"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subscriber',
-            name='unsubscribed_at',
+            model_name="subscriber",
+            name="unsubscribed_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

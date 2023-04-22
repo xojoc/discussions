@@ -3,9 +3,9 @@ import os
 import unicodedata
 from difflib import SequenceMatcher
 from urllib.parse import quote, quote_plus
-from django.urls import reverse
 
 import cleanurl
+from django.urls import reverse
 from django.utils import timezone
 
 from discussions import settings
@@ -21,7 +21,6 @@ def discussions_url(q, with_domain=True):
     path = "/q/" + quote(q, safe="/:?&=")
     if with_domain:
         return f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}{path}"
-        # return f"{settings.APP_SCHEME}://discu.eu{path}"
     else:
         return path
 
@@ -77,11 +76,10 @@ def strip_punctuation(w):
 
 
 def url_root(url):
-    """Return the *root* of the page"""
-
+    """Return the *root* of the page."""
     if type(url) is str:
         url = cleanurl.cleanurl(
-            url, generic=True, respect_semantics=True, host_remap=False
+            url, generic=True, respect_semantics=True, host_remap=False,
         )
 
     if url.hostname in (

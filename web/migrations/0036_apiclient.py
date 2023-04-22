@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0035_trigger'),
+        ("web", "0035_trigger"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='APIClient',
+            name="APIClient",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.TextField()),
-                ('token', models.TextField()),
-                ('limited', models.BooleanField(default=False)),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("name", models.TextField()),
+                ("token", models.TextField()),
+                ("limited", models.BooleanField(default=False)),
             ],
         ),
     ]

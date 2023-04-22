@@ -1,10 +1,12 @@
 import logging
+
 import celery
-from django.core.cache import cache
 import gevent
-from gevent.hub import get_hub
-from web import celery_util
+from django.core.cache import cache
 from django_redis import get_redis_connection
+from gevent.hub import get_hub
+
+from web import celery_util
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +15,8 @@ cache_graceful_exit_key = "discussions:worker:graceful_exit"
 
 @celery.signals.worker_ready.connect
 def celery_worker_ready(signal, sender, **kwargs):
-    # wait for entry to expire
-    return
-    # cache.delete(cache_graceful_exit_key)
+    del signal
+    del sender
 
 
 def __patch_greenlet(f):
@@ -45,8 +46,8 @@ def graceful_exit(task):
     e = cache.get(cache_graceful_exit_key)
     if e:
         return e
-    else:
-        k = celery_util.lock_key(task)
-        redis = get_redis_connection()
-        redis.expire(k, 60 * 10)
-        return False
+
+    k = celery_util.lock_key(task)
+    redis = get_redis_connection()
+    redis.expire(k, 60 * 10)
+    return False

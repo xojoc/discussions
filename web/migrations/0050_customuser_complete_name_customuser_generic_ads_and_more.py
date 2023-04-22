@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0049_customuser_stripe_customer_id'),
+        ("web", "0049_customuser_stripe_customer_id"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='customuser',
-            name='complete_name',
+            model_name="customuser",
+            name="complete_name",
             field=models.TextField(blank=True),
         ),
         migrations.AddField(
-            model_name='customuser',
-            name='generic_ads',
+            model_name="customuser",
+            name="generic_ads",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='customuser',
-            name='job_ads',
+            model_name="customuser",
+            name="job_ads",
             field=models.BooleanField(default=False),
         ),
     ]

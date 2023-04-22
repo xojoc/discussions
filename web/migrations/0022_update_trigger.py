@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0021_remove_discussion_web_discuss_schemel_e43bc8_idx_and_more'),
+        ("web", "0021_remove_discussion_web_discuss_schemel_e43bc8_idx_and_more"),
     ]
 
     operations = [
         migrations.RunSQL(
-            sql='''
+            sql="""
               DROP TRIGGER IF EXISTS discussions_title_vector_trigger
               ON web_discussion;
 
@@ -22,11 +22,11 @@ class Migration(migrations.Migration):
               tsvector_update_trigger(
                 title_vector, 'pg_catalog.english', normalized_title
               );
-            ''',
+            """,
 
-            reverse_sql='''
+            reverse_sql="""
               DROP TRIGGER IF EXISTS discussions_title_vector_trigger
               ON web_discussion;
-            '''
+            """,
         ),
     ]

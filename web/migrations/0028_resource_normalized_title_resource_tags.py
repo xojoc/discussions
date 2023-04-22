@@ -7,18 +7,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0027_link_anchor_text_alter_link_anchor_title'),
+        ("web", "0027_link_anchor_text_alter_link_anchor_title"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='resource',
-            name='normalized_title',
+            model_name="resource",
+            name="normalized_title",
             field=models.CharField(blank=True, max_length=2048, null=True),
         ),
         migrations.AddField(
-            model_name='resource',
-            name='tags',
+            model_name="resource",
+            name="tags",
             field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=255), blank=True, null=True, size=None),
         ),
     ]

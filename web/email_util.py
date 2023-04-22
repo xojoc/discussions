@@ -4,7 +4,6 @@ import email
 import imaplib
 import logging
 import re
-from typing import List
 
 from celery import shared_task
 from django.conf import settings
@@ -23,13 +22,13 @@ logger = logging.getLogger(__name__)
     retry_backoff_max=60 * 60,
     retry_kwargs={"max_retries": 5},
 )
-def send_task(subject: str, body: str, from_email: str, to_emails: List[str]):
+def send_task(subject: str, body: str, from_email: str, to_emails: list[str]):
     if util.is_dev():
         subject = "[DEV] " + subject
     django_send_mail(subject, body, from_email, to_emails)
 
 
-def send(subject: str, body: str, from_email: str, to_emails: str | List[str]):
+def send(subject: str, body: str, from_email: str, to_emails: str | list[str]):
     if isinstance(to_emails, str):
         to_emails = [to_emails]
     send_task.delay(subject, body, from_email, to_emails)
@@ -69,7 +68,7 @@ def worker_fetch_and_dispatch_email(self):
         logger.debug(f"Email id {id}")
         res, data = m.fetch(str(id), "(RFC822)")
         message = email.message_from_bytes(
-            data[0][1], policy=email.policy.default.clone(utf8=True)
+            data[0][1], policy=email.policy.default.clone(utf8=True),
         )
         if not message:
             logger.debug("Cannot decode message")
@@ -96,7 +95,7 @@ def worker_fetch_and_dispatch_email(self):
 
         if settings.EMAIL_TO_PREFIX:
             if not to_email or not to_email.startswith(
-                settings.EMAIL_TO_PREFIX
+                settings.EMAIL_TO_PREFIX,
             ):
                 logger.debug(f"Email skipping {to_email} {subject}")
                 continue
@@ -105,7 +104,7 @@ def worker_fetch_and_dispatch_email(self):
             body = message.get_body().get_content()
         if message.get_body().get_content_type() == "text/html":
             body = http.parse_html(message.get_body().get_content()).get_text(
-                " ", strip=True
+                " ", strip=True,
             )
 
         if not body or not from_email or not to_email or not subject:
@@ -115,7 +114,7 @@ def worker_fetch_and_dispatch_email(self):
         handled = False
         for handler in email_imap_handlers:
             handled = handler(
-                message, message_id, from_email, to_email, subject, body
+                message, message_id, from_email, to_email, subject, body,
             )
             if handled:
                 break
@@ -123,6 +122,5 @@ def worker_fetch_and_dispatch_email(self):
         if handled:
             m.store(str(id), "+FLAGS", "(\\Deleted)")
 
-    # m.expunge()
     m.close()
     m.logout()

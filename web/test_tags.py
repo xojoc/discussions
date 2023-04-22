@@ -1,5 +1,6 @@
-from web import tags
 import unittest
+
+from web import tags
 
 
 class UnitTags(unittest.TestCase):
@@ -171,16 +172,13 @@ class UnitTags(unittest.TestCase):
         for nts, ets in zip(normalization[0::2], normalization[1::2]):
             nts = set(nts)
             ets = set(ets)
-            self.assertTrue(
-                nts.issuperset(ets),
-                msg=f"got {nts} expected {ets} diff {ets-nts}",
-            )
+            assert nts.issuperset(ets), f"got {nts} expected {ets} diff {ets - nts}"
 
         missing = [
             n(
                 ["programming", "python"],
                 None,
-                "Minimax in Python: Learn How to Lose the Game of Nim – Real Python",
+                "Minimax in Python: Learn How to Lose the Game of Nim - Real Python",
                 "https://realpython.com/python-minimax-nim/",
             ),
             {"nimlang"},
@@ -205,4 +203,4 @@ class UnitTags(unittest.TestCase):
         ]
 
         for nts, mts in zip(missing[0::2], missing[1::2]):
-            self.assertFalse(set(nts) & mts, msg=nts)
+            assert not set(nts) & mts, nts

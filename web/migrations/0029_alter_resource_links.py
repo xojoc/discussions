@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0028_resource_normalized_title_resource_tags'),
+        ("web", "0028_resource_normalized_title_resource_tags"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='resource',
-            name='links',
-            field=models.ManyToManyField(related_name='inbound_link', through='web.Link', to='web.Resource'),
+            model_name="resource",
+            name="links",
+            field=models.ManyToManyField(related_name="inbound_link", through="web.Link", to="web.Resource"),
         ),
     ]

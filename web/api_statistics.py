@@ -21,10 +21,7 @@ def track(request):
 
 
 def get(api_version, token, endpoint=None, redis=None):
-    if redis:
-        r = redis
-    else:
-        r = get_redis_connection("default")
+    r = redis if redis else get_redis_connection("default")
 
     hash_key = __get_statistics_key(api_version, token)
 

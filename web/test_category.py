@@ -1,5 +1,5 @@
-# import unittest
 from django.test import TestCase
+
 from web import category, models
 
 
@@ -57,4 +57,4 @@ class Category(TestCase):
 
         for u, r in zip(tests[0::2], tests[1::2]):
             rr = d(u[0], u[1], u[2], u[3])
-            self.assertEqual(r, rr, msg=u)
+            assert r == rr, u

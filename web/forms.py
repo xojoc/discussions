@@ -8,9 +8,6 @@ from web import topics, weekly
 
 from . import models
 
-# from crispy_bootstrap5.bootstrap5 import FloatingField
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -22,7 +19,7 @@ class QueryForm(forms.Form):
     )
 
     tags = forms.MultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple(attrs={"checked": ""})
+        widget=forms.CheckboxSelectMultiple(attrs={"checked": ""}),
     )
 
 
@@ -34,7 +31,7 @@ class SubscriberForm(forms.ModelForm):
         fields = ["topic", "email"]
 
     def __init__(self, *args, **kwargs):
-        super(SubscriberForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields["topic"].choices = [
             (k, v)
@@ -59,7 +56,7 @@ class SubscriberForm(forms.ModelForm):
         )
 
     def save(self, commit=True):
-        instance = super(SubscriberForm, self).save(commit=False)
+        instance = super().save(commit=False)
         if self.cleaned_data.get("contact_email_only"):
             instance.suspected_spam = True
         if commit:
@@ -87,11 +84,6 @@ class ProfileForm(forms.ModelForm):
         model = models.CustomUser
         fields = ["complete_name"]  # , "generic_ads", "job_ads"]
         widgets = {"complete_name": forms.TextInput()}
-        # labels = {"email": "Primary email"}
-        # help_texts = {
-        #     "email": "See below on how to manage your emails",
-        # }
-        # readonly = ("email",)
 
 
 class SimulateADForm(forms.ModelForm):
@@ -113,7 +105,7 @@ class SimulateADForm(forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
-        super(SimulateADForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["consecutive_weeks"].initial = 1
         self.fields["consecutive_weeks"].min_value = 1
         self.fields["consecutive_weeks"].max_value = 4
@@ -121,7 +113,7 @@ class SimulateADForm(forms.ModelForm):
 
         self.helper = FormHelper(self)
         self.helper["topics"].wrap(
-            Field, css_class="overflow-y-scroll h-max-10em ms-2"
+            Field, css_class="overflow-y-scroll h-max-10em ms-2",
         )
         self.helper.form_method = "post"
         self.helper.add_input(
@@ -129,7 +121,7 @@ class SimulateADForm(forms.ModelForm):
                 "simulate-new-ad",
                 "Simulate price",
                 css_class="btn btn-secondary",
-            )
+            ),
         )
 
 
@@ -161,7 +153,7 @@ class ADForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(ADForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["consecutive_weeks"].initial = 1
         self.fields["consecutive_weeks"].min_value = 1
         self.fields["consecutive_weeks"].max_value = 4
@@ -169,7 +161,7 @@ class ADForm(forms.ModelForm):
 
         self.helper = FormHelper(self)
         self.helper["topics"].wrap(
-            Field, css_class="overflow-y-scroll h-max-10em ms-2"
+            Field, css_class="overflow-y-scroll h-max-10em ms-2",
         )
         self.helper.form_method = "post"
         self.helper.add_input(
@@ -177,7 +169,7 @@ class ADForm(forms.ModelForm):
                 "submit-new-ad",
                 "Submit ad",
                 css_class="btn btn-primary",
-            )
+            ),
         )
 
 
@@ -188,7 +180,7 @@ def _platform_choices():
 class MentionForm(forms.ModelForm):
     exclude_platforms = forms.MultipleChoiceField(
         help_text=models.Mention._meta.get_field(
-            "exclude_platforms"
+            "exclude_platforms",
         ).help_text,
         widget=forms.CheckboxSelectMultiple(),
     )
@@ -211,7 +203,7 @@ class MentionForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(MentionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["exclude_platforms"].choices = _platform_choices()
         self.fields["exclude_platforms"].required = False
         self.fields["min_comments"].required = False
@@ -219,13 +211,10 @@ class MentionForm(forms.ModelForm):
 
         self.helper = FormHelper(self)
         self.helper["exclude_platforms"].wrap(
-            Field, css_class="overflow-y-scroll h-max-10em ms-2"
+            Field, css_class="overflow-y-scroll h-max-10em ms-2",
         )
 
-        # self.helper.layout = Layout()
         # for field_name, field in self.fields.items():
-        #     self.helper.layout.append(FloatingField(field_name))
-        # self.helper.form_show_labels = False
 
         self.helper.form_method = "post"
         self.helper.add_input(
@@ -233,14 +222,14 @@ class MentionForm(forms.ModelForm):
                 "submit-new-mention-rule",
                 "Create rule",
                 css_class="btn btn-secondary",
-            )
+            ),
         )
         self.helper.add_input(
             Button(
                 "live-preview-mention-rule",
                 "Live preview",
                 css_class="btn btn-info",
-            )
+            ),
         )
 
     def clean_min_comments(self):
@@ -307,7 +296,7 @@ class MentionForm(forms.ModelForm):
         return new_list
 
     def clean(self):
-        cleaned_data = super(MentionForm, self).clean()
+        cleaned_data = super().clean()
         base_url = cleaned_data.get("base_url")
         keywords = cleaned_data.get("keywords")
 
@@ -319,10 +308,10 @@ class MentionForm(forms.ModelForm):
 
 class EditMentionForm(MentionForm):
     class Meta(MentionForm.Meta):
-        fields = MentionForm.Meta.fields + ["disabled"]
+        fields = [*MentionForm.Meta.fields, "disabled"]
 
     def __init__(self, *args, **kwargs):
-        super(EditMentionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.helper.inputs = []
 
@@ -331,7 +320,7 @@ class EditMentionForm(MentionForm):
                 "submit-edit-mention-rule",
                 "Update rule",
                 css_class="btn btn-secondary",
-            )
+            ),
         )
 
         self.helper.add_input(
@@ -339,5 +328,5 @@ class EditMentionForm(MentionForm):
                 "live-preview-mention-rule",
                 "Live preview",
                 css_class="btn btn-info",
-            )
+            ),
         )

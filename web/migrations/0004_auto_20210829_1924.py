@@ -6,24 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0003_discussion_gin_discussion_title'),
+        ("web", "0003_discussion_gin_discussion_title"),
     ]
 
     operations = [
         migrations.RemoveIndex(
-            model_name='discussion',
-            name='gin_discussion_title',
+            model_name="discussion",
+            name="gin_discussion_title",
         ),
         migrations.AddIndex(
-            model_name='discussion',
-            index=models.Index(fields=['schemeless_story_url'], name='web_discuss_schemel_e43bc8_idx'),
+            model_name="discussion",
+            index=models.Index(fields=["schemeless_story_url"], name="web_discuss_schemel_e43bc8_idx"),
         ),
         migrations.AddIndex(
-            model_name='discussion',
-            index=models.Index(fields=['canonical_story_url'], name='web_discuss_canonic_da28e0_idx'),
+            model_name="discussion",
+            index=models.Index(fields=["canonical_story_url"], name="web_discuss_canonic_da28e0_idx"),
         ),
         migrations.AddIndex(
-            model_name='discussion',
-            index=models.Index(fields=['canonical_redirect_url'], name='web_discuss_canonic_6b6a46_idx'),
+            model_name="discussion",
+            index=models.Index(fields=["canonical_redirect_url"], name="web_discuss_canonic_6b6a46_idx"),
         ),
     ]

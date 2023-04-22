@@ -22,7 +22,6 @@ def __sleep(a, b):
 
 
 def __print(s):
-    # logger.info(s)
     if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         print(s)
 
@@ -37,7 +36,7 @@ def post(status, username, post_from_dev=False):
     access_token = account.get("access_token")
 
     if not access_token:
-        logger.warn(f"Mastodon bot: {username} non properly configured")
+        logger.warning(f"Mastodon bot: {username} non properly configured")
         return
 
     if not post_from_dev:
@@ -58,7 +57,7 @@ def post(status, username, post_from_dev=False):
         return int(r.json()["id"])
     else:
         logger.error(
-            f"mastodon post: {username}: {r.status_code} {r.reason}\n{status}"
+            f"mastodon post: {username}: {r.status_code} {r.reason}\n{status}",
         )
         return
 
@@ -68,7 +67,7 @@ def repost(post_id, username):
     access_token = account.get("access_token")
 
     if not access_token:
-        logger.warn(f"Mastodon bot: {username} non properly configured")
+        logger.warning(f"Mastodon bot: {username} non properly configured")
         return
 
     if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
@@ -89,7 +88,7 @@ def repost(post_id, username):
         return post_id
     else:
         logger.error(
-            f"mastodon post: {username}: {r.status_code} {r.reason} {post_id}"
+            f"mastodon post: {username}: {r.status_code} {r.reason} {post_id}",
         )
         return
 
@@ -208,25 +207,25 @@ def post_discussions_scheduled(filter_topic=None):
 
         if topic.get("tags"):
             topic_stories = stories.filter(
-                normalized_tags__overlap=list(topic["tags"])
+                normalized_tags__overlap=list(topic["tags"]),
             )
 
         topic_stories = topic_stories.exclude(
             mastodonpost__bot_names__contains=[
-                topic.get("mastodon").get("account")
-            ]
+                topic.get("mastodon").get("account"),
+            ],
         )
 
         logger.debug(
-            f"mastodon scheduled: topic {topic_key} potential stories {topic_stories.count()}"
+            f"mastodon scheduled: topic {topic_key} potential stories {topic_stories.count()}",
         )
 
         if topic.get("platform"):
             topic_stories = topic_stories.filter(
-                platform=topic.get("platform")
+                platform=topic.get("platform"),
             )
             logger.debug(
-                f"mastodon scheduled platform {topic.get('platform')}: topic {topic_key} potential stories {topic_stories.count()}"
+                f"mastodon scheduled platform {topic.get('platform')}: topic {topic_key} potential stories {topic_stories.count()}",
             )
         else:
             topic_stories = (
@@ -241,28 +240,28 @@ def post_discussions_scheduled(filter_topic=None):
                 continue
 
             related_discussions, _, _ = models.Discussion.of_url(
-                story.story_url, only_relevant_stories=False
+                story.story_url, only_relevant_stories=False,
             )
 
             related_discussions = related_discussions.order_by(
-                "-comment_count", "-score", "created_at"
+                "-comment_count", "-score", "created_at",
             )
 
             if (
                 related_discussions.filter(
-                    mastodonpost__created_at__gte=seven_days_ago
+                    mastodonpost__created_at__gte=seven_days_ago,
                 )
                 .filter(
                     mastodonpost__bot_names__contains=[
-                        topic.get("mastodon").get("account")
-                    ]
+                        topic.get("mastodon").get("account"),
+                    ],
                 )
                 .exists()
             ):
                 continue
 
             existing_post = story.mastodonpost_set.order_by(
-                "-created_at"
+                "-created_at",
             ).first()
 
             tags = set(story.normalized_tags or [])
@@ -275,7 +274,7 @@ def post_discussions_scheduled(filter_topic=None):
 
                 if not existing_post:
                     existing_post = rd.mastodonpost_set.order_by(
-                        "-created_at"
+                        "-created_at",
                     ).first()
 
             logger.debug(f"mastodon {story.platform_id}: {tags}")
@@ -285,7 +284,7 @@ def post_discussions_scheduled(filter_topic=None):
                 post_id = post_story_topic(story, tags, topic, existing_post)
             except Exception as e:
                 cache.set(
-                    key_prefix + story.platform_id, 1, timeout=60 * 60 * 5
+                    key_prefix + story.platform_id, 1, timeout=60 * 60 * 5,
                 )
                 logger.error(f"mastodon: {story.platform_id}: {e}")
                 sentry_sdk.capture_exception(e)
@@ -297,7 +296,7 @@ def post_discussions_scheduled(filter_topic=None):
                 p = None
                 if existing_post:
                     existing_post.bot_names.append(
-                        topic.get("mastodon").get("account")
+                        topic.get("mastodon").get("account"),
                     )
                     p = existing_post
                 else:

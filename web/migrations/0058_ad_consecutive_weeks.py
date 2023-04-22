@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0057_ad_comments'),
+        ("web", "0057_ad_comments"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ad',
-            name='consecutive_weeks',
+            model_name="ad",
+            name="consecutive_weeks",
             field=models.PositiveIntegerField(default=1),
         ),
     ]

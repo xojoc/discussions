@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0070_mention_base_url_alter_mention_platforms_and_more'),
+        ("web", "0070_mention_base_url_alter_mention_platforms_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='mention',
-            name='keyword',
+            model_name="mention",
+            name="keyword",
             field=models.TextField(blank=True),
         ),
     ]

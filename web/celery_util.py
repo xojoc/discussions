@@ -1,9 +1,10 @@
 import functools
 import logging
+
+import sentry_sdk
+from django.conf import settings
 from django_redis import get_redis_connection
 from redis.exceptions import LockError
-from django.conf import settings
-import sentry_sdk
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ def lock_key(f):
 
 
 def singleton(
-    timeout=settings.APP_CELERY_TASK_MAX_TIME * 5, blocking_timeout=0.1
+    timeout=settings.APP_CELERY_TASK_MAX_TIME * 5, blocking_timeout=0.1,
 ):
     def decorator(f):
         @functools.wraps(f)
@@ -78,14 +79,14 @@ def singleton(
                     f(*args, **kwargs)
             except LockError:
                 logger.debug(
-                    f"Lock {lock_name} not acquired timeout = {timeout}, blocking_timeout = {blocking_timeout}"
+                    f"Lock {lock_name} not acquired timeout = {timeout}, blocking_timeout = {blocking_timeout}",
                 )
             except Exception as e:
                 import traceback
 
                 logger.debug(traceback.format_exc())
 
-                logger.warn(f"singleton {lock_name}: {e}")
+                logger.warning(f"singleton {lock_name}: {e}")
                 sentry_sdk.capture_exception(e)
 
         return wrapper

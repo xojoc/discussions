@@ -7,33 +7,33 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0073_alter_mention_platforms'),
+        ("web", "0073_alter_mention_platforms"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='mention',
-            name='base_url',
-            field=models.TextField(blank=True, help_text='\nThe discussed URL must have this prefix.</br>\nIt could be your website, your twitter profile, github profile, etc.<br/>\nFor example: xojoc.pw, twitter.com/XojocXojoc, github.com/xojoc<br/>\n\nCommon subdomains are ignored. So example.com matches www.example.com, m.example.com, example.com, etc.<br/>\nIf you have different subdomains (like blog. forum. docs. etc.) you have to create a separate rule for them.\n    ', verbose_name='URL prefix'),
+            model_name="mention",
+            name="base_url",
+            field=models.TextField(blank=True, help_text="\nThe discussed URL must have this prefix.</br>\nIt could be your website, your twitter profile, github profile, etc.<br/>\nFor example: xojoc.pw, twitter.com/XojocXojoc, github.com/xojoc<br/>\n\nCommon subdomains are ignored. So example.com matches www.example.com, m.example.com, example.com, etc.<br/>\nIf you have different subdomains (like blog. forum. docs. etc.) you have to create a separate rule for them.\n    ", verbose_name="URL prefix"),
         ),
         migrations.AlterField(
-            model_name='mention',
-            name='keyword',
-            field=models.TextField(blank=True, help_text='\nTitle must have this keyword. It could be your brand, name or a product you are interested in.\n    '),
+            model_name="mention",
+            name="keyword",
+            field=models.TextField(blank=True, help_text="\nTitle must have this keyword. It could be your brand, name or a product you are interested in.\n    "),
         ),
         migrations.AlterField(
-            model_name='mention',
-            name='platforms',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=1), blank=True, help_text='\nPlatforms you are interested in. Leave empty to select all.\n        ', size=None),
+            model_name="mention",
+            name="platforms",
+            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=1), blank=True, help_text="\nPlatforms you are interested in. Leave empty to select all.\n        ", size=None),
         ),
         migrations.AlterField(
-            model_name='mention',
-            name='subreddits_exclude',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=255), blank=True, help_text='\nIgnore discussions in these subreddits.\n        ', null=True, size=None, verbose_name='Subreddits blacklist'),
+            model_name="mention",
+            name="subreddits_exclude",
+            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=255), blank=True, help_text="\nIgnore discussions in these subreddits.\n        ", null=True, size=None, verbose_name="Subreddits blacklist"),
         ),
         migrations.AlterField(
-            model_name='mention',
-            name='subreddits_only',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=255), blank=True, help_text='\n        For Reddit discussions consider only these subreddits.\n        ', null=True, size=None, verbose_name='Subreddits whitelist'),
+            model_name="mention",
+            name="subreddits_only",
+            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=255), blank=True, help_text="\n        For Reddit discussions consider only these subreddits.\n        ", null=True, size=None, verbose_name="Subreddits whitelist"),
         ),
     ]

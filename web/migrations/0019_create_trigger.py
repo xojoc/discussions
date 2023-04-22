@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0018_discussion_title_vector_and_more'),
+        ("web", "0018_discussion_title_vector_and_more"),
     ]
 
     operations = [
         migrations.RunSQL(
-            sql='''
+            sql="""
               CREATE TRIGGER discussions_title_vector_trigger
               BEFORE INSERT OR UPDATE OF title, title_vector
               ON web_discussion
@@ -19,11 +19,11 @@ class Migration(migrations.Migration):
               tsvector_update_trigger(
                 title_vector, 'pg_catalog.english', title
               );
-            ''',
+            """,
 
-            reverse_sql='''
+            reverse_sql="""
               DROP TRIGGER IF EXISTS discussions_title_vector_trigger
               ON web_discussion;
-            '''
+            """,
         ),
     ]

@@ -1,15 +1,15 @@
-from django.db.models import Sum, Count, Max, Min, Value
-from django.db.models.functions import (
-    Concat,
-    Coalesce,
-    Left,
-    StrIndex,
-    NullIf,
-    Length,
-)
-from web import models, discussions
 from celery import shared_task
-from web import celery_util
+from django.db.models import Count, Max, Min, Sum, Value
+from django.db.models.functions import (
+    Coalesce,
+    Concat,
+    Left,
+    Length,
+    NullIf,
+    StrIndex,
+)
+
+from web import celery_util, discussions, models
 
 
 def discussions_platform_statistics():
@@ -67,7 +67,7 @@ def discussions_top_domains():
                     NullIf(StrIndex("canonical_story_url", Value("/")), 0) - 1,
                     Length("canonical_story_url"),
                 ),
-            )
+            ),
         )
         .values("domain")
         .annotate(
@@ -84,11 +84,11 @@ def discussions_top_domains():
 @celery_util.singleton(timeout=240, blocking_timeout=120)
 def discussions_statistics():
     models.Statistics.update_platform_statistics(
-        list(discussions_platform_statistics())
+        list(discussions_platform_statistics()),
     )
     models.Statistics.update_top_stories_statistics(
-        list(discussions_top_stories())
+        list(discussions_top_stories()),
     )
     models.Statistics.update_top_domains_statistics(
-        list(discussions_top_domains())
+        list(discussions_top_domains()),
     )

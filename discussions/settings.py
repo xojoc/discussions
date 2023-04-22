@@ -7,8 +7,8 @@ from django.conf.locale.en import formats as en_formats
 from django.contrib.messages import constants as messages
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.logging import LoggingIntegration
 from sentry_sdk.integrations.logging import (
+    LoggingIntegration,
     ignore_logger as sentry_ignore_logger,
 )
 from sentry_sdk.integrations.redis import RedisIntegration
@@ -93,7 +93,6 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "/"
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = APP_SCHEME
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
-# ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
 ACCOUNT_PRESERVE_USERNAME_CASING = False
 ACCOUNT_USERNAME_MIN_LENGTH = 5
 ACCOUNT_USERNAME_REQUIRED = False
@@ -141,20 +140,11 @@ DATABASES = {
         "NAME": os.environ.get("DATABASE_NAME"),
         "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
         "USER": os.environ.get("DATABASE_USER"),
-        # "DISABLE_SERVER_SIDE_CURSORS": True
-        # "OPTIONS": {
-        #     "server_side_binding": True,
         # },
-    }
+    },
 }
 
-# DATABASE_POOL_CLASS = "sqlalchemy.pool.QueuePool"
 
-# DATABASE_POOL_ARGS = {
-#     "max_overflow": 50,
-#     "pool_size": 50,
-#     "recycle": 300,
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -196,8 +186,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # todo: re introduce manifest
-# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-# STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
@@ -215,7 +203,7 @@ CACHES = {
         "LOCATION": os.getenv("REDIS_URL"),
         "KEY_PREFIX": "discussions:django_cache",
         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
-    }
+    },
 }
 
 APP_CELERY_TASK_MAX_TIME = 30  # seconds
@@ -229,7 +217,6 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     "fanout_patterns": True,
     "fanout_prefix": True,
     "visibility_timeout": 43200,
-    # 'global_keyprefix': 'discussions_celery:',
 }
 
 CELERYD_HIJACK_ROOT_LOGGER = False
@@ -275,12 +262,10 @@ LOGGING = {
         "celery": {
             "handlers": ["console", "mail_admins"],
             "level": "WARNING",
-            # "propagate": True,
         },
         "celery.task": {
             "handlers": ["console", "mail_admins"],
             "level": "INFO",
-            # "propagate": True,
         },
         "web": {
             "handlers": ["console", "mail_admins"],
@@ -324,9 +309,6 @@ if os.environ.get("DJANGO_DEVELOPMENT"):
     LOGGING["loggers"]["web"]["level"] = "DEBUG"
     LOGGING["loggers"]["web"]["handlers"] = ["console"]
     LOGGING["loggers"]["django.request"]["handlers"] = ["console"]
-    # LOGGING['loggers']['prawcore'] = {'level': 'DEBUG'}
-    # LOGGING['loggers']['psycopg2'] = {'level': 'DEBUG'}
-    # LOGGING['loggers']['django.db.backends'] = {'level': 'DEBUG'}
 
 if not os.environ.get("DJANGO_DEVELOPMENT"):
     sentry_logging = LoggingIntegration(

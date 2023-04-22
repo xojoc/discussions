@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0064_alter_ad_comments'),
+        ("web", "0064_alter_ad_comments"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subscriber',
-            name='subscribed_from',
-            field=models.CharField(blank=True, choices=[('wf', 'Web Form'), ('em', 'Email Comand')], max_length=2, null=True),
+            model_name="subscriber",
+            name="subscribed_from",
+            field=models.CharField(blank=True, choices=[("wf", "Web Form"), ("em", "Email Comand")], max_length=2, null=True),
         ),
     ]

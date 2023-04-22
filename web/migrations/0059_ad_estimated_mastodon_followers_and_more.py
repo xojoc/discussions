@@ -7,68 +7,68 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0058_ad_consecutive_weeks'),
+        ("web", "0058_ad_consecutive_weeks"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ad',
-            name='estimated_mastodon_followers',
+            model_name="ad",
+            name="estimated_mastodon_followers",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='ad',
-            name='estimated_newsletter_subscribers',
+            model_name="ad",
+            name="estimated_newsletter_subscribers",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='ad',
-            name='estimated_twitter_followers',
+            model_name="ad",
+            name="estimated_twitter_followers",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='body',
-            field=models.TextField(verbose_name='Ad message'),
+            model_name="ad",
+            name="body",
+            field=models.TextField(verbose_name="Ad message"),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='comments',
-            field=models.TextField(blank=True, help_text='Comments for the ad approver', null=True),
+            model_name="ad",
+            name="comments",
+            field=models.TextField(blank=True, help_text="Comments for the ad approver", null=True),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='consecutive_weeks',
-            field=models.PositiveIntegerField(default=1, help_text='How many weeks in a row would you like to run the ad?'),
+            model_name="ad",
+            name="consecutive_weeks",
+            field=models.PositiveIntegerField(default=1, help_text="How many weeks in a row would you like to run the ad?"),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='floss_project',
-            field=models.BooleanField(default=False, help_text='FLOSS projects get a 20% discount'),
+            model_name="ad",
+            name="floss_project",
+            field=models.BooleanField(default=False, help_text="FLOSS projects get a 20% discount"),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='mastodon',
-            field=models.BooleanField(default=False, help_text='Would you like to buy a toot?'),
+            model_name="ad",
+            name="mastodon",
+            field=models.BooleanField(default=False, help_text="Would you like to buy a toot?"),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='newsletter',
-            field=models.BooleanField(default=True, help_text='Would you like to advertise in the newsletters?'),
+            model_name="ad",
+            name="newsletter",
+            field=models.BooleanField(default=True, help_text="Would you like to advertise in the newsletters?"),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='topics',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, choices=[('apl', 'APL'), ('candcpp', 'C & C++'), ('compsci', 'Computer science'), ('devops', 'DevOps'), ('erlang', 'Erlang & Elixir'), ('golang', 'Golang'), ('hackernews', 'Hacker News'), ('haskell', 'Haskell'), ('java', 'Java'), ('laarc', 'Laarc'), ('lisp', 'Lisp & Scheme'), ('nim', 'Nim'), ('php', 'PHP'), ('programming', 'Software Development'), ('python', 'Python'), ('ruby', 'Ruby'), ('rust', 'Rust'), ('unix', 'Unix'), ('webdev', 'Web Development'), ('zig', 'Zig')], max_length=255), blank=True, help_text='Ads are always reviewed manually and only relevant ads are approved', null=True, size=None),
+            model_name="ad",
+            name="topics",
+            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, choices=[("apl", "APL"), ("candcpp", "C & C++"), ("compsci", "Computer science"), ("devops", "DevOps"), ("erlang", "Erlang & Elixir"), ("golang", "Golang"), ("hackernews", "Hacker News"), ("haskell", "Haskell"), ("java", "Java"), ("laarc", "Laarc"), ("lisp", "Lisp & Scheme"), ("nim", "Nim"), ("php", "PHP"), ("programming", "Software Development"), ("python", "Python"), ("ruby", "Ruby"), ("rust", "Rust"), ("unix", "Unix"), ("webdev", "Web Development"), ("zig", "Zig")], max_length=255), blank=True, help_text="Ads are always reviewed manually and only relevant ads are approved", null=True, size=None),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='twitter',
-            field=models.BooleanField(default=False, help_text='Would you like to buy a tweet?'),
+            model_name="ad",
+            name="twitter",
+            field=models.BooleanField(default=False, help_text="Would you like to buy a tweet?"),
         ),
         migrations.AlterField(
-            model_name='ad',
-            name='url',
-            field=models.TextField(verbose_name='Ad URL'),
+            model_name="ad",
+            name="url",
+            field=models.TextField(verbose_name="Ad URL"),
         ),
     ]

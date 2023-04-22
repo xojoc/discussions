@@ -1,6 +1,6 @@
-import urllib3
 import logging
 
+import urllib3
 
 logger = logging.getLogger(__name__)
 
@@ -60,25 +60,21 @@ def derive(story):
         "gitlab.com",
         "bitbucket.org",
         "gitea.com",
-    ):
-        if len(parts) == 2:
-            return "project"
+    ) and len(parts) == 2:
+        return "project"
 
-    if host in ("sr.ht"):
-        if len(parts) == 2 and parts[0][0] == "~":
-            return "project"
+    if host in ("sr.ht") and len(parts) == 2 and parts[0][0] == "~":
+        return "project"
 
     if host in ("savannah.gnu.org", "savannah.nongnu.org"):
         if path.startswith("/projects/"):
             return "project"
 
-    if host in ("crates.io"):
-        if path.startswith("/crates/"):
-            return "project"
+    if host in ("crates.io") and path.startswith("/crates/"):
+        return "project"
 
-    if host in ("docs.rs"):
-        if len(parts) == 1:
-            return "project"
+    if host in ("docs.rs") and len(parts) == 1:
+        return "project"
 
     # fixme: look for parameters too
     if host in ("youtu.be", "youtube.com", "vimeo.com"):

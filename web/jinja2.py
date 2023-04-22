@@ -1,7 +1,7 @@
 from django.templatetags.static import static
 from django.urls import reverse
-
 from jinja2 import Environment
+
 from web import util
 
 
@@ -20,6 +20,6 @@ def environment(**options):
             "url": reverse,
             "pluralize": pluralize,
             "util": util,
-        }
+        },
     )
     return env

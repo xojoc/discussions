@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0051_remove_customuser_api_limited_and_more'),
+        ("web", "0051_remove_customuser_api_limited_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='customuser',
-            name='rss_id',
+            model_name="customuser",
+            name="rss_id",
             field=models.TextField(null=True),
         ),
     ]

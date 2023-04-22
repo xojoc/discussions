@@ -254,7 +254,7 @@ topics_choices = sorted([(key, item["name"]) for key, item in topics.items()])
 
 
 def get_account_configuration(platform, username):
-    for topic_key, topic in topics.items():
+    for _topic_key, topic in topics.items():
         if not topic.get(platform):
             continue
         if not topic.get(platform).get("account"):
@@ -267,6 +267,7 @@ def get_account_configuration(platform, username):
         topic_account = topic.get("twitter").get("account")
         if topic_account and topic_account.lower() == username.lower():
             return topic.get(platform)
+    return None
 
 
 def get_topic_by_email(email):
