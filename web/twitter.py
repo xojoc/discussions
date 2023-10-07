@@ -55,7 +55,7 @@ def tweet(status, username):
         consumer_secret=consumer_secret,
         access_token=token,
         access_token_secret=token_secret,
-        wait_on_rate_limit=True,
+        wait_on_rate_limit=False,
     )
     status = api.create_tweet(text=status)
 
