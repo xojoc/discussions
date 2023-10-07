@@ -54,11 +54,11 @@ class Discussion(ModelSchema):
 
     platform: str
     id: str  # noqa: A003
-    story_url: str
-    tags: list[str]
-    normalized_tags: list[str]
-    discussion_url: str
-    subreddit: str
+    story_url: str | None
+    tags: list[str] | None
+    normalized_tags: list[str] | None
+    discussion_url: str | None
+    subreddit: str | None
 
 
 class DiscussionCounts(Schema):
@@ -99,7 +99,7 @@ def get_discussions(
     request: HttpRequest,
     url: str,
     only_relevant_stories: bool = True,
-) -> list[Discussion]:
+):
     """Get all discussions for a given URL."""
     api_statistics.track(request)
 
