@@ -162,7 +162,18 @@ def get_discussion_counts(request: HttpRequest, url: str) -> DiscussionCounts:
             cache.touch(key, timeout)
         return dcs
 
-    dcs = DiscussionCounts()
+    dcs = DiscussionCounts(
+        total_comments=0,
+        total_score=0,
+        total_discussions=0,
+        last_discussion=None,
+        first_discussion=None,
+        story_url=None,
+        discussions_url=None,
+        articles_count=0,
+        comments_by_platform={},
+        tags=[],
+    )
 
     ds, _, _ = models.Discussion.of_url(url, True)
 
