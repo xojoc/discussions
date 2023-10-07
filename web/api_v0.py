@@ -73,17 +73,17 @@ class DiscussionCounts(Schema):
     comments_by_platform: dict[str, int]
     tags: list[str]
 
-    def __init__(self):
-        self.total_comments = 0
-        self.total_score = 0
-        self.total_discussions = 0
-        self.last_discussion = None
-        self.first_discussion = None
-        self.story_url = None
-        self.discussions_url = None
-        self.articles_count = 0
-        self.comments_by_platform = {}
-        self.tags = []
+    # def __init__(self):
+    #     self.total_comments = 0
+    #     self.total_score = 0
+    #     self.total_discussions = 0
+    #     self.last_discussion = None
+    #     self.first_discussion = None
+    #     self.story_url = None
+    #     self.discussions_url = None
+    #     self.articles_count = 0
+    #     self.comments_by_platform = {}
+    #     self.tags = []
 
 
 class Message(Schema):
