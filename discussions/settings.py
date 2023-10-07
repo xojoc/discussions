@@ -1,5 +1,6 @@
 import logging
 import os
+from http import HTTPStatus
 from pathlib import Path
 
 import sentry_sdk
@@ -78,6 +79,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "web.middleware.CORSMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
@@ -145,7 +147,6 @@ DATABASES = {
 }
 
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
@@ -184,8 +185,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-# todo: re introduce manifest
+STATIC_ROOT = Path(BASE_DIR) / "staticfiles"
+# TODO: re introduce manifest
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
@@ -230,8 +231,8 @@ CELERY_WORKER_ENABLE_REMOTE_CONTROL = True
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 
-def change_404_level_to_INFO(record):
-    if record.status_code == 404:
+def change_404_level_to_info(record):
+    if record.status_code == HTTPStatus.NOT_FOUND:
         record.levelname = "INFO"
     return True
 
@@ -242,7 +243,7 @@ LOGGING = {
     "filters": {
         "change_404_to_info": {
             "()": "django.utils.log.CallbackFilter",
-            "callback": change_404_level_to_INFO,
+            "callback": change_404_level_to_info,
         },
     },
     "handlers": {
@@ -374,4 +375,4 @@ SHELL_PLUS_IMPORTS = [
 ]
 
 if os.environ.get("DJANGO_DEVELOPMENT"):
-    from .settings_dev import *  # noqa F401, F403
+    from .settings_dev import *  # noqa: F403

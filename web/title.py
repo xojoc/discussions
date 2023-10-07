@@ -12,15 +12,8 @@ def __lobsters(title):
     return None
 
 
-
-
-
-
-
 def __reddit(title):
     return title
-
-
 
 
 def __hacker_news(title):
@@ -39,35 +32,31 @@ def __lambda_the_ultimate(title):
 def __unicode(title):
     title = unicodedata.normalize("NFKC", title)
     table = str.maketrans({"`": "'", "“": '"', "”": '"', "-": "-"})
-    title = title.translate(table)
-    return title
+    return title.translate(table)
 
 
 def __year(title):
     if re.search(r"\(1|2\d\d\d\)$", title):
         title = title[: -len("(1234)")]
-    title = title.strip()
-    return title
+    return title.strip()
 
 
 def __format(title):
     title = title.removesuffix("[pdf]")
     title = title.removesuffix("[video]")
-    title = title.strip()
-    return title
+    return title.strip()
 
 
 def __punctuation(title):
     title = title.replace("'s ", " ")
     new_title = ""
     for w in title.split():
-        w = util.strip_punctuation(w)
+        w2 = util.strip_punctuation(w)
 
-        new_title += w
+        new_title += w2
         new_title += " "
 
-    new_title = " ".join(new_title.split())
-    return new_title
+    return " ".join(new_title.split())
 
 
 def __contraction(title):
@@ -77,7 +66,7 @@ def __contraction(title):
             new_title += "is not"
         elif w == "won't":
             new_title += "will not"
-        elif w == "can't" or w == "cannot":
+        elif w in ("can't", "cannot"):
             new_title += "can not"
         elif w.endswith("'re"):
             new_title += w.removesuffix("'re") + " are"
@@ -121,14 +110,16 @@ def __synonym(title):
 
 def __programming_language_name(title):
     new_title = ""
-    for w in title.rstrip("?").split():
-        if re.match(r"^\w+[#\-+*]+$", w, flags=re.ASCII):
-            w = w.replace("+", "p")
+    for w_tmp in title.rstrip("?").split():
+        if re.match(r"^\w+[#\-+*]+$", w_tmp, flags=re.ASCII):
+            w = w_tmp.replace("+", "p")
             w = w.replace("#", "sharp")
             w = w.replace("-", "m")
             w = w.replace("*", "star")
-        elif re.match(r"^\.\w+$", w, flags=re.ASCII):
-            w = w.replace(".", "dot")
+        elif re.match(r"^\.\w+$", w_tmp, flags=re.ASCII):
+            w = w_tmp.replace(".", "dot")
+        else:
+            w = w_tmp
 
         new_title += w
         new_title += " "
@@ -156,15 +147,13 @@ def __stem(title):
     # for w in tokens:
 
 
-
 def __duplicate(title):
     prev = object()
-    return " ".join(
-        (prev := v for v in title.split() if prev != v)  # noqa F841
-    )
+    return " ".join(prev := v for v in title.split() if prev != v)
 
 
-def normalize(title, platform=None, url="", tags=[], stem=True):
+def normalize(title, platform=None, url="", tags=None, stem=True):
+    tags = tags or []
     title = title or ""
     url = (url or "").lower()
 
@@ -202,5 +191,4 @@ def normalize(title, platform=None, url="", tags=[], stem=True):
     if stem:
         title = __stem(title)
 
-    return title
     return title

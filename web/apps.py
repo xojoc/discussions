@@ -11,6 +11,18 @@ from django.db.backends.signals import connection_created
 logger = logging.getLogger(__name__)
 
 
+def connection_created_signal_handler(sender, connection, **kwargs):
+    _ = (sender, connection, kwargs)
+    # if sender.vendor == 'postgresql':
+    #     connection.cursor().execute("""
+    #     set pg_trgm.similarity_threshold = 0.63;
+    #     set pg_trgm.word_similarity_threshold = 0.90;
+    #     set pg_trgm.strict_word_similarity_threshold = 0.60;
+    #     """)
+
+    # set statement_timeout = 600000;
+
+
 class WebConfig(AppConfig):
     name = "web"
 
@@ -18,9 +30,7 @@ class WebConfig(AppConfig):
         from web import topics
 
         for topic_key, topic in topics.topics.items():
-            topic[
-                "email"
-            ] = f"{settings.EMAIL_TO_PREFIX}weekly_{topic_key}@discu.eu"
+            topic["email"] = f"{settings.EMAIL_TO_PREFIX}weekly_{topic_key}@discu.eu"
             topic["from_email"] = formataddr(
                 (
                     f"{topic['name']} Weekly",
@@ -80,29 +90,20 @@ class WebConfig(AppConfig):
                 x.lower().strip() for x in f.read().splitlines()
             }
 
-    def __connection_created_signal_handler(sender, connection, **kwargs):
-        return
-        # if sender.vendor == 'postgresql':
-        #     connection.cursor().execute("""
-        #     set pg_trgm.similarity_threshold = 0.63;
-        #     set pg_trgm.word_similarity_threshold = 0.90;
-        #     set pg_trgm.strict_word_similarity_threshold = 0.60;
-        #     """)
-
-        # set statement_timeout = 600000;
-
     def __set_database_parameters(self):
         connection_created.connect(
-            WebConfig.__connection_created_signal_handler,
+            connection_created_signal_handler,
         )
 
     def __nltk_download_data(self):
         return
 
     def __set_up_signals(self):
-        from . import indexnow  # noqa F401
-        from . import mention  # noqa F401
-        from . import stripe_util  # noqa F401
+        from . import (
+            indexnow,  # noqa: F401
+            mention,  # noqa: F401
+            stripe_util,  # noqa: F401
+        )
 
     def ready(self):
         random.seed()

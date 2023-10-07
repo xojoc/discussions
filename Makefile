@@ -2,26 +2,14 @@ SHELL = /bin/bash -o pipefail
 include .env
 export
 
-
 poetry_export:
-# Disable hashes for now since the installation of pycparser fails.
-
-# Reenable them in the future.
-# --without-hashes
-	@poetry export   -f requirements.txt --output requirements.txt
+	@poetry export -f requirements.txt --output requirements.txt
 
 sass_compile:
 	@poetry run ./manage.py sass web/static/style.scss web/static/style.css
 
 sass_watch:
 	@poetry run ./manage.py sass web/static/style.scss web/static/style.css --watch
-
-deploy: poetry_export sass_compile
-	@git add requirements.txt
-	-git commit -m "Update requirements.txt" -- requirements.txt
-	@git add web/static/style.css
-	-git commit -m "Update web/static/style.css" -- web/static/style.css
-	@caprover deploy --default
 
 run: sass_compile
 	echo $$DATABASE_HOST
@@ -33,15 +21,13 @@ run: sass_compile
 	stripe listen --forward-to localhost:7777/stripe/webhook/&
 	@poetry run ./docker-entrypoint.sh 7777
 
-pre-commit: test poetry_export
+pre-commit: sass_compile lint test poetry_export
+	@git add web/static/style.css
 	@git add requirements.txt
 	@git add web/migrations
 
-cp: pre-commit
+cp:
 	@git commit -a
-#@poetry export -f requirements.txt --output requirements.txt
-#@git add requirements.txt
-#-git commit -m "Update requirements.txt" -- requirements.txt
 	@git push origin main
 
 migrate:
@@ -64,7 +50,7 @@ shell:
 	poetry run python manage.py shell_plus --bpython
 
 lint:
-	@poetry run ruff check . | tac
+	# @poetry run ruff check . | tac
 	# @poetry run flake8 --extend-ignore E501,E741,E203 | tac
 	# @poetry run mypy --install-types --non-interactive .
 
@@ -85,3 +71,7 @@ update:
 extension-build:
 	cd browser-extension-v3; web-ext build --overwrite-dest
 	cd browser-extension; web-ext build --overwrite-dest
+
+
+get-twitter-token:
+	twurl authorize --consumer-key ${TWITTER_CONSUMER_KEY} --consumer-secret ${TWITTER_CONSUMER_SECRET}

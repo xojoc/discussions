@@ -253,8 +253,8 @@ topics = {
 topics_choices = sorted([(key, item["name"]) for key, item in topics.items()])
 
 
-def get_account_configuration(platform, username):
-    for _topic_key, topic in topics.items():
+def get_account_configuration(platform: str, username: str) -> dict | None:
+    for topic in topics.values():
         if not topic.get(platform):
             continue
         if not topic.get(platform).get("account"):

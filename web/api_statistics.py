@@ -27,6 +27,6 @@ def get(api_version, token, endpoint=None, redis=None):
 
     if endpoint:
         return int(r.hget(hash_key, endpoint) or 0)
-    else:
-        stats = r.hgetall(hash_key) or {}
-        return {key.decode("utf-8"): int(val) for key, val in stats.items()}
+
+    stats = r.hgetall(hash_key) or {}
+    return {key.decode("utf-8"): int(val) for key, val in stats.items()}

@@ -83,12 +83,19 @@ select = ['ALL']
 ignore = ['E501',
           'D', # ignore docs for now
           'D100', 'D101', 'D102', 'D103', # missing doc strings
-          'G004' # Logging statement uses f-string --> reenable
+          'G004', # Logging statement uses f-string --> reenable
+          'FBT', #  disable  boolean checks
+	  'BLE001', # fixme: blind Exception
+	  'TD002', 'FIX002', # warns about todo presence
+	  'TD003', # missing issue
+	  'RUF012', # mutable class attribute
+          'PTH123', # Path.open instead of open
           ]
 
 
 line-length = 79
 target-version = 'py311'
+extend-exclude = ['web/migrations']
 
 [tool.ruff.flake8-annotations]
 ignore-fully-untyped = true

@@ -24,6 +24,7 @@ cache_prefix = "api"
 
 class AuthBearer(HttpBearer):
     def authenticate(self, request, token):
+        _ = request
         key = f"{cache_prefix}:token:{token}"
 
         api_client = cache.get(key)
@@ -37,9 +38,10 @@ class AuthBearer(HttpBearer):
                 limited=False,
             )
             cache.set(key, api_client, timeout)
-            return api_client
         except models.APIClient.DoesNotExist:
             return None
+
+        return api_client
 
 
 auth_bearer = AuthBearer()
@@ -51,25 +53,37 @@ class Discussion(ModelSchema):
         model_fields = ["created_at", "title", "comment_count", "score"]
 
     platform: str
-    id: str
-    story_url: str = None
-    tags: list[str] = None
-    normalized_tags: list[str] = None
+    id: str  # noqa: A003
+    story_url: str
+    tags: list[str]
+    normalized_tags: list[str]
     discussion_url: str
-    subreddit: str = None
+    subreddit: str
 
 
 class DiscussionCounts(Schema):
-    total_comments: int = 0
-    total_score: int = 0
-    total_discussions: int = 0
-    last_discussion: date = None
-    first_discussion: date = None
-    story_url: str = None
-    discussions_url: str = None
-    articles_count: int = 0
-    comments_by_platform: dict[str, int] = {}
-    tags: list[str] = []
+    total_comments: int
+    total_score: int
+    total_discussions: int
+    last_discussion: date | None
+    first_discussion: date | None
+    story_url: str | None
+    discussions_url: str | None
+    articles_count: int
+    comments_by_platform: dict[str, int]
+    tags: list[str]
+
+    def __init__(self):
+        self.total_comments = 0
+        self.total_score = 0
+        self.total_discussions = 0
+        self.last_discussion = None
+        self.first_discussion = None
+        self.story_url = None
+        self.discussions_url = None
+        self.articles_count = 0
+        self.comments_by_platform = {}
+        self.tags = []
 
 
 class Message(Schema):
@@ -118,10 +132,11 @@ def get_discussions(
     include_in_schema=False,
 )
 def options_get_discussions(
-    request,
+    request: HttpRequest,
     url: str,
     only_relevant_stories: bool = True,
-):
+) -> list:
+    _ = (request, url, only_relevant_stories)
     return []
 
 
@@ -130,7 +145,7 @@ def options_get_discussions(
     response={200: DiscussionCounts},
     auth=auth_bearer,
 )
-def get_discussion_counts(request, url: str):
+def get_discussion_counts(request: HttpRequest, url: str) -> DiscussionCounts:
     """Get discussion counts for a given URL."""
     api_statistics.track(request)
 
@@ -204,7 +219,8 @@ def get_discussion_counts(request, url: str):
     response={200: DiscussionCounts},
     include_in_schema=False,
 )
-def options_get_discussion_counts(request, url: str):
+def options_get_discussion_counts(request: HttpRequest, url: str) -> dict:
+    _ = (request, url)
     return {}
 
 

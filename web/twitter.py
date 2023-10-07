@@ -19,57 +19,68 @@ logger = logging.getLogger(__name__)
 def __sleep(a, b):
     if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         return
-    time.sleep(random.randint(a, b))
+    time.sleep(random.randint(a, b))  # noqa: S311
 
 
 def tweet(status, username):
-    api_key = os.getenv("TWITTER_ACCESS_API_KEY")
-    api_secret_key = os.getenv("TWITTER_ACCESS_API_SECRET_KEY")
+    consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
+    consumer_secret = os.getenv("TWITTER_CONSUMER_SECRET")
 
     account = topics.get_account_configuration("twitter", username)
 
     token = account["token"]
     token_secret = account["token_secret"]
 
-    if not api_key or not api_secret_key or not token or not token_secret:
+    if not consumer_key or not consumer_secret or not token or not token_secret:
         logger.warning(f"Twitter bot: {username} non properly configured")
         return None
 
     if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         random.seed()
-        print(username)
-        print(status)
+        print(username)  # noqa: T201
+        print(status)  # noqa: T201
 
-        return random.randint(1, 1_000_000)
+        return random.randint(1, 1_000_000)  # noqa: S311
 
-    auth = tweepy.OAuthHandler(api_key, api_secret_key)
-    auth.set_access_token(token, token_secret)
-    api = tweepy.API(auth, wait_on_rate_limit=True)
-    status = api.update_status(status)
-    # if status.id:
-    return status.id
+    api = tweepy.Client(
+        consumer_key=consumer_key,
+        consumer_secret=consumer_secret,
+        access_token=token,
+        access_token_secret=token_secret,
+        wait_on_rate_limit=True,
+    )
+    status = api.create_tweet(text=status)
+
+    if not isinstance(status, tweepy.client.Response):
+        return None
+
+    return status.data["id"]
 
 
+# fixme: for now we cannot retweet, upgrade?
 def retweet(tweet_id, username):
-    api_key = os.getenv("TWITTER_ACCESS_API_KEY")
-    api_secret_key = os.getenv("TWITTER_ACCESS_API_SECRET_KEY")
+    consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
+    consumer_secret = os.getenv("TWITTER_CONSUMER_SECRET")
 
     account = topics.get_account_configuration("twitter", username)
 
     token = account["token"]
     token_secret = account["token_secret"]
 
-    if not api_key or not api_secret_key or not token or not token_secret:
+    if not consumer_key or not consumer_secret or not token or not token_secret:
         logger.warning(f"Twitter bot: {username} non properly configured")
         return None
 
     if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
-        random.seed()
         return tweet_id
 
-    auth = tweepy.OAuthHandler(api_key, api_secret_key)
-    auth.set_access_token(token, token_secret)
-    api = tweepy.API(auth, wait_on_rate_limit=True)
+    api = tweepy.Client(
+        consumer_key=consumer_key,
+        consumer_secret=consumer_secret,
+        access_token=token,
+        access_token_secret=token_secret,
+        wait_on_rate_limit=True,
+    )
     api.retweet(tweet_id)
     return tweet_id
 
@@ -85,8 +96,13 @@ def build_hashtags(tags):
 
 
 def build_story_status(
-    title=None, url=None, tags=set(), author=None, story=None,
+    title=None,
+    url=None,
+    tags=None,
+    author=None,
+    story=None,
 ):
+    tags = tags or set()
     hashtags = build_hashtags(tags)
 
     if url is None:
@@ -165,13 +181,14 @@ def tweet_story_topic(story, tags, topic, existing_tweet):
     try:
         if existing_tweet:
             __sleep(35, 47)
-            tweet_id = retweet(existing_tweet.tweet_id, bot_name)
+            # tweet_id = retweet(existing_tweet.tweet_id, bot_name)
+            tweet_id = tweet(status, bot_name)
         else:
             tweet_id = tweet(status, bot_name)
-    except tweepy.errors.Forbidden as fe:
-        raise fe
+    except tweepy.errors.Forbidden:
+        raise
     except Exception as e:
-        logger.error(f"twitter: tweet: {bot_name}: {e}: {status}: {tweet_id=}")
+        logger.exception(f"twitter: tweet: {bot_name}: {status}: {tweet_id=}")
         sentry_sdk.capture_exception(e)
         __sleep(13, 27)
 
@@ -247,11 +264,14 @@ def tweet_discussions_scheduled(filter_topic=None):
                 continue
 
             related_discussions, _, _ = models.Discussion.of_url(
-                story.story_url, only_relevant_stories=False,
+                story.story_url,
+                only_relevant_stories=False,
             )
 
             related_discussions = related_discussions.order_by(
-                "-comment_count", "-score", "created_at",
+                "-comment_count",
+                "-score",
+                "created_at",
             )
 
             if (
@@ -271,10 +291,7 @@ def tweet_discussions_scheduled(filter_topic=None):
 
             tags = set(story.normalized_tags or [])
             for rd in related_discussions[:5]:
-                if (
-                    rd.comment_count >= min_comment_count
-                    and rd.score >= min_score
-                ):
+                if rd.comment_count >= min_comment_count and rd.score >= min_score:
                     tags |= set(rd.normalized_tags or [])
 
                 if not existing_tweet:
@@ -287,15 +304,20 @@ def tweet_discussions_scheduled(filter_topic=None):
             tweet_id = None
             try:
                 tweet_id = tweet_story_topic(
-                    story, tags, topic, existing_tweet,
+                    story,
+                    tags,
+                    topic,
+                    existing_tweet,
                 )
             except tweepy.errors.Forbidden:
                 cache.set(
-                    key_prefix + story.platform_id, 1, timeout=60 * 60 * 5,
+                    key_prefix + story.platform_id,
+                    1,
+                    timeout=60 * 60 * 5,
                 )
                 continue
             except Exception as e:
-                logger.error(f"twitter: {story.platform_id}: {e}")
+                logger.exception(f"twitter: {story.platform_id}")
                 sentry_sdk.capture_exception(e)
                 continue
 
@@ -446,7 +468,10 @@ def fetch_all_tweets():
     users_to_search = []
     for bot in twitter_bots:
         for fs in tweepy.Paginator(
-            c.get_users_following, bot, user_fields="id", max_results=1000,
+            c.get_users_following,
+            bot,
+            user_fields="id",
+            max_results=1000,
         ):
             users_to_search.extend(u.id for u in fs.data)
 

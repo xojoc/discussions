@@ -10,7 +10,8 @@ class StatisticsAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         my_urls = [
             path(
-                "statistics/", self.admin_site.admin_view(self.statistics_view),
+                "statistics/",
+                self.admin_site.admin_view(self.statistics_view),
             ),
         ]
         return my_urls + urls

@@ -55,12 +55,16 @@ def derive(story):
 
     parts = [p for p in path.split("/") if p]
 
-    if host in (
-        "github.com",
-        "gitlab.com",
-        "bitbucket.org",
-        "gitea.com",
-    ) and len(parts) == 2:
+    if (
+        host
+        in (
+            "github.com",
+            "gitlab.com",
+            "bitbucket.org",
+            "gitea.com",
+        )
+        and len(parts) == 2
+    ):
         return "project"
 
     if host in ("sr.ht") and len(parts) == 2 and parts[0][0] == "~":
@@ -76,7 +80,7 @@ def derive(story):
     if host in ("docs.rs") and len(parts) == 1:
         return "project"
 
-    # fixme: look for parameters too
+    # TODO: look for parameters too
     if host in ("youtu.be", "youtube.com", "vimeo.com"):
         return "video"
 
@@ -87,11 +91,7 @@ def derive(story):
     ):
         return "askplatform"
 
-    if (
-        story.platform == "h"
-        and title.startswith("tell hn")
-        and not story.story_url
-    ):
+    if story.platform == "h" and title.startswith("tell hn") and not story.story_url:
         return "tellplatform"
 
     return "article"
@@ -100,7 +100,6 @@ def derive(story):
 def name(cat, platform=None):
     if platform == "h" and cat == "askplatform":
         return "Ask HN"
-    elif platform == "h" and cat == "tellplatform":
+    if platform == "h" and cat == "tellplatform":
         return "Tell HN"
-    else:
-        return categories[cat].get("name")
+    return categories[cat].get("name")
