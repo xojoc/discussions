@@ -197,7 +197,7 @@ def tweet_story_topic(story, tags, topic, existing_tweet):
     except tweepy.errors.TooManyRequests:
         raise
     except Exception as e:
-        logger.exception(f"twitter: tweet: {bot_name}: {status}: {tweet_id=}")
+        logger.exception(f"twitter v2: tweet: {bot_name}: {status}: {tweet_id=}")
         sentry_sdk.capture_exception(e)
         __sleep(13, 27)
 
