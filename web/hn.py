@@ -31,6 +31,7 @@ def __base_url(platform):
         return "https://hacker-news.firebaseio.com"
     elif platform == "a":
         return "https://laarrc.firebaseio.com"
+    return None
 
 
 def _url_from_selftext(selftext, title=None):

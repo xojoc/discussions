@@ -84,10 +84,9 @@ class WeeklyFeed(Feed):
     def item_description(self, item):
         obj, year, week = item
         ctx = weekly.topic_week_context_cached(obj["topic_key"], year, week)
-        content = template_loader.render_to_string(
+        return template_loader.render_to_string(
             "web/weekly_topic_week_feed.html", {"ctx": ctx},
         )
-        return content
 
     def item_link(self, item):
         obj, year, week = item

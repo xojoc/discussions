@@ -37,7 +37,7 @@ def post(status, username, post_from_dev=False):
 
     if not access_token:
         logger.warning(f"Mastodon bot: {username} non properly configured")
-        return
+        return None
 
     if not post_from_dev:
         if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
@@ -59,7 +59,7 @@ def post(status, username, post_from_dev=False):
         logger.error(
             f"mastodon post: {username}: {r.status_code} {r.reason}\n{status}",
         )
-        return
+        return None
 
 
 def repost(post_id, username):
@@ -68,7 +68,7 @@ def repost(post_id, username):
 
     if not access_token:
         logger.warning(f"Mastodon bot: {username} non properly configured")
-        return
+        return None
 
     if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         random.seed()
@@ -90,7 +90,7 @@ def repost(post_id, username):
         logger.error(
             f"mastodon post: {username}: {r.status_code} {r.reason} {post_id}",
         )
-        return
+        return None
 
 
 def build_hashtags(tags):
@@ -133,9 +133,8 @@ Discussions: {discussions_url}
     title = " ".join(title.split())
     status = unicodedata.normalize("NFC", status)
 
-    status = title + status
+    return title + status
 
-    return status
 
 
 def post_story_topic(story, tags, topic, existing_toot):
@@ -164,7 +163,7 @@ def post_story_topic(story, tags, topic, existing_toot):
         logger.error(f"mastodon: post: {bot_name}: {e}: {status}: {post_id=}")
         sentry_sdk.capture_exception(e)
         __sleep(13, 27)
-        raise e
+        raise
 
     __sleep(4, 7)
 

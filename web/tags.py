@@ -58,7 +58,8 @@ def __programming_keyword(tags, title, url, keyword, new_tag=None):
 
 def __is_nim_game(title, url=None):
     if util.is_sublist(title, ["nim", "game"]) or util.is_sublist(
-        title, ["game", "of", "nim"],
+        title,
+        ["game", "of", "nim"],
     ):
         return True
 
@@ -77,7 +78,11 @@ def __topic_nim(tags, title, url, platform):
 
     if not __is_nim_game(title, url):
         __augment_tags(
-            title, tags, "nim", {"programming", "gamedev"}, "nimlang",
+            title,
+            tags,
+            "nim",
+            {"programming", "gamedev"},
+            "nimlang",
         )
 
     if (
@@ -163,9 +168,9 @@ def __topic_webdev(tags, title, url, platform, original_title):
         "webdev",
     )
 
-    if (
-        "programming" in tags or __is_programming_related(title, url)
-    ) and re.search(r"\bCORS\b", original_title):
+    if ("programming" in tags or __is_programming_related(title, url)) and re.search(
+        r"\bCORS\b", original_title,
+    ):
         tags.add("webdev")
 
     if re.search(r"\btailwind css\b", original_title, re.IGNORECASE):
@@ -180,7 +185,11 @@ def __topic_zig(tags, title, url, platform):
 
     if "zag" not in title:
         __augment_tags(
-            title, tags, "zig", {"programming", "gamedev"}, "ziglang",
+            title,
+            tags,
+            "zig",
+            {"programming", "gamedev"},
+            "ziglang",
         )
         __programming_keyword(tags, title, url, "zig", "ziglang")
 
@@ -190,8 +199,7 @@ def __topic_zig(tags, title, url, platform):
         and (
             "ziglang.org" in url.hostname
             or (
-                url.hostname == "github.com"
-                and (url.path or "").startswith("/ziglang")
+                url.hostname == "github.com" and (url.path or "").startswith("/ziglang")
             )
         )
     ):
@@ -226,20 +234,26 @@ def __topic_java(tags, title, url, platform, original_title):
             "java.net" in url.hostname
             or "openjdk.org" in url.hostname
             or (
-                url.hostname == "github.com"
-                and (url.path or "").startswith("/openjdk")
+                url.hostname == "github.com" and (url.path or "").startswith("/openjdk")
             )
         )
     ):
         tags.add("java")
 
-    if (platform in ("h", "u", "t", "l") or __is_programming_related(
-        title, url,
-    )) and re.search(r"\bJVM\b", original_title):
+    if (
+        platform in ("h", "u", "t", "l")
+        or __is_programming_related(
+            title,
+            url,
+        )
+    ) and re.search(r"\bJVM\b", original_title):
         tags.add("jvm")
 
     __augment_tags(
-        title, tags, "kotlin", {"programming", "gamedev", "compsci"},
+        title,
+        tags,
+        "kotlin",
+        {"programming", "gamedev", "compsci"},
     )
     __programming_keyword(tags, title, url, "kotlin")
     if "kotlin" in title and "jvm" in title:
@@ -266,9 +280,7 @@ def __topic_rust(tags, title, url, platform):
     __programming_keyword(tags, title, url, "rust", "rustlang")
 
     if "rust" in title and (
-        "gcc" in title
-        or "kernel" in title
-        or ("linux" in title and "driver" in title)
+        "gcc" in title or "kernel" in title or ("linux" in title and "driver" in title)
     ):
         tags.add("rust")
 
@@ -292,9 +304,7 @@ def __topic_golang(tags, title, url, platform, original_title):
         and (
             "golang.org" in url.hostname
             or "go.dev" in url.hostname
-            or (
-                url.hostname == "github.com" and url.path.startswith("/golang")
-            )
+            or (url.hostname == "github.com" and url.path.startswith("/golang"))
         )
     ):
         tags.add("golang")
@@ -305,7 +315,10 @@ def __topic_python(tags, title, url, platform):
         __augment_tags(title, tags, "python")
 
     __augment_tags(
-        title, tags, "python", {"programming", "webdev", "gamedev", "compsci"},
+        title,
+        tags,
+        "python",
+        {"programming", "webdev", "gamedev", "compsci"},
     )
     __programming_keyword(tags, title, url, "python")
     __augment_tags(title, tags, "django", {"python", "webdev", "programming"})
@@ -332,10 +345,7 @@ def __topic_lisp_scheme(tags, title, url, platform, original_title):
     __programming_keyword(tags, title, url, "racket")
     __augment_tags(title, tags, None, {"racket"}, "scheme")
     if "guile" in title and (
-        "gnu" in title
-        or "scheme" in title
-        or "lisp" in title
-        or "emacs" in title
+        "gnu" in title or "scheme" in title or "lisp" in title or "emacs" in title
     ):
         tags.add("scheme")
 
@@ -391,8 +401,7 @@ def __topic_apl(tags, title, url, platform, original_title):
         # if url and url.hostname and "github" in url.hostname:
         #     if re.search(r"\K\b", original_title):
         if (
-            re.search(r"\bK\b", original_title)
-            or re.search(r"\bJ\b", original_title)
+            re.search(r"\bK\b", original_title) or re.search(r"\bJ\b", original_title)
         ) and ("programming" in title or "concatenative" in title):
             tags.add("apl")
 
@@ -415,7 +424,9 @@ def __topic_devops(tags, title, url, platform, original_title):
 
     __augment_tags(title, tags, "kubernetes")
     if re.search(r"\bk8s\b", original_title, re.IGNORECASE) or re.search(
-        r"\bmicrok8s\b", original_title, re.IGNORECASE,
+        r"\bmicrok8s\b",
+        original_title,
+        re.IGNORECASE,
     ):
         tags.add("kubernetes")
 
@@ -436,7 +447,7 @@ def __topic_devops(tags, title, url, platform, original_title):
 
 
 def __topic_compsci(tags, title, url, platform, original_title):
-    # todo: https://news.ycombinator.com/item?id=33295944
+    # TODO: https://news.ycombinator.com/item?id=33295944
 
     if (
         "assembly" in tags
@@ -631,13 +642,12 @@ def __from_title_url(tags, title, url):
     ):
         tags |= {"quantumcomputing", "programming"}
 
-    if "programming" in title and (
-        "language" in title or "languages" in title
-    ):
+    if "programming" in title and ("language" in title or "languages" in title):
         tags |= {"programming"}
 
     if "programming" in tags and re.match(
-        r".*(^v?|\sv?)(\d+\.?){2,4}[^ ]* release", " ".join(title),
+        r".*(^v?|\sv?)(\d+\.?){2,4}[^ ]* release",
+        " ".join(title),
     ):
         tags.add("release")
 
@@ -766,14 +776,16 @@ def __special_cases(tags, platform, title, url):
         tags.discard("italy")
 
 
-def normalize(tags, platform=None, title="", url=""):
+def normalize(tags, platform=None, title: str | None = "", url: str | None = ""):
     tags = tags or []
     tags = {t.lower().strip() for t in tags}
-    original_title = title or ""
+    title = title or ""
+    original_title = title
+    url = (url or "").lower()
+
     title = web_title.normalize(title, platform, url, tags, stem=False)
     title_tokens = title.split()
 
-    url = (url or "").lower()
     curl = cleanurl.cleanurl(url)
 
     for _ in range(3):
@@ -790,7 +802,11 @@ def normalize(tags, platform=None, title="", url=""):
         __topic_lisp_scheme(tags, title_tokens, curl, platform, original_title)
         __topic_ruby(tags, title_tokens, curl, platform, original_title)
         __topic_erlang_elixir(
-            tags, title_tokens, curl, platform, original_title,
+            tags,
+            title_tokens,
+            curl,
+            platform,
+            original_title,
         )
         __topic_apl(tags, title_tokens, curl, platform, original_title)
         __topic_devops(tags, title_tokens, curl, platform, original_title)

@@ -286,7 +286,7 @@ class EndOfSubreddits(Exception):
 
 
 def client(with_cache=False, with_retries=True, username=None, password=None):
-    c = praw.Reddit(
+    return praw.Reddit(
         client_id=settings.REDDIT_CLIENT_ID,
         client_secret=settings.REDDIT_CLIENT_SECRET,
         user_agent=settings.USERAGENT,
@@ -295,7 +295,6 @@ def client(with_cache=False, with_retries=True, username=None, password=None):
         username=username,
         password=password,
     )
-    return c
 
 
 def client_username(with_cache=False, with_retries=True):

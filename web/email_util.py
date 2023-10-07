@@ -1,9 +1,8 @@
-from __future__ import annotations  # for union type
-
 import email
 import imaplib
 import logging
 import re
+from email.message import Message
 
 from celery import shared_task
 from django.conf import settings
@@ -22,13 +21,13 @@ logger = logging.getLogger(__name__)
     retry_backoff_max=60 * 60,
     retry_kwargs={"max_retries": 5},
 )
-def send_task(subject: str, body: str, from_email: str, to_emails: list[str]):
+def send_task(subject: str, body: str, from_email: str, to_emails: list[str]) -> None:
     if util.is_dev():
         subject = "[DEV] " + subject
     django_send_mail(subject, body, from_email, to_emails)
 
 
-def send(subject: str, body: str, from_email: str, to_emails: str | list[str]):
+def send(subject: str, body: str, from_email: str, to_emails: str | list[str]) -> None:
     if isinstance(to_emails, str):
         to_emails = [to_emails]
     send_task.delay(subject, body, from_email, to_emails)
@@ -53,22 +52,24 @@ def imap_client():
 email_imap_handlers = [weekly.imap_handler]
 
 
-def __get_imap_field(message, key):
+def __get_imap_field(message: Message, key: str) -> str:
     return message.get(key, "")
 
 
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_and_dispatch_email(self):
-    m, status, messages = imap_client()
+    _ = self
+    m, _, messages = imap_client()
 
     logger.debug(f"Email messages {messages}")
 
     for id in range(1, int(messages[0]) + 1):
         logger.debug(f"Email id {id}")
-        res, data = m.fetch(str(id), "(RFC822)")
+        _, data = m.fetch(str(id), "(RFC822)")
         message = email.message_from_bytes(
-            data[0][1], policy=email.policy.default.clone(utf8=True),
+            data[0][1],
+            policy=email.policy.default.clone(utf8=True),
         )
         if not message:
             logger.debug("Cannot decode message")
@@ -93,18 +94,18 @@ def worker_fetch_and_dispatch_email(self):
 
         subject = __get_imap_field(message, "Subject")
 
-        if settings.EMAIL_TO_PREFIX:
-            if not to_email or not to_email.startswith(
-                settings.EMAIL_TO_PREFIX,
-            ):
-                logger.debug(f"Email skipping {to_email} {subject}")
-                continue
+        if settings.EMAIL_TO_PREFIX and (
+            not to_email or not to_email.startswith(settings.EMAIL_TO_PREFIX)
+        ):
+            logger.debug(f"Email skipping {to_email} {subject}")
+            continue
 
         if message.get_body().get_content_type() == "text/plain":
             body = message.get_body().get_content()
         if message.get_body().get_content_type() == "text/html":
             body = http.parse_html(message.get_body().get_content()).get_text(
-                " ", strip=True,
+                " ",
+                strip=True,
             )
 
         if not body or not from_email or not to_email or not subject:
@@ -114,7 +115,12 @@ def worker_fetch_and_dispatch_email(self):
         handled = False
         for handler in email_imap_handlers:
             handled = handler(
-                message, message_id, from_email, to_email, subject, body,
+                message,
+                message_id,
+                from_email,
+                to_email,
+                subject,
+                body,
             )
             if handled:
                 break

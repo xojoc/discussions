@@ -1,6 +1,10 @@
 import datetime
 import logging
 import time
+from enum import Enum
+from functools import total_ordering
+from http import HTTPStatus
+from typing import Self
 
 import cleanurl
 import urllib3
@@ -18,31 +22,55 @@ from . import extract, http, models, tags, title
 logger = logging.getLogger(__name__)
 
 redis_prefix = "discussions:crawler:"
-redis_queue_name = redis_prefix + "queue"
-redis_queue_medium_name = redis_prefix + "queue_medium"
-redis_queue_low_name = redis_prefix + "queue_low"
-redis_queue_zero_name = redis_prefix + "queue_zero"
+
+
+@total_ordering
+class Priority(Enum):
+    normal = 0
+    medium = 1
+    low = 2
+    very_low = 3
+
+    def __lt__(self, other):
+        if self.__class__ is not other.__class__:
+            return NotImplemented
+
+        return self.value < other.value
+
+    def lower(self: Self) -> Self:
+        max_value = list(self.__class__)[-1].value
+        p = min(max_value, self.value + 1)
+        return Priority(p)
+
+
+default_queue = redis_prefix + "queue"
+queue_names = {
+    Priority.normal: default_queue,
+    Priority.medium: redis_prefix + "queue_medium",
+    Priority.low: redis_prefix + "queue_low",
+    Priority.very_low: redis_prefix + "queue_zero",
+}
+
 redis_host_semaphore = redis_prefix + "semaphore:host"
 
 
 @shared_task(ignore_result=True)
-def add_to_queue(url, priority=0, low=False):
+def add_to_queue(
+    url: str | None,
+    priority: Priority = Priority.normal,
+    low: bool = False,
+) -> None:
+    if not url:
+        return
     r = get_redis_connection()
     if low:
-        priority = 2
-    if priority == 0:
-        n = redis_queue_name
-    elif priority == 1:
-        n = redis_queue_medium_name
-    elif priority == 2:
-        n = redis_queue_low_name
-    elif priority == 3:
-        n = redis_queue_zero_name
+        priority = Priority.low
+    n = queue_names.get(priority)
 
     r.rpush(n, url)
 
 
-def get_semaphore(url):
+def sempaphore_green(url):
     try:
         u = urllib3.util.parse_url(url)
     except Exception:
@@ -78,9 +106,18 @@ def fetch(url):
     one_week_ago = timezone.now() - datetime.timedelta(days=7)
 
     cu = cleanurl.cleanurl(url)
+    if not cu:
+        return None
+
     su = cleanurl.cleanurl(
-        url, generic=True, respect_semantics=True, host_remap=False,
+        url,
+        generic=True,
+        respect_semantics=True,
+        host_remap=False,
     )
+    if not su:
+        return None
+
     resource = models.Resource.by_url(url)
 
     if not resource:
@@ -101,7 +138,7 @@ def fetch(url):
     else:
         resource.status_code = response.status_code
 
-    if resource.status_code == 200:
+    if resource.status_code == HTTPStatus.OK:
         html = http.parse_html(response, safe_html=True, clean=True)
         resource.clean_html = str(html)
         html_structure = extract.structure(html, url)
@@ -111,7 +148,7 @@ def fetch(url):
 
     resource.save()
 
-    if resource.status_code == 200:
+    if resource.status_code == HTTPStatus.OK:
         try:
             extract_html(resource)
         except Exception as e:
@@ -122,17 +159,13 @@ def fetch(url):
 
 def process_next():
     r = get_redis_connection()
-    priority = 0
-    url = r.lpop(redis_queue_name)
-    if not url:
-        priority = 1
-        url = r.lpop(redis_queue_medium_name)
-        if not url:
-            priority = 2
-            url = r.lpop(redis_queue_low_name)
-            if not url:
-                priority = 3
-                url = r.lpop(redis_queue_zero_name)
+    priority = Priority.normal
+    url = None
+    for p, n in sorted(queue_names.items()):
+        url = r.lpop(n)
+        if url:
+            priority = p
+            break
 
     if not url:
         logger.debug("process_next: no url from queue")
@@ -140,19 +173,19 @@ def process_next():
 
     url = str(url, "utf-8")
 
-    if url.startswith("https://streamja.com"):
+    if url.startswith(
+        (
+            "https://streamja.com",
+            "https://www.reddit.com/gallery/",
+            "https://www.reddit.com/r/",
+        ),
+    ):
         return False
 
-    if url.startswith("https://www.reddit.com/gallery/"):
-        return False
-
-    if url.startswith("https://www.reddit.com/r/"):
-        return False
-
-    if not get_semaphore(url):
+    if not sempaphore_green(url):
         logger.debug(f"process_next: semaphore red: {url}")
-        if priority <= 1:
-            priority += 1
+        if priority <= Priority.medium:
+            priority = priority.lower()
         add_to_queue(url, priority=priority)
         return False
 
@@ -186,15 +219,16 @@ def process():
 
 @receiver(post_save, sender=models.Discussion)
 def process_discussion(sender, instance, created, **kwargs):
+    _ = (sender, kwargs)
     if created and instance.story_url:
-        priority = 0
+        priority = Priority.normal
         days_ago = timezone.now() - datetime.timedelta(days=14)
         one_year_ago = timezone.now() - datetime.timedelta(days=365)
         if instance.created_at:
             if instance.created_at < one_year_ago:
-                priority = 2
+                priority = Priority.low
             elif instance.created_at < days_ago:
-                priority = 1
+                priority = Priority.medium
 
         add_to_queue(instance.story_url, priority=priority)
 
@@ -212,17 +246,18 @@ def populate_queue(comment_count=10, score=10, days=3):
     )
 
     for d in discussions:
-        add_to_queue(d.story_url, priority=3)
+        add_to_queue(d.story_url, priority=Priority.low)
 
 
 @shared_task(ignore_result=True)
 def extract_html(resource):
-    if type(resource) == int:
+    if isinstance(resource, int):
         resource = models.Resource.objects.get(pk=resource)
 
     resource.last_processed = timezone.now()
 
-    if resource.status_code != 200:
+    if resource.status_code != HTTPStatus.OK:
+        # TODO: python3.12 use is_success
         if resource.status_code // 100 != 2 and resource.clean_html:
             resource.clean_html = None
 
@@ -245,7 +280,7 @@ def extract_html(resource):
         if not href:
             continue
 
-        # todo: ignore relative and #id urls
+        # TODO: ignore relative and #id urls
 
         to = models.Resource.by_url(href)
         if not to:
@@ -259,18 +294,19 @@ def extract_html(resource):
         anchor_text = link.text
         anchor_rel = link.get("rel")
 
-        link = models.Link(
+        link_db = models.Link(
             from_resource=resource,
             to_resource=to,
             anchor_title=anchor_title,
             anchor_text=anchor_text,
             anchor_rel=anchor_rel,
         )
-        link.save()
+        link_db.save()
 
     resource.normalized_title = title.normalize(resource.title)
     resource.normalized_tags = tags.normalize(
-        resource.tags, url=resource.story_url,
+        resource.tags,
+        url=resource.story_url,
     )
 
     resource.save()

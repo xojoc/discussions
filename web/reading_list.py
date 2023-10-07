@@ -28,7 +28,7 @@ def get_reading_list(topic, category):
             where
                 wd.canonical_story_url = web_discussion.canonical_story_url)"""
 
-    stories = models.Discussion.objects.raw(
+    return models.Discussion.objects.raw(
         f"""
  with web_discussion_quartile as (
     select
@@ -64,7 +64,6 @@ order by platform, score desc, comment_count desc
         {"tags": tags, "platform": platform, "category": category},
     )
 
-    return stories
 
 
 def get_reading_list_cached(topic, category):

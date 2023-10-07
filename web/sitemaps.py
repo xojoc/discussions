@@ -52,7 +52,7 @@ class DiscussionsSitemap(Sitemap):
     limit = 10_000
 
     def items(self):
-        q = (
+        return (
             Discussion.objects.exclude(scheme_of_story_url__isnull=True)
             .exclude(canonical_story_url__isnull=True)
             .filter(comment_count__gte=5)
@@ -64,7 +64,6 @@ class DiscussionsSitemap(Sitemap):
 
         # annotate(comment_count=Sum('comment_count'),
 
-        return q
 
     # def lastmod(self, obj):
 

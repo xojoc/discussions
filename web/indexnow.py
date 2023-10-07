@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=models.Discussion)
 def process_discussion(sender, instance, created, **kwargs):
-    # todo: disabled for now
+    # TODO: disabled for now
 
     return
     # if not instance.story_url:

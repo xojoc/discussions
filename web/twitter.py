@@ -189,7 +189,6 @@ def tweet_story_topic(story, tags, topic, existing_tweet):
     try:
         if existing_tweet:
             __sleep(35, 47)
-            # tweet_id = retweet(existing_tweet.tweet_id, bot_name)
             tweet_id = tweet(status, bot_name)
         else:
             tweet_id = tweet(status, bot_name)

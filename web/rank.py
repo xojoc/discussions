@@ -43,9 +43,8 @@ def links_to_igraph():
         "to_resource_id",
     )
 
-    g = ig.Graph(directed=True, edges=list(links))
+    return ig.Graph(directed=True, edges=list(links))
 
-    return g
 
 
 def pagerank(g):

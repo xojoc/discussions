@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import json
 import secrets
@@ -265,6 +266,7 @@ class Discussion(models.Model):
             return "Echo JS"
         elif platform == "a":
             return "Laarc"
+        return None
 
     def platform_name(self):
         return self.get_platform_name(self.platform)
@@ -366,6 +368,7 @@ class Discussion(models.Model):
             return f"{bu}/s/{self.id}"
         elif self.platform in ("e"):
             return f"{bu}/news/{self.id}"
+        return None
 
     @classmethod
     def of_url(cls, url, client=None, only_relevant_stories=True):
@@ -706,13 +709,12 @@ class Resource(models.Model):
         if not cu or not su:
             return None
 
-        r = (
+        return (
             cls.objects.filter(url=su.schemeless_url)
             | cls.objects.filter(url=cu.schemeless_url)
             | cls.objects.filter(canonical_url=cu.schemeless_url)
         ).first()
 
-        return r
 
     def outbound_resources(self):
         ols = self.links.all().distinct()
@@ -730,9 +732,8 @@ class Resource(models.Model):
             ),
         )
 
-        ols = ols.order_by("-discussions_comment_count")
+        return ols.order_by("-discussions_comment_count")
 
-        return ols
 
     def inbound_resources(self):
         ils = self.inbound_link.all().distinct()
@@ -773,9 +774,8 @@ class Resource(models.Model):
         #                                    function='unnest'))
         #     .values_list('normalized_tags', flat=True))))
 
-        ils = ils.order_by("-discussions_comment_count")
+        return ils.order_by("-discussions_comment_count")
 
-        return ils
 
     @property
     def story_url(self):
@@ -786,7 +786,7 @@ class Resource(models.Model):
 
     @property
     def author(self):
-        # todo: for now extract at runtime. In the future possibly add to the model
+        # TODO: for now extract at runtime. In the future possibly add to the model
         author = extract.Author()
         if self.clean_html:
             try:
@@ -797,12 +797,10 @@ class Resource(models.Model):
                 pass
 
         if not author.twitter_account:
-            try:
+            with contextlib.suppress(Exception):
                 author.twitter_account = extract.get_github_user_twitter(
                     self.story_url,
                 )
-            except Exception:
-                pass
 
         return author
 

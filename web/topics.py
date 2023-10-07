@@ -1,5 +1,37 @@
 # other parameters filled inside web/apps.py
-topics = {
+from typing import TypedDict
+
+
+class SocialProfile(TypedDict):
+    account: str
+
+
+class Twitter(SocialProfile):
+    pass
+
+
+class Mastodon(SocialProfile):
+    pass
+
+
+class TopicRequired(TypedDict):
+    name: str
+    short_description: str
+    tags: set
+    twitter: Twitter
+    mastodon: Mastodon
+
+
+class Topic(TopicRequired, total=False):
+    platform: str
+    home_link: str
+    noun: str | None
+    # filled inside apps.py
+    email: str
+    from_email: tuple[str, str]
+
+
+topics: dict[str, Topic] = {
     "nim": {
         "name": "Nim",
         "short_description": "Nim programming language",
@@ -236,18 +268,18 @@ topics = {
             "account": "@hn_discussions@mastodon.social",
         },
     },
-    "laarc": {
-        "name": "Laarc",
-        "short_description": "Laarc",
-        "tags": set(),
-        "platform": "a",
-        "twitter": {
-            "account": "LaarcDiscu",
-        },
-        "mastodon": {
-            "account": "@laarc_discussions@mastodon.social",
-        },
-    },
+    # "laarc": {
+    #     "name": "Laarc",
+    #     "short_description": "Laarc",
+    #     "tags": set(),
+    #     "platform": "a",
+    #     "twitter": {
+    #         "account": "LaarcDiscu",
+    #     },
+    #     "mastodon": {
+    #         "account": "@laarc_discussions@mastodon.social",
+    #     },
+    # },
 }
 
 topics_choices = sorted([(key, item["name"]) for key, item in topics.items()])

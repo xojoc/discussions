@@ -11,7 +11,7 @@ from . import celery_util, http, models, worker
 
 logger = logging.getLogger(__name__)
 
-# todo: handle merged stories
+# TODO: handle merged stories
 # story has been merged:
 # e.g.: https://lobste.rs/stories/dnfxpk.json and
 #       https://lobste.rs/s/7bbyke.json

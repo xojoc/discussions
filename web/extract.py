@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import urllib
 
@@ -97,10 +98,8 @@ def __extract_author(article, h):
 
 def __extract_title(h, s, url):
     if not s.title:
-        try:
+        with contextlib.suppress(Exception):
             s.title = h.select_one("title").get_text().strip()
-        except Exception:
-            pass
 
     nt = (s.title or "").strip(" -:~").lower()
 
@@ -153,17 +152,14 @@ def structure(h, url=None):
     if s.article:
         #     pass
 
-        try:
+        with contextlib.suppress(Exception):
             s.outbound_links = s.article.select("a") or []
-        except Exception:
-            pass
 
     try:
         s.author = __extract_author(s.article, h)
     except Exception as e:
         print(f"author: {e}")
         logging.debug(f"author: {e}")
-        pass
 
     __extract_title(h, s, url)
 
@@ -173,8 +169,7 @@ def structure(h, url=None):
 def _fetch_parse_extract(u):
     r = http.fetch(u)
     h = http.parse_html(r)
-    s = structure(h, u)
-    return s
+    return structure(h, u)
 
 
 def get_github_user_twitter(url):

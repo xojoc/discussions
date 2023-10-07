@@ -53,7 +53,7 @@ def __log_query(q):
     else:
         r.zincrby("discussions:stats:query:search", 1, q)
 
-    if random.randint(1, 100) == 1:
+    if random.randint(1, 100) == 1:  # noqa: S311
         r.zremrangebyrank("discussions:stats:query:url", 0, -10)
         r.zremrangebyrank("discussions:stats:query:search", 0, -10)
 
@@ -87,11 +87,8 @@ def discussions_context_cached(q):
 
 def discussions_context(q):
     ctx = {}
-
     q = (q or "").strip()
-
     url = (q or "").lower().strip()
-
 
     if url and not (url.startswith(("http://", "https://"))):
         ctx["absolute_url"] = "https://" + q
@@ -103,11 +100,7 @@ def discussions_context(q):
 
     ctx["original_query"] = q
     ctx["url"] = url
-    if (
-        (url.startswith(("http://", "https://")))
-        and " " not in url
-        and len(url) >= 10
-    ):
+    if (url.startswith(("http://", "https://"))) and " " not in url and len(url) >= 10:
         ctx["is_url"] = True
     else:
         ctx["is_url"] = False
@@ -117,7 +110,7 @@ def discussions_context(q):
     if not ctx["url"]:
         return ctx
     ctx["display_discussions"] = True
-    uds, cu, rcu = models.Discussion.of_url_or_title(ctx["url"])
+    uds, cu, _ = models.Discussion.of_url_or_title(ctx["url"])
 
     ctx["sql_query"] = ""
     if uds is not None:
@@ -205,9 +198,6 @@ def get_submit_links(request, ctx):
         "Lobsters": f"https://lobste.rs/stories/new?url={url}&title={t}",
         "Twitter": f"https://twitter.com/intent/tweet?url={url}&text={t}",
         "Mastodon": f"https://mastodon.social/share?text={t}%0A{url}",
-        # "Laarc": f"https://www.laarc.io/submitlink?u={url}&t={t}",
-        # "Barnacles": f"https://barnacl.es/stories/new?url={url}&title={t}",
-        # "Gambero": f"https://gambe.ro/stories/new?url={url}&title={t}",
     }
 
     ctx["submit_links"] = submit_links
@@ -239,10 +229,7 @@ def __suggest_topic(ctx):
 def index(request, path_q=None):
     host = request.get_host().partition(":")[0]
     if not request.path.startswith("/.well-known/") and (
-        host != "localhost"
-        and host != "127.0.0.1"
-        and host != "testserver"
-        and host != settings.APP_DOMAIN
+        host not in ("localhost", "127.0.0.1", "testserver", settings.APP_DOMAIN)
     ):
         r = "https://" + settings.APP_DOMAIN + request.get_full_path()
         return HttpResponsePermanentRedirect(r)
@@ -287,9 +274,11 @@ def index(request, path_q=None):
         except Exception as e:
             logger.info(e)
 
-    if ctx.get("submit_title") and not (
-        ctx.get("submit_title").startswith("http://")
-        or ctx.get("submit_title").startswith("https://")
+    if ctx.get("submit_title") and not ctx.get("submit_title").startswith(
+        (
+            "http://",
+            "https://",
+        ),
     ):
         ctx["try_with_title"] = ctx.get("submit_title")
 
@@ -324,12 +313,14 @@ def index(request, path_q=None):
 
 
 def short_url(request, platform_id):
+    _ = request
     d = get_object_or_404(models.Discussion, pk=platform_id)
     redirect_to = reverse("web:index", args=[d.story_url])
     return redirect(redirect_to, permanent=False)
 
 
 def story_short_url(request, platform_id):
+    _ = request
     d = get_object_or_404(models.Discussion, pk=platform_id)
     return redirect(d.story_url, permanent=False)
 
@@ -342,7 +333,8 @@ def weekly_confirm_email(request):
     subscriber_email = request.GET.get("email")
     try:
         subscriber = models.Subscriber.objects.get(
-            topic=topic, email=subscriber_email,
+            topic=topic,
+            email=subscriber_email,
         )
     except models.Subscriber.DoesNotExist:
         subscriber = None
@@ -359,7 +351,8 @@ def weekly_confirm_email(request):
         subscriber.save()
 
         messages.success(
-            request, f"Email {subscriber_email} confirmed. Thank you!",
+            request,
+            f"Email {subscriber_email} confirmed. Thank you!",
         )
     else:
         messages.error(
@@ -382,7 +375,8 @@ def weekly_confirm_unsubscription(request):
         subscriber_email = request.GET.get("email")
         try:
             subscriber = models.Subscriber.objects.get(
-                topic=topic, email=subscriber_email,
+                topic=topic,
+                email=subscriber_email,
             )
         except models.Subscriber.DoesNotExist:
             subscriber = None
@@ -394,16 +388,20 @@ def weekly_confirm_unsubscription(request):
             "topic": topics.topics.get(topic_key),
         }
         return render(
-            request, "web/weekly_unsubscribe_page.html", {"ctx": ctx},
+            request,
+            "web/weekly_unsubscribe_page.html",
+            {"ctx": ctx},
         )
-    elif request.method == "POST":
+
+    if request.method == "POST":
         topic = request.POST.get("topic")
         subscriber_email = request.POST.get("email")
         verification_code = request.POST.get("verification_code")
 
         try:
             subscriber = models.Subscriber.objects.get(
-                topic=topic, email=subscriber_email,
+                topic=topic,
+                email=subscriber_email,
             )
         except models.Subscriber.DoesNotExist:
             subscriber = None
@@ -413,9 +411,7 @@ def weekly_confirm_unsubscription(request):
                 request,
                 "Something went wrong. Verification code doesn't match. Write to hi@discu.eu for assistance",
             )
-        elif (
-            subscriber and subscriber.confirmed and not subscriber.unsubscribed
-        ):
+        elif subscriber and subscriber.confirmed and not subscriber.unsubscribed:
             subscriber.unsubscribe()
             subscriber.unsubscribed_feedback = request.POST.get(
                 "unsubscribed_feedback",
@@ -435,6 +431,7 @@ def weekly_confirm_unsubscription(request):
             redirect_to = reverse("web:weekly_index")
 
         return redirect(redirect_to, permanent=False)
+    return None
 
 
 def __weekly_topic_subscribe_form(request, topic, ctx):
@@ -449,7 +446,9 @@ def __weekly_topic_subscribe_form(request, topic, ctx):
             subscriber = None
 
     form = forms.SubscriberForm(
-        request.POST or None, instance=subscriber, initial={"topic": topic},
+        request.POST or None,
+        instance=subscriber,
+        initial={"topic": topic},
     )
 
     if form.is_valid():
@@ -486,8 +485,7 @@ def weekly_index(request):
     response = __weekly_topic_subscribe_form(request, None, ctx)
     if response:
         return response
-    response = render(request, "web/weekly_index.html", {"ctx": ctx})
-    return response
+    return render(request, "web/weekly_index.html", {"ctx": ctx})
 
 
 def weekly_topic(request, topic):
@@ -495,25 +493,25 @@ def weekly_topic(request, topic):
         topic = "lisp"
     ctx = weekly.topic_context(topic)
     if not ctx:
-        raise Http404("404")
+        msg = "404"
+        raise Http404(msg)
 
     response = __weekly_topic_subscribe_form(request, topic, ctx)
     if response:
         return response
-    response = render(request, "web/weekly_topic.html", {"ctx": ctx})
-    return response
+    return render(request, "web/weekly_topic.html", {"ctx": ctx})
 
 
 # @cache_page(24 * 60 * 60, key_prefix="weekly:")
 def weekly_topic_week(request, topic, year, week):
     ctx = weekly.topic_week_context_cached(topic, year, week)
     if not ctx:
-        raise Http404("404")
+        msg = "404"
+        raise Http404(msg)
     response = __weekly_topic_subscribe_form(request, topic, ctx)
     if response:
         return response
-    response = render(request, "web/weekly_topic_week.html", {"ctx": ctx})
-    return response
+    return render(request, "web/weekly_topic_week.html", {"ctx": ctx})
 
 
 def statistics(request):
@@ -522,6 +520,7 @@ def statistics(request):
 
 
 def __social_context(request):
+    _ = request
     twitter_bots = []
     for topic_key, topic in topics.topics.items():
         if topic_key in ["laarc"]:
@@ -569,14 +568,14 @@ def dashboard(request):
     ctx = {}
 
     profile_form = forms.ProfileForm(instance=request.user)
-    if request.method == "POST":
-        if "submit-update-user-profile" in request.POST:
-            profile_form = forms.ProfileForm(
-                request.POST, instance=request.user,
-            )
-            if profile_form.is_valid():
-                profile_form.save()
-                messages.success(request, "Profile updated successfully!")
+    if request.method == "POST" and "submit-update-user-profile" in request.POST:
+        profile_form = forms.ProfileForm(
+            request.POST,
+            instance=request.user,
+        )
+        if profile_form.is_valid():
+            profile_form.save()
+            messages.success(request, "Profile updated successfully!")
 
     ctx["profile_form"] = profile_form
 
@@ -596,7 +595,8 @@ def dashboard(request):
 
     if not ctx["user_verified_email"]:
         messages.warning(
-            request, "Please verify your email to access all the features.",
+            request,
+            "Please verify your email to access all the features.",
         )
 
     ctx["topics"] = topics.topics
@@ -620,23 +620,23 @@ def dashboard_mentions(request):
                     request,
                     "Sorry, but you already reached your maximum quota of rules",
                 )
-            else:
-                if mention_form.is_valid():
-                    model = mention_form.save(commit=False)
-                    model.user = request.user
-                    model.save()
-                    messages.success(
-                        request,
-                        f"Rule {model} saved!",
-                    )
-                    mention_form = forms.MentionForm()
-                    return redirect(request.get_full_path(), permanent=False)
+            elif mention_form.is_valid():
+                model = mention_form.save(commit=False)
+                model.user = request.user
+                model.save()
+                messages.success(
+                    request,
+                    f"Rule {model} saved!",
+                )
+                mention_form = forms.MentionForm()
+                return redirect(request.get_full_path(), permanent=False)
 
         if "submit-delete-mention-rule" in request.POST:
             pk = request.POST["mention-rule-delete-pk"]
             mention = get_object_or_404(models.Mention, pk=pk)
             if mention.user != request.user:
-                raise Http404("404")
+                msg = "404"
+                raise Http404(msg)
             mention.delete()
             messages.success(request, f"Rule {mention} deleted!")
             return redirect(request.get_full_path(), permanent=False)
@@ -653,7 +653,8 @@ def dashboard_mentions_edit(request, pk):
     ctx = {}
     mention = get_object_or_404(models.Mention, pk=pk)
     if mention.user != request.user:
-        raise Http404("404")
+        msg = "404"
+        raise Http404(msg)
 
     # if mention.disabled:
 
@@ -672,7 +673,8 @@ def dashboard_mentions_edit(request, pk):
                     f"Rule {model} saved!",
                 )
                 return redirect(
-                    reverse("web:dashboard_mentions"), permanent=False,
+                    reverse("web:dashboard_mentions"),
+                    permanent=False,
                 )
 
     ctx["form"] = edit_form
@@ -690,7 +692,9 @@ def stripe_webhook(request):
 
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET,
+            payload,
+            sig_header,
+            settings.STRIPE_WEBHOOK_SECRET,
         )
     except ValueError:
         return HttpResponse(status=400)
@@ -747,8 +751,10 @@ def stripe_checkout(request):
         client_reference_id=request.user.id,
         customer=request.user.stripe_customer_id,
         customer_update={"address": "auto", "name": "auto"},
-        success_url=f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}/stripe/subscribe/success/?stripe_session_id="
-        + "{{CHECKOUT_SESSION_ID}}",
+        success_url=(
+            f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}/stripe/subscribe/success/?stripe_session_id="
+            f"{{CHECKOUT_SESSION_ID}}"
+        ),
         cancel_url=f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}/stripe/subscribe/cancel/",
     )
     return redirect(session.url, permanent=False)
@@ -814,7 +820,8 @@ def reading_list_topic(request, topic):
     ctx = {}
     ctx["topic"] = topics.topics.get(topic)
     if not ctx["topic"]:
-        raise Http404("not found")
+        msg = "not found"
+        raise Http404(msg)
 
     ctx["articles"] = reading_list.get_reading_list_cached(topic, "article")
 
@@ -846,20 +853,25 @@ def aws_bounce_handler(request):
             bounce = message.get("bounce")
             if bounce.get("bounceType") in ["Undetermined", "Permanent"]:
                 unsubscribe = True
-            for recipient in bounce.get("bouncedRecipients"):
-                destinations.append(recipient.get("emailAddress"))
+            destinations = [
+                recipient.get("emailAddress")
+                for recipient in bounce.get("bouncedRecipients")
+            ]
         elif notification_type == "Complaint":
             unsubscribe = True
             complaint = message.get("complaint")
-            for recipient in complaint.get("complainedRecipients"):
-                destinations.append(recipient.get("emailAddress"))
+            destinations = [
+                recipient.get("emailAddress")
+                for recipient in complaint.get("complainedRecipients")
+            ]
 
         if unsubscribe:
             from_email = message.get("mail").get("source")
-            topic_key, topic = topics.get_topic_by_email(from_email)
+            topic_key, _ = topics.get_topic_by_email(from_email)
             for destination in destinations:
                 subscriber = models.Subscriber.objects.filter(
-                    topic=topic_key, email=destination,
+                    topic=topic_key,
+                    email=destination,
                 ).first()
                 if not subscriber:
                     continue
@@ -877,25 +889,28 @@ def aws_bounce_handler(request):
 def mention_live_preview(request):
     ctx = {}
     rule = json.loads(request.body.decode("utf-8"))
-    ruleForm = forms.MentionForm(rule)
-    ctx["errors"] = ruleForm.errors
-    ctx["form"] = ruleForm
+    rule_form = forms.MentionForm(rule)
+    ctx["errors"] = rule_form.errors
+    ctx["form"] = rule_form
     ctx["discussions"] = []
-    if ruleForm.is_valid():
-        ruleModel = ruleForm.save(commit=False)
-        ctx["discussions"] = mention.discussions(ruleModel) or []
+    if rule_form.is_valid():
+        rule_model = rule_form.save(commit=False)
+        ctx["discussions"] = mention.discussions(rule_model) or []
 
     ctx["discussions"] = ctx["discussions"][:10]
 
     return render(
-        request, "web/dashboard_mentions_live_preview.html", {"ctx": ctx},
+        request,
+        "web/dashboard_mentions_live_preview.html",
+        {"ctx": ctx},
     )
 
 
 def click(request):
     url = request.GET.get("url")
     if not url:
-        raise Http404("404")
+        msg = "404"
+        raise Http404(msg)
     sub = request.GET.get("subscriber")
     year = request.GET.get("year")
     week = request.GET.get("week")
@@ -932,7 +947,7 @@ def click_subscriber(request, typ, subscriber, year, week, discussion):
 
     if typ == "d":
         return redirect(
-            reverse("web:index", args=[discussion.story_url]), permanent=False,
+            reverse("web:index", args=[discussion.story_url]),
+            permanent=False,
         )
-    else:
-        return redirect(discussion.story_url, permanent=False)
+    return redirect(discussion.story_url, permanent=False)

@@ -5,6 +5,7 @@ import random
 import re
 import time
 from collections import defaultdict
+from email.message import Message
 
 import django.template.loader as template_loader
 from celery import shared_task
@@ -14,6 +15,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.db.models import Count, OuterRef, Subquery, Sum, Value
 from django.db.models.functions import Coalesce, TruncDay
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.timezone import make_aware
 
 from discussions import settings
@@ -62,8 +64,7 @@ def week_start(year, week=None):
 
     d = datetime.date.fromisocalendar(year, week, 1)
     d = datetime.datetime.combine(d, datetime.time(0, 0))
-    d = make_aware(d)
-    return d
+    return make_aware(d)
 
 
 def week_end(year, week=None):
@@ -72,8 +73,7 @@ def week_end(year, week=None):
 
     d = week_start(year, week) + datetime.timedelta(days=7)
     d = datetime.datetime.combine(d, datetime.time(0, 0))
-    d = make_aware(d)
-    return d
+    return make_aware(d)
 
 
 def all_yearweeks(topic):
@@ -96,7 +96,7 @@ def last_nth_yearweeks(topic, n):
     del topic
 
     yearweeks = set()
-    d = datetime.datetime.now()
+    d = timezone.now()
     for _ in range(n):
         d -= datetime.timedelta(days=7)
         ic = d.isocalendar()
@@ -107,7 +107,7 @@ def last_nth_yearweeks(topic, n):
 
 def __get_random_old_stories(topic, categories):
     found_categories = defaultdict(list)
-    time_ago = datetime.datetime.now() - datetime.timedelta(days=365)
+    time_ago = timezone.now() - datetime.timedelta(days=365)
 
     for cat, cat_count in categories.items():
         stories = (
@@ -127,7 +127,7 @@ def __get_random_old_stories(topic, categories):
         for _ in range(cat_count * 2):
             if len(found_categories[cat]) >= categories.get(cat, 0):
                 break
-            j = random.randint(0, count - 1)  # noqa S311
+            j = random.randint(0, count - 1)  # noqa: S311
             rs = stories[j]
             if rs in found_categories[cat]:
                 continue
@@ -213,10 +213,7 @@ def __get_stories(topic, year, week):
     unique_urls = set()
 
     for story in stories:
-        if (
-            story.canonical_story_url
-            and story.canonical_story_url in unique_urls
-        ):
+        if story.canonical_story_url and story.canonical_story_url in unique_urls:
             logger.debug(
                 f"weekly: duplicate: {story.platform_id} - {story.canonical_story_url} - {story.title}",
             )
@@ -243,7 +240,7 @@ def _get_digest(topic, year, week):
 
     digest = sorted(digest, key=lambda x: category.categories[x[0]]["sort"])
 
-    for cat, _category_name, stories in digest:
+    for cat, _, stories in digest:
         if topic == "hackernews":
             stories.sort(key=lambda x: x.comment_count, reverse=True)
         else:
@@ -313,9 +310,7 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
 
 def index_context():
     ctx = {}
-    ctx["topics"] = {
-        k: v for k, v in topics.topics.items() if k not in ["laarc"]
-    }
+    ctx["topics"] = {k: v for k, v in topics.topics.items() if k not in ["laarc"]}
     ctx["breadcrumbs"] = __generate_breadcrumbs()
     return ctx
 
@@ -344,9 +339,7 @@ def topic_context(topic):
         ctx["twitter_account"] = "@" + twitter.get("account")
     mastodon_cfg = topics.topics[topic].get("mastodon")
     if mastodon_cfg.get("account"):
-        ctx["mastodon_account"] = (
-            "@" + mastodon_cfg.get("account").split("@")[1]
-        )
+        ctx["mastodon_account"] = "@" + mastodon_cfg.get("account").split("@")[1]
         ctx["mastodon_account_url"] = mastodon.profile_url(
             mastodon_cfg.get("account"),
         )
@@ -354,7 +347,7 @@ def topic_context(topic):
     return ctx
 
 
-def topic_week_context(topic, year, week):
+def topic_week_context(topic: str, year: int, week: int) -> dict | None:
     ctx = {}
     ctx["topic_key"] = topic
     ctx["topic"] = topics.topics.get(topic)
@@ -374,9 +367,7 @@ def topic_week_context(topic, year, week):
         week=None,
     )
     ctx["breadcrumbs"] = __generate_breadcrumbs(topic, year, week)
-    ctx[
-        "web_link"
-    ] = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}" + reverse(
+    ctx["web_link"] = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}" + reverse(
         "web:weekly_topic_week",
         args=[topic, year, week],
     )
@@ -385,9 +376,7 @@ def topic_week_context(topic, year, week):
         ctx["twitter_account"] = "@" + twitter.get("account")
     mastodon_cfg = topics.topics[topic].get("mastodon")
     if mastodon_cfg.get("account"):
-        ctx["mastodon_account"] = (
-            "@" + mastodon_cfg.get("account").split("@")[1]
-        )
+        ctx["mastodon_account"] = "@" + mastodon_cfg.get("account").split("@")[1]
         ctx["mastodon_account_url"] = mastodon.profile_url(
             mastodon_cfg.get("account"),
         )
@@ -395,8 +384,8 @@ def topic_week_context(topic, year, week):
 
 
 def topic_week_context_cached(topic, year, week):
-    ic = datetime.datetime.now().isocalendar()
-    pic = (datetime.datetime.now() - datetime.timedelta(days=7)).isocalendar()
+    ic = timezone.now().isocalendar()
+    pic = (timezone.now() - datetime.timedelta(days=7)).isocalendar()
     cw = (ic.year, ic.week)
     cache_timeout = 0
 
@@ -423,7 +412,15 @@ def topic_week_context_cached(topic, year, week):
     return ctx
 
 
-def imap_handler(message, message_id, from_email, to_email, subject, body):
+def imap_handler(
+    message: Message,
+    message_id: str,
+    from_email: tuple[str, str],
+    to_email: str,
+    subject: str,
+    body: str,
+) -> bool:
+    _ = message
     logger.debug(
         f"""
     Message_id: {message_id}
@@ -435,10 +432,10 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
     """,
     )
 
-    try:
-        topic_key = re.search(r"weekly_([a-z0-9]+)@discu\.eu", to_email)[1]
-    except Exception:
+    matches = re.search(r"weekly_([a-z0-9]+)@discu\.eu", to_email)
+    if not matches:
         return False
+    topic_key = matches[1]
 
     topic = topics.topics.get(topic_key)
     if not topic:
@@ -502,7 +499,7 @@ def imap_handler(message, message_id, from_email, to_email, subject, body):
 
 
 def __rewrite_urls(ctx, subscriber, topic, year, week):
-    for _cat, _category_name, stories in ctx.get("digest"):
+    for _, _, stories in ctx.get("digest"):
         for story in stories:
             if story.story_url:
                 story.__dict__["click_story_url"] = util.click_url(
@@ -529,7 +526,9 @@ def __rewrite_urls(ctx, subscriber, topic, year, week):
                 )
 
 
-def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
+def send_mass_email(topic, year, week, testing=True, only_subscribers=None):
+    if only_subscribers is None:
+        only_subscribers = []
     if only_subscribers:
         subscribers = only_subscribers
     else:
@@ -552,7 +551,10 @@ def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
     if util.is_dev():
         subject = "[DEV] " + subject
 
-    from_email = topics.topics[topic]["from_email"]
+    from_email = topics.topics[topic].get("from_email")
+    if from_email:
+        logger.error(f"weekly: {topic} missing from_email")
+        return
 
     for subscriber in subscribers:
         ctx["subscriber"] = subscriber
@@ -580,7 +582,7 @@ def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
         messages.append(msg)
 
     if testing:
-        print(messages)
+        logger.info(messages)
         return
 
     if not messages:
@@ -593,7 +595,8 @@ def send_mass_email(topic, year, week, testing=True, only_subscribers=[]):
 @shared_task(bind=True, ignore_result=False)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_send_weekly_email(self):
-    six_days_ago = datetime.datetime.now() - datetime.timedelta(days=6)
+    _ = self
+    six_days_ago = timezone.now() - datetime.timedelta(days=6)
     year = six_days_ago.isocalendar().year
     week = six_days_ago.isocalendar().week
 
@@ -605,12 +608,15 @@ def worker_send_weekly_email(self):
 
 @shared_task(bind=True, ignore_result=True)
 def share_weekly_issue(self):
-    d = datetime.datetime.now() - datetime.timedelta(days=7)
+    _ = self
+    d = timezone.now() - datetime.timedelta(days=7)
     ic = d.isocalendar()
     year, week = ic.year, ic.week
 
     for topic_key, topic in topics.topics.items():
         ctx = topic_week_context(topic_key, year, week)
+        if not ctx:
+            continue
 
         if not ctx.get("digest"):
             logger.warning(
@@ -648,8 +654,8 @@ def share_weekly_issue(self):
                     twitter_status,
                     topic.get("twitter").get("account"),
                 )
-            except Exception as e:
-                logger.error(f"weekly share: {e}")
+            except Exception:
+                logger.exception("weekly share")
 
         if topic.get("mastodon"):
             try:
@@ -657,11 +663,11 @@ def share_weekly_issue(self):
                     mastodon_status,
                     topic.get("mastodon").get("account"),
                 )
-            except Exception as e:
-                logger.error(f"weekly share: {e}")
+            except Exception:
+                logger.exception("weekly share")
 
         if not util.is_dev():
-            time.sleep(random.randint(50, 80))
+            time.sleep(random.randint(50, 80))  # noqa: S311
 
 
 def open_rate(topic):
