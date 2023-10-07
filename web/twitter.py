@@ -33,6 +33,14 @@ def tweet(status, username):
 
     if not consumer_key or not consumer_secret or not token or not token_secret:
         logger.warning(f"Twitter bot: {username} non properly configured")
+        if not consumer_key:
+            logger.warning("consumer_key")
+        if not consumer_secret:
+            logger.warning("consumer_secret")
+        if not token:
+            logger.warning("token")
+        if not token_secret:
+            logger.warning("token_secret")
         return None
 
     if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
