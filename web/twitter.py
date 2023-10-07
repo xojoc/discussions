@@ -194,6 +194,8 @@ def tweet_story_topic(story, tags, topic, existing_tweet):
             tweet_id = tweet(status, bot_name)
     except tweepy.errors.Forbidden:
         raise
+    except tweepy.errors.TooManyRequests:
+        raise
     except Exception as e:
         logger.exception(f"twitter: tweet: {bot_name}: {status}: {tweet_id=}")
         sentry_sdk.capture_exception(e)
@@ -323,6 +325,11 @@ def tweet_discussions_scheduled(filter_topic=None):
                     timeout=60 * 60 * 5,
                 )
                 continue
+            except tweepy.errors.TooManyRequests as e:
+                logger.exception(f"twitter: {story.platform_id}")
+                sentry_sdk.capture_exception(e)
+                break
+
             except Exception as e:
                 logger.exception(f"twitter: {story.platform_id}")
                 sentry_sdk.capture_exception(e)
