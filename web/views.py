@@ -205,9 +205,9 @@ def get_submit_links(request, ctx):
         "Lobsters": f"https://lobste.rs/stories/new?url={url}&title={t}",
         "Twitter": f"https://twitter.com/intent/tweet?url={url}&text={t}",
         "Mastodon": f"https://mastodon.social/share?text={t}%0A{url}",
-        "Laarc": f"https://www.laarc.io/submitlink?u={url}&t={t}",
-        "Barnacles": f"https://barnacl.es/stories/new?url={url}&title={t}",
-        "Gambero": f"https://gambe.ro/stories/new?url={url}&title={t}",
+        # "Laarc": f"https://www.laarc.io/submitlink?u={url}&t={t}",
+        # "Barnacles": f"https://barnacl.es/stories/new?url={url}&title={t}",
+        # "Gambero": f"https://gambe.ro/stories/new?url={url}&title={t}",
     }
 
     ctx["submit_links"] = submit_links
