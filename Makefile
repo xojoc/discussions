@@ -35,6 +35,7 @@ pre-commit: sass_compile lint test poetry_export
 cp:
 	@git commit -a
 	@git push origin main
+	@git status 
 
 migrate:
 	@poetry run python manage.py makemigrations

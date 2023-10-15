@@ -5,7 +5,7 @@ from django.http import HttpRequest
 from ninja import ModelSchema, NinjaAPI, Schema
 from ninja.security import HttpBearer
 
-from web import platform
+from web.platform import Platform as SocialPlatform
 
 from . import api_statistics, models, util
 
@@ -189,12 +189,12 @@ def get_discussion_counts(request: HttpRequest, url: str) -> DiscussionCounts:
         else:
             dcs.last_discussion = max(dcs.last_discussion, d.created_at)
 
-        dcs.comments_by_platform[d.platform] = (
-            dcs.comments_by_platform.get(d.platform, 0) + d.comment_count
+        dcs.comments_by_platform[d.platform.value] = (
+            dcs.comments_by_platform.get(d.platform.value, 0) + d.comment_count
         )
 
-        if d.platform == "r":
-            platform = d.platform + "/" + d.subreddit
+        if d.platform == SocialPlatform.REDDIT:
+            platform = d.platform.value + "/" + d.subreddit
             dcs.comments_by_platform[platform] = (
                 dcs.comments_by_platform.get(platform, 0) + d.comment_count
             )
@@ -243,5 +243,5 @@ def platforms(request):
     """All platforms on which discussions are tracked at the moment."""
     api_statistics.track(request)
 
-    pfs = platform.Platform.dict_label_url()
+    pfs = SocialPlatform.dict_label_url()
     return [{"code": k, "name": v[0], "url": v[1]} for k, v in pfs.items()]
