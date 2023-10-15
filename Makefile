@@ -11,15 +11,21 @@ sass_compile:
 sass_watch:
 	@poetry run ./manage.py sass web/static/style.scss web/static/style.css --watch
 
+.SILENT: run
 run: sass_compile
-	echo $$DATABASE_HOST
-	-kill $$(lsof -i:7777 -t -sTCP:LISTEN)
-	-kill $$(lsof -i:5555 -t -sTCP:LISTEN)
-	-kill $$(cat /var/run/celery/*.pid)
-	-killall -KILL celery
-	-killall -KILL stripe
-	stripe listen --forward-to localhost:7777/stripe/webhook/&
-	@poetry run ./docker-entrypoint.sh 7777
+	-@kill $$(lsof -i:7777 -t -sTCP:LISTEN)
+	#-@kill $$(lsof -i:5555 -t -sTCP:LISTEN)
+	#-@kill $$(cat /var/run/celery/*.pid)
+	#-@killall -KILL celery
+	#-@killall -KILL stripe
+	#@stripe listen --forward-to localhost:7777/stripe/webhook/&
+	@poetry run ./docker-entrypoint.sh -p 7777
+
+debug: sass_compile 
+	@poetry run ./docker-entrypoint.sh -d -p 7777 
+
+run-celery:
+	@poetry run celery -A discussions worker -l info
 
 pre-commit: sass_compile lint test poetry_export
 	@git add web/static/style.css
@@ -41,24 +47,29 @@ d: poetry_export sass_compile
 	-kill $$(lsof -i:7777 -t -sTCP:LISTEN)
 	-kill $$(lsof -i:5555 -t -sTCP:LISTEN)
 	@docker run --rm --name discussions --env-file .env -dp 7777:80 -dp 5555:5555 discussions
+	@echo 'Listening on port 7777...'
 	@docker logs -f $$(docker ps -l -f name=discussions --format '{{.ID}}')
 
 dshell:
 	docker exec -it $$(docker ps -l -f name=discussions -q) bash
 
 shell:
-	poetry run python manage.py shell_plus --bpython
+	# poetry run python manage.py shell_plus --bpython
+	poetry run python manage.py shell
 
 lint:
+	# @poetry run deptry .
+	# @poetry run pyright .
 	# @poetry run ruff check . | tac
 	# @poetry run flake8 --extend-ignore E501,E741,E203 | tac
 	# @poetry run mypy --install-types --non-interactive .
 
 test:
-	@poetry run python -Wa manage.py test --shuffle --keepdb --failfast
+	@poetry run python -Wa manage.py test --pdb --shuffle --keepdb --failfast -v 2
 
 utest:
-	@poetry run python -Wa manage.py test --failfast -k 'Unit'
+	# @poetry run python -m unittest discover -s web -p '*.py' -t .
+	@poetry run python -Wa manage.py test --pdb --shuffle --keepdb --failfast -k 'Unit' -v 2
 
 superuser:
 	poetry run python manage.py createsuperuser

@@ -4,6 +4,7 @@
 # Dev
 * Find out CapRover/docker's stop timeout and test it (Celery tasks may take minutes to stop)
 * Separate docker for celery with stop-first update (so that tasks don't overlap)
+* remove jinja2?
 
 # Weekly
 - add year view

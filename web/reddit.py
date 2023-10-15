@@ -37,8 +37,25 @@ def _url_blacklisted(url):
     if not url:
         return False
 
-    if (
-        url.startswith(("i.imgur.com", "imgur.com", "www.imgur.com", "gfycat.com", "www.gfycat.com", "i.redd.it", "reddit.com/live", "www.reddit.com/live", "reddit.com/gallery/", "www.reddit.com/gallery/", "preview.redd.it")) or url in ("reddit.com", "reddit.com/", "www.reddit.com", "www.reddit.com/")
+    if url.startswith(
+        (
+            "i.imgur.com",
+            "imgur.com",
+            "www.imgur.com",
+            "gfycat.com",
+            "www.gfycat.com",
+            "i.redd.it",
+            "reddit.com/live",
+            "www.reddit.com/live",
+            "reddit.com/gallery/",
+            "www.reddit.com/gallery/",
+            "preview.redd.it",
+        ),
+    ) or url in (
+        "reddit.com",
+        "reddit.com/",
+        "www.reddit.com",
+        "www.reddit.com/",
     ):
         return True
 
@@ -50,7 +67,34 @@ def __url_blacklisted_selftext(url):
         return False
 
     if (
-        url in ("www.google.com", "google.com", "google.com/trends/explore", "www.privacytools.io/#photos", "example.com", "itch.io", "amazon.com", "github.com", "self.data", "self.name") or url == "crates.io" or url == "crates.io/" or url == "inventwithpython.com/bigbookpython/" or url == "inventwithpython.com/bigbookpython" or url == "learnopengl.com" or url == "learnopengl.com/" or url.startswith(("discord.gg/python", "reddit.com", "www.reddit.com", "old.reddit.com", "preview.redd.it"))
+        url
+        in (
+            "www.google.com",
+            "google.com",
+            "google.com/trends/explore",
+            "www.privacytools.io/#photos",
+            "example.com",
+            "itch.io",
+            "amazon.com",
+            "github.com",
+            "self.data",
+            "self.name",
+        )
+        or url == "crates.io"
+        or url == "crates.io/"
+        or url == "inventwithpython.com/bigbookpython/"
+        or url == "inventwithpython.com/bigbookpython"
+        or url == "learnopengl.com"
+        or url == "learnopengl.com/"
+        or url.startswith(
+            (
+                "discord.gg/python",
+                "reddit.com",
+                "www.reddit.com",
+                "old.reddit.com",
+                "preview.redd.it",
+            ),
+        )
     ):
         return True
 
@@ -104,13 +148,12 @@ def _url_from_selftext(selftext, title=None):
                 continue
 
             lower_netloc = u.parsed_url.netloc.lower()
-            if (
-                lower_netloc.endswith((".py", ".rs", ".net", ".md"))
-            ) and (not u.parsed_url.path or u.parsed_url.path == "/"):
-                if lower_netloc == util.strip_punctuation(
-                    a.text.lower().replace(" ", ""),
-                ):
-                    continue
+            if (lower_netloc.endswith((".py", ".rs", ".net", ".md"))) and (
+                not u.parsed_url.path or u.parsed_url.path == "/"
+            ) and lower_netloc == util.strip_punctuation(
+                a.text.lower().replace(" ", ""),
+            ):
+                continue
 
             links.append(a["href"])
 
@@ -275,7 +318,9 @@ def worker_fetch_reddit_archive(self):
 
         if not graceful_exit:
             cache.set(
-                f"{cache_prefix}:processed:{file}", 1, timeout=cache_timeout,
+                f"{cache_prefix}:processed:{file}",
+                1,
+                timeout=cache_timeout,
             )
 
         time.sleep(5)
@@ -317,17 +362,23 @@ def submit(subreddit, title, url=None, selftext=None, c=None):
     story = None
     try:
         story = sub.submit(
-            title=title, url=url, selftext=selftext, resubmit=False,
+            title=title,
+            url=url,
+            selftext=selftext,
+            resubmit=False,
         )
     except Exception as e:
         logger.error(f"Reddit submit: {e}")
-
 
     return story
 
 
 def get_subreddit(
-    subreddit, reddit_client, listing="new", listing_argument="", limit=100,
+    subreddit,
+    reddit_client,
+    listing="new",
+    listing_argument="",
+    limit=100,
 ):
     subreddit = subreddit.lower()
 
@@ -337,7 +388,8 @@ def get_subreddit(
         list = reddit_client.subreddit(subreddit).new(limit=limit)
     if listing == "top":
         list = reddit_client.subreddit(subreddit).top(
-            listing_argument, limit=limit,
+            listing_argument,
+            limit=limit,
         )
 
     for story in list:
@@ -540,7 +592,7 @@ def worker_update_all_discussions(self):
     logger.debug(f"reddit update all: current index: {current_index}")
 
     q = (
-        models.Discussion.objects.filter(platform="r")
+        models.Discussion.objects.filter(_platform="r")
         .filter(archived=False)
         .order_by("pk")
     )
@@ -552,7 +604,6 @@ def worker_update_all_discussions(self):
             logger.info("reddit update all: graceful exit")
             break
 
-
         ps = []
         ds = []
         query_has_results = False
@@ -561,7 +612,7 @@ def worker_update_all_discussions(self):
 
         logger.debug(f"reddit update all: current index {current_index}")
 
-        for d in q[current_index : current_index + step]:
+        for d in q[current_index: current_index + step]:
             if d.subreddit.lower() in subreddit_blacklist:
                 d.delete()
                 continue

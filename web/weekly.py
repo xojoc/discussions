@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import datetime
 import itertools
 import logging
@@ -8,6 +9,7 @@ from collections import defaultdict
 from email.message import Message
 
 import django.template.loader as template_loader
+import sentry_sdk
 from celery import shared_task
 from django.core import mail
 from django.core.cache import cache
@@ -46,7 +48,7 @@ def base_query(topic):
     if tags:
         qs = qs.filter(normalized_tags__overlap=list(tags))
     if topics.topics[topic].get("platform"):
-        qs = qs.filter(platform=topics.topics[topic].get("platform"))
+        qs = qs.filter(_platform=topics.topics[topic].get("platform"))
     else:
         qs = (
             qs.exclude(schemeless_story_url__isnull=True)
@@ -206,16 +208,26 @@ def __get_stories(topic, year, week):
 
     if util.is_dev():
         logger.debug(
-            f"weekly: {topic} {ws} {we}: stories count {stories.count()}",
+            "weekly: %s %s %s: stories count %s",
+            topic,
+            ws,
+            we,
+            stories.count(),
         )
 
     unique_stories = []
     unique_urls = set()
 
     for story in stories:
-        if story.canonical_story_url and story.canonical_story_url in unique_urls:
+        if (
+            story.canonical_story_url
+            and story.canonical_story_url in unique_urls
+        ):
             logger.debug(
-                f"weekly: duplicate: {story.platform_id} - {story.canonical_story_url} - {story.title}",
+                "weekly: duplicate: %s - %s %s",
+                story.platform_id,
+                story.canonical_story_url,
+                story.title,
             )
             continue
 
@@ -271,13 +283,15 @@ def __get_digest_old_stories(topic, year=None, week=None):
 
 def __generate_breadcrumbs(topic=None, year=None, week=None):
     breadcrumbs = []
-    breadcrumbs.append({"name": "Home", "title": "Discu.eu", "url": "/"})
-    breadcrumbs.append(
-        {
-            "name": "Weekly newsletter",
-            "title": "Weekly newsletter",
-            "url": reverse("web:weekly_index"),
-        },
+    breadcrumbs.extend(
+        (
+            {"name": "Home", "title": "Discu.eu", "url": "/"},
+            {
+                "name": "Weekly newsletter",
+                "title": "Weekly newsletter",
+                "url": reverse("web:weekly_index"),
+            },
+        ),
     )
     if topic:
         breadcrumbs.append(
@@ -288,10 +302,11 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
             },
         )
     if topic and year and week:
+        name = topics.topics[topic]["name"]
         breadcrumbs.append(
             {
                 "name": f"Week {week}/{year}",
-                "title": f"{topics.topics[topic]['name']} recap for week {week}/{year}",
+                "title": f"{name} recap for week {week}/{year}",
                 "url": reverse(
                     "web:weekly_topic_week",
                     args=[topic, year, week],
@@ -310,7 +325,9 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
 
 def index_context():
     ctx = {}
-    ctx["topics"] = {k: v for k, v in topics.topics.items() if k not in ["laarc"]}
+    ctx["topics"] = {
+        k: v for k, v in topics.topics.items() if k not in ["laarc"]
+    }
     ctx["breadcrumbs"] = __generate_breadcrumbs()
     return ctx
 
@@ -339,7 +356,9 @@ def topic_context(topic):
         ctx["twitter_account"] = "@" + twitter.get("account")
     mastodon_cfg = topics.topics[topic].get("mastodon")
     if mastodon_cfg.get("account"):
-        ctx["mastodon_account"] = "@" + mastodon_cfg.get("account").split("@")[1]
+        ctx["mastodon_account"] = (
+            "@" + mastodon_cfg.get("account").split("@")[1]
+        )
         ctx["mastodon_account_url"] = mastodon.profile_url(
             mastodon_cfg.get("account"),
         )
@@ -367,7 +386,9 @@ def topic_week_context(topic: str, year: int, week: int) -> dict | None:
         week=None,
     )
     ctx["breadcrumbs"] = __generate_breadcrumbs(topic, year, week)
-    ctx["web_link"] = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}" + reverse(
+    ctx[
+        "web_link"
+    ] = f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}" + reverse(
         "web:weekly_topic_week",
         args=[topic, year, week],
     )
@@ -376,7 +397,9 @@ def topic_week_context(topic: str, year: int, week: int) -> dict | None:
         ctx["twitter_account"] = "@" + twitter.get("account")
     mastodon_cfg = topics.topics[topic].get("mastodon")
     if mastodon_cfg.get("account"):
-        ctx["mastodon_account"] = "@" + mastodon_cfg.get("account").split("@")[1]
+        ctx["mastodon_account"] = (
+            "@" + mastodon_cfg.get("account").split("@")[1]
+        )
         ctx["mastodon_account_url"] = mastodon.profile_url(
             mastodon_cfg.get("account"),
         )
@@ -526,7 +549,7 @@ def __rewrite_urls(ctx, subscriber, topic, year, week):
                 )
 
 
-def send_mass_email(topic, year, week, testing=True, only_subscribers=None):
+def send_mass_email(topic, year, week, *, testing=True, only_subscribers=None):
     if only_subscribers is None:
         only_subscribers = []
     if only_subscribers:
@@ -552,7 +575,7 @@ def send_mass_email(topic, year, week, testing=True, only_subscribers=None):
         subject = "[DEV] " + subject
 
     from_email = topics.topics[topic].get("from_email")
-    if from_email:
+    if not from_email:
         logger.error(f"weekly: {topic} missing from_email")
         return
 
@@ -589,7 +612,17 @@ def send_mass_email(topic, year, week, testing=True, only_subscribers=None):
         return
 
     connection = mail.get_connection()
-    connection.send_messages(messages)
+    messages_it = iter(messages)
+    # current SES limit rate
+    limit_rate = 14 - 1
+    while batch := list(itertools.islice(messages_it, limit_rate)):
+        try:
+            connection.send_messages(batch)
+            time.sleep(1)
+        except BaseException:
+            logger.exception("send_messages: % %", topic, len(batch))
+            _ = sentry_sdk.capture_exception()
+            time.sleep(10)
 
 
 @shared_task(bind=True, ignore_result=False)
@@ -602,8 +635,6 @@ def worker_send_weekly_email(self):
 
     for topic in topics.topics:
         send_mass_email(topic, year, week, testing=False)
-        if not util.is_dev():
-            time.sleep(60)
 
 
 @shared_task(bind=True, ignore_result=True)
@@ -629,7 +660,7 @@ def share_weekly_issue(self):
             args=[topic_key, year, week],
         )
 
-        htags = tags.normalize(topic.get("tags"))
+        htags = tags.normalize(topic["tags"])
 
         status = f"""{topic['name']} recap for week {week}/{year}
 
@@ -650,7 +681,7 @@ def share_weekly_issue(self):
 
         if topic.get("twitter"):
             try:
-                twitter.tweet(
+                _ = twitter.tweet(
                     twitter_status,
                     topic.get("twitter").get("account"),
                 )
@@ -659,7 +690,7 @@ def share_weekly_issue(self):
 
         if topic.get("mastodon"):
             try:
-                mastodon.post(
+                _ = mastodon.post(
                     mastodon_status,
                     topic.get("mastodon").get("account"),
                 )

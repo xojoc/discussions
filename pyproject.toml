@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Alexandru Cojocaru <hi@xojoc.pw>"]
 
+
 [tool.poetry.dependencies]
 archiveis = "^0"
 bs4 = "^0"
@@ -27,7 +28,7 @@ feedparser = "^6"
 flower = "^1"
 gevent = "^22"
 igraph = "^0"
-importlib-metadata="*"
+importlib-metadata = "*"
 Jinja2 = "^3"
 lxml = "^4"
 Markdown = "^3"
@@ -47,25 +48,30 @@ tweepy = "^4"
 urllib3 = "^1"
 whitenoise = "^6"
 zstandard = "*"
+django-stubs-ext = "*"
+deptry = "^0.12.0"
+django-htmx = "^1"
 
 [tool.poetry.dev-dependencies]
-black = "*"
+mypy = "*"
 bpython = "*"
 celery-stubs = "*"
-django-stubs = {extras = ["compatible-mypy"], version = "^1"}
+django-stubs = { extras = ["compatible-mypy"], version = "*" }
 ipython = "*"
-mypy = "*"
-ruff = "*"
 
 
 [tool.poetry.group.types.dependencies]
-types-markdown = "^3.4.2.5"
-types-jinja2 = "^2.11.9"
-types-requests = "^2.28.11.16"
-types-stripe = "^3.5.2.8"
-types-lxml = "^2023.2.11"
-types-urllib3 = "^1.26.25.8"
-types-python-dateutil = "^2.8.19.10"
+types-markdown = "^3"
+types-jinja2 = "^2"
+types-requests = "^2"
+types-stripe = "*"
+types-lxml = "*"
+types-urllib3 = "^1"
+types-python-dateutil = "^2"
+
+
+[tool.poetry.group.dev.dependencies]
+debugpy = "^1.8.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -80,19 +86,29 @@ django_settings_module = "discussions.settings"
 
 [tool.ruff]
 select = ['ALL']
-ignore = ['E501',
-          'D', # ignore docs for now
-          'D100', 'D101', 'D102', 'D103', # missing doc strings
-          'G004', # Logging statement uses f-string --> reenable
-          'FBT', #  disable  boolean checks
-	  'BLE001', # fixme: blind Exception
-	  'TD002', 'FIX002', # warns about todo presence
-	  'TD003', # missing issue
-	  'RUF012', # mutable class attribute
-          'PTH123', # Path.open instead of open
-          ]
+ignore = [
+	# 'E501',
+	'ERA001', # commented out code
+	'ANN101', # missing self annotation 
+	'ANN102', # missing class annotation
+	'D',      # ignore docs for now
+	#   'D100', 'D101', 'D102', 'D103', # missing doc strings
+	#   'G004', # Logging statement uses f-string --> reenable
+	#       'FBT', #  disable  boolean checks
+	#	  'BLE001', # fixme: blind Exception
+	'TD002',  # todo wants author
+	'FIX002', # warns about todo presence
+	'TD003',  # missing issue
+	'PT009',  # pytest
+	# 'RUF012', # mutable class attribute
+	# 'PTH123', # Path.open instead of open
 
-
+	# re-enable later 
+	'G004', # logger use f-string
+	'E501', # line too long
+]
+unfixable = ['F841', 'F401']
+preview = true
 line-length = 79
 target-version = 'py311'
 extend-exclude = ['web/migrations']
@@ -105,3 +121,39 @@ ignore-variadic-names = true
 
 [tool.ruff.isort]
 combine-as-imports = true
+[tool.ruff.pydocstyle]
+convention = 'google'
+
+[tool.black]
+line-length = 79
+
+[tool.pyright]
+typeCheckingMode = 'basic'
+reportUnnecessaryIsInstance = 'warning'
+reportUnnecessaryCast = 'warning'
+reportUnnecessaryComparison = 'warning'
+reportUnnecessaryContains = 'warning'
+reportImplicitStringConcatenation = 'warning'
+reportUnusedCallResult = 'warning'
+reportUnusedExpression = 'warning'
+reportUnnecessaryTypeIgnoreComment = 'warning'
+reportMatchNotExhaustive = 'warning'
+reportImplicitOverride = 'warning'
+reportShadowedImports = 'warning'
+reportPropertyTypeMismatch = 'warning'
+reportFunctionMemberAccess = 'warning'
+reportImportCycles = 'warning'
+reportUnusedImport = false
+reportUnusedClass = false
+reportUnusedFunction = false
+reportUnusedVariable = false
+reportDuplicateImport = 'warning'
+reportPrivateUsage = 'warning'
+reportConstantRedefinition = 'warning'
+reportDeprecated = 'warning'
+reportIncompatibleMethodOverride = false
+reportIncompatibleVariableOverride = false
+reportInconsistentConstructor = 'warning'
+reportOverlappingOverload = 'warning'
+reportMissingSuperCall = 'warning'
+reportUninitializedInstanceVariable = 'warning'

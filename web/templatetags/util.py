@@ -1,4 +1,5 @@
-from django import template
+from crispy_forms.helper import FormHelper
+from django import forms, template
 from django.urls import reverse
 
 from discussions import settings
@@ -47,3 +48,12 @@ def is_dev():
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key, "")
+
+
+@register.simple_tag
+def htmx_attr(obj, name, value):
+    if isinstance(obj, FormHelper):
+        obj.attrs[name] = value
+    elif isinstance(obj, forms.Field):
+        # obj.update_attributes(**{name: value})
+        obj.widget.attrs[name] = value

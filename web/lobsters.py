@@ -7,6 +7,8 @@ import django
 from celery import shared_task
 from django.core.cache import cache
 
+from web.platform import Platform
+
 from . import celery_util, http, models, worker
 
 logger = logging.getLogger(__name__)
@@ -59,7 +61,7 @@ def process_item(item, platform):
 
 def __worker_fetch(task, platform):
     client = http.client(with_cache=False)
-    base_url = models.Discussion.get_platform_url(platform)
+    base_url = Platform(platform).url
     cache_current_page_key = f"discussions:lobsters:{platform}:current_page"
 
     current_page = cache.get(cache_current_page_key) or 1
@@ -69,7 +71,6 @@ def __worker_fetch(task, platform):
         if worker.graceful_exit(task):
             logger.info(f"lobsters {platform} fetch: graceful exit")
             break
-
 
         pages = [current_page]
 

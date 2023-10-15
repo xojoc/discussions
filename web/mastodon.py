@@ -33,7 +33,7 @@ def profile_url(account):
 
 def post(status, username, post_from_dev=False):
     account = topics.get_account_configuration("mastodon", username)
-    access_token = account.get("access_token")
+    access_token = account.get("token")
 
     if not access_token:
         logger.warning(f"Mastodon bot: {username} non properly configured")
@@ -64,7 +64,7 @@ def post(status, username, post_from_dev=False):
 
 def repost(post_id, username):
     account = topics.get_account_configuration("mastodon", username)
-    access_token = account.get("access_token")
+    access_token = account.get("token")
 
     if not access_token:
         logger.warning(f"Mastodon bot: {username} non properly configured")
@@ -134,7 +134,6 @@ Discussions: {discussions_url}
     status = unicodedata.normalize("NFC", status)
 
     return title + status
-
 
 
 def post_story_topic(story, tags, topic, existing_toot):
@@ -221,7 +220,7 @@ def post_discussions_scheduled(filter_topic=None):
 
         if topic.get("platform"):
             topic_stories = topic_stories.filter(
-                platform=topic.get("platform"),
+                _platform=topic.get("platform"),
             )
             logger.debug(
                 f"mastodon scheduled platform {topic.get('platform')}: topic {topic_key} potential stories {topic_stories.count()}",
@@ -239,11 +238,14 @@ def post_discussions_scheduled(filter_topic=None):
                 continue
 
             related_discussions, _, _ = models.Discussion.of_url(
-                story.story_url, only_relevant_stories=False,
+                story.story_url,
+                only_relevant_stories=False,
             )
 
             related_discussions = related_discussions.order_by(
-                "-comment_count", "-score", "created_at",
+                "-comment_count",
+                "-score",
+                "created_at",
             )
 
             if (
@@ -283,7 +285,9 @@ def post_discussions_scheduled(filter_topic=None):
                 post_id = post_story_topic(story, tags, topic, existing_post)
             except Exception as e:
                 cache.set(
-                    key_prefix + story.platform_id, 1, timeout=60 * 60 * 5,
+                    key_prefix + story.platform_id,
+                    1,
+                    timeout=60 * 60 * 5,
                 )
                 logger.error(f"mastodon: {story.platform_id}: {e}")
                 sentry_sdk.capture_exception(e)

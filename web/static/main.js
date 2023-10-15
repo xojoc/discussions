@@ -1,4 +1,4 @@
-function mentionFormOnInput(event) {
+function mentionFormOnInput(_) {
   const div = document.querySelector("#mention_live_preview");
   const formElement = document.querySelector("#dashboard_mentions_form form");
 
@@ -34,7 +34,7 @@ function mentionFormOnInput(event) {
   })
     .then((response) => response.text())
     .then((body) => (div.innerHTML = body))
-    .catch((err) => {
+    .catch((_) => {
       div.innerHTML =
         "<p>Something went wrong, please retry in a few moments...</p>";
     });

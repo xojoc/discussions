@@ -89,17 +89,16 @@ def sempaphore_green(url):
     return True
 
 
-def set_semaphore(url, timeout=60):
+def __set_semaphore(url: str, timeout: int = 60) -> None:
     u = urllib3.util.parse_url(url)
 
     if not u or not u.host:
         logger.debug("set_semaphore: parse error: {url}: {u}")
-        return False
+        return
 
     r = get_redis_connection()
 
     r.set(redis_host_semaphore + ":" + u.host, 1, ex=timeout)
-    return None
 
 
 def fetch(url):
@@ -138,7 +137,7 @@ def fetch(url):
     else:
         resource.status_code = response.status_code
 
-    if resource.status_code == HTTPStatus.OK:
+    if response and resource.status_code == HTTPStatus.OK:
         html = http.parse_html(response, safe_html=True, clean=True)
         resource.clean_html = str(html)
         html_structure = extract.structure(html, url)
@@ -197,10 +196,10 @@ def process_next():
     if url.startswith(("https://twitter.com", "https://www.twitter.com")):
         timeout = 3
 
-    set_semaphore(url, timeout=timeout)
+    __set_semaphore(url, timeout=timeout)
 
     try:
-        fetch(url)
+        _ = fetch(url)
     except Exception as e:
         logger.warning(f"process_next: fetch fail: {e}")
 
@@ -258,7 +257,8 @@ def extract_html(resource):
 
     if resource.status_code != HTTPStatus.OK:
         # TODO: python3.12 use is_success
-        if resource.status_code // 100 != 2 and resource.clean_html:
+        even = 2
+        if resource.status_code // 100 != even and resource.clean_html:
             resource.clean_html = None
 
         resource.save()

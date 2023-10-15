@@ -4,6 +4,9 @@
 {% load util %}
 {% load static %}
 
+
+
+
 {% block title %}
 {% if ctx.title or ctx.original_query %}
 {% firstof ctx.title ctx.original_query %} - discu.eu
@@ -72,7 +75,7 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 				{{d.title}}
 				<span class="d-inline-block smaller-font url-max-width text-truncate">{{d.story_url}}</span></a>
 			<a href="{{d.discussion_url}}"
-				title="View discussion with {{d.score}} {{d.score_label}} on {{platform_name}}"
+				title="View discussion with {{d.score}} {{d.platform.score_label}} on {{platform_name}}"
 				rel="nofollow"><strong>{{d.comment_count}}
 					comment{{d.comment_count|pluralize:",s"}}</strong></a>
 			<span class="smaller-font"><time

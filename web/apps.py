@@ -30,7 +30,9 @@ class WebConfig(AppConfig):
         from web import topics
 
         for topic_key, topic in topics.topics.items():
-            topic["email"] = f"{settings.EMAIL_TO_PREFIX}weekly_{topic_key}@discu.eu"
+            topic[
+                "email"
+            ] = f"{settings.EMAIL_TO_PREFIX}weekly_{topic_key}@discu.eu"
             topic["from_email"] = formataddr(
                 (
                     f"{topic['name']} Weekly",
@@ -54,8 +56,7 @@ class WebConfig(AppConfig):
                 ],
             )
 
-        for topic_key, topic in topics.topics.items():
-            topic["topic_key"] = topic_key
+        for topic in topics.topics.values():
             twitter = topic.get("twitter")
             if not twitter:
                 continue
@@ -75,7 +76,7 @@ class WebConfig(AppConfig):
             if mastodon:
                 mastodon_access_token = os.getenv(f"MASTODON_{n}_ACCESS_TOKEN")
                 if mastodon_access_token:
-                    mastodon["access_token"] = mastodon_access_token
+                    mastodon["token"] = mastodon_access_token
 
     def __reddit_configuration(self):
         from web import reddit

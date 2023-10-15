@@ -1,114 +1,122 @@
 {% extends "web/base.html" %}
 {% load crispy_forms_tags %}
 {% load util %}
-
 {% block title %}Mentions - discu.eu{% endblock %}
-
 {% block main %}
-
-<h5 class="mb-4">Mention rules</h5>
-{% if not ctx.mentions %}
-<p class="alert alert-info">
-    Nothing here yet. Create a new rule below.
-</p>
-{% endif %}
-<div class="grid gap-2 mention-rules-grid">
-    {% for m in ctx.mentions %}
-    <div class="card shadow">
-        <h5 class="card-header">{{m}}
-            {% if m.disabled %}
-
-            <span class="badge text-bg-warning float-end">disabled</span>
-            {% else %}
-            <span class="badge text-bg-dark float-end"
-                title="Notifications sent so far">{{m.notifications_count}}</span>
-            {% endif %}
-        </h5>
-        <div class="card-body">
-            <ul class="card-text list-unstyled mt-0 mb-0">
-                <li><span class="{% if not m.base_url %}text-muted{% endif %}">URL prefix:</span> {{m.base_url}}</li>
-                <li><span class="{% if not m.keywords %}text-muted{% endif %}">Keywords:<span>
-                            {% if m.keywords %}{{m.keywords|join:', '}}{% else %}none{% endif %}</li>
-                <li><span class="{% if not m.exclude_platforms %}text-muted{% endif %}">Excluded platforms:
-                        {% if m.exclude_platforms %}{{m.exclude_platforms|join:', '}}{% else %}none{% endif %}</span>
-                </li>
-                <li><span class="{% if not m.subreddits_exclude %}text-muted{% endif %}">Excluded subreddits:
-                        {% if m.subreddits_exclude %}{{m.subreddits_exclude|join:', '}}{% else %}none{% endif %}</span>
-                </li>
-                <li><span class="{% if not m.min_comments %}text-muted{% endif %}">Min comments:
-                        {{m.min_comments}}</span></li>
-                <li><span class="{% if not m.min_score %}text-muted{% endif %}">Min score: {{m.min_score}}</span></li>
-            </ul>
-        </div>
-        <div class="card-footer d-flex gap-2">
-            <a href="{% url 'web:dashboard_mentions_edit' m.pk %}" class="btn btn-secondary">Edit</a>
-
-            <div>
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                    data-bs-target="#delete-rule-{{m.pk}}">
-                    Delete
-                </button>
-
-                <div class="modal fade" id="delete-rule-{{m.pk}}" tabindex="-1"
-                    aria-labelledby="delete-rule-label-{{m.pk}}" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="delete-rule-label-{{m.pk}}">Delete rule {{m}}?</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                Are you sure?
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-dark"
-                                    data-bs-dismiss="modal">Close</button>
-                                <form method="POST">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="mention-rule-delete-pk" value="{{m.pk}}">
-                                    <button type="submit" class="btn btn-outline-danger"
-                                        name="submit-delete-mention-rule">Delete</button>
-                                </form>
+    <h5 class="mb-4">Mention rules</h5>
+    {% if not ctx.mentions %}<p class="alert alert-info">Nothing here yet. Create a new rule below.</p>{% endif %}
+    <div class="grid gap-2 mention-rules-grid">
+        {% for m in ctx.mentions %}
+            <div class="card shadow">
+                <h5 class="card-header">
+                    {{ m }}
+                    {% if m.disabled %}
+                        <span class="badge text-bg-warning float-end">disabled</span>
+                    {% else %}
+                        <span class="badge text-bg-dark float-end"
+                              title="Notifications sent so far">{{ m.notifications_count }}</span>
+                    {% endif %}
+                </h5>
+                <div class="card-body">
+                    <ul class="card-text list-unstyled mt-0 mb-0">
+                        <li>
+                            <span class="{% if not m.base_url %}text-muted{% endif %}">URL prefix:</span> {{ m.base_url }}
+                        </li>
+                        <li>
+                            <span class="{% if not m.keywords %}text-muted{% endif %}">Keywords:<span>
+                                {% if m.keywords %}
+                                    {{ m.keywords|join:', ' }}
+                                {% else %}
+                                    none
+                                {% endif %}
+                            </li>
+                            <li>
+                                <span class="{% if not m.exclude_platforms %}text-muted{% endif %}">Excluded platforms:
+                                    {% if m.exclude_platforms %}
+                                        {{ m.exclude_platforms|join:', ' }}
+                                    {% else %}
+                                        none
+                                    {% endif %}
+                                </span>
+                            </li>
+                            <li>
+                                <span class="{% if not m.subreddits_exclude %}text-muted{% endif %}">Excluded subreddits:
+                                    {% if m.subreddits_exclude %}
+                                        {{ m.subreddits_exclude|join:', ' }}
+                                    {% else %}
+                                        none
+                                    {% endif %}
+                                </span>
+                            </li>
+                            <li>
+                                <span class="{% if not m.min_comments %}text-muted{% endif %}">Min comments:
+                                {{ m.min_comments }}</span>
+                            </li>
+                            <li>
+                                <span class="{% if not m.min_score %}text-muted{% endif %}">Min score: {{ m.min_score }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-footer d-flex gap-2">
+                        <a href="{% url 'web:dashboard_mentions_edit' m.pk %}"
+                           class="btn btn-secondary">Edit</a>
+                        <div>
+                            <button type="button"
+                                    class="btn btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#delete-rule-{{ m.pk }}">Delete</button>
+                            <div class="modal fade"
+                                 id="delete-rule-{{ m.pk }}"
+                                 tabindex="-1"
+                                 aria-labelledby="delete-rule-label-{{ m.pk }}"
+                                 aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="delete-rule-label-{{ m.pk }}">Delete rule {{ m }}?</h5>
+                                            <button type="button"
+                                                    class="btn-close"
+                                                    data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">Are you sure?</div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Close</button>
+                                            <form method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="mention-rule-delete-pk" value="{{ m.pk }}">
+                                                <button type="submit"
+                                                        class="btn btn-outline-danger"
+                                                        name="submit-delete-mention-rule">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- <form method="POST">
+                        <!-- <form method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="mention-rule-delete-pk" value="{{m.pk}}">
                 <button type="submit" class="btn btn-outline-danger" name="submit-delete-mention-rule">Delete</button>
             </form> -->
+                    </div>
+                </div>
+            {% endfor %}
         </div>
+        <div class="mt-5">
+            {% if not user.is_premium %}
+                <p class="alert alert-warning">
+                    With a free account you can create a maximum of 2 rules. Get the <a href="{% url 'web:dashboard' %}#dashboard-get-premium">premium plan</a>
+                    to create more rules.
+                </p>
+            </p>
+        {% endif %}
+        <h5>New mention rule</h5>
+        <div id="dashboard_mentions_form">{% crispy ctx.mention_form %}</div>
+        <h6>Live preview</h6>
+        <div id="mention_live_preview">Click on "Live Preview" to see some examples of notifications you would receive...</div>
     </div>
-    {% endfor %}
-</div>
-
-
-<div class="mt-5">
-    {% if not user.is_premium %}
-    <p class="alert alert-warning">
-        With a free account you can create a maximum of 2 rules. Get the <a
-            href="{% url 'web:dashboard' %}#dashboard-get-premium">premium plan</a>
-        to create more rules.</p>
-    </p>
-    {% endif %}
-
-    <h5>New mention rule</h5>
-    <div id="dashboard_mentions_form">
-        {% crispy ctx.mention_form %}
-    </div>
-
-    <h6>Live preview</h6>
-    <div id="mention_live_preview">Click on "Live Preview" to see some examples of notifications you would receive...
-    </div>
-</div>
-
-
-<a href="{% url 'web:dashboard' %}" title="Dashboard" class="btn btn-outline-dark mt-4">ᐸ Dashboard</a>
-
-
+    <a href="{% url 'web:dashboard' %}"
+       title="Dashboard"
+       class="btn btn-outline-dark mt-4">ᐸ Dashboard</a>
 {% endblock main %}

@@ -5,6 +5,8 @@ from django.http import HttpRequest
 from ninja import ModelSchema, NinjaAPI, Schema
 from ninja.security import HttpBearer
 
+from web import platform
+
 from . import api_statistics, models, util
 
 api = NinjaAPI(version="v0")
@@ -104,7 +106,10 @@ def get_discussions(
             cache.touch(key, timeout)
         return ds
 
-    ds, _, _ = models.Discussion.of_url(url, only_relevant_stories)
+    ds, _, _ = models.Discussion.of_url(
+        url,
+        only_relevant_stories=only_relevant_stories,
+    )
 
     if ds:
         cache.set(key, ds, timeout)
@@ -163,7 +168,7 @@ def get_discussion_counts(request: HttpRequest, url: str) -> DiscussionCounts:
         tags=[],
     )
 
-    ds, _, _ = models.Discussion.of_url(url, True)
+    ds, _, _ = models.Discussion.of_url(url, only_relevant_stories=True)
 
     dcs.story_url = url
     dcs.discussions_url = util.discussions_url(url)
@@ -238,5 +243,5 @@ def platforms(request):
     """All platforms on which discussions are tracked at the moment."""
     api_statistics.track(request)
 
-    pfs = models.Discussion.platforms()
+    pfs = platform.Platform.dict_label_url()
     return [{"code": k, "name": v[0], "url": v[1]} for k, v in pfs.items()]

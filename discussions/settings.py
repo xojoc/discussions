@@ -1,8 +1,10 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import logging
 import os
 from http import HTTPStatus
 from pathlib import Path
 
+import django_stubs_ext
 import sentry_sdk
 from django.conf.locale.en import formats as en_formats
 from django.contrib.messages import constants as messages
@@ -13,6 +15,8 @@ from sentry_sdk.integrations.logging import (
     ignore_logger as sentry_ignore_logger,
 )
 from sentry_sdk.integrations.redis import RedisIntegration
+
+django_stubs_ext.monkeypatch()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -51,6 +55,7 @@ INSTALLED_APPS = [
     "django_celery_beat",
     "django.contrib.humanize",
     "django.contrib.postgres",
+    "django_htmx",
     "web.apps.WebConfig",
     "crispy_forms",
     "crispy_bootstrap5",
@@ -79,6 +84,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "web.middleware.CORSMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
@@ -152,16 +158,25 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.MinimumLengthValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.CommonPasswordValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.NumericPasswordValidator",
+        ),
     },
 ]
 
@@ -212,7 +227,6 @@ APP_CELERY_TASK_MAX_TIME = 30  # seconds
 CELERY_BROKER_URL = os.getenv("REDIS_URL")
 CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
 
-task_ignore_result = True
 
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     "fanout_patterns": True,
@@ -220,14 +234,16 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     "visibility_timeout": 43200,
 }
 
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BROKER_CONNECTION_RETRY = True
+
 CELERYD_HIJACK_ROOT_LOGGER = False
 CELERY_TASK_ACKS_LATE = False
-celery_task_acks_late = False
 CELERYD_PREFETCH_MULTIPLIER = 1
 
 CELERY_WORKER_ENABLE_REMOTE_CONTROL = True
 
-# xojoc: find a way to create default schedules for freshly installed apps
+# TODO: find a way to create default schedules for freshly installed apps
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 
@@ -317,7 +333,7 @@ if not os.environ.get("DJANGO_DEVELOPMENT"):
         event_level=logging.ERROR,
     )
 
-    sentry_sdk.init(
+    _ = sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN"),
         integrations=[
             DjangoIntegration(),
@@ -361,7 +377,7 @@ EMAIL_TO_PREFIX = ""
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PLAN_PRICE_API_ID = os.getenv("STRIPE_PLAN_PRICE_API_ID")
-STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
 
 MESSAGE_TAGS = {

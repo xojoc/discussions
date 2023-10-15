@@ -1,8 +1,10 @@
 import re
+from collections.abc import Sequence
 
 import cleanurl
 
 from web import title as web_title, util
+from web.platform import Platform
 
 
 def __augment_tags(title, tags, keyword, atleast_tags=None, new_tag=None):
@@ -70,7 +72,10 @@ def __is_nim_game(title, url=None):
 
 
 def __topic_nim(tags, title, url, platform):
-    if platform in ("h", "u") and not __is_nim_game(title, url):
+    if platform in (
+        Platform.HACKER_NEWS,
+        Platform.LAMBDA_THE_ULTIMATE,
+    ) and not __is_nim_game(title, url):
         __augment_tags(title, tags, "nim", None, "nimlang")
         __augment_tags(title, tags, "nim", None, "nimlang")
 
@@ -168,8 +173,11 @@ def __topic_webdev(tags, title, url, platform, original_title):
         "webdev",
     )
 
-    if ("programming" in tags or __is_programming_related(title, url)) and re.search(
-        r"\bCORS\b", original_title,
+    if (
+        "programming" in tags or __is_programming_related(title, url)
+    ) and re.search(
+        r"\bCORS\b",
+        original_title,
     ):
         tags.add("webdev")
 
@@ -178,7 +186,7 @@ def __topic_webdev(tags, title, url, platform, original_title):
 
 
 def __topic_zig(tags, title, url, platform):
-    if platform in ("h", "u"):
+    if platform in (Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE):
         __augment_tags(title, tags, "zig", None, "ziglang")
 
     __augment_tags(title, tags, "ziglang")
@@ -199,7 +207,8 @@ def __topic_zig(tags, title, url, platform):
         and (
             "ziglang.org" in url.hostname
             or (
-                url.hostname == "github.com" and (url.path or "").startswith("/ziglang")
+                url.hostname == "github.com"
+                and (url.path or "").startswith("/ziglang")
             )
         )
     ):
@@ -207,7 +216,7 @@ def __topic_zig(tags, title, url, platform):
 
 
 def __topic_java(tags, title, url, platform, original_title):
-    if platform == "u":
+    if platform == Platform.LAMBDA_THE_ULTIMATE:
         __augment_tags(title, tags, "java")
     __augment_tags(title, tags, "java", {"programming", "gamedev", "webdev"})
     __programming_keyword(tags, title, url, "java")
@@ -234,14 +243,21 @@ def __topic_java(tags, title, url, platform, original_title):
             "java.net" in url.hostname
             or "openjdk.org" in url.hostname
             or (
-                url.hostname == "github.com" and (url.path or "").startswith("/openjdk")
+                url.hostname == "github.com"
+                and (url.path or "").startswith("/openjdk")
             )
         )
     ):
         tags.add("java")
 
     if (
-        platform in ("h", "u", "t", "l")
+        platform
+        in (
+            Platform.HACKER_NEWS,
+            Platform.LAMBDA_THE_ULTIMATE,
+            Platform.TILDE_NEWS,
+            Platform.LOBSTERS,
+        )
         or __is_programming_related(
             title,
             url,
@@ -267,7 +283,7 @@ def __topic_php(tags, title, url, platform):
     __augment_tags(title, tags, "php", {"programming", "gamedev", "webdev"})
     __programming_keyword(tags, title, url, "php")
     __programming_keyword(tags, title, url, "laravel")
-    if platform == "h" and "php" in title:
+    if platform == Platform.HACKER_NEWS and "php" in title:
         tags.add("php")
     if url and (url.hostname or "").startswith("php.net"):
         tags.add("php")
@@ -280,7 +296,9 @@ def __topic_rust(tags, title, url, platform):
     __programming_keyword(tags, title, url, "rust", "rustlang")
 
     if "rust" in title and (
-        "gcc" in title or "kernel" in title or ("linux" in title and "driver" in title)
+        "gcc" in title
+        or "kernel" in title
+        or ("linux" in title and "driver" in title)
     ):
         tags.add("rust")
 
@@ -304,14 +322,16 @@ def __topic_golang(tags, title, url, platform, original_title):
         and (
             "golang.org" in url.hostname
             or "go.dev" in url.hostname
-            or (url.hostname == "github.com" and url.path.startswith("/golang"))
+            or (
+                url.hostname == "github.com" and url.path.startswith("/golang")
+            )
         )
     ):
         tags.add("golang")
 
 
 def __topic_python(tags, title, url, platform):
-    if platform in ("h", "u"):
+    if platform in (Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE):
         __augment_tags(title, tags, "python")
 
     __augment_tags(
@@ -337,7 +357,7 @@ def __topic_haskell(tags, title, url, platform, original_title):
 
 
 def __topic_lisp_scheme(tags, title, url, platform, original_title):
-    if platform in ("h", "u"):
+    if platform in (Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE):
         __augment_tags(title, tags, "lisp")
 
     __programming_keyword(tags, title, url, "lisp")
@@ -345,7 +365,10 @@ def __topic_lisp_scheme(tags, title, url, platform, original_title):
     __programming_keyword(tags, title, url, "racket")
     __augment_tags(title, tags, None, {"racket"}, "scheme")
     if "guile" in title and (
-        "gnu" in title or "scheme" in title or "lisp" in title or "emacs" in title
+        "gnu" in title
+        or "scheme" in title
+        or "lisp" in title
+        or "emacs" in title
     ):
         tags.add("scheme")
 
@@ -358,12 +381,12 @@ def __topic_ruby(tags, title, url, platform, original_title):
 
 
 def __topic_erlang_elixir(tags, title, url, platform, original_title):
-    if platform == "u":
+    if platform == Platform.LAMBDA_THE_ULTIMATE:
         if "erlang" in title:
             tags.add("erlang")
         if "elixir" in title:
             tags.add("elixir")
-    if platform == "h" and "elixir" in title:
+    if platform == Platform.HACKER_NEWS and "elixir" in title:
         tags.add("elixir")
 
     __programming_keyword(tags, title, url, "erlang")
@@ -395,23 +418,29 @@ def __topic_apl(tags, title, url, platform, original_title):
     __programming_keyword(tags, title, url, "apl2", "apl")
     __programming_keyword(tags, title, url, "dyalog", "apl")
 
-    if platform in ("h", "u", "t", "l"):
+    if platform in (
+        Platform.HACKER_NEWS,
+        Platform.LAMBDA_THE_ULTIMATE,
+        Platform.TILDE_NEWS,
+        Platform.LOBSTERS,
+    ):
         if re.search(r"\bAPL\b", original_title):
             tags.add("apl")
         # if url and url.hostname and "github" in url.hostname:
         #     if re.search(r"\K\b", original_title):
         if (
-            re.search(r"\bK\b", original_title) or re.search(r"\bJ\b", original_title)
+            re.search(r"\bK\b", original_title)
+            or re.search(r"\bJ\b", original_title)
         ) and ("programming" in title or "concatenative" in title):
             tags.add("apl")
 
 
 def __topic_devops(tags, title, url, platform, original_title):
-    if platform != "r" or "devops" in tags:
+    if platform != Platform.REDDIT or "devops" in tags:
         __augment_tags(title, tags, "docker")
 
     if (
-        platform == "r"
+        platform == Platform.REDDIT
         and "selfhosted" in tags
         and re.search(r"\bdocker\b", original_title, re.IGNORECASE)
     ):
@@ -431,7 +460,12 @@ def __topic_devops(tags, title, url, platform, original_title):
         tags.add("kubernetes")
 
     if (
-        platform in ("h", "l", "u")
+        platform
+        in (
+            Platform.HACKER_NEWS,
+            Platform.LOBSTERS,
+            Platform.LAMBDA_THE_ULTIMATE,
+        )
         or "programming" in tags
         or __is_programming_related(title, url)
     ) and re.search(r"\bHeroku\b", original_title):
@@ -457,7 +491,7 @@ def __topic_compsci(tags, title, url, platform, original_title):
         tags.add("compsci")
 
     if (
-        platform in ("h", "u")
+        platform in (Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE)
         or "programming" in tags
         or __is_programming_related(title, url)
     ) and (
@@ -642,7 +676,9 @@ def __from_title_url(tags, title, url):
     ):
         tags |= {"quantumcomputing", "programming"}
 
-    if "programming" in title and ("language" in title or "languages" in title):
+    if "programming" in title and (
+        "language" in title or "languages" in title
+    ):
         tags |= {"programming"}
 
     if "programming" in tags and re.match(
@@ -709,7 +745,7 @@ def __rename(tags, title, platform=None):
         ("zig", "ziglang", "r"),
     ]
     for p in to_replace:
-        if len(p) == 3 and p[2] != platform:
+        if len(p) == 3 and p[2] != (platform.value if platform else ""):
             continue
         if p[0] not in tags:
             continue
@@ -776,7 +812,12 @@ def __special_cases(tags, platform, title, url):
         tags.discard("italy")
 
 
-def normalize(tags, platform=None, title: str | None = "", url: str | None = ""):
+def normalize(
+    tags: list[str] | set[str],
+    platform: Platform | None = None,
+    title: str | None = "",
+    url: str | None = "",
+) -> list[str]:
     tags = tags or []
     tags = {t.lower().strip() for t in tags}
     title = title or ""
@@ -815,21 +856,23 @@ def normalize(tags, platform=None, title: str | None = "", url: str | None = "")
 
         __from_title_url(tags, title_tokens, curl)
 
-        if platform == "l":
-            __lobsters(tags, title_tokens)
-        elif platform == "r":
-            __reddit(tags, title_tokens)
-        elif platform == "h":
-            __hacker_news(tags, title_tokens)
-        elif platform == "a":
-            __laarc(tags, title_tokens)
-        elif platform == "u":
-            __lambda_the_ultimate(tags, title_tokens)
+        match platform:
+            case Platform.LOBSTERS:
+                __lobsters(tags, title_tokens)
+            case Platform.REDDIT:
+                __reddit(tags, title_tokens)
+            case Platform.HACKER_NEWS:
+                __hacker_news(tags, title_tokens)
+            case Platform.LAARC:
+                __laarc(tags, title_tokens)
+            case Platform.LAMBDA_THE_ULTIMATE:
+                __lambda_the_ultimate(tags, title_tokens)
+            case _:
+                pass
 
         __rename(tags, title_tokens, platform)
         __enrich(tags, title_tokens)
 
     __special_cases(tags, platform, title_tokens, curl)
 
-    return sorted(tags)
     return sorted(tags)

@@ -1,43 +1,37 @@
 {% load static %}
-
+{% load django_htmx %}
 <!DOCTYPE html>
 <html lang="en" {% block html_tag_attributes %}{% endblock %}>
-
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="stylesheet" href="{% static 'style.css' %}" />
-		<link rel="stylesheet" href="{% static 'bootstrap-icons/bootstrap-icons.css' %}">
-		<script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
-		<script src="{% static 'main.js' %}"></script>
-
-		<link rel="icon" type="image/png" href="{% static 'favicon-32x32.png' %}" />
-
-		<title>{% spaceless %}
-			{% block title %}Discussions around the Web - discu.eu{% endblock %}
-			{% endspaceless %}</title>
-
-		{% block extra_head %}{% endblock %}
-
-		<meta name="description" content="{%spaceless%}
-{% block meta_description %}
-Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL, title or keyword
-{% endblock meta_description %}{% endspaceless %}" />
-
-		<link rel="search" type="application/opensearchdescription+xml" title="Search Discussions"
-			href="/opensearch.xml" />
-
-		<!-- <script defer data-domain="discu.eu" src="https://plausible.xojoc.pw/js/plausible.js"></script> -->
-
-		<script defer data-domain="discu.eu" src="https://plausible.xojoc.pw/js/script.js"></script>
-
-		<!-- <script defer data-domain="discu.eu" src="https://plausible.xojoc.pw/js/script.local.manual.js"></script> -->
-
-		<!-- define the `plausible` function to manually trigger events -->
-		<!-- <script>window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments) }</script> -->
-
-		<!-- trigger pageview -->
-		<!-- <script>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="{% static 'style.css' %}" />
+        <link rel="stylesheet"
+              href="{% static 'bootstrap-icons/bootstrap-icons.css' %}">
+        <script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
+        <script src="{% static 'main.js' %}"></script>
+        <link rel="icon" type="image/png" href="{% static 'favicon-32x32.png' %}" />
+        <title>
+            {% spaceless %}
+                {% block title %}Discussions around the Web - discu.eu{% endblock %}
+            {% endspaceless %}
+        </title>
+        {% block extra_head %}{% endblock %}
+        <meta name="description"
+              content="{% spaceless %} {% block meta_description %} Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL, title or keyword {% endblock meta_description %}{% endspaceless %}" />
+        <link rel="search"
+              type="application/opensearchdescription+xml"
+              title="Search Discussions"
+              href="/opensearch.xml" />
+        <!-- <script defer data-domain="discu.eu" src="https://plausible.xojoc.pw/js/plausible.js"></script> -->
+        <script defer
+                data-domain="discu.eu"
+                src="https://plausible.xojoc.pw/js/script.js"></script>
+        <!-- <script defer data-domain="discu.eu" src="https://plausible.xojoc.pw/js/script.local.manual.js"></script> -->
+        <!-- define the `plausible` function to manually trigger events -->
+        <!-- <script>window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments) }</script> -->
+        <!-- trigger pageview -->
+        <!-- <script>
 			function prepareUrl(params) {
 				const url = new URL(location.href)
 				const queryParams = new URLSearchParams(location.search)
@@ -54,146 +48,184 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 				return customUrl
 			}
 			plausible('pageview', { u: prepareUrl(["q", "url"]) })
-		</script> -->
-	</head>
-
-	<body class="d-flex flex-column">
-		<header class="mb-2">
-			<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-2">
-				<div class="container-fluid">
-					<a href="/" title="Discussions around the web" class="navbar-brand">
-						<img src="{% static 'favicon-32x32.png' %}" alt="Logo" width="32" height="32"
-							class="d-inline-block align-top">
-						<strong>discu.eu</strong>
-					</a>
-
-					<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-						data-bs-target="#header-navbar" aria-controls="header-navbar" aria-expanded="false"
-						aria-label="Toggle navigation">
-						<span class="navbar-toggler-icon"></span>
-					</button>
-
-					<div class="collapse navbar-collapse" id="header-navbar">
-						<ul class="navbar-nav container-fluid me-1 align-items-center">
-							<li class="nav-item">
-								<a class="nav-link text-light" href="{% url 'web:weekly_index' %}"
-									title="Weekly Newsletters">Newsletters</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link text-light" href="{% url 'web:mentions' %}"
-									title="Mentions">Mentions</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link text-light" href="{% url 'web:extension' %}"
-									title="Firefox and Chrome extensions">Extension</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link text-light" href="{% url 'web:pricing' %}"
-									title="Pricing and features">Pricing</a>
-							</li>
-
-							<li class="ms-auto"></li>
-
-							{% if user.is_authenticated %}
-							<li class="nav-item me-2 my-1"><a href="{% url 'account_logout' %}"
-									class="btn btn-outline-light">Logout</a>
-							</li>
-							<li class="nav-item me-1 my-1"><a href="{% url 'web:dashboard' %}"
-									class="btn btn-primary">Dashboard</a>
-							</li>
-							{% else %}
-							<li class="nav-item me-2 my-1"><a href="{% url 'account_login' %}"
-									class="btn btn-outline-light" rel="nofollow">Login</a></li>
-							<li class="nav-item me-1 my-1"><a href="{% url 'account_signup' %}" class="btn btn-primary"
-									rel="nofollow">Sign
-									Up</a>
-							</li>
-							{% endif %}
-						</ul>
-					</div>
-				</div>
-			</nav>
-		</header>
-
-		{% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
-
-		<div id="main_content" class="mt-2 mx-auto flex-grow-1">
-			{% if messages %}
-			<ul class="list-unstyled">
-				{% for message in messages %}
-				<li class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %} alert-dismissible fade show"
-					role="alert">
-					<span>{{ message }}</span>
-					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</li>
-				{% endfor %}
-			</ul>
-			{% endif %}
-
-			{% block main %}{% endblock %}
-		</div>
-
-		{% if ctx.breadcrumbs %}
-		<div class="mt-3"></div>
-		{% endif %}
-		{% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
-
-
-		<footer class="bg-dark text-white-50 mt-2">
-			<div
-				class="d-flex justify-content-between mx-auto pt-5 pb-2 px-2 flex-row flex-wrap gap-5 w-100 w-max-width-78ch">
-				<div class=" w-min-16ch">
-					<h6>Features</h6>
-					<ul class="list-unstyled d-grid gap-1">
-						<li><a href="/weekly/" title="Weekly newsletter" class="text-white">Weekly newsletter</a></li>
-						<li><a href="/social/" title="Social accounts and bots" class="text-white">Social & bots</a>
-						</li>
-						<li><a href="/extension/" title="Browser extensions" class="text-white">Browser extension</a>
-						</li>
-						<li><a href="/bookmarklet/" title="Bookmarklet" class="text-white">Bookmarklet</a>
-						</li>
-						<li><a href="{% url 'web:search' %}" title="How to search discussions"
-								class="text-white">Search</a>
-						</li>
-						<li><a href="{% url 'web:pricing' %}" title="Pricing and features"
-								class="text-white">Pricing</a></li>
-					</ul>
-				</div>
-				<div class=" w-min-16ch">
-					<h6>Developers</h6>
-					<ul class="list-unstyled d-grid gap-1">
-						<li><a href="{% url 'web:mentions' %}" title="Mentions" class="text-white">Mentions</a></li>
-						<li><a href="{% url 'web:api' %}" title="Discussions and comments API"
-								class="text-white">API</a></li>
-						<li><a href="/website" title="Display discussions on your website"
-								class="text-white">Website</a></li>
-					</ul>
-					<h6>Advertisers</h6>
-					<ul class="list-unstyled d-grid gap-1">
-						<li><a href="{% url 'web:new_ad' %}" title="Advertise on newsletters, Twitter and Mastodon"
-								class="text-white">Ad price calculator</a></li>
-					</ul>
-				</div>
-				<div class=" w-min-16ch">
-					<h6>About</h6>
-					<ul class="list-unstyled d-grid gap-1">
-						<li><a href="{% url 'web:privacy_policy' %}" title="Privacy Policy" class="text-white"
-								rel="nofollow">Privacy
-								Policy</a></li>
-						<li><a href="{% url 'web:terms' %}" title="Terms and Conditions" class="text-white"
-								rel="nofollow">Terms</a>
-						</li>
-						<li><a href="{% url 'web:support' %}" title="Support" class="text-white"
-								rel="nofollow">Support</a></li>
-
-					</ul>
-				</div>
-			</div>
-
-			<p class="text-center smaller-font-3 mt-2">Made by <a href="https://xojoc.pw" title="My home page"
-					class="text-white">Alexandru
-					Cojocaru</a></p>
-		</footer>
-	</body>
-
+        </script> -->
+        <script src="{% static 'htmx-1.9.6.js' %}" defer></script>
+        {% django_htmx_script %}
+    </head>
+    <body class="d-flex flex-column"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+        <header class="mb-2">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-2">
+                <div class="container-fluid">
+                    <a href="/" title="Discussions around the web" class="navbar-brand">
+                        <img src="{% static 'favicon-32x32.png' %}"
+                             alt="Logo"
+                             width="32"
+                             height="32"
+                             class="d-inline-block align-top">
+                        <strong>discu.eu</strong>
+                    </a>
+                    <button class="navbar-toggler"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#header-navbar"
+                            aria-controls="header-navbar"
+                            aria-expanded="false"
+                            aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="header-navbar">
+                        <ul class="navbar-nav container-fluid me-1 align-items-center">
+                            <li class="nav-item">
+                                <a class="nav-link text-light"
+                                   href="{% url 'web:weekly_index' %}"
+                                   title="Weekly Newsletters">Newsletters</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light"
+                                   href="{% url 'web:mentions' %}"
+                                   title="Mentions">Mentions</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light"
+                                   href="{% url 'web:extension' %}"
+                                   title="Firefox and Chrome extensions">Extension</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light"
+                                   href="{% url 'web:pricing' %}"
+                                   title="Pricing and features">Pricing</a>
+                            </li>
+                            <li class="ms-auto"></li>
+                            {% if user.is_authenticated %}
+                                <li class="nav-item me-2 my-1">
+                                    <a href="{% url 'account_logout' %}" class="btn btn-outline-light">Logout</a>
+                                </li>
+                                <li class="nav-item me-1 my-1">
+                                    <a href="{% url 'web:dashboard' %}" class="btn btn-primary">Dashboard</a>
+                                </li>
+                            {% else %}
+                                <li class="nav-item me-2 my-1">
+                                    <a href="{% url 'account_login' %}"
+                                       class="btn btn-outline-light"
+                                       rel="nofollow">Login</a>
+                                </li>
+                                <li class="nav-item me-1 my-1">
+                                    <a href="{% url 'account_signup' %}"
+                                       class="btn btn-primary"
+                                       rel="nofollow">Sign
+                                    Up</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        {% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
+        <div id="main_content" class="mt-2 mx-auto flex-grow-1">
+            {% if messages %}
+                <ul class="list-unstyled">
+                    {% for message in messages %}
+                        <li class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %} alert-dismissible fade show"
+                            role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% block main %}{% endblock %}
+        </div>
+        {% if ctx.breadcrumbs %}<div class="mt-3"></div>{% endif %}
+        {% include "web/fragment_breadcrumbs.html" with breadcrumbs=ctx.breadcrumbs %}
+        <footer class="bg-dark text-white-50 mt-2">
+            <div class="d-flex justify-content-between mx-auto pt-5 pb-2 px-2 flex-row flex-wrap gap-5 w-100 w-max-width-78ch">
+                <div class=" w-min-16ch">
+                    <h6>Features</h6>
+                    <ul class="list-unstyled d-grid gap-1">
+                        <li>
+                            <a href="/weekly/" title="Weekly newsletter" class="text-white">Weekly newsletter</a>
+                        </li>
+                        <li>
+                            <a href="/social/" title="Social accounts and bots" class="text-white">Social & bots</a>
+                        </li>
+                        <li>
+                            <a href="/extension/" title="Browser extensions" class="text-white">Browser extension</a>
+                        </li>
+                        <li>
+                            <a href="/bookmarklet/" title="Bookmarklet" class="text-white">Bookmarklet</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'web:search' %}"
+                               title="How to search discussions"
+                               class="text-white">Search</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'web:pricing' %}"
+                               title="Pricing and features"
+                               class="text-white">Pricing</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class=" w-min-16ch">
+                    <h6>Developers</h6>
+                    <ul class="list-unstyled d-grid gap-1">
+                        <li>
+                            <a href="{% url 'web:mentions' %}" title="Mentions" class="text-white">Mentions</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'web:api' %}"
+                               title="Discussions and comments API"
+                               class="text-white">API</a>
+                        </li>
+                        <li>
+                            <a href="/website"
+                               title="Display discussions on your website"
+                               class="text-white">Website</a>
+                        </li>
+                    </ul>
+                    <h6>Advertisers</h6>
+                    <ul class="list-unstyled d-grid gap-1">
+                        <li>
+                            <a href="{% url 'web:new_ad' %}"
+                               title="Advertise on newsletters, Twitter and Mastodon"
+                               class="text-white">Ad price calculator</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class=" w-min-16ch">
+                    <h6>About</h6>
+                    <ul class="list-unstyled d-grid gap-1">
+                        <li>
+                            <a href="{% url 'web:privacy_policy' %}"
+                               title="Privacy Policy"
+                               class="text-white"
+                               rel="nofollow">Privacy
+                            Policy</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'web:terms' %}"
+                               title="Terms and Conditions"
+                               class="text-white"
+                               rel="nofollow">Terms</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'web:support' %}"
+                               title="Support"
+                               class="text-white"
+                               rel="nofollow">Support</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <p class="text-center smaller-font-3 mt-2">
+                Made by <a href="https://xojoc.pw" title="My home page" class="text-white">Alexandru
+            Cojocaru</a>
+        </p>
+    </footer>
+</body>
 </html>

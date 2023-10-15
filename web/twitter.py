@@ -31,7 +31,12 @@ def tweet(status, username):
     token = account["token"]
     token_secret = account["token_secret"]
 
-    if not consumer_key or not consumer_secret or not token or not token_secret:
+    if (
+        not consumer_key
+        or not consumer_secret
+        or not token
+        or not token_secret
+    ):
         logger.warning(f"Twitter bot: {username} non properly configured")
         if not consumer_key:
             logger.warning("consumer_key")
@@ -75,7 +80,12 @@ def retweet(tweet_id, username):
     token = account["token"]
     token_secret = account["token_secret"]
 
-    if not consumer_key or not consumer_secret or not token or not token_secret:
+    if (
+        not consumer_key
+        or not consumer_secret
+        or not token
+        or not token_secret
+    ):
         logger.warning(f"Twitter bot: {username} non properly configured")
         return None
 
@@ -197,12 +207,16 @@ def tweet_story_topic(story, tags, topic, existing_tweet):
     except tweepy.errors.TooManyRequests:
         raise
     except Exception as e:
-        logger.exception(f"twitter v2: tweet: {bot_name}: {status}: {tweet_id=}")
+        logger.exception(
+            f"twitter v2: tweet: {bot_name}: {status}: {tweet_id=}",
+        )
         sentry_sdk.capture_exception(e)
         __sleep(13, 27)
 
     __sleep(4, 7)
 
+    a: int = "a"
+    _ = a
     return tweet_id
 
 
@@ -255,7 +269,7 @@ def tweet_discussions_scheduled(filter_topic=None):
 
         if topic.get("platform"):
             topic_stories = topic_stories.filter(
-                platform=topic.get("platform"),
+                _platform=topic.get("platform"),
             )
             logger.debug(
                 f"twitter scheduled platform {topic.get('platform')}: topic {topic_key} potential stories {topic_stories.count()}",
@@ -300,7 +314,10 @@ def tweet_discussions_scheduled(filter_topic=None):
 
             tags = set(story.normalized_tags or [])
             for rd in related_discussions[:5]:
-                if rd.comment_count >= min_comment_count and rd.score >= min_score:
+                if (
+                    rd.comment_count >= min_comment_count
+                    and rd.score >= min_score
+                ):
                     tags |= set(rd.normalized_tags or [])
 
                 if not existing_tweet:
@@ -326,10 +343,12 @@ def tweet_discussions_scheduled(filter_topic=None):
                 )
                 continue
             except tweepy.errors.TooManyRequests as e:
-                logger.exception(f"twitter: {story.platform_id}")
+                logger.exception(
+                    f"twitter too many requests, interrupt {topic_key}",
+                )
                 sentry_sdk.capture_exception(e)
+                __sleep(10, 20)
                 break
-
             except Exception as e:
                 logger.exception(f"twitter: {story.platform_id}")
                 sentry_sdk.capture_exception(e)
@@ -387,28 +406,6 @@ def get_user(username, c=None):
     cache.set(key, user, cache_timeout)
 
     return user
-
-
-def get_followers_count(usernames):
-    cache_timeout = 24 * 60 * 60
-    followers_count = {}
-    auth = tweepy.OAuth2BearerHandler(os.getenv("TWITTER_BEARER_TOKEN"))
-    api = tweepy.API(auth)
-
-    for username in usernames:
-        key = f"twitter:followers:{username}"
-        fc = cache.get(key)
-        if fc:
-            followers_count[username] = fc
-        else:
-            try:
-                user = api.get_user(screen_name=username)
-                followers_count[username] = user.followers_count
-                cache.set(key, user.followers_count, cache_timeout)
-            except Exception as e:
-                logger.warning(f"twitter followers count: {e}")
-
-    return followers_count
 
 
 class IDPrinter(tweepy.StreamingClient):

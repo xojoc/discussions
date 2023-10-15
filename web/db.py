@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import datetime
 import logging
 import time
@@ -13,7 +14,7 @@ from web import (
     models,
     rank,
     topics,
-    twitter,
+    twitter_api,
     worker,
 )
 
@@ -60,7 +61,10 @@ def worker_update_discussions(self):
         if story.story_url:
             resource = models.Resource.by_url(story.story_url)
             if resource is None:
-                crawler.add_to_queue(story.story_url, priority=3)
+                crawler.add_to_queue(
+                    story.story_url,
+                    crawler.Priority.very_low,
+                )
 
         canonical_story_url = story.canonical_story_url
         normalized_title = story.normalized_title
@@ -81,7 +85,9 @@ def worker_update_discussions(self):
             count_dirty += 1
             dirty_stories.append(story)
 
-        if len(dirty_stories) >= 1000:
+        batch_size = 1000
+
+        if len(dirty_stories) >= batch_size:
             __update(dirty_stories)
 
         if time.monotonic() > last_checkpoint + 60:
@@ -147,7 +153,8 @@ def update_pagerank(self):
     for pk, pr in pagerank.items():
         resources.append(models.Resource(pk=pk, pagerank=pr))
 
-        if len(resources) >= 2000:
+        batch_size = 2000
+        if len(resources) >= batch_size:
             __update(resources)
 
     __update(resources)
@@ -179,7 +186,7 @@ def admin_send_recap_email(self):
             mastodon_usernames.append(user)
 
     twitter_followers_count = (
-        twitter.get_followers_count(twitter_usernames) or {}
+        twitter_api.get_followers_count(twitter_usernames) or {}
     )
     mastodon_followers_count = (
         mastodon.get_followers_count(mastodon_usernames) or {}
@@ -216,7 +223,8 @@ Mention rules: {mention_rules_count}
         mastodon_count = 0
         if topic.get("twitter"):
             twitter_count = twitter_followers_count.get(
-                topic["twitter"]["account"], 0,
+                topic["twitter"]["account"],
+                0,
             )
         if topic.get("mastodon"):
             user = topic["mastodon"]["account"].split("@")[1]

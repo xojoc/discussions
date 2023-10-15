@@ -1,1 +1,4 @@
 !.env
+migrations
+web/static/bootstrap
+web/static/bootstrap-icons

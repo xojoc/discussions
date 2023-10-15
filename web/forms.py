@@ -1,21 +1,31 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import logging
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Button, Div, Field, Layout, Submit
 from django import forms
+from django.urls import reverse
+from typing_extensions import override
 
-from web import topics, weekly
+from web.platform import Platform
 
 from . import models
 
 logger = logging.getLogger(__name__)
 
 
+class HtmxFormHelper(FormHelper):
+    def set_attr(self, name: str, value: str) -> None:
+        self.attrs[name] = value
+
+
 class QueryForm(forms.Form):
     query = forms.CharField()
     platforms = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple(attrs={"checked": ""}),
-        choices=models.PLATFORM_CHOICES,
+        choices=Platform.choices,
     )
 
     tags = forms.MultipleChoiceField(
@@ -24,11 +34,16 @@ class QueryForm(forms.Form):
 
 
 class SubscriberForm(forms.ModelForm):
-    contact_email_only = forms.BooleanField(required=False, label="By email *")
-
-    class Meta:
+    class Meta(  # pyright: ignore [reportIncompatibleVariableOverride]
+        forms.models.ModelFormOptions,
+    ):
         model = models.Subscriber
-        fields = ["topic", "email"]
+        fields = ["topic", "email"]  # noqa: RUF012
+
+    contact_email_only: forms.BooleanField = forms.BooleanField(
+        required=False,
+        label="By email *",
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -55,7 +70,8 @@ class SubscriberForm(forms.ModelForm):
             Submit("submit", "Subscribe for Free!"),
         )
 
-    def save(self, commit=True):
+    @override
+    def save(self, commit=True):  # noqa: FBT002
         instance = super().save(commit=False)
         if self.cleaned_data.get("contact_email_only"):
             instance.suspected_spam = True
@@ -65,76 +81,40 @@ class SubscriberForm(forms.ModelForm):
 
 
 class UnsubscribeForm(forms.ModelForm):
-    class Meta:
+    class Meta(  # pyright: ignore [reportIncompatibleVariableOverride]
+        forms.models.ModelFormOptions,
+    ):
         model = models.Subscriber
-        fields = [
+        fields = [  # noqa: RUF012
             "topic",
             "email",
             "verification_code",
             "unsubscribed_feedback",
         ]
-        widgets = {
+        widgets = {  # noqa: RUF012
             "verification_code": forms.HiddenInput(),
             "unsubscribed_feedback": forms.Textarea(attrs={"rows": 4}),
         }
 
 
 class ProfileForm(forms.ModelForm):
-    class Meta:
+    class Meta(  # pyright: ignore [reportIncompatibleVariableOverride]
+        forms.models.ModelFormOptions,
+    ):
         model = models.CustomUser
-        fields = ["complete_name"]  # , "generic_ads", "job_ads"]
-        widgets = {"complete_name": forms.TextInput()}
-
-
-class SimulateADForm(forms.ModelForm):
-    topics = forms.MultipleChoiceField(
-        choices=topics.topics_choices,
-        help_text=models.AD._meta.get_field("topics").help_text,
-        widget=forms.CheckboxSelectMultiple(),
-    )
-
-    class Meta:
-        model = models.AD
-        fields = [
-            "topics",
-            "newsletter",
-            "twitter",
-            "mastodon",
-            "floss_project",
-            "consecutive_weeks",
-        ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["consecutive_weeks"].initial = 1
-        self.fields["consecutive_weeks"].min_value = 1
-        self.fields["consecutive_weeks"].max_value = 4
-        self.fields["topics"].choices = weekly.topics_open_rate()
-
-        self.helper = FormHelper(self)
-        self.helper["topics"].wrap(
-            Field, css_class="overflow-y-scroll h-max-10em ms-2",
-        )
-        self.helper.form_method = "post"
-        self.helper.add_input(
-            Submit(
-                "simulate-new-ad",
-                "Simulate price",
-                css_class="btn btn-secondary",
-            ),
-        )
+        fields = [  # noqa: RUF012
+            "complete_name",
+        ]  # , "generic_ads", "job_ads"]
+        widgets = {"complete_name": forms.TextInput()}  # noqa: RUF012
 
 
 class ADForm(forms.ModelForm):
-    topics = forms.MultipleChoiceField(
-        choices=topics.topics_choices,
-        help_text=models.AD._meta.get_field("topics").help_text,
-        widget=forms.CheckboxSelectMultiple(),
-    )
-
-    class Meta:
+    class Meta(
+        forms.models.ModelFormOptions,
+    ):
         model = models.AD
-        fields = [
+
+        fields: Sequence[str] = [
             "topics",
             "newsletter",
             "twitter",
@@ -145,7 +125,7 @@ class ADForm(forms.ModelForm):
             "comments",
         ]
 
-        widgets = {
+        widgets: Mapping[str, forms.Widget] = {
             "floss_repository": forms.TextInput(),
             "title": forms.TextInput(),
             "body": forms.Textarea(attrs={"rows": 4}),
@@ -155,26 +135,33 @@ class ADForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["consecutive_weeks"].initial = 1
+        self.fields["body"].required = False
+        # TODO: specify min_value in model?
         self.fields["consecutive_weeks"].min_value = 1
         self.fields["consecutive_weeks"].max_value = 4
-        self.fields["topics"].choices = weekly.topics_open_rate()
+        # self.fields["topics"].choices = weekly.topics_open_rate()
 
         self.helper = FormHelper(self)
-        self.helper["topics"].wrap(
-            Field, css_class="overflow-y-scroll h-max-10em ms-2",
-        )
         self.helper.form_method = "post"
+        self.helper.attrs = {
+            "hx-post": reverse("web:new_ad"),
+            #     "hx-trigger": "input from: find ",
+        }
+
+        # _ = self.helper["topics"].wrap(
+        #     Field,
+        #     css_class="overflow-y-scroll h-max-10em ms-2",
+        # )
+
+        # Note: the actual submit button is added inside views.py
+
         self.helper.add_input(
             Submit(
-                "submit-new-ad",
-                "Submit ad",
-                css_class="btn btn-primary",
+                "simulate-new-ad",
+                "Simulate price",
+                css_class="btn btn-secondary",
             ),
         )
-
-
-def _platform_choices():
-    return [(k, v[0]) for k, v in models.Discussion.platforms().items()]
 
 
 class MentionForm(forms.ModelForm):
@@ -185,7 +172,9 @@ class MentionForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple(),
     )
 
-    class Meta:
+    class Meta(  # pyright: ignore [reportIncompatibleVariableOverride]
+        forms.models.ModelFormOptions,
+    ):
         model = models.Mention
         fields = [
             "base_url",
@@ -204,14 +193,15 @@ class MentionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["exclude_platforms"].choices = _platform_choices()
+        self.fields["exclude_platforms"].choices = Platform.choices
         self.fields["exclude_platforms"].required = False
         self.fields["min_comments"].required = False
         self.fields["min_score"].required = False
 
         self.helper = FormHelper(self)
         self.helper["exclude_platforms"].wrap(
-            Field, css_class="overflow-y-scroll h-max-10em ms-2",
+            Field,
+            css_class="overflow-y-scroll h-max-10em ms-2",
         )
 
         # for field_name, field in self.fields.items():

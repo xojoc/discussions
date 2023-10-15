@@ -7,6 +7,8 @@ from celery import shared_task
 from django.core.cache import cache
 from django.utils.timezone import make_aware
 
+from web.platform import Platform
+
 from . import celery_util, http, models, worker
 
 logger = logging.getLogger(__name__)
@@ -53,7 +55,7 @@ def __process_item(item, platform):
 
 def __worker_fetch(task, platform):
     client = http.client(with_cache=False)
-    base_url = models.Discussion.get_platform_url(platform)
+    base_url = Platform(platform).value
     cache_current_index_key = f"discussions:echojs:{platform}:current_index"
 
     current_index = cache.get(cache_current_index_key) or 0

@@ -1,9 +1,11 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import datetime
 import logging
 import os
 import time
 
 import cleanurl
+import requests
 from celery import shared_task
 from django.core.cache import cache
 from django.db.models import Q
@@ -29,7 +31,7 @@ def __redis_comment_set_key(platform):
 def __base_url(platform):
     if platform == "h":
         return "https://hacker-news.firebaseio.com"
-    elif platform == "a":
+    if platform == "a":
         return "https://laarrc.firebaseio.com"
     return None
 
@@ -49,7 +51,7 @@ def _url_from_selftext(selftext, title=None):
     for a in h.select("a") or []:
         if a and a.get("href"):
             u = cleanurl.cleanurl(
-                a["href"],
+                a.get("href"),
                 generic=True,
                 respect_semantics=True,
                 host_remap=False,
@@ -71,7 +73,7 @@ def _url_from_selftext(selftext, title=None):
     return None
 
 
-def process_item(platform, item, redis=None, skip_timeout=0):
+def __process_item(platform, item, redis=None, skip_timeout=0):
     if not item:
         return
 
@@ -84,11 +86,11 @@ def process_item(platform, item, redis=None, skip_timeout=0):
         redis.sadd(__redis_comment_set_key(platform), kid)
 
     if item.get("deleted"):
-        models.Discussion.objects.filter(pk=platform_id).delete()
+        _ = models.Discussion.objects.filter(pk=platform_id).delete()
         return
 
     if not item.get("title") and not item.get("time") and not item.get("url"):
-        models.Discussion.objects.filter(pk=platform_id).delete()
+        _ = models.Discussion.objects.filter(pk=platform_id).delete()
         return
 
     if item.get("type") != "story":
@@ -97,7 +99,7 @@ def process_item(platform, item, redis=None, skip_timeout=0):
         return
 
     if item.get("dead"):
-        models.Discussion.objects.filter(pk=platform_id).delete()
+        _ = models.Discussion.objects.filter(pk=platform_id).delete()
         return
 
     tags = None
@@ -110,8 +112,10 @@ def process_item(platform, item, redis=None, skip_timeout=0):
 
     created_at = None
     if item.get("time"):
-        created_at = datetime.datetime.fromtimestamp(item.get("time"))
-        created_at = make_aware(created_at)
+        created_at = datetime.datetime.fromtimestamp(
+            item.get("time"),
+            tz=datetime.UTC,
+        )
 
     scheme, url = None, None
 
@@ -130,7 +134,7 @@ def process_item(platform, item, redis=None, skip_timeout=0):
             scheme = u.scheme
             url = u.schemeless_url
 
-    models.Discussion.objects.update_or_create(
+    _, count = models.Discussion.objects.update_or_create(
         pk=platform_id,
         defaults={
             "comment_count": item.get("descendants") or 0,
@@ -142,6 +146,8 @@ def process_item(platform, item, redis=None, skip_timeout=0):
             "tags": tags,
         },
     )
+    if not count:
+        logger.warning("process_item: discussion not created: %", platform_id)
 
     if skip_timeout > 0:
         cache.set(
@@ -151,7 +157,7 @@ def process_item(platform, item, redis=None, skip_timeout=0):
         )
 
 
-def fetch_item(platform, id, client=None):
+def __fetch_item(platform, id, client=None):
     if not client:
         client = http.client(with_cache=False)
 
@@ -162,9 +168,9 @@ def fetch_item(platform, id, client=None):
 
     try:
         return client.get(f"{bu}/v0/item/{id}.json", timeout=11.05).json()
-    except Exception as e:
+    except requests.exceptions.RequestException:
         time.sleep(3)
-        logger.warning(f"fetch_item: {e}")
+        logger.warning("fetch_item", exc_info=True)
         return None
 
 
@@ -172,9 +178,9 @@ def __fetch_process_item(platform, id, client, redis, skip_timeout=0):
     if redis.sismember(__redis_comment_set_key(platform), id):
         return
 
-    item = fetch_item(platform, id, client=client)
+    item = __fetch_item(platform, id, client=client)
     if item:
-        process_item(platform, item, redis=redis, skip_timeout=skip_timeout)
+        __process_item(platform, item, redis=redis, skip_timeout=skip_timeout)
         t = 1
         if platform == "h":
             t = 0.1
@@ -183,7 +189,7 @@ def __fetch_process_item(platform, id, client, redis, skip_timeout=0):
         time.sleep(t)
 
 
-def _worker_fetch(task, platform):
+def __worker_fetch(task, platform):
     client = http.client(with_cache=False)
     redis = get_redis_connection()
 
@@ -209,12 +215,14 @@ def _worker_fetch(task, platform):
 
         if not queue:
             top_stories = client.get(
-                f"{bu}/v0/topstories.json", timeout=7.05,
+                f"{bu}/v0/topstories.json",
+                timeout=7.05,
             ).json()
             for i, id in enumerate(top_stories[:200]):
                 queue.append((id, i))
             new_stories = client.get(
-                f"{bu}/v0/newstories.json", timeout=7.05,
+                f"{bu}/v0/newstories.json",
+                timeout=7.05,
             ).json()
             for i, id in enumerate(new_stories[:200]):
                 queue.append((id, i))
@@ -270,13 +278,13 @@ def _worker_fetch(task, platform):
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_hn(self):
-    _worker_fetch(self, "h")
+    __worker_fetch(self, "h")
 
 
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_laarc(self):
-    _worker_fetch(self, "a")
+    __worker_fetch(self, "a")
 
 
 def submit_story(title, url, submit_from_dev=False):
@@ -444,9 +452,9 @@ def _submit_discussions():
     )
 
     stories = stories.filter(
-        Q(platform="u")
-        | Q(platform="l")
-        | (Q(platform="r") & Q(tags__overlap=subreddits)),
+        Q(_platform="u")
+        | Q(_platform="l")
+        | (Q(_platform="r") & Q(tags__overlap=subreddits)),
     )
 
     logger.info(f"hn submit: potential stories: {stories.count()}")
@@ -459,7 +467,8 @@ def _submit_discussions():
             continue
 
         related_discussions, _, _ = models.Discussion.of_url(
-            story.story_url, only_relevant_stories=False,
+            story.story_url,
+            only_relevant_stories=False,
         )
 
         total_comment_count = 0
@@ -543,7 +552,7 @@ def _submit_previous_discussions():
         models.Discussion.objects.filter(created_at__gte=three_days_ago)
         .filter(score__gte=10)
         .filter(comment_count__gte=1)
-        .filter(platform="h")
+        .filter(_platform="h")
         .order_by("-created_at")
     )
 
@@ -556,7 +565,8 @@ def _submit_previous_discussions():
             continue
 
         related_discussions, _, _ = models.Discussion.of_url(
-            story.story_url, only_relevant_stories=False,
+            story.story_url,
+            only_relevant_stories=False,
         )
 
         related_discussions = related_discussions.exclude(

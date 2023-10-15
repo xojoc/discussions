@@ -46,7 +46,7 @@ def discussions(rule: models.Mention, pk=None):
     ds = (
         models.Discussion.objects.filter(comment_count__gte=rule.min_comments)
         .filter(score__gte=rule.min_score)
-        .exclude(platform__in=(rule.exclude_platforms or []))
+        .exclude(_platform__in=(rule.exclude_platforms or []))
         .filter(created_at__gt=ago)
     )
 
@@ -79,7 +79,7 @@ def discussions(rule: models.Mention, pk=None):
         ds = ds.filter(pk=pk)
 
     if subreddits_exclude:
-        ds = ds.exclude(Q(platform="r") & Q(tags__overlap=subreddits_exclude))
+        ds = ds.exclude(Q(_platform="r") & Q(tags__overlap=subreddits_exclude))
 
     dsa = []
 
@@ -94,7 +94,8 @@ def discussions(rule: models.Mention, pk=None):
                 ok = True
                 break
             if re.search(
-                r"\b" + k + r"\b", " ".join((d.title or "").lower().split()),
+                r"\b" + k + r"\b",
+                " ".join((d.title or "").lower().split()),
             ):
                 ok = True
                 break
@@ -135,7 +136,6 @@ def __rule_matches(rule: models.Mention, instance: models.Discussion):
 
     # if instance.platform == "r":
     #     if rule.subreddits_exclude and tags[0] in rule.subreddits_exclude:
-
 
 
 def __matching_rules(instance: models.Discussion):

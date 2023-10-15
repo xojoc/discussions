@@ -1,6 +1,7 @@
 import unittest
 
 from web import tags
+from web.platform import Platform
 
 
 class UnitTags(unittest.TestCase):
@@ -8,7 +9,7 @@ class UnitTags(unittest.TestCase):
         def n(ts, platform=None, title="", url=""):
             return tags.normalize(
                 ts,
-                platform,
+                Platform(platform) if platform else platform,
                 title,
                 url,
             )
@@ -172,7 +173,9 @@ class UnitTags(unittest.TestCase):
         for nts, ets in zip(normalization[0::2], normalization[1::2]):
             nts = set(nts)
             ets = set(ets)
-            assert nts.issuperset(ets), f"got {nts} expected {ets} diff {ets - nts}"
+            assert nts.issuperset(
+                ets,
+            ), f"got {nts} expected {ets} diff {ets - nts}"
 
         missing = [
             n(

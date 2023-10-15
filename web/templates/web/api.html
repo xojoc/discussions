@@ -41,8 +41,8 @@ Fast REST API to lookup discussions and comments across platforms (Hacker News, 
         <tbody>
             {% for platform in ctx.statistics.platform %}
             <tr>
-                <td><a href="{{platform.platform_url}}" title="{{platform.platform_name}}"
-                        rel="nofollow">{{platform.platform_name}}</a>
+                <td><a href="{{platform.platform.url}}" title="{{platform.platform.label}}"
+                        rel="nofollow">{{platform.platform.label}}</a>
                 </td>
                 <td>{{platform.discussion_count|intcomma}}</td>
                 <td>{{platform.comment_count|intcomma}}</td>

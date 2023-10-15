@@ -1,21 +1,23 @@
 {% if ctx.errors %}
 <ul class="list-unstyled">
     {% if ctx.form.non_field_errors %}
-    <li class="alert alert-danger alert-dismissible fade show" role="alert">{{ ctx.form.non_field_errors }}</li>
-    {% endif %}
-    {% for field in ctx.form %}
-    {% if field.errors %}
+    <li class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ ctx.form.non_field_errors }}
+    </li>
+    {% endif %} {% for field in ctx.form %} {% if field.errors %}
     <li>
         {{ field.label }}
         <ul class="list-unstyled">
             {% for error in field.errors %}
-            <li class="alert alert-danger alert-dismissible fade show" role="alert">{{ error }}</li>
+            <li class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ error }}
+            </li>
             {% endfor %}
         </ul>
     </li>
-    {% endif %}
-    {% endfor %}
+    {% endif %} {% endfor %}
 </ul>
+
 {% elif ctx.discussions %}
 <ul class="list-unstyled">
     {% for d in ctx.discussions %}
@@ -23,16 +25,17 @@
         <a href="{{d.story_url}}" title="{{d.title}}" class="d-flex flex-column text-body" rel="nofollow">
             {{d.title}}
             <span class="d-inline-block smaller-font url-max-width text-truncate">{{d.story_url}}</span></a>
-        <a href="{{d.discussion_url}}" title="View discussion with {{d.score}} {{d.score_label}} on {{d.platform_name}}"
-            rel="nofollow"><strong>{{d.comment_count}}
-                comment{{d.comment_count|pluralize:",s"}}</strong></a>
+        <a href="{{d.discussion_url}}" title="View discussion with {{d.score}} {{d.platform.score_label}} on {{d.platform.label}}"
+            rel="nofollow"><strong>{{d.comment_count}} comment{{d.comment_count|pluralize:",s"}}</strong></a>
         <span class="smaller-font">with <strong>{{d.score}}</strong> point{{d.score|pluralize:",s"}}</span>
-        <span class="smaller-font">at <time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time></span>
-        <span class="smaller-font">on {{d.platform_name}}</span>
+        <span class="smaller-font">at
+            <time datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time></span>
+        <span class="smaller-font">on {{d.platform.label}}</span>
         <span class="smaller-font">
-            {% if d.tags %} {% if d.platform != 'r' %} tagged: {% else %} subreddit: {% endif %} {% for tag in d.tags %}
-            {{tag}}{% if not forloop.last %},
-            {% endif %} {% endfor %} {% endif %} </span>
+            {% if d.tags %} {% if d.platform != 'r' %} tagged: {% else %} subreddit:
+            {% endif %} {% for tag in d.tags %} {{tag}}{% if not forloop.last %}, {%
+            endif %} {% endfor %} {% endif %}
+        </span>
     </li>
     {% endfor %}
 </ul>

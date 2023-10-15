@@ -1,0 +1,61 @@
+{% load crispy_forms_tags %}
+{% load util %}
+<div id="ad-price-calculator">
+    {% comment %}
+  hx-post="{% url 'web:new_ad' %}"
+  hx-trigger='change from:input'
+  hx-target="this"
+    {% endcomment %}
+    <h2 class="mb-3">Ad price calculator</h2>
+
+        {% if user.is_authenticated %}
+            {% if ctx.user_verified_email %}
+            {% else %}
+                <p class="alert alert-warning mt-3 mb-3">
+                    You have to <a href="{% url 'account_email' %}" title="Manage your emails">verify your email</a> before
+                    submitting an ad.
+                </p>
+            {% endif %}
+        {% else %}
+            <p class="alert alert-warning mt-3 mb-3">
+                You have to <a href="{% url 'account_signup' %}" title="Sign Up">Sign Up</a> or <a href="{% url 'account_login' %}" title="Login">Login</a> before
+                submitting an ad.
+            </p>
+        {% endif %}
+    
+    {% htmx_attr ctx.ad_form.helper 'hx-trigger' 'change from:input' as _ %}
+    {% htmx_attr ctx.ad_form.helper 'hx-target' '#ad-price-calculator' as _ %}
+    {% comment %}
+    {% htmx_attr ctx.ad_form.helper 'hx-validate' 'false' as _ %}
+    {% htmx_attr ctx.ad_form.helper 'novalidate' 'false' as _ %}
+    {% htmx_attr ctx.ad_form.helper.form.fields.body 'hx-validate' 'false' as _ %}
+    {% endcomment %}
+    {% crispy ctx.ad_form %}
+
+    <div class="fs-4">
+        <ul class="list-unstyled">
+            <li>
+                Total ad price:
+                <span class="fw-bold text-primary float-end">{{ ctx.estimate.total_euro|default:"0" }} €</span>
+            </li>
+            {% if ctx.ad_form.data.newsletter %}
+                <li>
+                    Newsletter subscribers:
+                    <span class="float-end">{{ ctx.estimate.newsletter_subscribers }}</span>
+                </li>
+            {% endif %}
+            {% if ctx.ad_form.data.twitter %}
+                <li>
+                    Twitter followers:
+                    <span class="float-end">{{ ctx.estimate.twitter_followers }}</span>
+                </li>
+            {% endif %}
+            {% if ctx.ad_form.data.mastodon %}
+                <li>
+                    Mastodon followers:
+                    <span class="float-end">{{ ctx.estimate.mastodon_followers }}</span>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>

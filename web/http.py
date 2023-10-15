@@ -5,6 +5,7 @@ import bs4
 import cachecontrol
 import minify_html
 import requests
+import requests.utils as requests_utils
 import urllib3
 from bs4 import BeautifulSoup
 from cachecontrol import CacheControl
@@ -66,7 +67,9 @@ def client(with_cache=False, with_retries=True):
 
     if with_cache:
         client = CacheControl(
-            session, cache=_CustomRedisCache(r), cache_etags=True,
+            session,
+            cache=_CustomRedisCache(r),
+            cache_etags=True,
         )
 
     if with_retries:
@@ -79,7 +82,7 @@ def client(with_cache=False, with_retries=True):
 def _rate_limit(r, host):
     if r.get("discussions:rate_limit:" + host):
         time.sleep(2)
-        return _rate_limit(host)
+        return _rate_limit(r, host)
     r.set("discussions:rate_limit:" + host, 1, ex=3)
     return None
 
@@ -105,15 +108,21 @@ def fetch(
     resp = None
     try:
         resp = c.send(request.prepare(), stream=True, timeout=timeout)
-    except Exception as e:
-        logger.debug(f"http.fetch: send fail: {e}")
+    except requests.exceptions.RequestException:
+        logger.warning("http.fetch: send fail", exc_info=True)
 
     return resp
 
 
-def parse_html(res, safe_html=False, clean=False):
+def parse_html(
+    res: str | bytes | requests.Response,
+    *,
+    safe_html: bool = False,
+    clean: bool = False,
+) -> BeautifulSoup | None:
     html = None
-    html = res if type(res) == str or type(res) == bytes else res.text
+
+    html = res if isinstance(res, bytes | str) else (res.text or "")
 
     if not html:
         return None

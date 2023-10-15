@@ -136,8 +136,8 @@ def __extract_title(h, s, url):
             s.title = None
 
 
-def structure(h, url=None):
-    if type(h) == str:
+def structure(h, url=None) -> Structure:
+    if isinstance(h, str):
         h = http.parse_html(h, safe_html=True)
 
     s = Structure()
@@ -199,7 +199,10 @@ def get_github_user_twitter(url):
     api_url = f"https://api.github.com/repos/{parts[1]}/{parts[2]}"
 
     response = http.fetch(
-        api_url, timeout=30, with_retries=False, with_cache=True,
+        api_url,
+        timeout=30,
+        with_retries=False,
+        with_cache=True,
     )
 
     if not response or not response.ok:

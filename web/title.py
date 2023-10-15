@@ -1,6 +1,8 @@
 import re
 import unicodedata
 
+from web.platform import Platform
+
 from . import util
 
 
@@ -152,7 +154,13 @@ def __duplicate(title):
     return " ".join(prev := v for v in title.split() if prev != v)
 
 
-def normalize(title, platform=None, url="", tags=None, stem=True):
+def normalize(
+    title: str,
+    platform: Platform | None = None,
+    url: str = "",
+    tags: list[str] | None = None,
+    stem: bool = True,
+) -> str:
     tags = tags or []
     title = title or ""
     url = (url or "").lower()
@@ -177,14 +185,17 @@ def normalize(title, platform=None, url="", tags=None, stem=True):
     if url:
         title = __url(title, url)
 
-    if platform == "l":
-        title = __lobsters(title)
-    elif platform == "r":
-        title = __reddit(title)
-    elif platform == "h":
-        title = __hacker_news(title)
-    elif platform == "u":
-        title = __lambda_the_ultimate(title)
+    match platform:
+        case Platform.LOBSTERS:
+            title = __lobsters(title)
+        case Platform.REDDIT:
+            title = __reddit(title)
+        case Platform.HACKER_NEWS:
+            title = __hacker_news(title)
+        case Platform.LAMBDA_THE_ULTIMATE:
+            title = __lambda_the_ultimate(title)
+        case _:
+            pass
 
     title = __duplicate(title)
 

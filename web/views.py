@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import itertools
 import json
 import logging
@@ -5,7 +6,10 @@ import random
 from pprint import pformat
 from urllib.parse import quote, unquote as url_unquote
 
+import crispy_forms
+import crispy_forms.layout
 import stripe
+import stripe.error
 import urllib3
 from crawlerdetect import CrawlerDetect
 from django.contrib import messages
@@ -13,6 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.http import (
     Http404,
+    HttpRequest,
     HttpResponse,
     HttpResponsePermanentRedirect,
     JsonResponse,
@@ -22,10 +27,12 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django_htmx.middleware import HtmxDetails
 from django_redis import get_redis_connection
 
 from discussions import settings
 from web import email_util, mention, spam
+from web.platform import Platform
 
 from . import (
     discussions,
@@ -41,21 +48,28 @@ from . import (
 logger = logging.getLogger(__name__)
 
 
+class HtmxHttpRequest(HttpRequest):
+    htmx: HtmxDetails
+
+
 def __log_query(q):
     if not q:
         return
 
     q = q.strip().lower()
 
-    r = get_redis_connection()
-    if q.startswith(("http://", "https://")):
-        r.zincrby("discussions:stats:query:url", 1, q)
-    else:
-        r.zincrby("discussions:stats:query:search", 1, q)
+    try:
+        r = get_redis_connection()
+        if q.startswith(("http://", "https://")):
+            r.zincrby("discussions:stats:query:url", 1, q)
+        else:
+            r.zincrby("discussions:stats:query:search", 1, q)
 
-    if random.randint(1, 100) == 1:  # noqa: S311
-        r.zremrangebyrank("discussions:stats:query:url", 0, -10)
-        r.zremrangebyrank("discussions:stats:query:search", 0, -10)
+        if random.randint(1, 100) == 1:  # noqa: S311
+            r.zremrangebyrank("discussions:stats:query:url", 0, -10)
+            r.zremrangebyrank("discussions:stats:query:search", 0, -10)
+    except Exception:  # noqa: BLE001
+        logger.warning("__log_query failed", exc_info=True)
 
 
 def discussions_context_cached(q):
@@ -75,7 +89,7 @@ def discussions_context_cached(q):
 
     if ctx:
         if cache.get(touch_key):
-            cache.touch(key, timeout)
+            _ = cache.touch(key, timeout)
     else:
         ctx = discussions_context(q)
         if ctx and ctx["nothing_found"] is False:
@@ -100,7 +114,12 @@ def discussions_context(q):
 
     ctx["original_query"] = q
     ctx["url"] = url
-    if (url.startswith(("http://", "https://"))) and " " not in url and len(url) >= 10:
+    min_url_len = len("http://" + "d" + ".it")
+    if (
+        (url.startswith(("http://", "https://")))
+        and " " not in url
+        and len(url) >= min_url_len
+    ):
         ctx["is_url"] = True
     else:
         ctx["is_url"] = False
@@ -116,12 +135,7 @@ def discussions_context(q):
     if uds is not None:
         ctx["sql_query"] = str(uds.query)
 
-    try:
-        uds = list(uds)
-    except Exception as e:
-        logger.warning(e)
-        uds = []
-        # raise e
+    uds = list(uds) if uds else []
 
     tds = None
 
@@ -135,16 +149,10 @@ def discussions_context(q):
     # We have to convert the iterator to a list, see: https://stackoverflow.com/a/16171518
     ctx["grouped_discussions"] = [
         (
-            platform,
-            models.Discussion.get_platform_name(platform),
-            models.Discussion.get_platform_url(
-                platform,
-                preferred_external_url=discussions.PreferredExternalURL.Standard,
-            ),
-            models.Discussion.get_platform_tag_url(
-                platform,
-                preferred_external_url=discussions.PreferredExternalURL.Standard,
-            ),
+            Platform(platform),
+            Platform(platform).label,
+            Platform(platform).url,
+            Platform(platform).tag_url,
             list(uds),
         )
         for platform, uds in itertools.groupby(uds, lambda x: x.platform)
@@ -155,9 +163,7 @@ def discussions_context(q):
     ctx["resource"] = models.Resource.by_url(cu)
     if ctx["resource"]:
         ctx["title"] = ctx["resource"].title
-        ctx["inbound_resources"] = ctx["resource"].inbound_resources()
-        if ctx["inbound_resources"] is not None:
-            ctx["inbound_resources"] = ctx["inbound_resources"][:20]
+        ctx["inbound_resources"] = ctx["resource"].inbound_resources()[:20]
 
         ctx["outbound_resources"] = ctx["resource"].outbound_resources()
         if ctx["outbound_resources"] is not None:
@@ -229,13 +235,14 @@ def __suggest_topic(ctx):
 def index(request, path_q=None):
     host = request.get_host().partition(":")[0]
     if not request.path.startswith("/.well-known/") and (
-        host not in ("localhost", "127.0.0.1", "testserver", settings.APP_DOMAIN)
+        host
+        not in ("localhost", "127.0.0.1", "testserver", settings.APP_DOMAIN)
     ):
         r = "https://" + settings.APP_DOMAIN + request.get_full_path()
         return HttpResponsePermanentRedirect(r)
 
     if path_q:
-        q = url_unquote(request.get_full_path()[len("/q/") :])
+        q = url_unquote(request.get_full_path()[len("/q/"):])
     else:
         q = request.GET.get("url")
         if not q:
@@ -271,8 +278,8 @@ def index(request, path_q=None):
             u = urllib3.util.parse_url(url)
             if u.host:
                 ctx["try_with_site_prefix"] = "site:" + u.host
-        except Exception as e:
-            logger.info(e)
+        except ValueError:
+            logger.warning("Failed to parse url %", url, exc_info=True)
 
     if ctx.get("submit_title") and not ctx.get("submit_title").startswith(
         (
@@ -297,10 +304,7 @@ def index(request, path_q=None):
         ("tag2", "fdsa"),
     ]
 
-    try:
-        __log_query(q)
-    except Exception as e:
-        logger.warning(e)
+    __log_query(q)
 
     __suggest_topic(ctx)
 
@@ -322,7 +326,7 @@ def short_url(request, platform_id):
 def story_short_url(request, platform_id):
     _ = request
     d = get_object_or_404(models.Discussion, pk=platform_id)
-    return redirect(d.story_url, permanent=False)
+    return redirect(d.story_url or reverse("web:index"), permanent=False)
 
 
 # def short_link(request, code):
@@ -342,7 +346,10 @@ def weekly_confirm_email(request):
     if subscriber and subscriber.confirmed and not subscriber.unsubscribed:
         messages.warning(
             request,
-            f"Email {subscriber_email} was already confirmed. If it wasn't you please write to hi@discu.eu",
+            (
+                f"Email {subscriber_email} was already confirmed. "
+                f"If it wasn't you please write to hi@discu.eu"
+            ),
         )
     elif subscriber and subscriber.verification_code == request.GET.get(
         "verification_code",
@@ -357,7 +364,10 @@ def weekly_confirm_email(request):
     else:
         messages.error(
             request,
-            f"Something went wrong while trying to confirm email {subscriber_email}. Write to hi@discu.eu for assistance.",
+            (
+                f"Something went wrong while trying to confirm email "
+                f"{subscriber_email}. Write to hi@discu.eu for assistance."
+            ),
         )
 
     redirect_to = "/"
@@ -409,9 +419,14 @@ def weekly_confirm_unsubscription(request):
         if subscriber and subscriber.verification_code != verification_code:
             messages.error(
                 request,
-                "Something went wrong. Verification code doesn't match. Write to hi@discu.eu for assistance",
+                (
+                    "Something went wrong. Verification code doesn't match. "
+                    "Write to hi@discu.eu for assistance."
+                ),
             )
-        elif subscriber and subscriber.confirmed and not subscriber.unsubscribed:
+        elif (
+            subscriber and subscriber.confirmed and not subscriber.unsubscribed
+        ):
             subscriber.unsubscribe()
             subscriber.unsubscribed_feedback = request.POST.get(
                 "unsubscribed_feedback",
@@ -421,7 +436,10 @@ def weekly_confirm_unsubscription(request):
         else:
             messages.warning(
                 request,
-                "You were already unsubscribed. Write to hi@discu.eu for assistance.",
+                (
+                    "You were already unsubscribed. "
+                    "Write to hi@discu.eu for assistance."
+                ),
             )
 
         redirect_to = "/"
@@ -568,7 +586,10 @@ def dashboard(request):
     ctx = {}
 
     profile_form = forms.ProfileForm(instance=request.user)
-    if request.method == "POST" and "submit-update-user-profile" in request.POST:
+    if (
+        request.method == "POST"
+        and "submit-update-user-profile" in request.POST
+    ):
         profile_form = forms.ProfileForm(
             request.POST,
             instance=request.user,
@@ -618,7 +639,10 @@ def dashboard_mentions(request):
             if mrc >= mrm:
                 messages.error(
                     request,
-                    "Sorry, but you already reached your maximum quota of rules",
+                    (
+                        "Sorry, but you already reached your "
+                        "maximum quota of rules"
+                    ),
                 )
             elif mention_form.is_valid():
                 model = mention_form.save(commit=False)
@@ -637,7 +661,7 @@ def dashboard_mentions(request):
             if mention.user != request.user:
                 msg = "404"
                 raise Http404(msg)
-            mention.delete()
+            _ = mention.delete()
             messages.success(request, f"Rule {mention} deleted!")
             return redirect(request.get_full_path(), permanent=False)
 
@@ -768,24 +792,32 @@ def stripe_subscribe_success(request):
 def stripe_subscribe_cancel(request):
     messages.warning(
         request,
-        "Oops. Something went wrong. No worries you can retry later or write to hi@discu.eu for support",
+        (
+            "Oops. Something went wrong. No worries you can retry later "
+            "or write to hi@discu.eu for support"
+        ),
     )
     logger.error(
-        f"Stripe subscribe cancelled. User {request.user.pk} stripe id {request.user.stripe_customer_id}",
+        "Stripe subscribe cancelled. User % stripe id %",
+        request.user.pk,
+        request.user.stripe_customer_id,
     )
     return redirect("web:dashboard", permanent=False)
 
 
 def new_ad(request):
     ctx = {}
-
-    ad_form = forms.ADForm()
-    simulate_ad_form = forms.SimulateADForm()
+    ctx["htmx"] = request.htmx
+    template = "web/new_ad.html"
+    if request.htmx:
+        template = "web/new_ad_form.html"
 
     if request.method == "POST":
-        if "submit-new-ad" in request.POST:
-            ad_form = forms.ADForm(request.POST)
-            if ad_form.is_valid():
+        ad_form = forms.ADForm(request.POST)
+        if ad_form.is_valid():
+            if "simulate-new-ad" in request.POST or request.htmx:
+                ctx["estimate"] = ad_form.instance.estimate()
+            else:
                 model = ad_form.save(commit=False)
                 model.user = request.user
                 model.save()
@@ -796,16 +828,8 @@ def new_ad(request):
                     We'll let you know once the ad is approved.""",
                 )
                 email_util.send_admins("New ad", "new ad")
-
-        if "simulate-new-ad" in request.POST:
-            simulate_ad_form = forms.SimulateADForm(request.POST)
-            if simulate_ad_form.is_valid():
-                ctx["estimate"] = simulate_ad_form.instance.estimate()
-
-            ad_form = forms.ADForm(request.POST)
-
-    ctx["ad_form"] = ad_form
-    ctx["simulate_ad_form"] = simulate_ad_form
+    else:
+        ad_form = forms.ADForm()
 
     ctx["user_verified_email"] = (
         request.user.is_authenticated
@@ -813,7 +837,19 @@ def new_ad(request):
         .filter(verified=True)
         .exists()
     )
-    return render(request, "web/new-ad.html", {"ctx": ctx})
+
+    if ctx["user_verified_email"]:
+        ad_form.helper.add_input(
+            crispy_forms.layout.Submit(
+                "submit-new-ad",
+                "Submit ad",
+                css_class="btn btn-primary",
+            ),
+        )
+
+    ctx["ad_form"] = ad_form
+
+    return render(request, template, {"ctx": ctx})
 
 
 def reading_list_topic(request, topic):
@@ -831,6 +867,17 @@ def reading_list_topic(request, topic):
 def api_view(request):
     ctx = {}
     ctx["statistics"] = models.Statistics.all_statistics()
+    exclude_platforms = {
+        Platform.TILDE_NEWS,
+        Platform.BARNACLES,
+        Platform.LAARC,
+        Platform.STANDARD,
+    }
+    ctx["statistics"]["platform"] = [
+        p
+        for p in ctx["statistics"]["platform"]
+        if p["platform"] not in exclude_platforms
+    ]
 
     return render(request, "web/api.html", {"ctx": ctx})
 
@@ -867,7 +914,7 @@ def aws_bounce_handler(request):
 
         if unsubscribe:
             from_email = message.get("mail").get("source")
-            topic_key, _ = topics.get_topic_by_email(from_email)
+            topic_key, _ = topics.get_topic_by_email(from_email) or ("", "")
             for destination in destinations:
                 subscriber = models.Subscriber.objects.filter(
                     topic=topic_key,
@@ -950,4 +997,7 @@ def click_subscriber(request, typ, subscriber, year, week, discussion):
             reverse("web:index", args=[discussion.story_url]),
             permanent=False,
         )
-    return redirect(discussion.story_url, permanent=False)
+    return redirect(
+        discussion.story_url or reverse("web:index"),
+        permanent=False,
+    )

@@ -10,12 +10,13 @@ from django.db.models.functions import (
 )
 
 from web import celery_util, discussions, models
+from web.platform import Platform
 
 
 def discussions_platform_statistics():
     stats = (
         models.Discussion.objects.exclude(canonical_story_url__isnull=True)
-        .values("platform")
+        .values("_platform")
         .annotate(
             discussion_count=Count("platform_id"),
             comment_count=Sum("comment_count"),
@@ -26,11 +27,7 @@ def discussions_platform_statistics():
     )
 
     for s in stats:
-        s["platform_name"] = models.Discussion.get_platform_name(s["platform"])
-        s["platform_url"] = models.Discussion.get_platform_url(
-            s["platform"],
-            preferred_external_url=discussions.PreferredExternalURL.Standard,
-        )
+        s["platform"] = Platform(s["_platform"])
 
     return stats
 
