@@ -302,7 +302,7 @@ class Discussion(models.Model):
         ds = ds.annotate(word_similarity=Value(99))
 
         ds = ds.order_by(
-            "platform",
+            "_platform",
             "-word_similarity",
             "-created_at",
             "-platform_id",
