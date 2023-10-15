@@ -32,14 +32,12 @@ done
 #echo "Check production settings"
 #python manage.py check --deploy
 
-if [ "$DJANGO_DEVELOPMENT" == "true" ]; then
-	echo 'nop' >/dev/null
-else
-	echo "Collect static files"
-	python manage.py collectstatic --noinput
-
+if [ "$DJANGO_DEVELOPMENT" != "true" ] || $celery; then
 	echo "Apply database migrations"
 	python manage.py migrate --noinput
+
+	echo "Collect static files"
+	python manage.py collectstatic --noinput
 
 	echo "Run Celery"
 	#  --without-mingle --without-heartbeat --without-gossip

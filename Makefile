@@ -19,7 +19,7 @@ run: sass_compile
 	#-@killall -KILL celery
 	#-@killall -KILL stripe
 	#@stripe listen --forward-to localhost:7777/stripe/webhook/&
-	@poetry run ./docker-entrypoint.sh -p 7777
+	@poetry run ./docker-entrypoint.sh -p 7777 -c
 
 debug: sass_compile 
 	@poetry run ./docker-entrypoint.sh -d -p 7777 

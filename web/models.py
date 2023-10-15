@@ -585,13 +585,11 @@ class Resource(models.Model):
 
     tags = postgres_fields.ArrayField(
         models.CharField(max_length=255, blank=True),
-        null=True,
         blank=True,
     )
 
     normalized_tags = postgres_fields.ArrayField(
         models.CharField(max_length=255, blank=True),
-        null=True,
         blank=True,
     )
 
@@ -802,6 +800,13 @@ class Link(models.Model):
     @override
     def __str__(self) -> str:
         return f"{self.from_resource.id} -> {self.to_resource.id}"
+
+    @override
+    def save(self: Self, *args: Any, **kwargs: Any) -> None:
+        self.anchor_title = self.anchor_title or ""
+        self.anchor_text = self.anchor_text or ""
+        self.anchor_rel = self.anchor_rel or ""
+        super().save(*args, **kwargs)
 
 
 # class HackerNewsItem(models.Model):

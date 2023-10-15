@@ -134,7 +134,7 @@ def __process_item(platform, item, redis=None, skip_timeout=0):
             scheme = u.scheme
             url = u.schemeless_url
 
-    _, count = models.Discussion.objects.update_or_create(
+    _ = models.Discussion.objects.update_or_create(
         pk=platform_id,
         defaults={
             "comment_count": item.get("descendants") or 0,
@@ -146,8 +146,6 @@ def __process_item(platform, item, redis=None, skip_timeout=0):
             "tags": tags,
         },
     )
-    if not count:
-        logger.warning("process_item: discussion not created: %", platform_id)
 
     if skip_timeout > 0:
         cache.set(

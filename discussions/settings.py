@@ -138,8 +138,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "discussions.wsgi.application"
 
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
     "default": {
@@ -148,7 +146,7 @@ DATABASES = {
         "NAME": os.environ.get("DATABASE_NAME"),
         "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
         "USER": os.environ.get("DATABASE_USER"),
-        # },
+        "OPTIONS": {"application_name": "discu.eu"},
     },
 }
 
