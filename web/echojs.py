@@ -1,3 +1,4 @@
+# Copyright 2022 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import datetime
 import logging
 import time
@@ -14,8 +15,8 @@ from . import celery_util, http, models, worker
 logger = logging.getLogger(__name__)
 
 
-def __process_item(item, platform):
-    platform_id = f"{platform}{item.get('id')}"
+def __process_item(item: dict[str, str | int], platform: Platform) -> None:
+    platform_id = f"{platform.value}{item.get('id')}"
 
     if item.get("ctime"):
         created_at = datetime.datetime.fromtimestamp(int(item.get("ctime")))
@@ -40,7 +41,7 @@ def __process_item(item, platform):
 
     score = int(item.get("up", 0)) - int(item.get("down", 0))
 
-    models.Discussion.objects.update_or_create(
+    _ = models.Discussion.objects.update_or_create(
         pk=platform_id,
         defaults={
             "comment_count": int(item.get("comments", 0)),
@@ -53,10 +54,12 @@ def __process_item(item, platform):
     )
 
 
-def __worker_fetch(task, platform):
+def __worker_fetch(task, platform: Platform):
     client = http.client(with_cache=False)
-    base_url = Platform(platform).value
-    cache_current_index_key = f"discussions:echojs:{platform}:current_index"
+    base_url = platform.url
+    cache_current_index_key = (
+        f"discussions:echojs:{platform.value}:current_index"
+    )
 
     current_index = cache.get(cache_current_index_key) or 0
     current_index = int(current_index)
@@ -101,4 +104,4 @@ def __worker_fetch(task, platform):
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_echojs(self):
-    __worker_fetch(self, "e")
+    __worker_fetch(self, Platform.ECHO_JS)

@@ -10,7 +10,6 @@ from celery import shared_task
 from django.core.cache import cache
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.timezone import make_aware
 from django_redis import get_redis_connection
 
 from web import archiveis, celery_util, http, models, util, worker

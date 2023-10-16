@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 #       https://lobste.rs/s/7bbyke.json
 
 
-def process_item(item, platform):
-    platform_id = f"{platform}{item.get('short_id')}"
+def process_item(item, platform: Platform):
+    platform_id = f"{platform.value}{item.get('short_id')}"
 
     created_at = datetime.datetime.fromisoformat(item.get("created_at"))
 
@@ -59,9 +59,9 @@ def process_item(item, platform):
         ).save()
 
 
-def __worker_fetch(task, platform):
+def __worker_fetch(task, platform: Platform):
     client = http.client(with_cache=False)
-    base_url = Platform(platform).url
+    base_url = platform.url
     cache_current_page_key = f"discussions:lobsters:{platform}:current_page"
 
     current_page = cache.get(cache_current_page_key) or 1
@@ -99,22 +99,22 @@ def __worker_fetch(task, platform):
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_lobsters(self):
-    __worker_fetch(self, "l")
+    __worker_fetch(self, Platform.LOBSTERS)
 
 
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_barnacles(self):
-    __worker_fetch(self, "b")
+    __worker_fetch(self, Platform.BARNACLES)
 
 
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_tilde_news(self):
-    __worker_fetch(self, "t")
+    __worker_fetch(self, Platform.TILDE_NEWS)
 
 
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_standard(self):
-    __worker_fetch(self, "s")
+    __worker_fetch(self, Platform.STANDARD)
