@@ -59,7 +59,8 @@ def lock_key(f):
 
 
 def singleton(
-    timeout=settings.APP_CELERY_TASK_MAX_TIME * 5, blocking_timeout=0.1,
+    timeout=settings.APP_CELERY_TASK_MAX_TIME * 5,
+    blocking_timeout=0.1,
 ):
     def decorator(f):
         @functools.wraps(f)
@@ -75,19 +76,18 @@ def singleton(
                     timeout=timeout,
                     blocking_timeout=blocking_timeout,
                 ):
-
                     f(*args, **kwargs)
             except LockError:
-                logger.debug(
+                logger.warning(
                     f"Lock {lock_name} not acquired timeout = {timeout}, blocking_timeout = {blocking_timeout}",
                 )
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 import traceback
 
                 logger.debug(traceback.format_exc())
 
                 logger.warning(f"singleton {lock_name}: {e}")
-                sentry_sdk.capture_exception(e)
+                _ = sentry_sdk.capture_exception(e)
 
         return wrapper
 
