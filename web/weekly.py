@@ -620,7 +620,7 @@ def send_mass_email(topic, year, week, *, testing=True, only_subscribers=None):
             connection.send_messages(batch)
             time.sleep(1)
         except BaseException:
-            logger.exception("send_messages: % %", topic, len(batch))
+            logger.exception("send_messages: %s %s", topic, len(batch))
             _ = sentry_sdk.capture_exception()
             time.sleep(10)
 
@@ -633,6 +633,7 @@ def worker_send_weekly_email(self):
     year = six_days_ago.isocalendar().year
     week = six_days_ago.isocalendar().week
 
+    logger.info("Weekly email: %s/%s: topics: %s", week, year, topics.topics)
     for topic in topics.topics:
         send_mass_email(topic, year, week, testing=False)
 
