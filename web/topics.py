@@ -2,6 +2,8 @@
 import typing
 from typing import TypedDict
 
+from celery import shared_task
+
 
 class _SocialProfileRequired(TypedDict):
     """Required fields for Social profile/account."""
@@ -23,7 +25,7 @@ class Mastodon(SocialProfile):
     """Mastodon account data."""
 
 
-class _TopicRequired(TypedDict):
+class _TopicDataRequired(TypedDict):
     topic_key: str
     name: str
     short_description: str
@@ -36,7 +38,7 @@ class _TopicRequired(TypedDict):
     email: str
 
 
-class Topic(_TopicRequired, total=False):
+class TopicData(_TopicDataRequired, total=False):
     """Topic of a given story/discussion."""
 
     platform: str
@@ -45,7 +47,7 @@ class Topic(_TopicRequired, total=False):
     # from_email: tuple[str, str]
 
 
-topics: dict[str, Topic] = {
+topics: dict[str, TopicData] = {
     "nim": {
         "topic_key": "nim",
         "name": "Nim",
@@ -462,7 +464,7 @@ def get_account_configuration(
     return None
 
 
-def get_topic_by_email(email: str) -> tuple[str, Topic] | None:
+def get_topic_by_email(email: str) -> tuple[str, TopicData] | None:
     """Get the topic which corresponds to a sender email.
        .e.g. weekly_rust@discu.eu -> Rust.
 
@@ -476,3 +478,10 @@ def get_topic_by_email(email: str) -> tuple[str, Topic] | None:
             return topic_key, topic
 
     return None
+
+
+@shared_task
+def task_update_followers_count():
+    counts = {}
+    for topic in topics:
+        pass

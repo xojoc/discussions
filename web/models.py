@@ -1380,3 +1380,27 @@ class MentionNotification(models.Model):
             f"Mention: {self.mention.rule_name} "
             f"Discussion: {self.discussion.platform_id}"
         )
+
+
+class DataBag(models.Model):
+    """Store results of expensive computations."""
+
+    key = models.CharField(blank=False)
+    value_json = models.JSONField()
+
+    entry_created_at = models.DateTimeField(auto_now_add=True)
+    entry_updated_at = models.DateTimeField(auto_now=True)
+
+    @override
+    def __str__(self) -> str:
+        return f"{self.key}: {self.value}"
+
+    @property
+    def value(self) -> object | None:
+        if not self.value_json:
+            return None
+        return json.loads(self.value_json)
+
+    @value.setter
+    def value(self, v):
+        self.value_json = DjangoJSONEncoder().encode(v)

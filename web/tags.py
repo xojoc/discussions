@@ -1,5 +1,5 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import re
-from collections.abc import Sequence
 
 import cleanurl
 
@@ -7,7 +7,13 @@ from web import title as web_title, util
 from web.platform import Platform
 
 
-def __augment_tags(title, tags, keyword, atleast_tags=None, new_tag=None):
+def __augment_tags(
+    title: str | None,
+    tags: set[str],
+    keyword: str | None,
+    atleast_tags: set[str] | None = None,
+    new_tag: str | None = None,
+) -> None:
     if atleast_tags and len(tags & atleast_tags) == 0:
         return
 
@@ -19,6 +25,8 @@ def __augment_tags(title, tags, keyword, atleast_tags=None, new_tag=None):
 
     if new_tag in tags:
         return
+
+    title = title or ""
 
     if keyword and keyword not in title:
         return
@@ -104,7 +112,7 @@ def __topic_nim(tags, title, url, platform):
         tags |= {"nimlang"}
 
 
-def __topic_unix(tags, title, url, platform, original_title):
+def __topic_unix(tags, title, _url, _platform, original_title):
     __augment_tags(title, tags, "centos")
     __augment_tags(title, tags, "debian", None, "linux")
     __augment_tags(title, tags, "dragonflybsd")
@@ -158,6 +166,9 @@ def __topic_webdev(tags, title, url, platform, original_title):
     __augment_tags(title, tags, "typescript")
     __augment_tags(None, tags, None, {"nodejs"}, "javascript")
     __augment_tags(None, tags, None, {"jquery"}, "javascript")
+    __augment_tags(None, tags, None, {"reactjs"}, "javascript")
+    __augment_tags(None, tags, None, {"htmx"}, "javascript")
+    __augment_tags(None, tags, None, {"svelte"}, "javascript")
 
     __augment_tags(
         title,
@@ -167,8 +178,12 @@ def __topic_webdev(tags, title, url, platform, original_title):
             "django",
             "flask",
             "javascript",
+            "laravel",
+            "svelte",
+            "htmx",
             "typescript",
             "rails",
+            "reactjs",
         },
         "webdev",
     )
@@ -183,6 +198,9 @@ def __topic_webdev(tags, title, url, platform, original_title):
 
     if re.search(r"\btailwind css\b", original_title, re.IGNORECASE):
         tags.add("webdev")
+
+    if re.search(r"\bhtmx\b", original_title, re.IGNORECASE):
+        tags.add("htmx")
 
 
 def __topic_zig(tags, title, url, platform):
@@ -743,6 +761,7 @@ def __rename(tags, title, platform=None):
         ("worldnews", "news", "r"),
         ("zig", "ziglang", "l"),
         ("zig", "ziglang", "r"),
+        ("sveltejs", "svelte", "r"),
     ]
     for p in to_replace:
         if len(p) == 3 and p[2] != (platform.value if platform else ""):

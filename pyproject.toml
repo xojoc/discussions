@@ -107,7 +107,7 @@ ignore = [
 	'G004', # logger use f-string
 	'E501', # line too long
 ]
-unfixable = ['F841', 'F401']
+unfixable = ['F841', 'F401', 'B007']
 preview = true
 line-length = 79
 target-version = 'py311'

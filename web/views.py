@@ -35,7 +35,6 @@ from web import email_util, mention, spam
 from web.platform import Platform
 
 from . import (
-    discussions,
     forms,
     mastodon,
     models,
@@ -242,7 +241,7 @@ def index(request, path_q=None):
         return HttpResponsePermanentRedirect(r)
 
     if path_q:
-        q = url_unquote(request.get_full_path()[len("/q/"):])
+        q = url_unquote(request.get_full_path()[len("/q/") :])
     else:
         q = request.GET.get("url")
         if not q:
