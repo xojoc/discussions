@@ -3,168 +3,164 @@
 {% load util %}
 {% block title %}Dashboard - discu.eu{% endblock %}
 {% block main %}
-    <form method="POST">
-        {% csrf_token %}
-        {{ ctx.profile_form | crispy }}
-        <button type="submit"
-                class="btn btn-secondary"
-                name="submit-update-user-profile">Update profile</button>
-    </form>
-    <div class="my-5"></div>
-    {% if user.is_premium %}
-        <div class="card">
-            <h5 class="card-header">Premium plan</h5>
-            <div class="card-body">
-                <p class="card-text">
-                    Renew or cancel your premium plan. Update payment methods, billing information or
-                    see
-                    invoices.
-                </p>
-                <form method="POST"
-                      action="{% url 'web:stripe_create_customer_portal_session' %}">
-                    {% csrf_token %}
-                    <input type="hidden"
-                           name="return_to_path"
-                           value="{{ request.get_full_path }}">
-                    <button type="submit" class="btn btn-secondary">Manage premium plan</button>
-                </form>
-            </div>
-        </div>
-    {% else %}
+<form method="POST">
+    {% csrf_token %}
+    {{ ctx.profile_form | crispy }}
+    <button type="submit" class="btn btn-secondary" name="submit-update-user-profile">Update profile</button>
+</form>
+<div class="my-5"></div>
+{% if user.is_premium %}
+<div class="card">
+    <h5 class="card-header">Premium plan</h5>
+    <div class="card-body">
+        <p class="card-text">
+            Renew or cancel your premium plan. Update payment methods, billing information or
+            see
+            invoices.
+        </p>
+        <form method="POST" action="{% url 'web:stripe_create_customer_portal_session' %}">
+            {% csrf_token %}
+            <input type="hidden" name="return_to_path" value="{{ request.get_full_path }}">
+            <button type="submit" class="btn btn-secondary">Manage premium plan</button>
+        </form>
+    </div>
+</div>
+{% else %}
+{% if ctx.user_verified_email %}
+<div class="card" id="dashboard-get-premium">
+    <h5 class="card-header">Premium plan</h5>
+    <div class="card-body">
+        <p class="card-text">
+            Get RSS feeds, an ad-free experience and <a href="{% url 'web:pricing' %}"
+                title="Pricing and features">more!</a>
+        </p>
+        <form method="POST" action="{% url 'web:stripe_checkout' %}">
+            {% csrf_token %}
+            <input type="hidden" name="return_to_path" value="{{ request.get_full_path }}">
+            <button type="submit" class="btn btn-primary">Go premium!</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endif %}
+<div class="my-5"></div>
+<h4>Newsletter subscriptions</h4>
+{% if ctx.subscriptions %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-info">
+            <tr>
+                <th scope="col">Topic</th>
+                <th scope="col">Email</th>
+                <th scope="col">Email confirmed?</th>
+                <th scope="col">Still subscribed?</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sub in ctx.subscriptions %}
+            <tr>
+                <td>{{ ctx.topics|get_item:sub.topic|get_item:'name' }}</td>
+                <td>{{ sub.email }}</td>
+                <td>
+                    {% if sub.confirmed %}
+                    <span class="text-success">Yes</span>
+                    {% else %}
+                    <span class="text-danger">No</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if sub.unsubscribed %}
+                    <span class="text-danger">No</span>
+                    {% else %}
+                    <span class="text-success">Yes</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p>
+    Check out all <a href="/weekly/">the newsletters</a>.
+</p>
+{% else %}
+<p>
+    You have no subscriptions yet. Make sure you have verified <a href="{% url 'account_email' %}"
+        title="Manage your emails">all your emails</a> or subscribe <a href="/weekly/">to a newsletter</a>.
+</p>
+{% endif %}
+{% if user.rss_id %}
+<h4 class="mt-5">RSS feeds</h4>
+{% if not user.is_premium %}
+<p class="alert alert-warning py-3">
+    The following RSS feeds contain old sample issues.
+    Get the <a href="#dashboard-get-premium">premium plan</a> to access complete feeds.
+</p>
+{% endif %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-info">
+            <tr>
+                <th scope="col">Topic</th>
+                <th scope="col">RSS feed</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for topic_key, topic in ctx.topics.items %}
+            <tr>
+                <td>
+                    <a href="{% url 'web:weekly_topic' topic_key %}" class="text-body">{{ topic.name }}</a>
+                </td>
+                <td>
+                    <a href="{% url 'web:weekly_rss_feed' topic_key user.rss_id %}"><span class="bi bi-rss"></span></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p class="smaller-font-4 alert alert-info">These feeds are personal, please don't share them with anyone.</p>
+{% endif %}
+<div class="card mt-5">
+    <h5 class="card-header">Manage mention rules</h5>
+    <div class="card-body">
+        <p class="card-text">Update, add and delete mention rules.</p>
         {% if ctx.user_verified_email %}
-            <div class="card" id="dashboard-get-premium">
-                <h5 class="card-header">Premium plan</h5>
-                <div class="card-body">
-                    <p class="card-text">
-                        Get RSS feeds, an ad-free experience and <a href="{% url 'web:pricing' %}" title="Pricing and features">more!</a>
-                    </p>
-                    <form method="POST" action="{% url 'web:stripe_checkout' %}">
-                        {% csrf_token %}
-                        <input type="hidden"
-                               name="return_to_path"
-                               value="{{ request.get_full_path }}">
-                        <button type="submit" class="btn btn-primary">Go premium!</button>
-                    </form>
-                </div>
-            </div>
-        {% endif %}
-    {% endif %}
-    <div class="my-5"></div>
-    <h4>Newsletter subscriptions</h4>
-    {% if ctx.subscriptions %}
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-info">
-                    <tr>
-                        <th scope="col">Topic</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Email confirmed?</th>
-                        <th scope="col">Still subscribed?</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for sub in ctx.subscriptions %}
-                        <tr>
-                            <td>{{ ctx.topics|get_item:sub.topic|get_item:'name' }}</td>
-                            <td>{{ sub.email }}</td>
-                            <td>
-                                {% if sub.confirmed %}
-                                    <span class="text-success">Yes</span>
-                                {% else %}
-                                    <span class="text-danger">No</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if sub.unsubscribed %}
-                                    <span class="text-danger">No</span>
-                                {% else %}
-                                    <span class="text-success">Yes</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <p>
-            Check out all <a href="/weekly/">the newsletters</a>.
+        <a href="{% url 'web:dashboard_mentions' %}" class="btn btn-secondary">Mentions</a>
+        {% else %}
+        <p class="card-text alert alert-warning">
+            Verify your <a href="{% url 'account_email' %}" title="Manage your emails">email</a> to create a new mention
+            rule
         </p>
-    {% else %}
-        <p>
-            You have no subscriptions yet. Make sure you have verified <a href="{% url 'account_email' %}" title="Manage your emails">all your emails</a> or subscribe <a href="/weekly/">to a newsletter</a>.
-        </p>
-    {% endif %}
-    {% if user.rss_id %}
-        <h4 class="mt-5">RSS feeds</h4>
-        {% if not user.is_premium %}
-            <p class="alert alert-warning py-3">
-                The following RSS feeds contain old sample issues.
-                Get the <a href="#dashboard-get-premium">premium plan</a> to access complete feeds.
-            </p>
         {% endif %}
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-info">
-                    <tr>
-                        <th scope="col">Topic</th>
-                        <th scope="col">RSS feed</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for topic_key, topic in ctx.topics.items %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'web:weekly_topic' topic_key %}" class="text-body">{{ topic.name }}</a>
-                            </td>
-                            <td>
-                                <a href="{% url 'web:weekly_rss_feed' topic_key user.rss_id %}"><span class="bi bi-rss"></span></a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <p class="smaller-font-4 alert alert-info">These feeds are personal, please don't share them with anyone.</p>
-    {% endif %}
-    <div class="card mt-5">
-        <h5 class="card-header">Manage mention rules</h5>
-        <div class="card-body">
-            <p class="card-text">Update, add and delete mention rules.</p>
-            {% if ctx.user_verified_email %}
-                <a href="{% url 'web:dashboard_mentions' %}" class="btn btn-secondary">Mentions</a>
-            {% else %}
-                <p class="card-text alert alert-warning">
-                    Verify your <a href="{% url 'account_email' %}" title="Manage your emails">email</a> to create a new mention rule
-                </p>
-            {% endif %}
-        </div>
     </div>
-    <div class="my-5"></div>
-    <div class="card">
-        <h5 class="card-header">Manage emails</h5>
-        <div class="card-body">
-            <p class="card-text">Update, add, delete and verify your emails.</p>
-            <a href="{% url 'account_email' %}" class="btn btn-secondary">My emails</a>
-        </div>
+</div>
+<div class="my-5"></div>
+<div class="card">
+    <h5 class="card-header">Manage emails</h5>
+    <div class="card-body">
+        <p class="card-text">Update, add, delete and verify your emails.</p>
+        <a href="{% url 'account_email' %}" class="btn btn-secondary">My emails</a>
     </div>
-    <div class="my-5"></div>
-    {% if user.api %}
-        <div class="card">
-            <h5 class="card-header">Discussions API</h5>
-            <div class="card-body">
-                {% if ctx.user_verified_email %}
-                    <p class="card-text">API token: {{ user.api.token }}</p>
-                {% else %}
-                    <p class="card-text">
-                        API token: <span class="alert alert-warning">verify your email to get an API
-                    token</span>
-                </p>
-            {% endif %}
-            <p>
-            <a href="{% url 'api-v0:openappi-view' %}" class="btn btn-info">API documentation</a>
-            </p>
-        </div>
+</div>
+<div class="my-5"></div>
+{% if user.api %}
+<div class="card">
+    <h5 class="card-header">Discussions API</h5>
+    <div class="card-body">
+        {% if ctx.user_verified_email %}
+        <p class="card-text">API token: {{ user.api.token }}</p>
+        {% else %}
+        <p class="card-text">
+            API token: <span class="alert alert-warning">verify your email to get an API
+                token</span>
+        </p>
+        {% endif %}
+        <p>
+            <a href="{% url 'api-v0:openapi-view' %}" class="btn btn-info">API documentation</a>
+        </p>
     </div>
+</div>
 {% endif %}
 <div class="my-5"></div>
 <div class="card">
@@ -176,15 +172,15 @@
             feedback or support.
         </div>
         {% if user.is_premium %}
-            <div class="card-text mt-1">
-                To contact us by email write to <a href="mailto:support@discu.eu">support@discu.eu</a>.
-            </div>
+        <div class="card-text mt-1">
+            To contact us by email write to <a href="mailto:support@discu.eu">support@discu.eu</a>.
+        </div>
         {% else %}
-            <div class="card-text mt-1">
-                Get the <a href="#dashboard-get-premium" title="Premium plan">premium plan</a> for
-                email
-                support.
-            </div>
+        <div class="card-text mt-1">
+            Get the <a href="#dashboard-get-premium" title="Premium plan">premium plan</a> for
+            email
+            support.
+        </div>
         {% endif %}
     </div>
 </div>
