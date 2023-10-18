@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import debug_toolbar
 from django.contrib import admin
 from django.contrib.sitemaps.views import index as sitemap_index, sitemap

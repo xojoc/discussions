@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 class CORSMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response

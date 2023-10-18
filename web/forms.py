@@ -51,7 +51,7 @@ class SubscriberForm(forms.ModelForm):
         self.fields["topic"].choices = [
             (k, v)
             for (k, v) in self.fields["topic"].choices
-            if k not in ["laarc"]
+            if k != "laarc"
         ]
 
         self.helper = FormHelper()

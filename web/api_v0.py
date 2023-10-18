@@ -1,9 +1,13 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
+
+from dataclasses import dataclass
 from datetime import date
 
 from django.core.cache import cache
 from django.http import HttpRequest
-from ninja import ModelSchema, NinjaAPI, Schema
+from ninja import Field, ModelSchema, NinjaAPI, Schema
 from ninja.security import HttpBearer
+from typing_extensions import override
 
 from web.platform import Platform as SocialPlatform
 
@@ -11,6 +15,7 @@ from . import api_statistics, models, util
 
 api = NinjaAPI(version="v0")
 api.title = "Discussions and comments API"
+
 
 api.description = """
 <p>
@@ -25,6 +30,7 @@ cache_prefix = "api"
 
 
 class AuthBearer(HttpBearer):
+    @override
     def authenticate(self, request, token):
         _ = request
         key = f"{cache_prefix}:token:{token}"
@@ -49,31 +55,24 @@ class AuthBearer(HttpBearer):
 auth_bearer = AuthBearer()
 
 
+@dataclass
 class Discussion(ModelSchema):
     class Config:
         model = models.Discussion
-        model_fields = ["created_at", "title", "comment_count", "score"]
+        model_fields = (
+            "created_at",
+            "title",
+            "comment_count",
+            "score",
+            "tags",
+            "normalized_tags",
+        )
 
     platform: str
     id: str  # noqa: A003
     story_url: str | None
-    tags: list[str] | None
-    normalized_tags: list[str] | None
     discussion_url: str | None
     subreddit: str | None
-
-
-class DiscussionCounts(Schema):
-    total_comments: int
-    total_score: int
-    total_discussions: int
-    last_discussion: date | None
-    first_discussion: date | None
-    story_url: str | None
-    discussions_url: str | None
-    articles_count: int
-    comments_by_platform: dict[str, int]
-    tags: list[str]
 
 
 class Message(Schema):
@@ -88,8 +87,9 @@ class Message(Schema):
 def get_discussions(
     request: HttpRequest,
     url: str,
+    *,
     only_relevant_stories: bool = True,
-):
+) -> list[Discussion]:
     """Get all discussions for a given URL."""
     api_statistics.track(request)
 
@@ -103,7 +103,7 @@ def get_discussions(
 
     if ds:
         if cache.get(touch_key):
-            cache.touch(key, timeout)
+            _ = cache.touch(key, timeout)
         return ds
 
     ds, _, _ = models.Discussion.of_url(
@@ -127,10 +127,24 @@ def get_discussions(
 def options_get_discussions(
     request: HttpRequest,
     url: str,
+    *,
     only_relevant_stories: bool = True,
 ) -> list:
     _ = (request, url, only_relevant_stories)
     return []
+
+
+class DiscussionCounts(Schema):
+    total_comments: int = Field(default=0)
+    total_score: int = Field(default=0)
+    total_discussions: int = Field(default=0)
+    last_discussion: date | None = Field(default=0)
+    first_discussion: date | None = Field(default=0)
+    story_url: str | None = Field(default=0)
+    discussions_url: str | None = Field(default=0)
+    articles_count: int = Field(default=0)
+    comments_by_platform: dict[str, int] = Field(default_factory=dict)
+    tags: list[str] = Field(default_factory=list)
 
 
 @api.get(
@@ -152,21 +166,10 @@ def get_discussion_counts(request: HttpRequest, url: str) -> DiscussionCounts:
 
     if dcs:
         if cache.get(touch_key):
-            cache.touch(key, timeout)
+            _ = cache.touch(key, timeout)
         return dcs
 
-    dcs = DiscussionCounts(
-        total_comments=0,
-        total_score=0,
-        total_discussions=0,
-        last_discussion=None,
-        first_discussion=None,
-        story_url=None,
-        discussions_url=None,
-        articles_count=0,
-        comments_by_platform={},
-        tags=[],
-    )
+    dcs = DiscussionCounts()
 
     ds, _, _ = models.Discussion.of_url(url, only_relevant_stories=True)
 

@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 from django_redis import get_redis_connection
 
 cache_prefix = "api"

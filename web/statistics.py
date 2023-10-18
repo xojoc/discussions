@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 from celery import shared_task
 from django.db.models import Count, Max, Min, Sum, Value
 from django.db.models.functions import (

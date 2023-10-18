@@ -325,9 +325,7 @@ def __generate_breadcrumbs(topic=None, year=None, week=None):
 
 def index_context():
     ctx = {}
-    ctx["topics"] = {
-        k: v for k, v in topics.topics.items() if k not in ["laarc"]
-    }
+    ctx["topics"] = {k: v for k, v in topics.topics.items() if k != "laarc"}
     ctx["breadcrumbs"] = __generate_breadcrumbs()
     return ctx
 
@@ -614,7 +612,7 @@ def send_mass_email(topic, year, week, *, testing=True, only_subscribers=None):
     connection = mail.get_connection()
     messages_it = iter(messages)
     # current SES limit rate
-    limit_rate = 14 - 1
+    limit_rate = 60 - 1
     while batch := list(itertools.islice(messages_it, limit_rate)):
         try:
             connection.send_messages(batch)

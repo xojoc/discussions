@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import logging
 
 import urllib3
@@ -91,7 +92,11 @@ def derive(story):
     ):
         return "askplatform"
 
-    if story.platform == "h" and title.startswith("tell hn") and not story.story_url:
+    if (
+        story.platform == "h"
+        and title.startswith("tell hn")
+        and not story.story_url
+    ):
         return "tellplatform"
 
     return "article"

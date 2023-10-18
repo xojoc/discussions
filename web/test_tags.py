@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import unittest
 
 from web import tags
@@ -7,11 +8,13 @@ from web.platform import Platform
 class UnitTags(unittest.TestCase):
     def test_normalization(self):
         def n(ts, platform=None, title="", url=""):
-            return tags.normalize(
-                ts,
-                Platform(platform) if platform else platform,
-                title,
-                url,
+            return set(
+                tags.normalize(
+                    ts,
+                    Platform(platform) if platform else platform,
+                    title,
+                    url,
+                ),
             )
 
         normalization = [
@@ -170,9 +173,11 @@ class UnitTags(unittest.TestCase):
             {"cpp"},
         ]
 
-        for nts, ets in zip(normalization[0::2], normalization[1::2]):
-            nts = set(nts)
-            ets = set(ets)
+        for nts, ets in zip(
+            normalization[0::2],
+            normalization[1::2],
+            strict=True,
+        ):
             assert nts.issuperset(
                 ets,
             ), f"got {nts} expected {ets} diff {ets - nts}"

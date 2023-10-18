@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import unittest
 
 from web import reddit
@@ -39,8 +40,12 @@ class UnitReddit(unittest.TestCase):
             hu = reddit._url_from_selftext(h)
             assert u == hu, h
 
-        assert None is reddit._url_from_selftext("[Single link](https://discu.eu/)", "Help me with discu.eu")
-        assert None is reddit._url_from_selftext("[Yes](https://xojoc.pw/)", "Is this X?")
+        assert None is reddit._url_from_selftext(
+            "[Single link](https://discu.eu/)", "Help me with discu.eu",
+        )
+        assert None is reddit._url_from_selftext(
+            "[Yes](https://xojoc.pw/)", "Is this X?",
+        )
 
     def test_url(self):
         tests = [

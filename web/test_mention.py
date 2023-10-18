@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 from django.test import TestCase
 from django.utils import timezone
 
@@ -7,7 +8,9 @@ from web import forms, models
 class Mention(TestCase):
     def setUp(self):
         self.user = models.CustomUser.objects.create_user(
-            username="jacob", email="jacob@…", password="top_secret",
+            username="jacob",
+            email="jacob@…",
+            password="top_secret",
         )
 
     def __new_form(self, data):

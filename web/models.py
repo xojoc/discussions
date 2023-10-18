@@ -370,7 +370,7 @@ class Discussion(models.Model):
             ):
                 query = " ".join(tokens[1:])
 
-                url_prefix = tokens[0][len(site_prefix) :].lower()
+                url_prefix = tokens[0][len(site_prefix):].lower()
                 curl_prefix = cleanurl.cleanurl(url_prefix, generic=True)
 
                 ts = (

@@ -1,12 +1,15 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import logging
 import os
 import random
 import urllib
+import urllib.parse
 from email.utils import formataddr
 
 from django.apps import AppConfig
 from django.conf import settings
 from django.db.backends.signals import connection_created
+from typing_extensions import override
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +29,8 @@ def connection_created_signal_handler(sender, connection, **kwargs):
 class WebConfig(AppConfig):
     name = "web"
 
-    def __topics(self):
+    @classmethod
+    def __topics(cls):
         from web import topics
 
         for topic_key, topic in topics.topics.items():
@@ -78,7 +82,8 @@ class WebConfig(AppConfig):
                 if mastodon_access_token:
                     mastodon["token"] = mastodon_access_token
 
-    def __reddit_configuration(self):
+    @classmethod
+    def __reddit_configuration(cls):
         from web import reddit
 
         with open("web/reddit_subreddit_blacklist") as f:
@@ -91,21 +96,25 @@ class WebConfig(AppConfig):
                 x.lower().strip() for x in f.read().splitlines()
             }
 
-    def __set_database_parameters(self):
+    @classmethod
+    def __set_database_parameters(cls):
         connection_created.connect(
             connection_created_signal_handler,
         )
 
-    def __nltk_download_data(self):
+    @classmethod
+    def __nltk_download_data(cls):
         return
 
-    def __set_up_signals(self):
+    @classmethod
+    def __set_up_signals(cls):
         from . import (
             indexnow,  # noqa: F401
             mention,  # noqa: F401
             stripe_util,  # noqa: F401
         )
 
+    @override
     def ready(self):
         random.seed()
         self.__topics()

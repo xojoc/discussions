@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import logging
 import re
 import time
@@ -27,7 +28,8 @@ def this_week_in_rust():
             continue
 
         if not re.search(
-            r"this-week-in-rust.org/blog/\d\d\d\d/\d\d/\d\d/", href,
+            r"this-week-in-rust.org/blog/\d\d\d\d/\d\d/\d\d/",
+            href,
         ):
             logger.debug(f"not matching {href}")
             continue

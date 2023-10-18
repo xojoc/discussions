@@ -1,5 +1,7 @@
 {% extends "web/base.html" %}
+
 {% load util %}
+{% load static %}
 
 {% block title %}Discussions and comments API V0 documentation - discu.eu{% endblock %}
 
@@ -8,7 +10,7 @@ Interactive documentation for version V0 of our discussions and comments API.
 {% endblock %}
 
 {% block extra_head %}
-<link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.51.2/swagger-ui.css">
+<link type="text/css" rel="stylesheet" href="{% static 'ninja/swagger-ui.css' %}">
 {% endblock %}
 
 {% block main %}
@@ -19,8 +21,8 @@ Interactive documentation for version V0 of our discussions and comments API.
     <p>Interactive documentation for the <a href="{% url 'web:api' %}" title="Discussions API">discussions and comments
             API</a>.</p>
 </noscript>
-
-<script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.51.2/swagger-ui-bundle.js"></script>
+<script src="{% static 'ninja/swagger-ui-bundle.js' %}"></script>
+<script src="{% static 'ninja/swagger-ui-init.js' %}"></script>
 <script>
     const ui = SwaggerUIBundle({
         url: '{{ openapi_json_url }}',
@@ -38,7 +40,7 @@ Interactive documentation for version V0 of our discussions and comments API.
         {% endif %}
     deepLinking: true,
         tryItOutEnabled: true,
-            persistAuthorization: true
+            persistAuthorization: true,
         })
 </script>
 

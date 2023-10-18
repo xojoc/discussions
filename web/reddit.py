@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import datetime
 import io
 import json
@@ -148,10 +149,13 @@ def _url_from_selftext(selftext, title=None):
                 continue
 
             lower_netloc = u.parsed_url.netloc.lower()
-            if (lower_netloc.endswith((".py", ".rs", ".net", ".md"))) and (
-                not u.parsed_url.path or u.parsed_url.path == "/"
-            ) and lower_netloc == util.strip_punctuation(
-                a.text.lower().replace(" ", ""),
+            if (
+                (lower_netloc.endswith((".py", ".rs", ".net", ".md")))
+                and (not u.parsed_url.path or u.parsed_url.path == "/")
+                and lower_netloc
+                == util.strip_punctuation(
+                    a.text.lower().replace(" ", ""),
+                )
             ):
                 continue
 

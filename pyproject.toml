@@ -113,6 +113,18 @@ line-length = 79
 target-version = 'py311'
 extend-exclude = ['web/migrations']
 
+[tool.ruff.extend-per-file-ignores]
+'./manage.py' = ['ALL']
+"__init__.py" = ["CPY001", "D104"]
+"test_*.py" = [
+	'ANN',     # annotations
+	'D',       # documentation warnings
+	'PLR2004', # magic value 
+	'PLR6301', # self not used 
+	'S101',    # asserts 
+	'SLF001',  # private method accessed 
+]
+
 [tool.ruff.flake8-annotations]
 ignore-fully-untyped = true
 

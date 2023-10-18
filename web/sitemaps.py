@@ -1,5 +1,7 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
+from typing_extensions import override
 
 from . import topics, util, weekly
 from .models import Discussion
@@ -8,6 +10,7 @@ from .models import Discussion
 class StaticViewSitemap(Sitemap):
     protocol = "https"
 
+    @override
     def items(self):
         return [
             "web:api",
@@ -22,6 +25,7 @@ class StaticViewSitemap(Sitemap):
             "web:weekly_index",
         ]
 
+    @override
     def location(self, item):
         return reverse(item)
 
@@ -29,6 +33,7 @@ class StaticViewSitemap(Sitemap):
 class WeeklySitemap(Sitemap):
     protocol = "https"
 
+    @override
     def items(self):
         its = []
         for topic_key in topics.topics:
@@ -43,6 +48,7 @@ class WeeklySitemap(Sitemap):
 
         return its
 
+    @override
     def location(self, item):
         return reverse(item[0], args=item[1])
 
@@ -51,6 +57,7 @@ class DiscussionsSitemap(Sitemap):
     protocol = "https"
     limit = 10_000
 
+    @override
     def items(self):
         return (
             Discussion.objects.exclude(scheme_of_story_url__isnull=True)
@@ -64,9 +71,9 @@ class DiscussionsSitemap(Sitemap):
 
         # annotate(comment_count=Sum('comment_count'),
 
-
     # def lastmod(self, obj):
 
+    @override
     def location(self, obj):
         url = obj.scheme_of_story_url + "://" + obj.canonical_story_url
         return util.discussions_canonical_url(url, with_domain=False)

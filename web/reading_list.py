@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import logging
 
 from web import models, topics
@@ -63,7 +64,6 @@ order by platform, score desc, comment_count desc
 """,
         {"tags": tags, "platform": platform, "category": category},
     )
-
 
 
 def get_reading_list_cached(topic, category):

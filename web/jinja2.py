@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 from django.templatetags.static import static
 from django.urls import reverse
 from jinja2 import Environment

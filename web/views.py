@@ -241,7 +241,7 @@ def index(request, path_q=None):
         return HttpResponsePermanentRedirect(r)
 
     if path_q:
-        q = url_unquote(request.get_full_path()[len("/q/") :])
+        q = url_unquote(request.get_full_path()[len("/q/"):])
     else:
         q = request.GET.get("url")
         if not q:
@@ -540,7 +540,7 @@ def __social_context(request):
     _ = request
     twitter_bots = []
     for topic_key, topic in topics.topics.items():
-        if topic_key in ["laarc"]:
+        if topic_key == "laarc":
             continue
         if not topic.get("twitter"):
             continue
@@ -557,7 +557,7 @@ def __social_context(request):
 
     mastodon_bots = []
     for topic_key, topic in topics.topics.items():
-        if topic_key in ["laarc"]:
+        if topic_key == "laarc":
             continue
         if not topic.get("mastodon"):
             continue

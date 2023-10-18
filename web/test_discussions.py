@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import urllib
 
 from django.test import Client, TestCase
@@ -32,7 +33,8 @@ class LookupTestCase(TestCase):
         assert response.status_code == 200
 
         response = self.client.get(
-            "/", {"q": "https://example.com", "submit_title": "Submit Title"},
+            "/",
+            {"q": "https://example.com", "submit_title": "Submit Title"},
         )
         qu = urllib.parse.quote("https://example.com")
         h = http.parse_html(response.content)

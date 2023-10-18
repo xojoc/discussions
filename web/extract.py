@@ -1,8 +1,11 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import contextlib
 import logging
 import urllib
+import urllib.parse
 
 import cleanurl
+from bs4 import BeautifulSoup, Tag
 
 from . import http
 
@@ -27,20 +30,20 @@ class Author:
 
 
 class Structure:
-    type = None
+    page_type = None
     title = None
-    article = None
+    article: Tag | None = None
     tags = None
     number_of_comments = None
     commnets_seciton = None
     permanent_url = None
     publication_date = None
     edit_date = None
-    author = None
+    author: Author | None = None
     outbound_links = []
 
 
-def __extract_author(article, h):
+def __extract_author(h):
     author = Author()
 
     if h:
@@ -121,14 +124,14 @@ def __extract_title(h, s, url):
         if u.hostname == "streamgg.com":
             s.title = None
 
-        if u.hostname == "clips.twitch.tv" or u.hostname == "twitch.tv":
+        if u.hostname in ("clips.twitch.tv", "twitch.tv"):
             s.title = None
 
-        # fixme: blocked in EU. Skip for now
+        # TODO: blocked in EU. Skip for now
         if u.hostname == "nydailynews.com":
             s.title = None
 
-        # fixme: requires login
+        # TODO: requires login
         if u.hostname == "instagram.com":
             s.title = None
 
@@ -136,39 +139,40 @@ def __extract_title(h, s, url):
             s.title = None
 
 
-def structure(h, url=None) -> Structure:
+def structure(
+    h: str | BeautifulSoup | None,
+    url: str | None = None,
+) -> Structure:
     if isinstance(h, str):
         h = http.parse_html(h, safe_html=True)
 
     s = Structure()
 
-    try:
-        articles = h.select("article")
-        if len(articles) == 1:
-            s.article = articles[0]
-    except Exception:
-        pass
+    if not h:
+        return s
+
+    articles = h.select("article")
+    if len(articles) == 1:
+        s.article = articles[0]
 
     if s.article:
-        #     pass
-
-        with contextlib.suppress(Exception):
-            s.outbound_links = s.article.select("a") or []
+        s.outbound_links = s.article.select("a") or []
 
     try:
-        s.author = __extract_author(s.article, h)
-    except Exception as e:
-        print(f"author: {e}")
-        logging.debug(f"author: {e}")
+        s.author = __extract_author(h)
+    except Exception:
+        logger.warning("exract: author", exc_info=True)
 
     __extract_title(h, s, url)
 
     return s
 
 
-def _fetch_parse_extract(u):
+def fetch_parse_extract(u: str) -> Structure | None:
     r = http.fetch(u)
-    h = http.parse_html(r)
+    if not r:
+        return None
+    h = http.parse_html(r.content)
     return structure(h, u)
 
 
@@ -179,13 +183,13 @@ def get_github_user_twitter(url):
     u = None
     try:
         u = urllib.parse.urlparse(url)
-    except Exception:
+    except ValueError:
         return None
 
     if not u:
         return None
 
-    if u.netloc != "github.com" and u.netloc != "www.github.com":
+    if u.netloc not in ("github.com", "www.github.com"):
         return None
 
     if not u.path:

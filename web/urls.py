@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 from django.urls import path
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
@@ -5,10 +6,6 @@ from django.views.generic.base import RedirectView
 from . import feed, views
 
 app_name = "web"
-
-
-def sentry_trigger_error(request):
-    _ = 1 / 0
 
 
 urlpatterns = [
@@ -39,7 +36,6 @@ urlpatterns = [
         views.weekly_topic_week,
         name="weekly_topic_week",
     ),
-    path("sentry-debug/", sentry_trigger_error),
     path("social/", views.social, name="social"),
     path("twitter/", RedirectView.as_view(url="/social/")),
     path("statistics/", views.statistics, name="statistics"),

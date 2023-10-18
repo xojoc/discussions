@@ -44,7 +44,8 @@ class TopicData(_TopicDataRequired, total=False):
     platform: str
     home_link: str
     noun: str | None
-    # from_email: tuple[str, str]
+    mailto_subscribe: str | None
+    mailto_unsubscribe: str | None
 
 
 topics: dict[str, TopicData] = {

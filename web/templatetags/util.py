@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 from crispy_forms.helper import FormHelper
 from django import forms, template
 from django.urls import reverse

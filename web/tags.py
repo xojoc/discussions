@@ -249,7 +249,7 @@ def __topic_java(tags, title, url, platform, original_title):
             title[ji + 1] == "ee" and title[ji + 2].isdigit()
         ):
             tags.add("java")
-    except ValueError:
+    except (ValueError, IndexError):
         pass
 
     if "java" in title and ("spring" in title or "jvm" in title):
@@ -723,38 +723,39 @@ def __from_title_url(tags, title, url):
 def __rename(tags, title, platform=None):
     _ = title
     to_replace = [
-        (".net", "dotnet"),
         ("ai", "machinelearning", "l"),
+        ("apljk", "apl", "r"),
         ("aws", ["aws", "devops"], "r"),
         ("azure", ["azure", "devops"], "r"),
         ("azuredevops", ["azure", "devops"], "r"),
-        ("googlecloud", ["googlecloud", "devops"], "r"),
-        ("apljk", "apl", "r"),
         ("btc", "bitcoin", "r"),
-        ("c_programming", "c", "r"),
-        ("cprog", "c", "r"),
-        ("cprogramming", "c", "r"),
-        ("c_language", "c", "r"),
-        ("cplusplus", "cpp", "r"),
-        ("c#", "csharp"),
         ("c++", "cpp"),
-        ("common_lisp", "lisp", "r"),
+        ("c#", "csharp"),
+        ("c_language", "c", "r"),
         ("coding", "programming", "r"),
+        ("common_lisp", "lisp", "r"),
         ("computerscience", "compsci", "r"),
+        ("cplusplus", "cpp", "r"),
+        ("cprog", "c", "r"),
+        ("c_programming", "c", "r"),
+        ("cprogramming", "c", "r"),
         ("crypto", "cryptography", "r"),
-        ("d_language", "dlang", "r"),
         ("d", "dlang", "l"),
+        ("d_language", "dlang", "r"),
         ("economics", "economy", "r"),
         ("europes", "europe", "r"),
         ("go", "golang"),
+        ("googlecloud", ["googlecloud", "devops"], "r"),
         ("internationalpolitics", "politics", "r"),
         ("languagetechnology", "nlp", "r"),
         ("lc", "lambda-calculus", "u"),
+        ("linux_gaming", ["gaming", "linux"], "r"),
         ("logic-declerative", "logic-declarative", "u"),
         ("machinelearningnews", "machinelearning", "r"),
         ("misc-books", "book", "u"),
         ("ml", "ocaml", "l"),
         ("moderatepolitics", "politics", "r"),
+        (".net", "dotnet"),
         ("nim", "nimlang", "r"),
         ("node", "nodejs", "r"),
         ("reddit.com", "reddit", "r"),
@@ -764,6 +765,7 @@ def __rename(tags, title, platform=None):
         ("software-eng", "programming", "u"),
         ("sports", "sport", "r"),
         ("squaredcircle", "wrestling", "r"),
+        ("sveltejs", "svelte", "r"),
         ("swift", "swiftlang"),
         ("teaching-&-learning", "teaching/learning", "u"),
         ("technews", ["technology", "news"], "r"),
@@ -776,7 +778,6 @@ def __rename(tags, title, platform=None):
         ("worldnews", "news", "r"),
         ("zig", "ziglang", "l"),
         ("zig", "ziglang", "r"),
-        ("sveltejs", "svelte", "r"),
     ]
     for p in to_replace:
         tuple_platform_len = 3

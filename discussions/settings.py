@@ -4,6 +4,8 @@ import os
 from http import HTTPStatus
 from pathlib import Path
 
+import django
+import django.contrib.messages
 import django_stubs_ext
 import sentry_sdk
 from django.conf.locale.en import formats as en_formats
@@ -388,5 +390,21 @@ SHELL_PLUS_IMPORTS = [
     "import os",
 ]
 
-if os.environ.get("DJANGO_DEVELOPMENT"):
-    from .settings_dev import *  # noqa: F403
+if os.environ.get("DJANGO_DEVELOPMENT", "").lower() == "true":
+    DEBUG = True
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+    APP_DOMAIN = "localhost:7777"
+    APP_SCHEME = "http"
+    SECRET_KEY = "fake dev"  # noqa: S105
+
+    CSRF_COOKIE_DOMAIN = "localhost"
+    CSRF_COOKIE_SECURE = False
+
+    MESSAGE_LEVEL = django.contrib.messages.DEBUG
+
+    EMAIL_TO_PREFIX = "dev__"
+
+    ACCOUNT_DEFAULT_HTTP_PROTOCOL = APP_SCHEME
+    CRISPY_FAIL_SILENTLY = False
+
+    INSTALLED_APPS += ["debug_toolbar"]

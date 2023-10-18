@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import datetime
 import os
 import unicodedata
@@ -15,17 +16,16 @@ def path_with_domain(path):
     return f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}{path}"
 
 
-def discussions_url(q, with_domain=True):
+def discussions_url(q, *, with_domain=True):
     if not q:
         q = ""
     path = "/q/" + quote(q, safe="/:?&=")
     if with_domain:
         return f"{settings.APP_SCHEME}://{settings.APP_DOMAIN}{path}"
-    else:
-        return path
+    return path
 
 
-def discussions_canonical_url(q, with_domain=True):
+def discussions_canonical_url(q, *, with_domain=True):
     if not q:
         q = ""
     q = q.lower()
@@ -36,7 +36,7 @@ def discussions_canonical_url(q, with_domain=True):
         q = cu.url or ""
         q = q.replace("http://", "https://")
 
-    return discussions_url(q, with_domain)
+    return discussions_url(q, with_domain=with_domain)
 
 
 def similarity(a, b):
@@ -75,12 +75,18 @@ def strip_punctuation(w):
     return w
 
 
-def url_root(url):
+def url_root(url: str | cleanurl.Result | None) -> str | None:
     """Return the *root* of the page."""
-    if type(url) is str:
+    if isinstance(url, str):
         url = cleanurl.cleanurl(
-            url, generic=True, respect_semantics=True, host_remap=False,
+            url,
+            generic=True,
+            respect_semantics=True,
+            host_remap=False,
         )
+
+    if not url:
+        return None
 
     if url.hostname in (
         "www.github.com",

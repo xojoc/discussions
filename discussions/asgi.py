@@ -1,15 +1,8 @@
-"""ASGI config for discussions project.
-
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/3.1/howto/deployment/asgi/
-"""
-
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "discussions.settings")
+_ = os.environ.setdefault("DJANGO_SETTINGS_MODULE", "discussions.settings")
 
 application = get_asgi_application()

@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import email
 import imaplib
 import logging
@@ -21,13 +22,17 @@ logger = logging.getLogger(__name__)
     retry_backoff_max=60 * 60,
     retry_kwargs={"max_retries": 5},
 )
-def send_task(subject: str, body: str, from_email: str, to_emails: list[str]) -> None:
+def send_task(
+    subject: str, body: str, from_email: str, to_emails: list[str],
+) -> None:
     if util.is_dev():
         subject = "[DEV] " + subject
     django_send_mail(subject, body, from_email, to_emails)
 
 
-def send(subject: str, body: str, from_email: str, to_emails: str | list[str]) -> None:
+def send(
+    subject: str, body: str, from_email: str, to_emails: str | list[str],
+) -> None:
     if isinstance(to_emails, str):
         to_emails = [to_emails]
     send_task.delay(subject, body, from_email, to_emails)

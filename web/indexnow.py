@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import logging
 import os
 
@@ -23,7 +24,6 @@ def process_discussion(sender, instance, created, **kwargs):
     # if instance.comment_count < 100:
 
 
-
 @shared_task(ignore_result=True)
 def indexnow(url):
     key = os.getenv("INDEX_NOW_API_KEY", "")
@@ -34,7 +34,8 @@ def indexnow(url):
         return
 
     r = requests.get(
-        "https://bing.com/indexnow", params={"url": url, "key": key},
+        "https://bing.com/indexnow",
+        params={"url": url, "key": key},
     )
     if not r.ok:
         logger.error(f"IndeNow failed: {url} {r.status_code} {r.reason}")

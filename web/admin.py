@@ -1,11 +1,15 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
+
 from django.contrib import admin
 from django.template.response import TemplateResponse
 from django.urls import path
+from typing_extensions import override
 
 from . import models
 
 
 class StatisticsAdmin(admin.ModelAdmin):
+    @override
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
@@ -29,7 +33,7 @@ class StatisticsAdmin(admin.ModelAdmin):
 
 
 class DiscussionAdmin(admin.ModelAdmin):
-    list_display = [
+    list_display = (
         "platform_id",
         "created_at",
         "tags",
@@ -38,7 +42,7 @@ class DiscussionAdmin(admin.ModelAdmin):
         "score",
         "title",
         "normalized_title",
-    ]
+    )
     search_fields = (
         "title",
         "tags",
@@ -46,7 +50,7 @@ class DiscussionAdmin(admin.ModelAdmin):
 
 
 class SubscriberAdmin(admin.ModelAdmin):
-    list_display = [
+    list_display = (
         "topic",
         "confirmed",
         "unsubscribed",
@@ -56,23 +60,21 @@ class SubscriberAdmin(admin.ModelAdmin):
         "subscribed_from",
         "entry_created_at",
         "suspected_spam",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "confirmed",
         "unsubscribed",
         "unsubscribed_from",
         "subscribed_from",
         "topic",
         "suspected_spam",
-    ]
+    )
     search_fields = ("email", "verification_code")
-    ordering = [
-        "-entry_created_at",
-    ]
+    ordering = ("-entry_created_at",)
 
 
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = [
+    list_display = (
         "pk",
         "premium_active",
         "premium_active_from",
@@ -84,20 +86,18 @@ class CustomUserAdmin(admin.ModelAdmin):
         "is_active",
         "date_joined",
         "last_login",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "premium_active",
         "premium_cancelled",
         "is_active",
-    ]
+    )
     search_fields = ("complete_name", "email")
-    ordering = [
-        "-date_joined",
-    ]
+    ordering = ("-date_joined",)
 
 
 class MentionAdmin(admin.ModelAdmin):
-    list_display = [
+    list_display = (
         "pk",
         "rule_name",
         "user",
@@ -106,31 +106,32 @@ class MentionAdmin(admin.ModelAdmin):
         "exclude_platforms",
         "disabled",
         "entry_created_at",
-    ]
-    list_filter = ["disabled"]
-    ordering = ["-entry_created_at"]
+    )
+    list_filter = ("disabled",)
+    ordering = ("-entry_created_at",)
 
 
 class MentionNotificationAdmin(admin.ModelAdmin):
-    list_display = [
+    list_display = (
         "mention",
         "get_user",
         "email_sent",
         "email_sent_at",
         "entry_created_at",
         "discussion",
-    ]
-    list_filter = ["email_sent"]
-    ordering = ["-entry_created_at"]
-    raw_id_fields = ["discussion"]
+    )
+    list_filter = ("email_sent",)
+    ordering = ("-entry_created_at",)
+    raw_id_fields = ("discussion",)
 
+    @classmethod
     @admin.display(ordering="mention__user", description="User")
-    def get_user(self, obj):
+    def get_user(cls, obj):
         return obj.mention.user
 
 
 class APIClientAdmin(admin.ModelAdmin):
-    list_display = [
+    list_display = (
         "pk",
         "name",
         "customuser",
@@ -138,12 +139,10 @@ class APIClientAdmin(admin.ModelAdmin):
         "email",
         "url",
         "get_statistics",
-    ]
-    list_filter = ["limited"]
+    )
+    list_filter = ("limited",)
     search_fields = ("name", "token", "email", "url")
-    ordering = [
-        "-created_at",
-    ]
+    ordering = ("-created_at",)
 
 
 admin.site.register(models.Discussion, DiscussionAdmin)

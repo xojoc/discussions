@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import igraph as ig
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -25,7 +26,9 @@ def __link_to_edge(link):
 
 def links_to_graph():
     links = models.Link.objects.all().values(
-        "from_resource_id", "to_resource_id", "anchor_text",
+        "from_resource_id",
+        "to_resource_id",
+        "anchor_text",
     )
 
     g = nx.DiGraph()
@@ -44,7 +47,6 @@ def links_to_igraph():
     )
 
     return ig.Graph(directed=True, edges=list(links))
-
 
 
 def pagerank(g):

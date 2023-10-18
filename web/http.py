@@ -1,3 +1,4 @@
+# Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import logging
 import time
 
@@ -95,7 +96,7 @@ def fetch(
     timeout=30,
     with_retries=True,
     with_cache=False,
-):
+) -> requests.Response | None:
     url = cachecontrol.CacheController.cache_url(url)
     request = requests.Request(
         method="GET",
