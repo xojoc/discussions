@@ -158,7 +158,8 @@ def normalize(
     title: str,
     platform: Platform | None = None,
     url: str = "",
-    tags: list[str] | None = None,
+    tags: list[str] | set[str] | None = None,
+    *,
     stem: bool = True,
 ) -> str:
     tags = tags or []

@@ -259,7 +259,7 @@ def extract_html(resource):
         # TODO: python3.12 use is_success
         even = 2
         if resource.status_code // 100 != even and resource.clean_html:
-            resource.clean_html = None
+            resource.clean_html = ""
 
         resource.save()
         return

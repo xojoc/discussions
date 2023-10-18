@@ -370,7 +370,7 @@ class Discussion(models.Model):
             ):
                 query = " ".join(tokens[1:])
 
-                url_prefix = tokens[0][len(site_prefix):].lower()
+                url_prefix = tokens[0][len(site_prefix) :].lower()
                 curl_prefix = cleanurl.cleanurl(url_prefix, generic=True)
 
                 ts = (
@@ -492,9 +492,10 @@ class Statistics(models.Model):
             ps = cls.objects.get(name="platform").statistics["data"]
             for p in ps:
                 p["platform"] = Platform(p["platform"])
-            return ps
         except cls.DoesNotExist:
             return []
+
+        return ps
 
     @classmethod
     def top_stories_statistics(cls):
@@ -779,6 +780,8 @@ class Resource(models.Model):
             )
             or []
         )
+
+        self.clean_html = self.clean_html or ""
 
 
 class Link(models.Model):

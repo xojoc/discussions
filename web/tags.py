@@ -112,7 +112,9 @@ def __topic_nim(tags, title, url, platform):
         tags |= {"nimlang"}
 
 
-def __topic_unix(tags, title, _url, _platform, original_title):
+def __topic_unix(tags, title, url, platform, original_title):
+    _ = url
+    _ = platform
     __augment_tags(title, tags, "centos")
     __augment_tags(title, tags, "debian", None, "linux")
     __augment_tags(title, tags, "dragonflybsd")
@@ -161,6 +163,7 @@ def __topic_unix(tags, title, _url, _platform, original_title):
 
 
 def __topic_webdev(tags, title, url, platform, original_title):
+    _ = platform
     __augment_tags(title, tags, "node.js", None, "nodejs")
     __augment_tags(title, tags, "javascript")
     __augment_tags(title, tags, "typescript")
@@ -246,8 +249,7 @@ def __topic_java(tags, title, url, platform, original_title):
             title[ji + 1] == "ee" and title[ji + 2].isdigit()
         ):
             tags.add("java")
-
-    except Exception:
+    except ValueError:
         pass
 
     if "java" in title and ("spring" in title or "jvm" in title):
@@ -308,6 +310,7 @@ def __topic_php(tags, title, url, platform):
 
 
 def __topic_rust(tags, title, url, platform):
+    _ = platform
     __augment_tags(title, tags, "rustlang")
     __augment_tags(title, tags, "rust", {"programming", "compsci"}, "rustlang")
 
@@ -324,6 +327,7 @@ def __topic_rust(tags, title, url, platform):
 
 
 def __topic_golang(tags, title, url, platform, original_title):
+    _ = platform
     __augment_tags(title, tags, "golang")
 
     if (
@@ -365,6 +369,7 @@ def __topic_python(tags, title, url, platform):
 
 
 def __topic_haskell(tags, title, url, platform, original_title):
+    _ = platform
     __augment_tags(title, tags, "haskell")
 
     if re.search(r"\bGHC\b", original_title) and (
@@ -375,6 +380,7 @@ def __topic_haskell(tags, title, url, platform, original_title):
 
 
 def __topic_lisp_scheme(tags, title, url, platform, original_title):
+    _ = original_title
     if platform in (Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE):
         __augment_tags(title, tags, "lisp")
 
@@ -392,6 +398,8 @@ def __topic_lisp_scheme(tags, title, url, platform, original_title):
 
 
 def __topic_ruby(tags, title, url, platform, original_title):
+    _ = platform
+    _ = original_title
     __augment_tags(title, tags, None, {"rails"}, "ruby")
     __programming_keyword(tags, title, url, "ruby")
     if "ruby" in title and "rails" in title:
@@ -399,6 +407,7 @@ def __topic_ruby(tags, title, url, platform, original_title):
 
 
 def __topic_erlang_elixir(tags, title, url, platform, original_title):
+    _ = original_title
     if platform == Platform.LAMBDA_THE_ULTIMATE:
         if "erlang" in title:
             tags.add("erlang")
@@ -530,12 +539,16 @@ def __topic_compsci(tags, title, url, platform, original_title):
 
 
 def __topic_cpp(tags, title, url, platform, original_title):
+    _ = title
+    _ = url
+    _ = platform
     if re.search(r"\bC\+\+\d+\b", original_title):
         tags.add("c++")
 
 
 def __hacker_news(tags, title):
-    return
+    _ = tags
+    _ = title
 
 
 def __lobsters(tags, title):
@@ -563,7 +576,6 @@ def __lobsters(tags, title):
             "performance",
             "devops",
             "privacy",
-            "practices",
             "practices",
             "scaling",
             "security",
@@ -633,6 +645,7 @@ def __reddit(tags, title):
 
 
 def __lambda_the_ultimate(tags, title):
+    _ = title
     for t in tags.copy():
         nt = t.replace(" ", "-").replace("/", "-")
         if nt != t:
@@ -657,6 +670,7 @@ def __lambda_the_ultimate(tags, title):
 
 
 def __laarc(tags, title):
+    _ = title
     tags -= {"news", "meta", "laarc", "ask"}
 
 
@@ -707,6 +721,7 @@ def __from_title_url(tags, title, url):
 
 
 def __rename(tags, title, platform=None):
+    _ = title
     to_replace = [
         (".net", "dotnet"),
         ("ai", "machinelearning", "l"),
@@ -764,12 +779,15 @@ def __rename(tags, title, platform=None):
         ("sveltejs", "svelte", "r"),
     ]
     for p in to_replace:
-        if len(p) == 3 and p[2] != (platform.value if platform else ""):
+        tuple_platform_len = 3
+        if len(p) == tuple_platform_len and p[2] != (
+            platform.value if platform else ""
+        ):
             continue
         if p[0] not in tags:
             continue
         tags -= {p[0]}
-        if type(p[1]) is list:
+        if isinstance(p[1], list):
             tags |= set(p[1])
         else:
             tags |= {p[1]}
@@ -822,10 +840,10 @@ def __enrich(tags, title):
         "programming",
     )
 
-    return tags
-
 
 def __special_cases(tags, platform, title, url):
+    _ = platform
+    _ = title
     if url and url.hostname == "joinmastodon.org":
         tags.discard("bitcoin")
         tags.discard("italy")
