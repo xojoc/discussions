@@ -35,7 +35,7 @@ pre-commit: sass_compile lint test poetry_export
 	@git add web/migrations
 
 cp:
-	@git commit -a
+	@git commit -a -m s
 	@git push origin main
 	@git status 
 
