@@ -136,13 +136,16 @@ def parse_html(
             html = minify_html.minify(
                 html,
                 minify_js=False,
-                minify_css=True,
+                minify_css=False,  # TODO: reenable when https://github.com/Mnwa/css-minify/issues/9 if fixed
                 ensure_spec_compliant_unquoted_attribute_values=True,
                 keep_spaces_between_attributes=True,
                 remove_processing_instructions=True,
             )
         except BaseException:  # noqa: BLE001
-            logger.info("minify_html failed", exc_info=True)
+            logger.info(
+                "minify_html failed: resource: {res.pk}",
+                exc_info=True,
+            )
 
     h = BeautifulSoup(html, "lxml")
     if safe_html:
