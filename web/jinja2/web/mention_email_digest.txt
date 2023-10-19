@@ -14,7 +14,7 @@ here's a new discussion you may be interested in:
 
 
   All discussions for this url:
-    {{util.discussions_url(ctx.discussion.story_url, True)}}
+    {{util.discussions_url(ctx.discussion.story_url, with_domain=True)}}
 {%- endif %}
 
 

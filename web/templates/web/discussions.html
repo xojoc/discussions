@@ -36,9 +36,10 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	<form method="GET" action="/">
 		<div class="d-flex flex-row gap-1">
 			<input class="flex-fill" id="q" name="q" type="text" autofocus
-				onfocus="this.selectionStart = this.selectionEnd = this.value.length;" value="{{ctx.original_query}}"
-				placeholder="URL or title" />
-			<button type="submit" value="" class="btn btn-primary"><span class="bi bi-search fw-bold"></span></button>
+				onfocus="this.selectionStart = this.selectionEnd = this.value.length;"
+				value="{{ctx.original_query}}" placeholder="URL or title" />
+			<button type="submit" value="" class="btn btn-primary"><span
+					class="bi bi-search fw-bold"></span></button>
 		</div>
 	</form>
 	<!-- {% if not ctx.nothing_found and not ctx.display_discussions %}
@@ -58,7 +59,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	{% if ctx.nothing_found %}
 	<h4>Discussions not found</h4>
 	<p>Sorry, we couldn't find anything for <strong>{{ctx.url}}</strong>.</p>
-	<p class="smaller-font-1">See some <a href="{% url 'web:search' %}" title="How to search">search examples</a>.</p>
+	<p class="smaller-font-1">See some <a href="{% url 'web:search' %}" title="How to search">search examples</a>.
+	</p>
 	{% else %}
 
 	{% if ctx.display_discussions %}
@@ -71,15 +73,17 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	<ul class="list-unstyled">
 		{% for d in discussions %}
 		<li class="mb-2">
-			<a href="{{d.story_url}}" title="{{d.title}}" class="d-flex flex-column text-body" rel="nofollow">
+			<a href="{{d.story_url}}" title="{{d.title}}" class="d-flex flex-column text-body"
+				rel="nofollow">
 				{{d.title}}
-				<span class="d-inline-block smaller-font url-max-width text-truncate">{{d.story_url}}</span></a>
+				<span
+					class="d-inline-block smaller-font url-max-width text-truncate">{{d.story_url}}</span></a>
 			<a href="{{d.discussion_url}}"
 				title="View discussion with {{d.score}} {{d.platform.score_label}} on {{platform_name}}"
 				rel="nofollow"><strong>{{d.comment_count}}
 					comment{{d.comment_count|pluralize:",s"}}</strong></a>
-			<span class="smaller-font"><time
-					datetime="{{d.created_at | date:'c'}}">{{d.created_at | date}}</time></span>
+			<span class="smaller-font"><time datetime="{{d.created_at | date:'c'}}">{{d.created_at |
+					date}}</time></span>
 			<span class="smaller-font">
 				{% if d.tags %} {% if platform != 'r' %} {% endif %} {% for tag in d.tags %}
 				{{tag}}{% if not forloop.last %},
@@ -104,19 +108,23 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 	<div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mb-5">
 		<div class="w-min-content w-min-16ch"><a href="{% url 'web:weekly_index' %}" title="Weekly newsletters"
-				class="text-underline-hover text-body"><i class="bi bi-newspaper m-auto text-primary fs-5em"></i>
+				class="text-underline-hover text-body"><i
+					class="bi bi-newspaper m-auto text-primary fs-5em"></i>
 				<h3>Weekly newsletters</h3>
-				<span class="lead mb-0">Each week on topic recaps with articles, projects and tutorials.</span>
+				<span class="lead mb-0">Each week on topic recaps with articles, projects and
+					tutorials.</span>
 			</a>
 		</div>
-		<div class="w-min-content w-min-16ch"><a href="{% url 'web:extension' %}" class="text-underline-hover text-body"
-				title="Discussions browser extension"><i class="bi bi-browser-firefox m-auto text-primary fs-5em"></i>
+		<div class="w-min-content w-min-16ch"><a href="{% url 'web:extension' %}"
+				class="text-underline-hover text-body" title="Discussions browser extension"><i
+					class="bi bi-browser-firefox m-auto text-primary fs-5em"></i>
 				<h3>Browser extension</h3>
 				<span class="lead mb-0">See if the page you are on has been discussed before.</span>
 			</a>
 		</div>
-		<div class="w-min-content w-min-16ch"><a href="{% url 'web:social' %}" class="text-underline-hover text-body"
-				title="Social accounts and bots"><i class="bi bi-twitter m-auto text-primary fs-5em"></i>
+		<div class="w-min-content w-min-16ch"><a href="{% url 'web:social' %}"
+				class="text-underline-hover text-body" title="Social accounts and bots"><i
+					class="bi bi-twitter m-auto text-primary fs-5em"></i>
 				<h3>Twitter & Mastodon</h3>
 				<span class="lead mb-0">On topic bots posting articles, projects and tutorials.</span>
 			</a>
@@ -126,8 +134,9 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	<h2 class="fs-3 mt-4em text-center mb-4">Are you a developer?</h2>
 	<div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mb-5">
 
-		<div class="w-min-content w-min-16ch"><a href="{% url 'web:mentions' %}" class="text-underline-hover text-body"
-				title="Mentions"><i class="bi bi-activity m-auto text-dark fs-2em"></i>
+		<div class="w-min-content w-min-16ch"><a href="{% url 'web:mentions' %}"
+				class="text-underline-hover text-body" title="Mentions"><i
+					class="bi bi-activity m-auto text-dark fs-2em"></i>
 				<h3 class="fs-4">Mentions</h3>
 				<span class="mb-0">Get notified when you're mentioned and jump into the
 					conversation.</span>
@@ -135,13 +144,15 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 		</div>
 
 		<div class="w-min-content w-min-16ch"><a href="{% url 'web:api' %}" title="Discussions and comments API"
-				class="text-underline-hover text-body"><i class="bi bi-plug m-auto text-dark fs-2em"></i>
+				class="text-underline-hover text-body"><i
+					class="bi bi-plug m-auto text-dark fs-2em"></i>
 				<h3 class="fs-4">API</h3>
 				<span class="mb-0">Lookup millions of discussions across different platforms.</span>
 			</a>
 		</div>
-		<div class="w-min-content w-min-16ch"><a href="{% url 'web:website' %}" class="text-underline-hover text-body"
-				title="Discussions for your website"><i class="bi bi-link-45deg m-auto text-dark fs-2em"></i>
+		<div class="w-min-content w-min-16ch"><a href="{% url 'web:website' %}"
+				class="text-underline-hover text-body" title="Discussions for your website"><i
+					class="bi bi-link-45deg m-auto text-dark fs-2em"></i>
 				<h3 class="fs-4">Website</h3>
 				<span class="mb-0">Discussions from the web directly on your website.</span>
 			</a>
@@ -165,8 +176,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 			{% for inbound_resource in ctx.inbound_resources %}
 			<!-- Inbound resource id: {{inbound_resource.id}} -->
 			<li class="mb-2"><a href="{{inbound_resource.complete_url}}"
-					title="{% firstof inbound_resource.title inbound_resource.complete_url %}" rel="nofollow"
-					class="d-flex flex-column text-body">
+					title="{% firstof inbound_resource.title inbound_resource.complete_url %}"
+					rel="nofollow" class="d-flex flex-column text-body">
 					{{inbound_resource.title}}
 					<span
 						class="d-inline-block smaller-font url-max-width text-truncate">{{inbound_resource.complete_url}}</span>
@@ -193,8 +204,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 			{% for outbound_resource in ctx.outbound_resources %}
 			<!-- Outbound resource id: {{outbound_resource.id}} -->
 			<li class="mb-2"><a href="{{outbound_resource.complete_url}}"
-					title="{% firstof outbound_resource.title outbound_resource.complete_url %}" rel="nofollow"
-					class="d-flex flex-column text-body">
+					title="{% firstof outbound_resource.title outbound_resource.complete_url %}"
+					rel="nofollow" class="d-flex flex-column text-body">
 					{{outbound_resource.title}}
 					<span
 						class="d-inline-block smaller-font url-max-width text-truncate">{{outbound_resource.complete_url}}</span>
@@ -220,7 +231,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 	<div class="smaller-font-2 mb-3">
 		Would you like to stay up to date with {{ctx.suggested_topic_name}}? Checkout <a
 			href="{% url 'web:weekly_topic' ctx.suggested_topic %}"
-			title="{{ctx.suggested_topic_short_description}} newsletter">{{ctx.suggested_topic_name}} Weekly</a>.
+			title="{{ctx.suggested_topic_short_description}} newsletter">{{ctx.suggested_topic_name}}
+			Weekly</a>.
 	</div>
 	{% endif %}
 
@@ -231,18 +243,21 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 
 		{% if ctx.try_with_site_prefix %}
 		<p class="mb-1 ms-3">Search whole site: <a href="{{ctx.try_with_site_prefix|discussions_url}}"
-				title="Discussions for «{{ctx.try_with_site_prefix}}»" rel="nofollow">{{ctx.try_with_site_prefix}}</a>
+				title="Discussions for «{{ctx.try_with_site_prefix}}»"
+				rel="nofollow">{{ctx.try_with_site_prefix}}</a>
 		</p>
 		{% endif %}
 
 		{% if ctx.try_with_title %}
 		<p class="mb-1 ms-3">Search title: <a href="{{ctx.try_with_title|discussions_url}}"
-				title="Discussions for «{{ctx.try_with_title}}»" rel="nofollow">{{ctx.try_with_title}}</a></p>
+				title="Discussions for «{{ctx.try_with_title}}»"
+				rel="nofollow">{{ctx.try_with_title}}</a></p>
 		{% endif %}
 
 		{% if ctx.try_with_url %}
 		<p class="mb-1 ms-3">Lookup url: <a href="{{ctx.try_with_url|discussions_url}}"
-				title="Discussions for «{{ctx.try_with_url}}»" rel="nofollow">{{ctx.try_with_url}}</a></p>
+				title="Discussions for «{{ctx.try_with_url}}»" rel="nofollow">{{ctx.try_with_url}}</a>
+		</p>
 		{% endif %}
 
 		<p class="mt-1 mb-1 ms-3 smaller-font-1">See <a href="{% url 'web:search' %}"
@@ -259,7 +274,8 @@ Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL
 			<ul>
 				{% for submit_platform, submit_link in ctx.submit_links.items %}
 				<li>
-					<a href="{{submit_link}}" title="Submit to {{submit_platform}}" rel="nofollow noreferrer noopener"
+					<a href="{{submit_link}}" title="Submit to {{submit_platform}}"
+						rel="nofollow noreferrer noopener"
 						target="_blank">{{submit_platform}}</a>
 				</li>
 				{% endfor %}
