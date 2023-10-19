@@ -1,291 +1,265 @@
 {% extends "web/base.html" %}
-
 {% load humanize %}
 {% load util %}
 {% load static %}
-
-
-
-
 {% block title %}
-{% if ctx.title or ctx.original_query %}
-{% firstof ctx.title ctx.original_query %} - discu.eu
-{% else %}
-Discussions around the Web - discu.eu
-{% endif %}
+    {% if ctx.title or ctx.original_query %}
+        {% firstof ctx.title ctx.original_query %} - discu.eu
+    {% else %}
+        Discussions around the Web - discu.eu
+    {% endif %}
 {% endblock title %}
-
 {% block meta_description %}
-{% if ctx.title or ctx.original_query %}
-Discussions and related articles for «{% firstof ctx.title ctx.original_query %}»
-{% else %}
-Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL, title or keyword.
-{% endif %}
+    {% if ctx.title or ctx.original_query %}
+        Discussions and related articles for «{% firstof ctx.title ctx.original_query %}»
+    {% else %}
+        Find interesting discussions on Hacker News, Reddit and Lobsters for a given URL, title or keyword.
+    {% endif %}
 {% endblock meta_description %}
-
 {% block extra_head %}
-{% if ctx.link_canonical_url %}
-<link rel="canonical" href="{{ctx.link_canonical_url}}" />
-{% endif %}
+    {% if ctx.link_canonical_url %}<link rel="canonical" href="{{ ctx.link_canonical_url }}" />{% endif %}
 {% endblock extra_head %}
-
-
 {% block main %}
-
-<div id=discussions>
-	<form method="GET" action="/">
-		<div class="d-flex flex-row gap-1">
-			<input class="flex-fill" id="q" name="q" type="text" autofocus
-				onfocus="this.selectionStart = this.selectionEnd = this.value.length;"
-				value="{{ctx.original_query}}" placeholder="URL or title" />
-			<button type="submit" value="" class="btn btn-primary"><span
-					class="bi bi-search fw-bold"></span></button>
-		</div>
-	</form>
-	<!-- {% if not ctx.nothing_found and not ctx.display_discussions %}
+    <div id="discussions">
+        <form method="get" action="/">
+            <div class="d-flex flex-row gap-1">
+                <input class="flex-fill"
+                       id="q"
+                       name="q"
+                       type="text"
+                       autofocus
+                       onfocus="this.selectionStart = this.selectionEnd = this.value.length;"
+                       value="{{ ctx.original_query }}"
+                       placeholder="URL or title" />
+                <button type="submit" value="" class="btn btn-primary">
+                    <span class="bi bi-search fw-bold"></span>
+                </button>
+            </div>
+        </form>
+        <!-- {% if not ctx.nothing_found and not ctx.display_discussions %}
 	<p class="smaller-font-3">See some <a href="{% url 'web:search' %}" title="How to search">search
 			examples</a>.</p>
-	{% endif %} -->
-
-	<div class="my-4"></div>
-
-
-	<!--
+{% endif %} -->
+        <div class="my-4"></div>
+        <!--
 	 SQL query:
 
 	 {{ctx.sql_query}}
-    -->
-
-	{% if ctx.nothing_found %}
-	<h4>Discussions not found</h4>
-	<p>Sorry, we couldn't find anything for <strong>{{ctx.url}}</strong>.</p>
-	<p class="smaller-font-1">See some <a href="{% url 'web:search' %}" title="How to search">search examples</a>.
-	</p>
-	{% else %}
-
-	{% if ctx.display_discussions %}
-
-
-	{% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
-	<div id="platform_{{platform}}" class="platform_discussions">
-		<h6>{{ platform_name }}</h6>
-	</div>
-	<ul class="list-unstyled">
-		{% for d in discussions %}
-		<li class="mb-2">
-			<a href="{{d.story_url}}" title="{{d.title}}" class="d-flex flex-column text-body"
-				rel="nofollow">
-				{{d.title}}
-				<span
-					class="d-inline-block smaller-font url-max-width text-truncate">{{d.story_url}}</span></a>
-			<a href="{{d.discussion_url}}"
-				title="View discussion with {{d.score}} {{d.platform.score_label}} on {{platform_name}}"
-				rel="nofollow"><strong>{{d.comment_count}}
-					comment{{d.comment_count|pluralize:",s"}}</strong></a>
-			<span class="smaller-font"><time datetime="{{d.created_at | date:'c'}}">{{d.created_at |
-					date}}</time></span>
-			<span class="smaller-font">
-				{% if d.tags %} {% if platform != 'r' %} {% endif %} {% for tag in d.tags %}
-				{{tag}}{% if not forloop.last %},
-				{% endif %} {% endfor %} {% endif %} </span>
-
-			<!--Id: {{d.platform_id}}
+-->
+        {% if ctx.nothing_found %}
+            <h4>Discussions not found</h4>
+            <p>
+                Sorry, we couldn't find anything for <strong>{{ ctx.url }}</strong>.
+            </p>
+            <p class="smaller-font-1">
+                See some <a href="{% url 'web:search' %}" title="How to search">search examples</a>.
+            </p>
+        {% else %}
+            {% if ctx.display_discussions %}
+                {% for platform, platform_name, platform_url, platform_tag_url, discussions in ctx.grouped_discussions %}
+                    <div id="platform_{{ platform }}" class="platform_discussions">
+                        <h6>{{ platform_name }}</h6>
+                    </div>
+                    <ul class="list-unstyled">
+                        {% for d in discussions %}
+                            <li class="mb-2">
+                                <a href="{{ d.story_url }}"
+                                   title="{{ d.title }}"
+                                   class="d-flex flex-column text-body"
+                                   rel="nofollow">
+                                    {{ d.title }}
+                                    <span class="d-inline-block smaller-font url-max-width text-truncate">{{ d.story_url }}</span></a>
+                                <a href="{{ d.discussion_url }}"
+                                   title="View discussion with {{ d.score }} {{ d.platform.score_label }} on {{ platform_name }}"
+                                   rel="nofollow"><strong>{{ d.comment_count }}
+                                comment{{ d.comment_count|pluralize:",s" }}</strong></a>
+                                <span class="smaller-font"><time datetime="{{ d.created_at | date:'c' }}">{{ d.created_at | date }}</time></span>
+                                <span class="smaller-font">
+                                    {% if d.tags %}
+                                        {% if platform != 'r' %}{% endif %}
+                                        {% for tag in d.tags %}
+                                            {{ tag }}
+                                            {% if not forloop.last %},{% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </span>
+                                <!--Id: {{d.platform_id}}
 		 Normalized tags: {{d.normalized_tags}}
 		 Normalized title: {{d.normalized_title}}
 		 Canonical url: {{d.canonical_story_url}}
-	    -->
-		</li>
-
-		{% endfor %}
-	</ul>
-	{% endfor %}
-
-
-
-	{% else %}
-
-	<h1 class="mt-5 text-center">Keep up with the topics <span class="highlight">you</span> care about</h1>
-
-	<div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mb-5">
-		<div class="w-min-content w-min-16ch"><a href="{% url 'web:weekly_index' %}" title="Weekly newsletters"
-				class="text-underline-hover text-body"><i
-					class="bi bi-newspaper m-auto text-primary fs-5em"></i>
-				<h3>Weekly newsletters</h3>
-				<span class="lead mb-0">Each week on topic recaps with articles, projects and
-					tutorials.</span>
-			</a>
-		</div>
-		<div class="w-min-content w-min-16ch"><a href="{% url 'web:extension' %}"
-				class="text-underline-hover text-body" title="Discussions browser extension"><i
-					class="bi bi-browser-firefox m-auto text-primary fs-5em"></i>
-				<h3>Browser extension</h3>
-				<span class="lead mb-0">See if the page you are on has been discussed before.</span>
-			</a>
-		</div>
-		<div class="w-min-content w-min-16ch"><a href="{% url 'web:social' %}"
-				class="text-underline-hover text-body" title="Social accounts and bots"><i
-					class="bi bi-twitter m-auto text-primary fs-5em"></i>
-				<h3>Twitter & Mastodon</h3>
-				<span class="lead mb-0">On topic bots posting articles, projects and tutorials.</span>
-			</a>
-		</div>
-	</div>
-
-	<h2 class="fs-3 mt-4em text-center mb-4">Are you a developer?</h2>
-	<div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mb-5">
-
-		<div class="w-min-content w-min-16ch"><a href="{% url 'web:mentions' %}"
-				class="text-underline-hover text-body" title="Mentions"><i
-					class="bi bi-activity m-auto text-dark fs-2em"></i>
-				<h3 class="fs-4">Mentions</h3>
-				<span class="mb-0">Get notified when you're mentioned and jump into the
-					conversation.</span>
-			</a>
-		</div>
-
-		<div class="w-min-content w-min-16ch"><a href="{% url 'web:api' %}" title="Discussions and comments API"
-				class="text-underline-hover text-body"><i
-					class="bi bi-plug m-auto text-dark fs-2em"></i>
-				<h3 class="fs-4">API</h3>
-				<span class="mb-0">Lookup millions of discussions across different platforms.</span>
-			</a>
-		</div>
-		<div class="w-min-content w-min-16ch"><a href="{% url 'web:website' %}"
-				class="text-underline-hover text-body" title="Discussions for your website"><i
-					class="bi bi-link-45deg m-auto text-dark fs-2em"></i>
-				<h3 class="fs-4">Website</h3>
-				<span class="mb-0">Discussions from the web directly on your website.</span>
-			</a>
-		</div>
-	</div>
-
-	{% endif %}
-
-	{% endif %}
-
-
-
-	<!-- Resource id: {{ctx.resource.id}} -->
-
-	{% if ctx.inbound_resources %}
-	<div class="my-5"></div>
-	<h6>Linking pages</h6>
-
-	<div class="inbound_links">
-		<ul class="list-unstyled">
-			{% for inbound_resource in ctx.inbound_resources %}
-			<!-- Inbound resource id: {{inbound_resource.id}} -->
-			<li class="mb-2"><a href="{{inbound_resource.complete_url}}"
-					title="{% firstof inbound_resource.title inbound_resource.complete_url %}"
-					rel="nofollow" class="d-flex flex-column text-body">
-					{{inbound_resource.title}}
-					<span
-						class="d-inline-block smaller-font url-max-width text-truncate">{{inbound_resource.complete_url}}</span>
-				</a>
-
-				<a href="{{inbound_resource.complete_url | discussions_url}}"
-					title="Discussions for «{% firstof inbound_resource.title inbound_resource.complete_url %}»">
-					<strong>{{ inbound_resource.discussions_comment_count }}
-						comment{{inbound_resource.discussions_comment_count|pluralize:",s"}}</strong>
-				</a>
-
-				<!-- Pagerank: {{inbound_resource.pagerank}} -->
-			</li>
-			{% endfor %}
-		</ul>
-	</div>
-	{% endif %}
-
-	{% if ctx.outbound_resources %}
-	<div class="my-5"></div>
-	<h6>Linked pages</h6>
-	<div>
-		<ul class="list-unstyled">
-			{% for outbound_resource in ctx.outbound_resources %}
-			<!-- Outbound resource id: {{outbound_resource.id}} -->
-			<li class="mb-2"><a href="{{outbound_resource.complete_url}}"
-					title="{% firstof outbound_resource.title outbound_resource.complete_url %}"
-					rel="nofollow" class="d-flex flex-column text-body">
-					{{outbound_resource.title}}
-					<span
-						class="d-inline-block smaller-font url-max-width text-truncate">{{outbound_resource.complete_url}}</span>
-				</a>
-
-				<a href="{{outbound_resource.complete_url | discussions_url}}"
-					title="Discussions for «{% firstof outbound_resource.title outbound_resource.complete_url %}»">
-					<strong>{{ outbound_resource.discussions_comment_count }}
-						comment{{outbound_resource.discussions_comment_count|pluralize:",s"}}</strong>
-				</a>
-
-
-				<!-- Pagerank: {{outbound_resource.pagerank}} -->
-			</li>
-			{% endfor %}
-		</ul>
-	</div>
-	{% endif %}
-
-	<div class="mt-5"></div>
-
-	{% if ctx.suggested_topic %}
-	<div class="smaller-font-2 mb-3">
-		Would you like to stay up to date with {{ctx.suggested_topic_name}}? Checkout <a
-			href="{% url 'web:weekly_topic' ctx.suggested_topic %}"
-			title="{{ctx.suggested_topic_short_description}} newsletter">{{ctx.suggested_topic_name}}
-			Weekly</a>.
-	</div>
-	{% endif %}
-
-
-	{% if ctx.try_with_site_prefix or ctx.try_with_title %}
-	<details {% if ctx.nothing_found %}open{% endif %} class="smaller-font-2">
-		<summary>Related searches:</summary>
-
-		{% if ctx.try_with_site_prefix %}
-		<p class="mb-1 ms-3">Search whole site: <a href="{{ctx.try_with_site_prefix|discussions_url}}"
-				title="Discussions for «{{ctx.try_with_site_prefix}}»"
-				rel="nofollow">{{ctx.try_with_site_prefix}}</a>
-		</p>
-		{% endif %}
-
-		{% if ctx.try_with_title %}
-		<p class="mb-1 ms-3">Search title: <a href="{{ctx.try_with_title|discussions_url}}"
-				title="Discussions for «{{ctx.try_with_title}}»"
-				rel="nofollow">{{ctx.try_with_title}}</a></p>
-		{% endif %}
-
-		{% if ctx.try_with_url %}
-		<p class="mb-1 ms-3">Lookup url: <a href="{{ctx.try_with_url|discussions_url}}"
-				title="Discussions for «{{ctx.try_with_url}}»" rel="nofollow">{{ctx.try_with_url}}</a>
-		</p>
-		{% endif %}
-
-		<p class="mt-1 mb-1 ms-3 smaller-font-1">See <a href="{% url 'web:search' %}"
-				title="How to search discussions">how
-				to search</a>.</p>
-
-	</details>
-	{% endif %}
-
-	{% if ctx.submit_links %}
-	<div class='submit_links smaller-font-2 mt-2'>
-		<details {% if ctx.submit_links_visible %}open{% endif %}>
-			<summary>Submit link to:</summary>
-			<ul>
-				{% for submit_platform, submit_link in ctx.submit_links.items %}
-				<li>
-					<a href="{{submit_link}}" title="Submit to {{submit_platform}}"
-						rel="nofollow noreferrer noopener"
-						target="_blank">{{submit_platform}}</a>
-				</li>
-				{% endfor %}
-			</ul>
-		</details>
-	</div>
-	{% endif %}
-
-
+-->
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            {% else %}
+                <h1 class="mt-5 text-center">
+                    Keep up with the topics <span class="highlight">you</span> care about
+                </h1>
+                <div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mb-5">
+                    <div class="w-min-content w-min-16ch">
+                    <a href="{% url 'web:weekly_index' %}"
+                       title="Weekly newsletters"
+                       class="text-underline-hover text-body"><i class="bi bi-newspaper m-auto text-primary fs-5em"></i>
+                    <h3>Weekly newsletters</h3>
+                    <span class="lead mb-0">Each week on topic recaps with articles, projects and
+                    tutorials.</span>
+                </a>
+            </div>
+            <div class="w-min-content w-min-16ch">
+            <a href="{% url 'web:extension' %}"
+               class="text-underline-hover text-body"
+               title="Discussions browser extension"><i class="bi bi-browser-firefox m-auto text-primary fs-5em"></i>
+            <h3>Browser extension</h3>
+            <span class="lead mb-0">See if the page you are on has been discussed before.</span>
+        </a>
+    </div>
+    <div class="w-min-content w-min-16ch">
+    <a href="{% url 'web:social' %}"
+       class="text-underline-hover text-body"
+       title="Social accounts and bots"><i class="bi bi-twitter m-auto text-primary fs-5em"></i>
+    <h3>Twitter & Mastodon</h3>
+    <span class="lead mb-0">On topic bots posting articles, projects and tutorials.</span>
+</a>
 </div>
-
-
+</div>
+<h2 class="fs-3 mt-4em text-center mb-4">Are you a developer?</h2>
+<div class="d-flex flex-row flex-wrap gap-5 text-center justify-content-center mb-5">
+    <div class="w-min-content w-min-16ch">
+    <a href="{% url 'web:mentions' %}"
+       class="text-underline-hover text-body"
+       title="Mentions"><i class="bi bi-activity m-auto text-dark fs-2em"></i>
+    <h3 class="fs-4">Mentions</h3>
+    <span class="mb-0">Get notified when you're mentioned and jump into the
+    conversation.</span>
+</a>
+</div>
+<div class="w-min-content w-min-16ch">
+<a href="{% url 'web:api' %}"
+   title="Discussions and comments API"
+   class="text-underline-hover text-body"><i class="bi bi-plug m-auto text-dark fs-2em"></i>
+<h3 class="fs-4">API</h3>
+<span class="mb-0">Lookup millions of discussions across different platforms.</span>
+</a>
+</div>
+<div class="w-min-content w-min-16ch">
+<a href="{% url 'web:website' %}"
+   class="text-underline-hover text-body"
+   title="Discussions for your website"><i class="bi bi-link-45deg m-auto text-dark fs-2em"></i>
+<h3 class="fs-4">Website</h3>
+<span class="mb-0">Discussions from the web directly on your website.</span>
+</a>
+</div>
+</div>
+{% endif %}
+{% endif %}
+<!-- Resource id: {{ctx.resource.id}} -->
+{% if ctx.inbound_resources %}
+    <div class="my-5"></div>
+    <h6>Linking pages</h6>
+    <div class="inbound_links">
+        <ul class="list-unstyled">
+            {% for inbound_resource in ctx.inbound_resources %}
+                <!-- Inbound resource id: {{inbound_resource.id}} -->
+                <li class="mb-2">
+                    <a href="{{ inbound_resource.complete_url }}"
+                       title="{% firstof inbound_resource.title inbound_resource.complete_url %}"
+                       rel="nofollow"
+                       class="d-flex flex-column text-body">
+                        {{ inbound_resource.title }}
+                        <span class="d-inline-block smaller-font url-max-width text-truncate">{{ inbound_resource.complete_url }}</span>
+                    </a>
+                    <a href="{{ inbound_resource.complete_url | discussions_url }}"
+                       title="Discussions for «{% firstof inbound_resource.title inbound_resource.complete_url %}»">
+                        <strong>{{ inbound_resource.discussions_comment_count }}
+                        comment{{ inbound_resource.discussions_comment_count|pluralize:",s" }}</strong>
+                    </a>
+                    <!-- Pagerank: {{inbound_resource.pagerank}} -->
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+{% if ctx.outbound_resources %}
+    <div class="my-5"></div>
+    <h6>Linked pages</h6>
+    <div>
+        <ul class="list-unstyled">
+            {% for outbound_resource in ctx.outbound_resources %}
+                <!-- Outbound resource id: {{outbound_resource.id}} -->
+                <li class="mb-2">
+                    <a href="{{ outbound_resource.complete_url }}"
+                       title="{% firstof outbound_resource.title outbound_resource.complete_url %}"
+                       rel="nofollow"
+                       class="d-flex flex-column text-body">
+                        {{ outbound_resource.title }}
+                        <span class="d-inline-block smaller-font url-max-width text-truncate">{{ outbound_resource.complete_url }}</span>
+                    </a>
+                    <a href="{{ outbound_resource.complete_url | discussions_url }}"
+                       title="Discussions for «{% firstof outbound_resource.title outbound_resource.complete_url %}»">
+                        <strong>{{ outbound_resource.discussions_comment_count }}
+                        comment{{ outbound_resource.discussions_comment_count|pluralize:",s" }}</strong>
+                    </a>
+                    <!-- Pagerank: {{outbound_resource.pagerank}} -->
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+<div class="mt-5"></div>
+{% if ctx.suggested_topic %}
+    <div class="smaller-font-2 mb-3">
+        Would you like to stay up to date with {{ ctx.suggested_topic_name }}? Checkout <a href="{% url 'web:weekly_topic' ctx.suggested_topic %}"
+    title="{{ ctx.suggested_topic_short_description }} newsletter">{{ ctx.suggested_topic_name }}
+        Weekly</a>.
+    </div>
+{% endif %}
+{% if ctx.try_with_site_prefix or ctx.try_with_title %}
+    <details {% if ctx.nothing_found %}open{% endif %} class="smaller-font-2">
+        <summary>Related searches:</summary>
+        {% if ctx.try_with_site_prefix %}
+            <p class="mb-1 ms-3">
+                Search whole site: <a href="{{ ctx.try_with_site_prefix|discussions_url }}"
+    title="Discussions for «{{ ctx.try_with_site_prefix }}»"
+    rel="nofollow">{{ ctx.try_with_site_prefix }}</a>
+            </p>
+        {% endif %}
+        {% if ctx.try_with_title %}
+            <p class="mb-1 ms-3">
+                Search title: <a href="{{ ctx.try_with_title|discussions_url }}"
+    title="Discussions for «{{ ctx.try_with_title }}»"
+    rel="nofollow">{{ ctx.try_with_title }}</a>
+            </p>
+        {% endif %}
+        {% if ctx.try_with_url %}
+            <p class="mb-1 ms-3">
+                Lookup url: <a href="{{ ctx.try_with_url|discussions_url }}"
+    title="Discussions for «{{ ctx.try_with_url }}»"
+    rel="nofollow">{{ ctx.try_with_url }}</a>
+            </p>
+        {% endif %}
+        <p class="mt-1 mb-1 ms-3 smaller-font-1">
+            See <a href="{% url 'web:search' %}" title="How to search discussions">how
+            to search</a>.
+        </p>
+    </details>
+{% endif %}
+{% if ctx.submit_links %}
+    <div class="submit_links  smaller-font-2 mt-2">
+        <details {% if ctx.submit_links_visible %}open{% endif %}>
+            <summary>Submit link to:</summary>
+            <ul>
+                {% for submit_platform, submit_link in ctx.submit_links.items %}
+                    <li>
+                        <a href="{{ submit_link }}"
+                           title="Submit to {{ submit_platform }}"
+                           rel="nofollow noreferrer noopener"
+                           target="_blank">{{ submit_platform }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </details>
+    </div>
+{% endif %}
+</div>
 {% endblock main %}
