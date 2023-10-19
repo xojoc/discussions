@@ -6,22 +6,26 @@ import bs4
 import cachecontrol
 import minify_html
 import requests
-import requests.utils as requests_utils
+import requests.hooks
+import requests.utils
 import urllib3
 from bs4 import BeautifulSoup
 from cachecontrol import CacheControl
 from cachecontrol.cache import BaseCache
 from django.conf import settings
 from django_redis import get_redis_connection
+from typing_extensions import override
 
 logger = logging.getLogger(__name__)
 
 
 class _CustomRedisCache(BaseCache):
     def __init__(self, conn):
+        super().__init__()
         self.conn = conn
         self.prefix = "discussions:http_cache:"
 
+    @override
     def set(self, key, value, expires=None):
         if not expires:
             self.conn.setex(self.prefix + key, 60 * 60 * 24 * 5, value)
@@ -29,9 +33,11 @@ class _CustomRedisCache(BaseCache):
             expires = max(expires, 60 * 60 * 24 * 5)
             self.conn.setex(self.prefix + key, expires, value)
 
+    @override
     def get(self, key):
         return self.conn.get(self.prefix + key)
 
+    @override
     def delete(self, key):
         self.conn.delete(self.prefix + key)
 
@@ -46,7 +52,7 @@ def _default_headers():
     return headers
 
 
-def client(with_cache=False, with_retries=True):
+def client(*, with_cache=False, with_retries=True):
     r = get_redis_connection("default")
 
     retries = urllib3.Retry(
@@ -89,13 +95,14 @@ def _rate_limit(r, host):
 
 
 def fetch(
-    url,
-    force_cache=0,
-    refresh_on_get=False,
-    rate_limiting=True,
-    timeout=30,
-    with_retries=True,
-    with_cache=False,
+    url: str,
+    *,
+    force_cache: int = 0,
+    refresh_on_get: bool = False,
+    rate_limiting: bool = True,
+    timeout: int = 30,
+    with_retries: bool = True,
+    with_cache: bool = False,
 ) -> requests.Response | None:
     url = cachecontrol.CacheController.cache_url(url)
     request = requests.Request(
@@ -110,7 +117,7 @@ def fetch(
     try:
         resp = c.send(request.prepare(), stream=True, timeout=timeout)
     except requests.exceptions.RequestException:
-        logger.warning("http.fetch: send fail", exc_info=True)
+        logger.warning("http.fetch: send fail: %s", url)
 
     return resp
 

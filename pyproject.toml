@@ -21,14 +21,15 @@ django-celerybeat-status = "^0"
 django-crispy-forms = "*"
 django-debug-toolbar = "*"
 django-extensions = "^3"
+django-htmx = "^1"
 django-ninja = "^0"
 django-redis = "^5"
-django-sass = "^1"
+# django-sass = "^1"
 feedparser = "^6"
 flower = "^2"
 gevent = "^23"
 igraph = "^0"
-importlib-metadata = "*"
+# importlib-metadata = "*"
 Jinja2 = "^3"
 lxml = "^4"
 Markdown = "^3"
@@ -48,15 +49,12 @@ tweepy = "^4"
 urllib3 = "^2"
 whitenoise = "^6"
 zstandard = "*"
-django-stubs-ext = "*"
-deptry = "^0.12.0"
-django-htmx = "^1"
 
 [tool.poetry.dev-dependencies]
+celery-types = "*"
 mypy = "*"
-bpython = "*"
-celery-stubs = "*"
 django-stubs = { extras = ["compatible-mypy"], version = "*" }
+django-stubs-ext = "*"
 ipython = "*"
 
 
@@ -107,7 +105,10 @@ ignore = [
 	'G004', # logger use f-string
 	'E501', # line too long
 ]
-unfixable = ['F841', 'F401', 'B007']
+unfixable = [
+	'F841', # unused variable
+	'B007', # unused loop control variable
+]
 preview = true
 line-length = 79
 target-version = 'py311'
@@ -123,6 +124,7 @@ extend-exclude = ['web/migrations']
 	'PLR6301', # self not used 
 	'S101',    # asserts 
 	'SLF001',  # private method accessed 
+	'S106',    # possible hardcoded password
 ]
 
 [tool.ruff.flake8-annotations]

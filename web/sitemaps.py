@@ -39,7 +39,7 @@ class WeeklySitemap(Sitemap):
         for topic_key in topics.topics:
             its.append(("web:weekly_topic", [topic_key]))
             for yearweek in weekly.last_nth_yearweeks(topic_key, 3):
-                its.append(
+                its.append(  # noqa: PERF401
                     (
                         "web:weekly_topic_week",
                         [topic_key, yearweek[0], yearweek[1]],

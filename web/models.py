@@ -126,6 +126,8 @@ class Discussion(models.Model):
 
     archived = models.BooleanField(default=False)
 
+    tweet_set: models.Manager["Tweet"]
+
     entry_created_at = models.DateTimeField(auto_now_add=True)
     entry_updated_at = models.DateTimeField(auto_now=True)
 
@@ -158,10 +160,10 @@ class Discussion(models.Model):
 
     @override
     def save(self, *args, **kwargs):
-        self._pre_save()
+        self.pre_save()
         super().save(*args, **kwargs)
 
-    def _pre_save(self):
+    def pre_save(self):
         if self.title:
             self.title = self.title.replace("\x00", "")
 
@@ -525,7 +527,6 @@ class Tweet(models.Model):
     bot_name = models.CharField(max_length=255)
     bot_names = postgres_fields.ArrayField(
         models.CharField(max_length=255),
-        null=True,
         blank=True,
         default=list,
     )
@@ -541,10 +542,11 @@ class Tweet(models.Model):
 
     @override
     def save(self, *args, **kwargs):
+        self.bot_names = self.bot_names or []
         if self.bot_name:
-            self.bot_names = (self.bot_names or []).append(self.bot_name)
+            self.bot_names.append(self.bot_name)
 
-        self.bot_names = sorted(set(self.bot_names or []))
+        self.bot_names = sorted(set(self.bot_names))
 
         super().save(*args, **kwargs)
 
@@ -553,7 +555,6 @@ class MastodonPost(models.Model):
     post_id = models.BigIntegerField(primary_key=True, null=False)
     bot_names = postgres_fields.ArrayField(
         models.CharField(max_length=255),
-        null=True,
         blank=True,
         default=list,
     )
@@ -566,6 +567,12 @@ class MastodonPost(models.Model):
     @override
     def __str__(self) -> str:
         return f"{self.bot_names}: {self.post_id}"
+
+    @override
+    def save(self, *args, **kwargs):
+        self.bot_names = sorted(set(self.bot_names or []))
+
+        super().save(*args, **kwargs)
 
 
 class Resource(models.Model):
@@ -805,7 +812,7 @@ class Link(models.Model):
         return f"{self.from_resource.id} -> {self.to_resource.id}"
 
     @override
-    def save(self: Self, *args: Any, **kwargs: Any) -> None:
+    def save(self, *args: Any, **kwargs: Any) -> None:
         self.anchor_title = self.anchor_title or ""
         self.anchor_text = self.anchor_text or ""
         self.anchor_rel = self.anchor_rel or ""

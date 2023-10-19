@@ -21,15 +21,6 @@ from web import (
 logger = logging.getLogger(__name__)
 
 
-def __timing_iterate_all(chunk_size=10_000):
-    start_time = time.monotonic()
-    stories = models.Discussion.objects.all().order_by()
-    for _ in stories.iterator(chunk_size=chunk_size):
-        pass
-
-    logger.info(f"db iterate all: {time.monotonic() - start_time}")
-
-
 @shared_task(ignore_result=True, bind=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_update_discussions(self):
@@ -71,7 +62,7 @@ def worker_update_discussions(self):
         normalized_tags = story.normalized_tags
         category = story.category
 
-        story._pre_save()
+        story.pre_save()
 
         if (
             story.canonical_story_url != canonical_story_url
@@ -131,8 +122,8 @@ def worker_update_resources(self):
     logger.info(f"db update resources: {time.monotonic() - start_time}")
 
 
-@shared_task(ignore_result=True, bind=True)
-def update_pagerank(self):
+@shared_task(ignore_result=True)
+def update_pagerank():
     g = rank.links_to_graph()
     pagerank = rank.pagerank(g)
 
@@ -162,8 +153,8 @@ def update_pagerank(self):
     logger.info(f"update_pagerank: updated: {total_updated_count}")
 
 
-@shared_task(ignore_result=True, bind=True)
-def admin_send_recap_email(self):
+@shared_task(ignore_result=True)
+def admin_send_recap_email():
     subscribers = (
         models.Subscriber.mailing_list(None).distinct("email").count()
     )

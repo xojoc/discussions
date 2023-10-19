@@ -108,8 +108,7 @@ def discussions_context(q):
     else:
         ctx["absolute_url"] = q
 
-    if q:
-        ctx["link_canonical_url"] = util.discussions_canonical_url(q)
+    ctx["link_canonical_url"] = util.discussions_canonical_url(q)
 
     ctx["original_query"] = q
     ctx["url"] = url
@@ -163,10 +162,7 @@ def discussions_context(q):
     if ctx["resource"]:
         ctx["title"] = ctx["resource"].title
         ctx["inbound_resources"] = ctx["resource"].inbound_resources()[:20]
-
-        ctx["outbound_resources"] = ctx["resource"].outbound_resources()
-        if ctx["outbound_resources"] is not None:
-            ctx["outbound_resources"] = ctx["outbound_resources"][:20]
+        ctx["outbound_resources"] = ctx["resource"].outbound_resources()[:20]
 
     if not ctx.get("title"):
         if uds and (q.startswith(("http://", "https://"))):
@@ -183,7 +179,7 @@ def discussions_context(q):
     return ctx
 
 
-def get_submit_links(request, ctx):
+def __get_submit_links(request, ctx):
     q = ctx["original_query"]
     url = None
     if q.lower().startswith("http://") or q.lower().startswith("https://"):
@@ -212,6 +208,32 @@ def get_submit_links(request, ctx):
         ctx["submit_links_visible"] = True
 
 
+def __try_with(request, ctx):
+    if ctx.get("is_url"):
+        url = ctx.get("url", "")
+        try:
+            u = urllib3.util.parse_url(url)
+            if u.host:
+                ctx["try_with_site_prefix"] = "site:" + u.host
+        except ValueError:
+            logger.warning("Failed to parse url %", url, exc_info=True)
+
+    if ctx.get("submit_title") and not ctx.get("submit_title", "").startswith(
+        (
+            "http://",
+            "https://",
+        ),
+    ):
+        ctx["try_with_title"] = ctx.get("submit_title")
+
+    if (
+        request.GET.get("submit_url", "")
+        .lower()
+        .startswith(("http://", "https://", "ftp://"))
+    ):
+        ctx["try_with_url"] = request.GET.get("submit_url")
+
+
 def __suggest_topic(ctx):
     if ctx.get("is_url"):
         filtered_topics = []
@@ -231,7 +253,7 @@ def __suggest_topic(ctx):
             ctx["suggested_topic_short_description"] = ft["short_description"]
 
 
-def index(request, path_q=None):
+def index(request: HttpRequest, path_q: str | None = None) -> HttpResponse:
     host = request.get_host().partition(":")[0]
     if not request.path.startswith("/.well-known/") and (
         host
@@ -243,9 +265,7 @@ def index(request, path_q=None):
     if path_q:
         q = url_unquote(request.get_full_path()[len("/q/"):])
     else:
-        q = request.GET.get("url")
-        if not q:
-            q = request.GET.get("q")
+        q = request.GET.get("url") or request.GET.get("q")
 
     q = q or ""
 
@@ -269,43 +289,10 @@ def index(request, path_q=None):
 
     ctx = discussions_context_cached(q)
 
-    get_submit_links(request, ctx)
-
-    if ctx.get("is_url"):
-        url = ctx.get("url", "")
-        try:
-            u = urllib3.util.parse_url(url)
-            if u.host:
-                ctx["try_with_site_prefix"] = "site:" + u.host
-        except ValueError:
-            logger.warning("Failed to parse url %", url, exc_info=True)
-
-    if ctx.get("submit_title") and not ctx.get("submit_title").startswith(
-        (
-            "http://",
-            "https://",
-        ),
-    ):
-        ctx["try_with_title"] = ctx.get("submit_title")
-
-    if request.GET.get("submit_url") and (
-        request.GET.get("submit_url").lower().startswith("http://")
-        or request.GET.get("submit_url").lower().startswith("https://")
-        or request.GET.get("submit_url").lower().startswith("ftp://")
-    ):
-        ctx["try_with_url"] = request.GET.get("submit_url")
-
-    ctx["form"] = forms.QueryForm(request.GET)
-    ctx["form"].fields["tags"].choices = [
-        ("tag", "asdf"),
-        ("tag2", "fdsa"),
-        ("tag2", "fdsa"),
-        ("tag2", "fdsa"),
-    ]
-
-    __log_query(q)
-
+    __get_submit_links(request, ctx)
+    __try_with(request, ctx)
     __suggest_topic(ctx)
+    __log_query(q)
 
     response = render(request, "web/discussions.html", {"ctx": ctx})
 

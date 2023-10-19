@@ -1,7 +1,6 @@
 # Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import logging
 from collections.abc import Mapping, Sequence
-from typing import Any
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Button, Div, Field, Layout, Submit

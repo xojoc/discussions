@@ -10,7 +10,7 @@ from django.db.models.functions import (
     StrIndex,
 )
 
-from web import celery_util, discussions, models
+from web import celery_util, models
 from web.platform import Platform
 
 

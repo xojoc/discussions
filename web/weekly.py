@@ -3,10 +3,8 @@ import datetime
 import itertools
 import logging
 import random
-import re
 import time
 from collections import defaultdict
-from email.message import Message
 
 import django.template.loader as template_loader
 import sentry_sdk
@@ -433,92 +431,6 @@ def topic_week_context_cached(topic, year, week):
     return ctx
 
 
-def imap_handler(
-    message: Message,
-    message_id: str,
-    from_email: tuple[str, str],
-    to_email: str,
-    subject: str,
-    body: str,
-) -> bool:
-    _ = message
-    logger.debug(
-        f"""
-    Message_id: {message_id}
-    From: {from_email}
-    To: {to_email}
-    Subject: {subject}
-    ---
-    {body}
-    """,
-    )
-
-    matches = re.search(r"weekly_([a-z0-9]+)@discu\.eu", to_email)
-    if not matches:
-        return False
-    topic_key = matches[1]
-
-    topic = topics.topics.get(topic_key)
-    if not topic:
-        return False
-
-    if settings.EMAIL_TO_PREFIX and not to_email.startswith(
-        settings.EMAIL_TO_PREFIX,
-    ):
-        logger.debug(f"Weekly email NOT dev: '{topic_key}' '{from_email}'")
-        return False
-
-    tokens = body.lower().strip().split()
-    if len(tokens) > 0 and tokens[0] == "subscribe":
-        try:
-            subscriber = models.Subscriber.objects.get(
-                topic=topic_key,
-                email=from_email,
-            )
-            if subscriber.confirmed and not subscriber.unsubscribed:
-                subscriber = None
-                logger.info(
-                    f"Subsription exists for {from_email} topic {topic_key}",
-                )
-            else:
-                subscriber.subscribe()
-                subscriber.save()
-        except models.Subscriber.DoesNotExist:
-            subscriber = models.Subscriber(email=from_email, topic=topic_key)
-            subscriber.subscribe()
-            subscriber.save()
-
-        if subscriber:
-            subscriber.send_subscription_confirmation_email()
-            logger.info(
-                f"Confirmation email sent to {from_email} topic {topic_key}",
-            )
-            return True
-
-    if len(tokens) > 0 and tokens[0] == "unsubscribe":
-        try:
-            subscriber = models.Subscriber.objects.get(
-                topic=topic_key,
-                email=from_email,
-            )
-        except models.Subscriber.DoesNotExist:
-            logger.info(
-                f"No subscription found for '{topic_key}' '{from_email}'",
-            )
-            subscriber = None
-
-        if subscriber:
-            subscriber.unsubscribe()
-            subscriber.save()
-            subscriber.send_unsubscribe_confirmation_email()
-            logger.info(
-                f"Unsubscribtion email sent to {from_email} topic {topic_key}",
-            )
-            return True
-
-    return False
-
-
 def __rewrite_urls(ctx, subscriber, topic, year, week):
     for _, _, stories in ctx.get("digest"):
         for story in stories:
@@ -548,8 +460,6 @@ def __rewrite_urls(ctx, subscriber, topic, year, week):
 
 
 def send_mass_email(topic, year, week, *, testing=True, only_subscribers=None):
-    if only_subscribers is None:
-        only_subscribers = []
     if only_subscribers:
         subscribers = only_subscribers
     else:

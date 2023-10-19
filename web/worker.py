@@ -2,6 +2,7 @@
 import logging
 
 import celery
+import celery.signals
 import gevent
 from django.core.cache import cache
 from django_redis import get_redis_connection
@@ -16,6 +17,7 @@ cache_graceful_exit_key = "discussions:worker:graceful_exit"
 
 @celery.signals.worker_ready.connect
 def celery_worker_ready(signal, sender, **kwargs):
+    _ = kwargs
     del signal
     del sender
 
@@ -40,13 +42,14 @@ def __timer(after, repeat, f):
 
 @celery.signals.worker_shutting_down.connect
 def celery_worker_shutting_down(**kwargs):
+    _ = kwargs
     __timer(1, 0, __cache_set)
 
 
-def graceful_exit(task):
+def graceful_exit(task: celery.Task) -> bool:
     e = cache.get(cache_graceful_exit_key)
     if e:
-        return e
+        return True
 
     k = celery_util.lock_key(task)
     redis = get_redis_connection()

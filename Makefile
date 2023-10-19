@@ -80,6 +80,7 @@ superuser:
 update:
 	@poetry update
 	@poetry types update
+	@poetry show -o
 
 
 extension-build:

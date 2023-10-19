@@ -14,7 +14,7 @@ class Category(TestCase):
                 title=title,
                 tags=tags,
             )
-            s._pre_save()
+            s.pre_save()
             return category.derive(s)
 
         tests = [
@@ -56,6 +56,6 @@ class Category(TestCase):
             "tellplatform",
         ]
 
-        for u, r in zip(tests[0::2], tests[1::2]):
+        for u, r in zip(tests[0::2], tests[1::2], strict=True):
             rr = d(u[0], u[1], u[2], u[3])
             assert r == rr, u

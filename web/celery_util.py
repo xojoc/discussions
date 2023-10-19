@@ -10,14 +10,6 @@ from redis.exceptions import LockError
 logger = logging.getLogger(__name__)
 
 
-class EndOfIteration(Exception):
-    pass
-
-
-class RepeatCurrentIndex(Exception):
-    pass
-
-
 def split_task(
     redis_prefix,
     get_start_index,
@@ -43,10 +35,6 @@ def split_task(
 
     try:
         callback(current_index, min(current_index + step, max_index))
-    except EndOfIteration:
-        r.set(redis_prefix + "current_index", max_index + 1)
-    except RepeatCurrentIndex:
-        pass
     except Exception:
         logger.exception(f"split_task: {callback.__name__}")
         raise

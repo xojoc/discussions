@@ -5,6 +5,7 @@ import random
 import urllib
 import urllib.parse
 from email.utils import formataddr
+from pathlib import Path
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -86,12 +87,12 @@ class WebConfig(AppConfig):
     def __reddit_configuration(cls):
         from web import reddit
 
-        with open("web/reddit_subreddit_blacklist") as f:
+        with Path("web/reddit_subreddit_blacklist").open() as f:
             reddit.subreddit_blacklist = {
                 x.lower().strip() for x in f.read().splitlines()
             }
 
-        with open("web/reddit_subreddit_whitelist") as f:
+        with Path("web/reddit_subreddit_whitelist").open() as f:
             reddit.subreddit_whitelist = {
                 x.lower().strip() for x in f.read().splitlines()
             }

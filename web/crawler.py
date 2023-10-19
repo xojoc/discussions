@@ -59,22 +59,17 @@ redis_host_semaphore = redis_prefix + "semaphore:host"
 def add_to_queue(
     url: str | None,
     priority: Priority = Priority.normal,
-    low: bool = False,
 ) -> None:
     if not url:
         return
     r = get_redis_connection()
-    if low:
-        priority = Priority.low
-    n = queue_names.get(priority)
-
-    r.rpush(n, url)
+    r.rpush(queue_names.get(priority, url))
 
 
 def sempaphore_green(url):
     try:
         u = urllib3.util.parse_url(url)
-    except Exception:
+    except ValueError:
         u = None
 
     if not u or not u.host:
@@ -149,10 +144,7 @@ def fetch(url):
     resource.save()
 
     if resource.status_code == HTTPStatus.OK:
-        try:
-            extract_html(resource)
-        except Exception as e:
-            logger.debug(f"fetch: extract html: {e}")
+        extract_html(resource)
 
     return resource
 

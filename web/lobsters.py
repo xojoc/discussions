@@ -5,6 +5,7 @@ import time
 
 import cleanurl
 import django
+import django.db
 from celery import shared_task
 from django.core.cache import cache
 

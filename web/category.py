@@ -37,8 +37,8 @@ def derive(story):
     u = None
     try:
         u = urllib3.util.parse_url(story.canonical_story_url)
-    except Exception as e:
-        logger.warning(f"category: url parsing failed: {e}")
+    except ValueError:
+        logger.warning("category: url parsing failed", exc_info=True)
 
     path, host = "", ""
     if u:
@@ -48,9 +48,10 @@ def derive(story):
     title = (story.title or "").lower().strip()
     title_tokens = (story.normalized_title or "").split()
 
-    if "programming" in story.normalized_tags:
-        if "release" in title_tokens or "released" in title_tokens:
-            return "release"
+    if "programming" in story.normalized_tags and (
+        "release" in title_tokens or "released" in title_tokens
+    ):
+        return "release"
     if "release" in story.normalized_tags:
         return "release"
 
@@ -71,9 +72,10 @@ def derive(story):
     if host in ("sr.ht") and len(parts) == 2 and parts[0][0] == "~":
         return "project"
 
-    if host in ("savannah.gnu.org", "savannah.nongnu.org"):
-        if path.startswith("/projects/"):
-            return "project"
+    if host in ("savannah.gnu.org", "savannah.nongnu.org") and path.startswith(
+        "/projects/",
+    ):
+        return "project"
 
     if host in ("crates.io") and path.startswith("/crates/"):
         return "project"

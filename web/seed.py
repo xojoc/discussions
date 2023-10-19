@@ -39,10 +39,13 @@ def this_week_in_rust():
         if r:
             h = http.parse_html(r.clean_html, safe_html=True)
             hs = extract.structure(h, href)
-            for link in hs.outbound_links:
-                if not link.get("href"):
+            for outbound_link in hs.outbound_links:
+                if not outbound_link.get("href"):
                     continue
-                crawler.add_to_queue(link.get("href"), priority=3)
+                crawler.add_to_queue(
+                    outbound_link.get("href"),
+                    priority=crawler.Priority.low,
+                )
                 c += 1
 
         logger.debug(f"this week in rust: {c} from {href}")
@@ -55,7 +58,7 @@ def feed_to_queue(feed):
         crawler.add_to_queue(e["link"])
 
 
-def all():
+def seed_all():
     feed_to_queue("https://blog.rust-lang.org/feed.xml")
     feed_to_queue("https://blog.rust-lang.org/inside-rust/feed.xml")
     feed_to_queue("https://andrewkelley.me/rss.xml")

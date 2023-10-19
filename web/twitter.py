@@ -8,6 +8,8 @@ import unicodedata
 
 import sentry_sdk
 import tweepy
+import tweepy.client
+import tweepy.errors
 from celery import shared_task
 from django.core.cache import cache
 from django.utils import timezone
@@ -28,9 +30,11 @@ def tweet(status, username):
     consumer_secret = os.getenv("TWITTER_CONSUMER_SECRET")
 
     account = topics.get_account_configuration("twitter", username)
+    if not account:
+        return None
 
-    token = account["token"]
-    token_secret = account["token_secret"]
+    token = account.get("token")
+    token_secret = account.get("token_secret")
 
     if (
         not consumer_key
@@ -71,13 +75,14 @@ def tweet(status, username):
     return status.data["id"]
 
 
-# fixme: for now we cannot retweet, upgrade?
+# TODO: for now we cannot retweet, upgrade?
 def retweet(tweet_id, username):
     consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
     consumer_secret = os.getenv("TWITTER_CONSUMER_SECRET")
 
     account = topics.get_account_configuration("twitter", username)
-
+    if not account:
+        return None
     token = account["token"]
     token_secret = account["token_secret"]
 
@@ -100,7 +105,7 @@ def retweet(tweet_id, username):
         access_token_secret=token_secret,
         wait_on_rate_limit=True,
     )
-    api.retweet(tweet_id)
+    _ = api.retweet(tweet_id)
     return tweet_id
 
 
@@ -115,16 +120,18 @@ def build_hashtags(tags):
 
 
 def build_story_status(
-    title=None,
-    url=None,
-    tags=None,
-    author=None,
-    story=None,
-):
+    title: str = "",
+    url: str | None = "",
+    tags: set[str] | None = None,
+    author: extract.Author | None = None,
+    story: models.Discussion | None = None,
+) -> str:
     tags = tags or set()
     hashtags = build_hashtags(tags)
+    if not story:
+        return ""
 
-    if url is None:
+    if not url:
         if not title:
             title = story.title
 
@@ -211,13 +218,11 @@ def tweet_story_topic(story, tags, topic, existing_tweet):
         logger.exception(
             f"twitter v2: tweet: {bot_name}: {status}: {tweet_id=}",
         )
-        sentry_sdk.capture_exception(e)
+        _ = sentry_sdk.capture_exception(e)
         __sleep(13, 27)
 
     __sleep(4, 7)
 
-    a: int = "a"
-    _ = a
     return tweet_id
 
 
@@ -235,12 +240,7 @@ def tweet_discussions_scheduled(filter_topic=None):
 
     stories = (
         models.Discussion.objects.filter(created_at__gte=five_days_ago)
-        # .filter(comment_count__gte=min_comment_count)
         .filter(score__gte=min_score)
-        # .exclude(schemeless_story_url__isnull=True)
-        # .exclude(schemeless_story_url="")
-        # .exclude(scheme_of_story_url__isnull=True)
-        # .exclude(scheme_of_story_url="")
         .order_by("-comment_count", "-score", "created_at")
     )
 
@@ -347,12 +347,12 @@ def tweet_discussions_scheduled(filter_topic=None):
                 logger.exception(
                     f"twitter too many requests, interrupt {topic_key}",
                 )
-                sentry_sdk.capture_exception(e)
+                _ = sentry_sdk.capture_exception(e)
                 __sleep(10, 20)
                 break
             except Exception as e:
                 logger.exception(f"twitter: {story.platform_id}")
-                sentry_sdk.capture_exception(e)
+                _ = sentry_sdk.capture_exception(e)
                 continue
 
             logger.debug(f"twitter {topic_key} {tweet_id} {existing_tweet}")
@@ -370,9 +370,9 @@ def tweet_discussions_scheduled(filter_topic=None):
                         bot_names=[topic.get("twitter").get("account")],
                     )
 
-                t.save()
-                t.discussions.add(story)
-                t.save()
+                _ = t.save()
+                _ = t.discussions.add(story)
+                _ = t.save()
 
             if tweet_id:
                 break
@@ -382,38 +382,11 @@ def client():
     return tweepy.Client(os.getenv("TWITTER_BEARER_TOKEN"))
 
 
-def get_user(username, c=None):
-    cache_timeout = 60 * 60 * 24
-    key = f"twitter:username:{username}"
-    user = cache.get(key)
-    if user:
-        return user
-
-    if not c:
-        c = client()
-
-    try:
-        user = c.get_user(username=username)
-    except Exception as e:
-        logger.warning(f"twitter get_user: {e}")
-        return None
-
-    user = {
-        "id": user.data.id,
-        "name": user.data.name,
-        "username": user.data.username,
-    }
-
-    cache.set(key, user, cache_timeout)
-
-    return user
-
-
 class IDPrinter(tweepy.StreamingClient):
     def on_tweet(self, tweet):
-        print(tweet.id)
-        print(tweet.text)
-        print()
+        logger.debug(tweet.id)
+        logger.debug(tweet.text)
+        logger.debug()
 
 
 def __build_twitter_rule():
@@ -444,23 +417,25 @@ def stream(reset_filters=False):
         max_retries=3,
     )
     if reset_filters:
-        printer.delete_rules(r.id for r in printer.get_rules().data)
+        _ = printer.delete_rules(r.id for r in printer.get_rules().data)
         r = __build_twitter_rule()
         logger.info(f"twitter stream: {r}")
-        printer.add_rules(tweepy.StreamRule(r))
+        _ = printer.add_rules(tweepy.StreamRule(r))
 
-    print(f"twitter stream: {printer.get_rules()}")
+    logger.debug(f"twitter stream: {printer.get_rules()}")
 
-    printer.filter(tweet_fields="id,text,created_at,entities")
+    _ = printer.filter(tweet_fields="id,text,created_at,entities")
 
 
 def print_details(id):
     c = client()
     t = c.get_tweet(id, tweet_fields="context_annotations,entities")
-    print(id)
+    logger.debug(id)
+    if not t.data:
+        return
     for ca in t.data.context_annotations:
-        print(f"{ca['domain']['id']} - {ca['domain']['name']}")
-        print(f"{ca['entity']['id']} - {ca['entity']['name']}")
+        logger.debug(f"{ca['domain']['id']} - {ca['domain']['name']}")
+        logger.debug(f"{ca['entity']['id']} - {ca['entity']['name']}")
 
 
 def process_item(tweet):
@@ -471,11 +446,11 @@ def fetch_all_tweets():
     c = client()
 
     twitter_bots = []
-    for t in topics.topics.values():
-        if t.get("twitter") and t.get("twitter").get("account"):
-            u = get_user(t.get("twitter").get("account"))
-            if u and u.get("id"):
-                twitter_bots.append(u.get("id"))
+    # for t in topics.topics.values():
+    #     if t.get("twitter") and t.get("twitter").get("account"):
+    #         u = twitter_api.get_(t.get("twitter").get("account"))
+    #         if u and u.get("id"):
+    #             twitter_bots.append(u.get("id"))
 
     users_to_search = []
     for bot in twitter_bots:
@@ -487,4 +462,4 @@ def fetch_all_tweets():
         ):
             users_to_search.extend(u.id for u in fs.data)
 
-    print(users_to_search)
+    logger.debug(users_to_search)

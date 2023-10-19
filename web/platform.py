@@ -1,6 +1,4 @@
 # Copyright 2023 Alexandru Cojocaru AGPLv3 or later - no warranty!
-
-
 from operator import attrgetter
 
 from django.db import models

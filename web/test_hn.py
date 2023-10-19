@@ -20,6 +20,6 @@ class UnitHN(unittest.TestCase):
               <p>This is an older project of mine, but it never got much exposure, so I&#x27;m humbly submitting it now.""",
             "https://www.jamez.it/project/wikibinge/",
         ]
-        for h, u in zip(tests[0::2], tests[1::2]):
+        for h, u in zip(tests[0::2], tests[1::2], strict=True):
             hu = hn._url_from_selftext(h)
             assert u == hu, h

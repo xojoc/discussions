@@ -327,19 +327,18 @@ zookeeper = ["kazoo (>=1.3.1)"]
 zstd = ["zstandard (==0.21.0)"]
 
 [[package]]
-name = "celery-stubs"
-version = "0.1.3"
-description = "celery stubs"
+name = "celery-types"
+version = "0.20.0"
+description = "Type stubs for Celery and its related packages"
 optional = false
-python-versions = "*"
+python-versions = ">=3.10,<4.0"
 files = [
-    {file = "celery-stubs-0.1.3.tar.gz", hash = "sha256:0fb5345820f8a2bd14e6ffcbef2d10181e12e40f8369f551d7acc99d8d514919"},
-    {file = "celery_stubs-0.1.3-py3-none-any.whl", hash = "sha256:dfb9ad27614a8af028b2055bb4a4ae99ca5e9a8d871428a506646d62153218d7"},
+    {file = "celery-types-0.20.0.tar.gz", hash = "sha256:e5c762555605ed0592baed9d519230046ce8e7a11c67a821555c08b7cece1960"},
+    {file = "celery_types-0.20.0-py3-none-any.whl", hash = "sha256:5ebf858a4bf73ca610652d82940dc3a2e4c86afed0421ab1becbff66b49feea4"},
 ]
 
 [package.dependencies]
-mypy = ">=0.950"
-typing-extensions = ">=4.2.0"
+typing-extensions = ">=3.10.0,<5.0.0"
 
 [[package]]
 name = "certifi"
@@ -3865,4 +3864,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "e6adfdfb435fa649e1bbe13038ea513df6a2977b5336a2539ccdf221d495a010"
+content-hash = "b57ae1b21cea0cc5f5dd398f2b5056d2de14d54ef86ff16e107341fe613bf3e6"

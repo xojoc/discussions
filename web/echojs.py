@@ -3,6 +3,7 @@ import datetime
 import logging
 import time
 
+import celery
 import cleanurl
 from celery import shared_task
 from django.core.cache import cache
@@ -19,7 +20,10 @@ def __process_item(item: dict[str, str | int], platform: Platform) -> None:
     platform_id = f"{platform.value}{item.get('id')}"
 
     if item.get("ctime"):
-        created_at = datetime.datetime.fromtimestamp(int(item.get("ctime")))
+        created_at = datetime.datetime.fromtimestamp(
+            int(item.get("ctime")),
+            tz=datetime.UTC,
+        )
         created_at = make_aware(created_at)
     else:
         created_at = None
@@ -54,7 +58,7 @@ def __process_item(item: dict[str, str | int], platform: Platform) -> None:
     )
 
 
-def __worker_fetch(task, platform: Platform):
+def __worker_fetch(task: celery.Task, platform: Platform) -> None:
     client = http.client(with_cache=False)
     base_url = platform.url
     cache_current_index_key = (
@@ -103,5 +107,5 @@ def __worker_fetch(task, platform: Platform):
 
 @shared_task(bind=True, ignore_result=True)
 @celery_util.singleton(timeout=None, blocking_timeout=0.1)
-def worker_fetch_echojs(self):
+def worker_fetch_echojs(self: celery.Task) -> None:
     __worker_fetch(self, Platform.ECHO_JS)

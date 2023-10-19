@@ -2,6 +2,7 @@
 import logging
 
 import stripe
+import stripe.error
 from celery import shared_task
 from django.conf import settings
 from django.db.models.signals import post_save
@@ -30,8 +31,8 @@ def create_customer(user_pk):
             },
             idempotency_key=f"{user_pk}",
         )
-    except Exception as e:
-        logger.error(f"stripe create_customer: {e}")
+    except stripe.error.StripeError:
+        logger.exception("stripe create_customer")
         return
 
     user.stripe_customer_id = response.stripe_id
@@ -46,7 +47,7 @@ def update_customer(user_pk):
     stripe.api_key = settings.STRIPE_SECRET_KEY
 
     try:
-        stripe.Customer.modify(
+        _ = stripe.Customer.modify(
             user.stripe_customer_id,
             email=user.email,
             metadata={
@@ -55,13 +56,14 @@ def update_customer(user_pk):
                 "user_pk": user.pk,
             },
         )
-    except Exception as e:
-        logger.error(f"stripe update_customer: {e}")
+    except stripe.error.StripeError:
+        logger.exception("stripe update_customer")
         return
 
 
 @receiver(post_save, sender=models.CustomUser)
 def process_customuser(sender, instance, created, **kwargs):
+    _ = sender
     if created or not instance.stripe_customer_id:
         create_customer.delay(instance.pk)
     else:

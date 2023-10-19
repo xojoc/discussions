@@ -36,15 +36,17 @@ class UnitReddit(unittest.TestCase):
             "`&MyStruct { data: &`[`self.data`](https://self.data)`[3..8] }`",
             None,
         ]
-        for h, u in zip(tests[0::2], tests[1::2]):
+        for h, u in zip(tests[0::2], tests[1::2], strict=True):
             hu = reddit._url_from_selftext(h)
             assert u == hu, h
 
         assert None is reddit._url_from_selftext(
-            "[Single link](https://discu.eu/)", "Help me with discu.eu",
+            "[Single link](https://discu.eu/)",
+            "Help me with discu.eu",
         )
         assert None is reddit._url_from_selftext(
-            "[Yes](https://xojoc.pw/)", "Is this X?",
+            "[Yes](https://xojoc.pw/)",
+            "Is this X?",
         )
 
     def test_url(self):
@@ -58,6 +60,6 @@ class UnitReddit(unittest.TestCase):
             "xojoc.pw",
             False,
         ]
-        for h, u in zip(tests[0::2], tests[1::2]):
+        for h, u in zip(tests[0::2], tests[1::2], strict=True):
             hu = reddit._url_blacklisted(h)
             assert u == hu, h

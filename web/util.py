@@ -88,6 +88,7 @@ def url_root(url: str | cleanurl.Result | None) -> str | None:
     if not url:
         return None
 
+    atleast_for_project = 2
     if url.hostname in (
         "www.github.com",
         "github.com",
@@ -96,9 +97,10 @@ def url_root(url: str | cleanurl.Result | None) -> str | None:
     ):
         parts = (url.path or "").split("/")
         parts = [p for p in parts if p]
-        if len(parts) >= 2:
+        if len(parts) >= atleast_for_project:
             return url.hostname + "/" + parts[0]
 
+    atleast_for_post = 3
     if url.hostname in (
         "www.twitter.com",
         "twitter.com",
@@ -106,7 +108,7 @@ def url_root(url: str | cleanurl.Result | None) -> str | None:
     ):
         parts = (url.path or "").split("/")
         parts = [p for p in parts if p]
-        if len(parts) >= 3 and parts[1] == "status":
+        if len(parts) >= atleast_for_post and parts[1] == "status":
             return url.hostname + "/" + parts[0]
 
     if url.hostname in (
@@ -115,7 +117,11 @@ def url_root(url: str | cleanurl.Result | None) -> str | None:
     ):
         parts = (url.path or "").split("/")
         parts = [p for p in parts if p]
-        if len(parts) >= 3 and parts[0] == "web" and parts[1][0] == "@":
+        if (
+            len(parts) >= atleast_for_post
+            and parts[0] == "web"
+            and parts[1][0] == "@"
+        ):
             return url.hostname + "/web/" + parts[1]
 
     return url.hostname

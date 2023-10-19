@@ -210,5 +210,5 @@ class UnitTags(unittest.TestCase):
             {"meta"},
         ]
 
-        for nts, mts in zip(missing[0::2], missing[1::2]):
+        for nts, mts in zip(missing[0::2], missing[1::2], strict=True):
             assert not set(nts) & mts, nts

@@ -19,6 +19,6 @@ class UnitTitle(unittest.TestCase):
             "mastodon.social/web/@php_discussions",
         ]
 
-        for u, r in zip(tests[0::2], tests[1::2]):
+        for u, r in zip(tests[0::2], tests[1::2], strict=True):
             rr = util.url_root(u)
             assert r == rr, u
