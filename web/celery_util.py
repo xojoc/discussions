@@ -47,8 +47,8 @@ def split_task(
         r.set(redis_prefix + "current_index", max_index + 1)
     except RepeatCurrentIndex:
         pass
-    except Exception as e:
-        logger.error(f"split_task: {callback.__name__}: {e}")
+    except Exception:
+        logger.exception(f"split_task: {callback.__name__}")
         raise
     else:
         r.set(redis_prefix + "current_index", current_index + step)

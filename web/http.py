@@ -142,7 +142,7 @@ def parse_html(
                 remove_processing_instructions=True,
             )
         except BaseException:  # noqa: BLE001
-            logger.info(f"minify_html failed: {e}")
+            logger.info("minify_html failed", exc_info=True)
 
     h = BeautifulSoup(html, "lxml")
     if safe_html:
