@@ -127,11 +127,11 @@ def build_story_status(
     story: models.Discussion | None = None,
 ) -> str:
     tags = tags or set()
+    if not tags and story:
+        tags = set(story.normalized_tags)
     hashtags = build_hashtags(tags)
-    if not story:
-        return ""
 
-    if not url:
+    if not url and story:
         if not title:
             title = story.title
 
