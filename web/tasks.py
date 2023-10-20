@@ -72,6 +72,12 @@ def celery_task_failure_email(
     **kwargs: Any,
 ) -> None:
     _ = sender
+    tb = kwargs.get("traceback")
+    while tb and tb.tb_next:
+        tb = tb.tb_next
+
+    tb_locals = tb.tb_frame.f_locals if tb else {}
+
     email_util.send_admins(
         f"Celery: task failure: {kwargs['task_id']}",
         f"""
@@ -80,6 +86,9 @@ def celery_task_failure_email(
 
         {kwargs['einfo']}
 
+
+        {pprint.pformat(tb_locals, indent=4, underscore_numbers=True)}
+
         """,
     )
 
@@ -87,6 +96,11 @@ def celery_task_failure_email(
 @task_internal_error.connect()
 def celery_internal_error_email(sender: celery.Task, **kwargs: Any):
     _ = sender
+    tb = kwargs.get("traceback")
+    while tb and tb.tb_next:
+        tb = tb.tb_next
+
+    tb_locals = tb.tb_frame.f_locals if tb else {}
     email_util.send_admins(
         f"Celery: internal error: {kwargs['task_id']}",
         f"""
@@ -95,6 +109,8 @@ def celery_internal_error_email(sender: celery.Task, **kwargs: Any):
 
         {kwargs['einfo']}
 
+        {pprint.pformat(tb_locals, indent=4, underscore_numbers=True)}
+
         """,
     )
 
@@ -102,4 +118,6 @@ def celery_internal_error_email(sender: celery.Task, **kwargs: Any):
 @shared_task(ignore_result=True)
 def celery_explicit_error():
     """Cause an error to test the `task_failure` signal"""
-    raise ValueError("testing the `task_failur` signal")
+    local_error = "I'am local"
+    _ = local_error
+    raise ValueError("testing the `task_failure` signal")
