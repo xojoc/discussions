@@ -7,7 +7,6 @@ import celery
 import cleanurl
 from celery import shared_task
 from django.core.cache import cache
-from django.utils.timezone import make_aware
 
 from web.platform import Platform
 
@@ -24,7 +23,6 @@ def __process_item(item: dict[str, str | int], platform: Platform) -> None:
             int(item.get("ctime")),
             tz=datetime.UTC,
         )
-        created_at = make_aware(created_at)
     else:
         created_at = None
 
@@ -34,7 +32,7 @@ def __process_item(item: dict[str, str | int], platform: Platform) -> None:
         or item.get("url").startswith("https://")
     ):
         u = cleanurl.cleanurl(
-            item.get("url"),
+            item.get("url", ""),
             generic=True,
             respect_semantics=True,
             host_remap=False,
