@@ -70,13 +70,15 @@ def singleton(
                 logger.warning(
                     f"Lock {lock_name} not acquired timeout = {timeout}, blocking_timeout = {blocking_timeout}",
                 )
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 import traceback
 
                 logger.debug(traceback.format_exc())
 
                 logger.warning(f"singleton {lock_name}: {e}")
                 _ = sentry_sdk.capture_exception(e)
+
+                raise
 
         return wrapper
 
