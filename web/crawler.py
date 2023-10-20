@@ -63,7 +63,7 @@ def add_to_queue(
     if not url:
         return
     r = get_redis_connection()
-    r.rpush(queue_names.get(priority, url))
+    r.rpush(queue_names.get(priority), url)
 
 
 def sempaphore_green(url):
