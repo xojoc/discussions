@@ -86,7 +86,10 @@ def sempaphore_green(url):
 
 
 def __set_semaphore(url: str, timeout: int = 60) -> None:
-    u = urllib3.util.parse_url(url)
+    try:
+        u = urllib3.util.parse_url(url)
+    except ValueError:
+        u = None
 
     if not u or not u.host:
         logger.debug("set_semaphore: parse error: {url}: {u}")
