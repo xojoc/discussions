@@ -23,6 +23,7 @@ django-debug-toolbar = "*"
 django-extensions = "^3"
 django-htmx = "^1"
 django-ninja = "^0"
+django-stubs-ext = "*"
 django-redis = "^5"
 # django-sass = "^1"
 feedparser = "^6"
@@ -54,7 +55,6 @@ zstandard = "*"
 celery-types = "*"
 mypy = "*"
 django-stubs = { extras = ["compatible-mypy"], version = "*" }
-django-stubs-ext = "*"
 ipython = "*"
 
 
