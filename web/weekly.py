@@ -19,9 +19,9 @@ from django.utils import timezone
 from django.utils.timezone import make_aware
 
 from discussions import settings
+from web.category import Category
 
 from . import (
-    category,
     celery_util,
     mastodon,
     models,
@@ -229,7 +229,8 @@ def __get_stories(topic, year, week):
             )
             continue
 
-        story.category = category.derive(story)
+        # recalculate the tags, title and category
+        story.pre_save()
 
         unique_stories.append(story)
 
@@ -244,11 +245,11 @@ def _get_digest(topic, year, week):
     stories = __get_stories(topic, year, week)
     stories = sorted(stories, key=lambda x: x.category)
     digest = [
-        (cat, category.name(cat, platform), list(stories))
+        (cat, cat.name_platform(platform), list(stories))
         for cat, stories in itertools.groupby(stories, lambda x: x.category)
     ]
 
-    digest = sorted(digest, key=lambda x: category.categories[x[0]]["sort"])
+    digest = sorted(digest, key=lambda x: x[0].order)
 
     for cat, _, stories in digest:
         if topic == "hackernews":
@@ -256,18 +257,19 @@ def _get_digest(topic, year, week):
         else:
             stories.sort(key=lambda x: x.total_comments, reverse=True)
 
-        if cat == "article":
-            stories[:] = stories[:15]
-        elif cat == "project":
-            stories[:] = stories[:10]
-        elif cat == "askplatform":
-            stories[:] = stories[:3]
-        elif cat == "tellplatform":
-            stories[:] = stories[:2]
-        elif cat == "release":
-            stories[:] = stories[:10]
-        elif cat == "video":
-            stories[:] = stories[:7]
+        match cat:
+            case Category.ARTICLE:
+                stories[:] = stories[:15]
+            case Category.PROJECT:
+                stories[:] = stories[:10]
+            case Category.ASK_PLATFORM:
+                stories[:] = stories[:3]
+            case Category.TELL_PLATFORM:
+                stories[:] = stories[:2]
+            case Category.RELEASE:
+                stories[:] = stories[:10]
+            case Category.VIDEO:
+                stories[:] = stories[:7]
     return digest
 
 

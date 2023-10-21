@@ -34,7 +34,7 @@ from . import celery_util
 logger = logging.getLogger(__name__)
 task_logger = get_task_logger(__name__)
 
-
+# import all the modules containing Celery tasks
 _ = archiveis
 _ = crawler
 _ = db
@@ -72,10 +72,11 @@ def celery_task_failure_email(
     **kwargs: Any,
 ) -> None:
     _ = sender
+    # Go to deepest stack frame (usually the one with our own code) and
+    #  get the local variables
     tb = kwargs.get("traceback")
     while tb and tb.tb_next:
         tb = tb.tb_next
-
     tb_locals = tb.tb_frame.f_locals if tb else {}
 
     email_util.send_admins(

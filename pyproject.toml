@@ -25,7 +25,6 @@ django-htmx = "^1"
 django-ninja = "^0"
 django-stubs-ext = "*"
 django-redis = "^5"
-# django-sass = "^1"
 feedparser = "^6"
 flower = "^2"
 gevent = "^23"
@@ -50,6 +49,7 @@ tweepy = "^4"
 urllib3 = "^2"
 whitenoise = "^6"
 zstandard = "*"
+django-sass = "^1"
 
 [tool.poetry.dev-dependencies]
 celery-types = "*"
@@ -94,12 +94,14 @@ ignore = [
 	#   'G004', # Logging statement uses f-string --> reenable
 	#       'FBT', #  disable  boolean checks
 	#	  'BLE001', # fixme: blind Exception
-	'TD002',  # todo wants author
-	'FIX002', # warns about todo presence
-	'TD003',  # missing issue
-	'PT009',  # pytest
+	'TD002',   # todo wants author
+	'FIX002',  # warns about todo presence
+	'TD003',   # missing issue
+	'PT009',   # pytest
+	'PLR2004', # magic value in comparison
 	# 'RUF012', # mutable class attribute
 	# 'PTH123', # Path.open instead of open
+	'SIM102', # use single if
 
 	# re-enable later 
 	'G004', # logger use f-string

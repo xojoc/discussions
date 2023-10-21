@@ -15,17 +15,6 @@ files = [
 vine = ">=5.0.0"
 
 [[package]]
-name = "ansicon"
-version = "1.89.0"
-description = "Python wrapper for loading Jason Hood's ANSICON"
-optional = false
-python-versions = "*"
-files = [
-    {file = "ansicon-1.89.0-py2.py3-none-any.whl", hash = "sha256:f1def52d17f65c2c9682cf8370c03f541f410c1752d6a14029f97318e4b9dfec"},
-    {file = "ansicon-1.89.0.tar.gz", hash = "sha256:e4d039def5768a47e4afec8e89e83ec3ae5a26bf00ad851f914d1240b444d2b1"},
-]
-
-[[package]]
 name = "appnope"
 version = "0.1.3"
 description = "Disable App Nap on macOS >= 10.9"
@@ -196,47 +185,6 @@ files = [
     {file = "billiard-4.1.0-py3-none-any.whl", hash = "sha256:0f50d6be051c6b2b75bfbc8bfd85af195c5739c281d3f5b86a5640c65563614a"},
     {file = "billiard-4.1.0.tar.gz", hash = "sha256:1ad2eeae8e28053d729ba3373d34d9d6e210f6e4d8bf0a9c64f92bd053f1edf5"},
 ]
-
-[[package]]
-name = "blessed"
-version = "1.20.0"
-description = "Easy, practical library for making terminal apps, by providing an elegant, well-documented interface to Colors, Keyboard input, and screen Positioning capabilities."
-optional = false
-python-versions = ">=2.7"
-files = [
-    {file = "blessed-1.20.0-py2.py3-none-any.whl", hash = "sha256:0c542922586a265e699188e52d5f5ac5ec0dd517e5a1041d90d2bbf23f906058"},
-    {file = "blessed-1.20.0.tar.gz", hash = "sha256:2cdd67f8746e048f00df47a2880f4d6acbcdb399031b604e34ba8f71d5787680"},
-]
-
-[package.dependencies]
-jinxed = {version = ">=1.1.0", markers = "platform_system == \"Windows\""}
-six = ">=1.9.0"
-wcwidth = ">=0.1.4"
-
-[[package]]
-name = "bpython"
-version = "0.24"
-description = ""
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "bpython-0.24-py3-none-any.whl", hash = "sha256:0d196ae3d1ce3dcd559a3fb89ed2c468dfbd1504af0d680b906dd65a9c7a32eb"},
-    {file = "bpython-0.24.tar.gz", hash = "sha256:98736ffd7a8c48fd2bfb53d898a475f4241bde0b672125706af04d9d08fd3dbd"},
-]
-
-[package.dependencies]
-curtsies = ">=0.4.0"
-cwcwidth = "*"
-greenlet = "*"
-pygments = "*"
-pyxdg = "*"
-requests = "*"
-
-[package.extras]
-clipboard = ["pyperclip"]
-jedi = ["jedi (>=0.16)"]
-urwid = ["urwid"]
-watch = ["watchdog"]
 
 [[package]]
 name = "bs4"
@@ -414,17 +362,6 @@ files = [
 
 [package.dependencies]
 pycparser = "*"
-
-[[package]]
-name = "chardet"
-version = "5.2.0"
-description = "Universal encoding detector for Python 3"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "chardet-5.2.0-py3-none-any.whl", hash = "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970"},
-    {file = "chardet-5.2.0.tar.gz", hash = "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7"},
-]
 
 [[package]]
 name = "charset-normalizer"
@@ -841,66 +778,6 @@ test = ["pretend", "pytest (>=6.2.0)", "pytest-benchmark", "pytest-cov", "pytest
 test-randomorder = ["pytest-randomly"]
 
 [[package]]
-name = "curtsies"
-version = "0.4.2"
-description = "Curses-like terminal wrapper, with colored strings!"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "curtsies-0.4.2-py3-none-any.whl", hash = "sha256:f24d676a8c4711fb9edba1ab7e6134bc52305a222980b3b717bb303f5e94cec6"},
-    {file = "curtsies-0.4.2.tar.gz", hash = "sha256:6ebe33215bd7c92851a506049c720cca4cf5c192c1665c1d7a98a04c4702760e"},
-]
-
-[package.dependencies]
-blessed = ">=1.5"
-cwcwidth = "*"
-
-[[package]]
-name = "cwcwidth"
-version = "0.1.9"
-description = "Python bindings for wc(s)width"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "cwcwidth-0.1.9-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:704f0d6888aa5e81e76d9f76709385f9f55aca8c450ee82cc722054814a7791f"},
-    {file = "cwcwidth-0.1.9-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:0633158205b50f253ad04e301156807e309a9fb9479a520418e010da6df13604"},
-    {file = "cwcwidth-0.1.9-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6a5407d0933c3aab8ee92cffd9e4f09010f25af10ebdfa19776748402bba9261"},
-    {file = "cwcwidth-0.1.9-cp310-cp310-musllinux_1_1_i686.whl", hash = "sha256:72490e07dfbc599fdf6efe26a13cfbf725f0513b181c3386d65bfd84f6175924"},
-    {file = "cwcwidth-0.1.9-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:bf71151ae06e95f266bef91392c1562539b2eed847fd1f00f7b5b4ca3fd41a67"},
-    {file = "cwcwidth-0.1.9-cp310-cp310-win32.whl", hash = "sha256:3e3c186b5c171d85f2b7f093e7efb33fd9b6e55b791ff75a0f101b18ec0433cd"},
-    {file = "cwcwidth-0.1.9-cp310-cp310-win_amd64.whl", hash = "sha256:ae17e493ffc18497c2602f8f42a0d8e490ea42ab3ccfbe5e4a6069a6d24f3b36"},
-    {file = "cwcwidth-0.1.9-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:b1c3eb0a8c1b25c4a17b6b9bbf7d25ce9df3ea43b6f87903c51bc12434a2cc29"},
-    {file = "cwcwidth-0.1.9-cp311-cp311-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:6c8752815ce4e40e7b34b7fe039276a5fbfb1b077131614381b13ef3b7bb21ff"},
-    {file = "cwcwidth-0.1.9-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:368ace13080dbaacdc247370d8a965a749b124aa50d0b1b6eb87601826db870f"},
-    {file = "cwcwidth-0.1.9-cp311-cp311-musllinux_1_1_i686.whl", hash = "sha256:ca9a653661e152a426bdb51a272f36bc79f9830e6a7169abe8110ec367c3518c"},
-    {file = "cwcwidth-0.1.9-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:f96386cc29e6eef8ef066d7dd3c767c5119d66506dabea20dd344dabb3f2d225"},
-    {file = "cwcwidth-0.1.9-cp311-cp311-win32.whl", hash = "sha256:f6ba88970ec12fdbed5554beb1b9a25d8271fc3d0d9e60639db700a79bed1863"},
-    {file = "cwcwidth-0.1.9-cp311-cp311-win_amd64.whl", hash = "sha256:aa6725e7b3571fdf6ce7c02d1dd2d69e00d166bb6df44e46ab215067028b3a03"},
-    {file = "cwcwidth-0.1.9-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:42de102d5191fc68ef3ff6530f60c4895148ddc21aa0acaaf4612e5f7f0c38c4"},
-    {file = "cwcwidth-0.1.9-cp312-cp312-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:877e48c615b3fec88b7e640f9cf9d96704497657fb5aad2b7c0b0c59ecabff69"},
-    {file = "cwcwidth-0.1.9-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fdbaf0a8dad20eb685df11a195a2449fe230b08a5b356d036c8d7e59d4128a88"},
-    {file = "cwcwidth-0.1.9-cp312-cp312-musllinux_1_1_i686.whl", hash = "sha256:f6e0e023c4b127c47fd4c44cf537be209b9a28d8725f4f576f4d63744a23aa38"},
-    {file = "cwcwidth-0.1.9-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:b4f7d24236ce3c9d3b5e07fd75d232452f19bdddb6ae8bbfdcb97b6cb02835e8"},
-    {file = "cwcwidth-0.1.9-cp312-cp312-win32.whl", hash = "sha256:ba9da6c911bf108334426890bc9f57b839a38e1afc4383a41bd70adbce470db3"},
-    {file = "cwcwidth-0.1.9-cp312-cp312-win_amd64.whl", hash = "sha256:40466f16e85c338e8fc3eee87a8c9ca23416cc68b3049f68cb4cead5fb8b71b3"},
-    {file = "cwcwidth-0.1.9-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:167f59c3c1e1d8e231a1abd666af4e73dd8a94917efb6522e9b610ac4587903a"},
-    {file = "cwcwidth-0.1.9-cp38-cp38-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:afc745f18c9e3c38851a931c0c0a7e479d6494911ba1353f998d707f95a895b4"},
-    {file = "cwcwidth-0.1.9-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f8d55c47cbec4796e89cfedc89c52e6c4c2faeb77489a763415b9f76d8fc14db"},
-    {file = "cwcwidth-0.1.9-cp38-cp38-musllinux_1_1_i686.whl", hash = "sha256:c858842849ce2cfdf207095253da83831d9407771c8073f6b75f24d3faf1a1eb"},
-    {file = "cwcwidth-0.1.9-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:cc049ce273f32b632f5ead649b2120f8b2b78035d7b069fdc460c4be9affddb5"},
-    {file = "cwcwidth-0.1.9-cp38-cp38-win32.whl", hash = "sha256:1bafe978a5b7915848244a952829e3f8757c0cebef581c8250da6064c906c38c"},
-    {file = "cwcwidth-0.1.9-cp38-cp38-win_amd64.whl", hash = "sha256:024d1b21e6123bf30a849e60eea3482f556bbd00d39215f86c904e5bd81fc1b6"},
-    {file = "cwcwidth-0.1.9-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:7d367da5e6fb538388817bf5b2d6dd4db90e5e631d99c34055589d007b5c94bc"},
-    {file = "cwcwidth-0.1.9-cp39-cp39-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:ad721d9dbc14eafd06176e4f5594942336b1e813de2a5ab7bd64254393c5713f"},
-    {file = "cwcwidth-0.1.9-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:711ace9796cb6767ff29095ff5b0ec4619e7297854eb4b91ba99154590eddcc9"},
-    {file = "cwcwidth-0.1.9-cp39-cp39-musllinux_1_1_i686.whl", hash = "sha256:945615a7b8cdcbcd8e06d399f96a2b09440c3a4c5cb3c2d0109f00d80da27a12"},
-    {file = "cwcwidth-0.1.9-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:ffaf706abe400282f299463594d8887566e2a280cd0255110bd4397cc7be2910"},
-    {file = "cwcwidth-0.1.9-cp39-cp39-win32.whl", hash = "sha256:03093cac6f8e4326b1c30169e024fe2894f76c6ffddf6464e489bb33cb3a2897"},
-    {file = "cwcwidth-0.1.9-cp39-cp39-win_amd64.whl", hash = "sha256:0ddef2c504e6f4fd6122b46d55061f487add1ebb86596ae70ffc2a8b8955c8bc"},
-    {file = "cwcwidth-0.1.9.tar.gz", hash = "sha256:f19d11a0148d4a8cacd064c96e93bca8ce3415a186ae8204038f45e108db76b8"},
-]
-
-[[package]]
 name = "cycler"
 version = "0.12.1"
 description = "Composable style cycles"
@@ -982,23 +859,6 @@ files = [
     {file = "defusedxml-0.7.1-py2.py3-none-any.whl", hash = "sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61"},
     {file = "defusedxml-0.7.1.tar.gz", hash = "sha256:1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69"},
 ]
-
-[[package]]
-name = "deptry"
-version = "0.12.0"
-description = "A command line utility to check for unused, missing and transitive dependencies in a Python project."
-optional = false
-python-versions = ">=3.8,<4.0"
-files = [
-    {file = "deptry-0.12.0-py3-none-any.whl", hash = "sha256:69c801a6ae1b39c7b8e0daf40dbe8b75f1f161277d206dd8f921f32cd22dad91"},
-    {file = "deptry-0.12.0.tar.gz", hash = "sha256:ac3cd32d149c92a9af12f63cd9486ddd1760f0277ed0cf306c6ef0388f57ff0a"},
-]
-
-[package.dependencies]
-chardet = ">=4.0.0"
-click = ">=8.0.0,<9.0.0"
-colorama = {version = ">=0.4.6", markers = "sys_platform == \"win32\""}
-pathspec = ">=0.9.0"
 
 [[package]]
 name = "django"
@@ -1195,7 +1055,7 @@ files = [
 django = "*"
 django-stubs-ext = ">=4.2.5"
 mypy = [
-    {version = ">=1.0.0"},
+    {version = ">=1.0.0", optional = true, markers = "extra != \"compatible-mypy\""},
     {version = ">=1.6.0,<1.7.0", optional = true, markers = "extra == \"compatible-mypy\""},
 ]
 types-pytz = "*"
@@ -1579,25 +1439,6 @@ test = ["Pillow (>=9)", "cairocffi (>=1.2.0)", "matplotlib (>=3.6.0)", "networkx
 test-musl = ["cairocffi (>=1.2.0)", "networkx (>=2.5)", "pytest (>=7.0.1)", "pytest-timeout (>=2.1.0)"]
 
 [[package]]
-name = "importlib-metadata"
-version = "6.8.0"
-description = "Read metadata from Python packages"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "importlib_metadata-6.8.0-py3-none-any.whl", hash = "sha256:3ebb78df84a805d7698245025b975d9d67053cd94c79245ba4b3eb694abe68bb"},
-    {file = "importlib_metadata-6.8.0.tar.gz", hash = "sha256:dbace7892d8c0c4ac1ad096662232f831d4e64f4c4545bd53016a3e9d4654743"},
-]
-
-[package.dependencies]
-zipp = ">=0.5"
-
-[package.extras]
-docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
-perf = ["ipython"]
-testing = ["flufl.flake8", "importlib-resources (>=1.3)", "packaging", "pyfakefs", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-mypy (>=0.9.1)", "pytest-perf (>=0.9.2)", "pytest-ruff"]
-
-[[package]]
 name = "incremental"
 version = "22.10.0"
 description = "\"A small library that versions your Python projects.\""
@@ -1685,20 +1526,6 @@ MarkupSafe = ">=2.0"
 
 [package.extras]
 i18n = ["Babel (>=2.7)"]
-
-[[package]]
-name = "jinxed"
-version = "1.2.0"
-description = "Jinxed Terminal Library"
-optional = false
-python-versions = "*"
-files = [
-    {file = "jinxed-1.2.0-py2.py3-none-any.whl", hash = "sha256:cfc2b2e4e3b4326954d546ba6d6b9a7a796ddcb0aef8d03161d005177eb0d48b"},
-    {file = "jinxed-1.2.0.tar.gz", hash = "sha256:032acda92d5c57cd216033cbbd53de731e6ed50deb63eb4781336ca55f72cda5"},
-]
-
-[package.dependencies]
-ansicon = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
 name = "joblib"
@@ -2405,17 +2232,6 @@ qa = ["flake8 (==3.8.3)", "mypy (==0.782)"]
 testing = ["docopt", "pytest (<6.0.0)"]
 
 [[package]]
-name = "pathspec"
-version = "0.11.2"
-description = "Utility library for gitignore style pattern matching of file paths."
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "pathspec-0.11.2-py3-none-any.whl", hash = "sha256:1d6ed233af05e679efb96b1851550ea95bbb64b7c490b0f5aa52996c11e92a20"},
-    {file = "pathspec-0.11.2.tar.gz", hash = "sha256:e0d8d0ac2f12da61956eb2306b69f9469b42f4deb0f3cb6ed47b9cce9996ced3"},
-]
-
-[[package]]
 name = "pexpect"
 version = "4.8.0"
 description = "Pexpect allows easy control of interactive console applications."
@@ -2894,17 +2710,6 @@ python-versions = "*"
 files = [
     {file = "pytz-2023.3.post1-py2.py3-none-any.whl", hash = "sha256:ce42d816b81b68506614c11e8937d3aa9e41007ceb50bfdcb0749b921bf646c7"},
     {file = "pytz-2023.3.post1.tar.gz", hash = "sha256:7b4fddbeb94a1eba4b557da24f19fdf9db575192544270a9101d8509f9f43d7b"},
-]
-
-[[package]]
-name = "pyxdg"
-version = "0.28"
-description = "PyXDG contains implementations of freedesktop.org standards in python."
-optional = false
-python-versions = "*"
-files = [
-    {file = "pyxdg-0.28-py2.py3-none-any.whl", hash = "sha256:bdaf595999a0178ecea4052b7f4195569c1ff4d344567bccdc12dfdf02d545ab"},
-    {file = "pyxdg-0.28.tar.gz", hash = "sha256:3267bb3074e934df202af2ee0868575484108581e6f3cb006af1da35395e88b4"},
 ]
 
 [[package]]
@@ -3718,21 +3523,6 @@ files = [
 brotli = ["Brotli"]
 
 [[package]]
-name = "zipp"
-version = "3.17.0"
-description = "Backport of pathlib-compatible object wrapper for zip files"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "zipp-3.17.0-py3-none-any.whl", hash = "sha256:0e923e726174922dce09c53c59ad483ff7bbb8e572e00c7f7c46b88556409f31"},
-    {file = "zipp-3.17.0.tar.gz", hash = "sha256:84e64a1c28cf7e91ed2078bb8cc8c259cb19b76942096c8d7b84947690cabaf0"},
-]
-
-[package.extras]
-docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (<7.2.5)", "sphinx (>=3.5)", "sphinx-lint"]
-testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
-
-[[package]]
 name = "zope-event"
 version = "5.0"
 description = "Very basic event publishing system"
@@ -3864,4 +3654,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "b57ae1b21cea0cc5f5dd398f2b5056d2de14d54ef86ff16e107341fe613bf3e6"
+content-hash = "8d98748fef7e4902b0fa2b156d95e41f0d93b110f9b574d99f6f7cdce7ef731b"

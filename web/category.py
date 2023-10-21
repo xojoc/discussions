@@ -1,62 +1,130 @@
 # Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import logging
+from typing import Self
 
 import urllib3
+from django.db.models import IntegerChoices
+
+from web.platform import Platform
+from web.tags import normalize as normalize_tags
+from web.title import normalize as normalize_title
 
 logger = logging.getLogger(__name__)
 
-categories = {
-    "article": {
-        "name": "Articles",
-        "sort": 10,
-    },
-    "askplatform": {
-        "name": "Ask",
-        "sort": 15,
-    },
-    "tellplatform": {
-        "name": "Tell",
-        "sort": 17,
-    },
-    "release": {
-        "name": "Releases",
-        "sort": 20,
-    },
-    "project": {
-        "name": "Projects",
-        "sort": 30,
-    },
-    "video": {
-        "name": "Videos",
-        "sort": 40,
-    },
-}
+
+class Category(IntegerChoices):
+    ARTICLE = 0, "Article"
+    ASK_PLATFORM = 1, "Ask"
+    TELL_PLATFORM = 2, "Tell"
+    RELEASE = 3, "Release"
+    PROJECT = 4, "Project"
+    VIDEO = 5, "Video"
+
+    @property
+    def plural(self) -> str:
+        match self:
+            case self.ARTICLE:
+                return "Articles"
+            case self.ASK_PLATFORM | self.TELL_PLATFORM:
+                return self.label
+            case self.RELEASE:
+                return "Releases"
+            case self.PROJECT:
+                return "Projects"
+            case self.VIDEO:
+                return "Videos"
+
+    @property
+    def order(self) -> int:
+        match self:
+            case self.ARTICLE:
+                return 10
+            case self.ASK_PLATFORM:
+                return 20
+            case self.TELL_PLATFORM:
+                return 30
+            case self.RELEASE:
+                return 40
+            case self.PROJECT:
+                return 50
+            case self.VIDEO:
+                return 60
+
+    def name_platform(self, platform: Platform) -> str:
+        if platform == Platform.HACKER_NEWS:
+            if self in (Category.TELL_PLATFORM, Category.ASK_PLATFORM):
+                return f"{self.label} HN"
+
+        return self.label
+
+    @classmethod
+    def derive(
+        cls,
+        title: str,
+        url: str,
+        story_tags: list[str],
+        platform: Platform,
+    ) -> Self:
+        u = None
+        try:
+            u = urllib3.util.parse_url(url)
+        except ValueError:
+            logger.warning("category: url parsing failed")
+
+        path, host = "", ""
+        if u:
+            path = (u.path or "").strip()
+            host = (u.host or "").strip()
+
+        path_components = [p for p in path.split("/") if p]
+
+        tags = set(normalize_tags(story_tags, platform, title, url))
+        title_tokens = normalize_title(title, platform, url, tags).split()
+
+        for f in derive_functions:
+            cat = f(platform, title_tokens, host, path_components, tags)
+            if cat:
+                return cat
+
+        if (
+            platform == Platform.HACKER_NEWS
+            and not url
+            and title.endswith("?")
+        ):
+            return Category.ASK_PLATFORM
+
+        return Category.ARTICLE
 
 
-def derive(story):
-    u = None
-    try:
-        u = urllib3.util.parse_url(story.canonical_story_url)
-    except ValueError:
-        logger.warning("category: url parsing failed", exc_info=True)
-
-    path, host = "", ""
-    if u:
-        path = u.path or ""
-        host = u.host or ""
-
-    title = (story.title or "").lower().strip()
-    title_tokens = (story.normalized_title or "").split()
-
-    if "programming" in story.normalized_tags and (
+def __derive_release(
+    platform: Platform,
+    title_tokens: list[str],
+    host: str,
+    path_components: list[str],
+    tags: set[str],
+) -> Category | None:
+    _ = platform
+    _ = host
+    _ = path_components
+    if "programming" in tags and (
         "release" in title_tokens or "released" in title_tokens
     ):
-        return "release"
-    if "release" in story.normalized_tags:
-        return "release"
+        return Category.RELEASE
+    if "release" in tags:
+        return Category.RELEASE
+    return None
 
-    parts = [p for p in path.split("/") if p]
 
+def __derive_project(
+    platform: Platform,
+    title_tokens: list[str],
+    host: str,
+    path_components: list[str],
+    tags: set[str],
+) -> Category | None:
+    _ = platform
+    _ = title_tokens
+    _ = tags
     if (
         host
         in (
@@ -65,48 +133,82 @@ def derive(story):
             "bitbucket.org",
             "gitea.com",
         )
-        and len(parts) == 2
+        and len(path_components) == 2
     ):
-        return "project"
+        return Category.PROJECT
 
-    if host in ("sr.ht") and len(parts) == 2 and parts[0][0] == "~":
-        return "project"
-
-    if host in ("savannah.gnu.org", "savannah.nongnu.org") and path.startswith(
-        "/projects/",
+    if (
+        host in ("sr.ht")
+        and len(path_components) == 2
+        and path_components[0][0] == "~"
     ):
-        return "project"
+        return Category.PROJECT
 
-    if host in ("crates.io") and path.startswith("/crates/"):
-        return "project"
+    if host in ("savannah.gnu.org", "savannah.nongnu.org") and (
+        len(path_components) > 1 and path_components[0] == "projects"
+    ):
+        return Category.PROJECT
 
-    if host in ("docs.rs") and len(parts) == 1:
-        return "project"
+    if host in ("crates.io") and (
+        len(path_components) > 1 and path_components[0] == "/crates/"
+    ):
+        return Category.PROJECT
 
+    if host in ("docs.rs") and len(path_components) == 1:
+        return Category.PROJECT
+
+    return None
+
+
+def __derive_video(
+    platform: Platform,
+    title_tokens: list[str],
+    host: str,
+    path_components: list[str],
+    tags: set[str],
+) -> Category | None:
+    _ = platform
+    _ = title_tokens
+    _ = path_components
+    _ = tags
     # TODO: look for parameters too
     if host in ("youtu.be", "youtube.com", "vimeo.com"):
-        return "video"
+        return Category.VIDEO
+
+    return None
+
+
+def __derive_ask_tell(
+    platform: Platform,
+    title_tokens: list[str],
+    host: str,
+    path_components: list[str],
+    tags: set[str],
+) -> Category | None:
+    _ = path_components
+    _ = tags
+    if (
+        platform == Platform.HACKER_NEWS
+        and len(title_tokens) >= 2
+        and (
+            title_tokens[:2] == ["ask", "hn"] or title_tokens[-1].endswith("?")
+        )
+        and not host
+    ):
+        return Category.ASK_PLATFORM
 
     if (
-        story.platform == "h"
-        and (title.startswith("ask hn") or title.endswith("?"))
-        and not story.story_url
+        platform == Platform.HACKER_NEWS
+        and title_tokens[:2] == ["tell", "hn"]
+        and not host
     ):
-        return "askplatform"
-
-    if (
-        story.platform == "h"
-        and title.startswith("tell hn")
-        and not story.story_url
-    ):
-        return "tellplatform"
-
-    return "article"
+        return Category.TELL_PLATFORM
+    return None
 
 
-def name(cat, platform=None):
-    if platform == "h" and cat == "askplatform":
-        return "Ask HN"
-    if platform == "h" and cat == "tellplatform":
-        return "Tell HN"
-    return categories[cat].get("name")
+derive_functions = [
+    __derive_release,
+    __derive_project,
+    __derive_video,
+    __derive_ask_tell,
+]

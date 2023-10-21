@@ -226,7 +226,7 @@ def __topic_zig(tags, title, url, platform):
         url
         and "zig" in title
         and (
-            "ziglang.org" in url.hostname
+            "ziglang.org" in (url.hostname or "")
             or (
                 url.hostname == "github.com"
                 and (url.path or "").startswith("/ziglang")

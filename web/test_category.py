@@ -1,10 +1,12 @@
 # Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
-from django.test import TestCase
 
-from web import category, models
+import unittest
+
+from web import models
+from web.category import Category
 
 
-class Category(TestCase):
+class UnitCategory(unittest.TestCase):
     def test_normalization(self):
         def d(platform, title, tags, url):
             s = models.Discussion(
@@ -15,45 +17,45 @@ class Category(TestCase):
                 tags=tags,
             )
             s.pre_save()
-            return category.derive(s)
+            return s.category
 
         tests = [
             ("h", "discueu released", ["programming"], "discu.eu"),
-            "release",
+            Category.RELEASE,
             (
                 "r",
                 "A minimalist video sharing application.",
                 ["programming"],
                 "sr.ht/~thecashewtrader/minv/",
             ),
-            "project",
+            Category.PROJECT,
             ("l", "Games2d", ["programming"], "github.com/xojoc/games2d/"),
-            "project",
+            Category.PROJECT,
             (
                 "l",
                 "Games2d",
                 ["programming"],
                 "github.com/xojoc/games2d/issues",
             ),
-            "article",
+            Category.ARTICLE,
             ("h", "devops", ["devops"], "dev.tube/video/oX8af9kLhlk"),
-            "video",
+            Category.VIDEO,
             ("h", "Is this a question?", [], ""),
-            "askplatform",
+            Category.ASK_PLATFORM,
             (
                 "h",
                 "Ask HN: Developers in rural locations: Do you feel you are missing out?",
                 [],
                 "",
             ),
-            "askplatform",
+            Category.ASK_PLATFORM,
             (
                 "h",
                 "Tell HN: important point",
                 [],
                 "",
             ),
-            "tellplatform",
+            Category.TELL_PLATFORM,
         ]
 
         for u, r in zip(tests[0::2], tests[1::2], strict=True):

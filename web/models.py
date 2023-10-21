@@ -30,10 +30,10 @@ from django_stubs_ext.db.models import TypedModelMeta
 from typing_extensions import override
 
 from web import api_statistics
+from web.category import Category
 from web.platform import Platform
 
 from . import (
-    category,
     email_util,
     extract,
     mastodon,
@@ -122,7 +122,7 @@ class Discussion(models.Model):
         blank=True,
     )
 
-    category = models.TextField(blank=True)
+    _category = models.IntegerField(default=Category.ARTICLE.value)
 
     archived = models.BooleanField(default=False)
 
@@ -219,11 +219,20 @@ class Discussion(models.Model):
 
         self.normalized_tags = sorted(self.normalized_tags or [])
 
-        self.category = category.derive(self)
+        self._category = Category.derive(
+            self.title,
+            self.canonical_story_url or "",
+            self.normalized_tags,
+            self.platform,
+        ).value
 
     @property
     def platform(self):
         return Platform(self._platform)
+
+    @property
+    def category(self):
+        return Category(self._category)
 
     @property
     def story_url(self):
