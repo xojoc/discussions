@@ -19,12 +19,7 @@ logger = logging.getLogger(__name__)
 def __sleep(a, b):
     if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         return
-    time.sleep(random.randint(a, b))
-
-
-def __print(s):
-    if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
-        print(s)
+    time.sleep(random.randint(a, b))  # noqa: S311
 
 
 def profile_url(account):
@@ -32,9 +27,9 @@ def profile_url(account):
     return f"https://{parts[2]}/@{parts[1]}"
 
 
-def post(status, username, post_from_dev=False):
+def post(status, username, *, post_from_dev=False):
     account = topics.get_account_configuration("mastodon", username)
-    access_token = account.get("token")
+    access_token = account.get("token") if account else None
 
     if not access_token:
         logger.warning(f"Mastodon bot: {username} non properly configured")
@@ -43,9 +38,9 @@ def post(status, username, post_from_dev=False):
     if not post_from_dev:
         if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
             random.seed()
-            print(username)
-            print(status)
-            return random.randint(1, 1_000_000)
+            logger.debug(username)
+            logger.debug(status)
+            return random.randint(1, 1_000_000)  # noqa: S311
 
     client = http.client(with_cache=False)
 
@@ -56,16 +51,15 @@ def post(status, username, post_from_dev=False):
     r = client.post(api_url, data=parameters, headers=auth)
     if r.ok:
         return int(r.json()["id"])
-    else:
-        logger.error(
-            f"mastodon post: {username}: {r.status_code} {r.reason}\n{status}",
-        )
-        return None
+    logger.error(
+        f"mastodon post: {username}: {r.status_code} {r.reason}\n{status}",
+    )
+    return None
 
 
 def repost(post_id, username):
     account = topics.get_account_configuration("mastodon", username)
-    access_token = account.get("token")
+    access_token = account.get("token") if account else None
 
     if not access_token:
         logger.warning(f"Mastodon bot: {username} non properly configured")
@@ -73,8 +67,8 @@ def repost(post_id, username):
 
     if os.getenv("DJANGO_DEVELOPMENT", "").lower() == "true":
         random.seed()
-        print(username)
-        print(post_id)
+        logger.debug(username)
+        logger.debug(post_id)
         return post_id
 
     client = http.client(with_cache=False)
@@ -87,11 +81,10 @@ def repost(post_id, username):
     r = client.post(api_url, data=parameters, headers=auth)
     if r.ok:
         return post_id
-    else:
-        logger.error(
-            f"mastodon post: {username}: {r.status_code} {r.reason} {post_id}",
-        )
-        return None
+    logger.error(
+        f"mastodon post: {username}: {r.status_code} {r.reason} {post_id}",
+    )
+    return None
 
 
 def build_hashtags(tags):
@@ -105,7 +98,7 @@ def build_story_post(title=None, url=None, tags=None, author=None, story=None):
 
     if url is None:
         if not title:
-            title = story.title
+            title = story.title if story else ""
         status = f"""
 
 {story.discussion_url}
@@ -129,7 +122,7 @@ Discussions: {discussions_url}
     elif author and author.mastodon_site:
         status += f"\n\nvia @{author.mastodon_site}"
 
-    title = unicodedata.normalize("NFC", title)
+    title = unicodedata.normalize("NFC", title or "")
     title = "".join(c for c in title if c.isprintable())
     title = " ".join(title.split())
     status = unicodedata.normalize("NFC", status)
@@ -160,8 +153,8 @@ def post_story_topic(story, tags, topic, existing_toot):
         else:
             post_id = post(status, bot_name)
     except Exception as e:
-        logger.error(f"mastodon: post: {bot_name}: {e}: {status}: {post_id=}")
-        sentry_sdk.capture_exception(e)
+        logger.exception(f"mastodon: post: {bot_name}: {status}: {post_id=}")
+        _ = sentry_sdk.capture_exception(e)
         __sleep(13, 27)
         raise
 
@@ -290,8 +283,8 @@ def post_discussions_scheduled(filter_topic=None):
                     1,
                     timeout=60 * 60 * 5,
                 )
-                logger.error(f"mastodon: {story.platform_id}: {e}")
-                sentry_sdk.capture_exception(e)
+                logger.exception(f"mastodon: {story.platform_id}")
+                _ = sentry_sdk.capture_exception(e)
                 continue
 
             logger.debug(f"mastodon {topic_key} {post_id} {existing_post}")
@@ -315,37 +308,3 @@ def post_discussions_scheduled(filter_topic=None):
 
             if post_id:
                 break
-
-
-def get_followers_count(usernames):
-    cache_timeout = 24 * 60 * 60
-    followers_count = {}
-
-    access_token = os.getenv("MASTODON_DISCUSSIONS_ACCESS_TOKEN")
-
-    client = http.client(with_cache=False)
-
-    api_url = "https://mastodon.social/api/v2/search"
-    auth = {"Authorization": f"Bearer {access_token}"}
-    parameters = {"limit": 5, "resolve": True, "type": "accounts"}
-
-    for username in usernames:
-        key = f"mastodon:followers:{username}"
-        fc = cache.get(key)
-        if fc:
-            followers_count[username] = fc
-        else:
-            parameters["q"] = username
-            res = client.get(api_url, params=parameters, headers=auth)
-
-            if not res.ok:
-                continue
-
-            for user in res.json()["accounts"]:
-                if user["username"].lower() != username:
-                    continue
-
-                followers_count[username] = user["followers_count"]
-                cache.set(key, user["followers_count"], cache_timeout)
-
-    return followers_count

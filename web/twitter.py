@@ -13,6 +13,7 @@ import tweepy.errors
 from celery import shared_task
 from django.core.cache import cache
 from django.utils import timezone
+from typing_extensions import override
 
 from . import celery_util, extract, models, topics, util
 
@@ -383,10 +384,10 @@ def client():
 
 
 class IDPrinter(tweepy.StreamingClient):
+    @override
     def on_tweet(self, tweet):
         logger.debug(tweet.id)
         logger.debug(tweet.text)
-        logger.debug()
 
 
 def __build_twitter_rule():
@@ -409,7 +410,7 @@ def __build_twitter_rule():
     return r
 
 
-def stream(reset_filters=False):
+def stream(*, reset_filters=False):
     printer = IDPrinter(
         os.getenv("TWITTER_BEARER_TOKEN"),
         wait_on_rate_limit=True,
@@ -427,19 +428,15 @@ def stream(reset_filters=False):
     _ = printer.filter(tweet_fields="id,text,created_at,entities")
 
 
-def print_details(id):
+def print_details(tweet_id):
+    logger.debug(tweet_id)
     c = client()
-    t = c.get_tweet(id, tweet_fields="context_annotations,entities")
-    logger.debug(id)
+    t = c.get_tweet(tweet_id, tweet_fields="context_annotations,entities")
     if not t.data:
         return
     for ca in t.data.context_annotations:
         logger.debug(f"{ca['domain']['id']} - {ca['domain']['name']}")
         logger.debug(f"{ca['entity']['id']} - {ca['entity']['name']}")
-
-
-def process_item(tweet):
-    return
 
 
 def fetch_all_tweets():

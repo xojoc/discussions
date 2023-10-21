@@ -16,7 +16,6 @@ from web import (
     echojs,
     email_util,
     hn,
-    indexnow,
     lobsters,
     ltu,
     mastodon,
@@ -42,7 +41,6 @@ _ = discussions
 _ = echojs
 _ = email_util
 _ = hn
-_ = indexnow
 _ = lobsters
 _ = ltu
 _ = mastodon
@@ -95,7 +93,10 @@ def celery_task_failure_email(
 
 
 @task_internal_error.connect()
-def celery_internal_error_email(sender: celery.Task, **kwargs: Any):
+def celery_internal_error_email(
+    sender: celery.Task,
+    **kwargs: Any,
+) -> None:
     _ = sender
     tb = kwargs.get("traceback")
     while tb and tb.tb_next:
@@ -121,4 +122,5 @@ def celery_explicit_error():
     """Cause an error to test the `task_failure` signal"""
     local_error = "I'am local"
     _ = local_error
-    raise ValueError("testing the `task_failure` signal")
+    msg = "testing the `task_failure` signal"
+    raise ValueError(msg)

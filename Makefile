@@ -61,10 +61,8 @@ shell:
 	poetry run python manage.py shell
 
 lint:
-	# @poetry run deptry .
 	# @poetry run pyright .
-	# @poetry run ruff check . | tac
-	# @poetry run flake8 --extend-ignore E501,E741,E203 | tac
+	@poetry run ruff check . | tac
 	# @poetry run mypy --install-types --non-interactive .
 
 test:

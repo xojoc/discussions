@@ -55,7 +55,7 @@ class Category(IntegerChoices):
             if self in (Category.TELL_PLATFORM, Category.ASK_PLATFORM):
                 return f"{self.label} HN"
 
-        return self.label
+        return self.plural
 
     @classmethod
     def derive(

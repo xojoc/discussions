@@ -543,7 +543,12 @@ def worker_send_weekly_email(self):
     year = six_days_ago.isocalendar().year
     week = six_days_ago.isocalendar().week
 
-    logger.info("Weekly email: %s/%s: topics: %s", week, year, topics.topics)
+    logger.info(
+        "Weekly email: %s/%s: topics: %s",
+        week,
+        year,
+        topics.topics.keys(),
+    )
     for topic in topics.topics:
         send_mass_email(topic, year, week, testing=False)
 

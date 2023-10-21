@@ -61,7 +61,7 @@ from web_discussion_quartile
 where
 score_quartile = 100
 order by platform, score desc, comment_count desc
-""",
+""",  # noqa: S608
         {"tags": tags, "platform": platform, "category": category},
     )
 

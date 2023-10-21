@@ -8,18 +8,19 @@ import re
 import shutil
 import statistics
 import time
+from pathlib import Path
 
 import cleanurl
 import markdown
 import praw
+import praw.exceptions
+import praw.models
 import prawcore
 import sentry_sdk
 import zstandard
 from celery import shared_task
 from django.conf import settings
 from django.core.cache import cache
-from django.db import IntegrityError
-from django.utils.timezone import make_aware
 from django_redis import get_redis_connection
 
 from discussions.settings import APP_CELERY_TASK_MAX_TIME
@@ -207,30 +208,28 @@ def __process_archive_line(line):
 
     created_at = None
     if p.get("created_utc"):
-        created_at = datetime.datetime.fromtimestamp(int(p.get("created_utc")))
-        created_at = make_aware(created_at)
+        created_at = datetime.datetime.fromtimestamp(
+            int(p.get("created_utc")),
+            tz=datetime.UTC,
+        )
 
     subreddit = p.get("subreddit") or ""
     if not subreddit:
         logger.warning(f"Reddi archive: no subreddit {platform_id}")
         return
 
-    try:
-        models.Discussion.objects.create(
-            platform_id=platform_id,
-            comment_count=p.get("num_comments") or 0,
-            score=p.get("score") or 0,
-            created_at=created_at,
-            scheme_of_story_url=scheme,
-            schemeless_story_url=story_url,
-            title=p.get("title"),
-            tags=[subreddit.lower()],
-        )
-    except IntegrityError:
-        pass
-    except Exception as e:
-        logger.warning(f"Reddit archive: {e}")
-        return
+    _ = models.Discussion.objects.update_or_create(
+        pk=platform_id,
+        defaults={
+            "comment_count": p.get("num_comments") or 0,
+            "score": p.get("score") or 0,
+            "created_at": created_at,
+            "scheme_of_story_url": scheme,
+            "schemeless_story_url": story_url,
+            "title": p.get("title"),
+            "tags": [subreddit.lower()],
+        },
+    )
 
 
 def __get_reddit_archive_links(client, starting_from=None):
@@ -273,17 +272,16 @@ def worker_fetch_reddit_archive(self):
 
         logger.info(f"reddit archive: processing {file}")
 
-        file_name = "/tmp/discussions_reddit_archive_compressed"
+        file_name = "/tmp/discussions_reddit_archive_compressed"  # noqa: S108
 
-        if not os.path.isfile(file_name):
-            cache.delete(f"{cache_prefix}:downloaded:{file}")
+        if not Path(file_name).is_file():
+            _ = cache.delete(f"{cache_prefix}:downloaded:{file}")
 
         if not cache.get(f"{cache_prefix}:downloaded:{file}"):
             with client.get(file, stream=True) as res:
                 logger.debug(f"reddit archive: start download {file}")
-                f = open(file_name, "wb")
-                shutil.copyfileobj(res.raw, f)
-                f.close()
+                with Path(file_name).open("wb") as f:
+                    shutil.copyfileobj(res.raw, f)
                 logger.debug(f"reddit archive: end download {file}")
                 cache.set(
                     f"{cache_prefix}:downloaded:{file}",
@@ -291,7 +289,7 @@ def worker_fetch_reddit_archive(self):
                     timeout=cache_timeout,
                 )
 
-        f = open(file_name, "rb")
+        f = Path(file_name).open("rb")  # noqa: SIM115
 
         stream = zstandard.ZstdDecompressor(
             max_window_size=2**31,
@@ -313,12 +311,16 @@ def worker_fetch_reddit_archive(self):
             c += 1
             try:
                 __process_archive_line(line)
-            except Exception as e:
-                logger.info(f"reddit archive: line failed: {e}\n\n{line}")
+            except Exception:  # noqa: BLE001
+                logger.info(
+                    "reddit archive: line failed: \n\n %s",
+                    line,
+                    exc_info=True,
+                )
 
         stream.close()
         f.close()
-        os.remove(file_name)
+        Path(file_name).unlink()
 
         if not graceful_exit:
             cache.set(
@@ -330,11 +332,11 @@ def worker_fetch_reddit_archive(self):
         time.sleep(5)
 
 
-class EndOfSubreddits(Exception):
+class EndOfSubreddits(Exception):  # noqa: N818
     pass
 
 
-def client(with_cache=False, with_retries=True, username=None, password=None):
+def client(username=None, password=None):
     return praw.Reddit(
         client_id=settings.REDDIT_CLIENT_ID,
         client_secret=settings.REDDIT_CLIENT_SECRET,
@@ -346,10 +348,8 @@ def client(with_cache=False, with_retries=True, username=None, password=None):
     )
 
 
-def client_username(with_cache=False, with_retries=True):
+def client_username():
     return client(
-        with_cache,
-        with_retries,
         os.getenv("REDDIT_USERNAME"),
         os.getenv("REDDIT_PASSWORD"),
     )
@@ -359,7 +359,7 @@ def submit(subreddit, title, url=None, selftext=None, c=None):
     if not c:
         c = client_username()
 
-    print(c.user.me())
+    logger.debug(c.user.me())
 
     sub = c.subreddit(subreddit)
 
@@ -371,8 +371,8 @@ def submit(subreddit, title, url=None, selftext=None, c=None):
             selftext=selftext,
             resubmit=False,
         )
-    except Exception as e:
-        logger.error(f"Reddit submit: {e}")
+    except praw.exceptions.PRAWException:
+        logger.exception("Reddit submit")
 
     return story
 
@@ -387,16 +387,16 @@ def get_subreddit(
     subreddit = subreddit.lower()
 
     stories = set()
-    list = None
+    story_list = []
     if listing == "new":
-        list = reddit_client.subreddit(subreddit).new(limit=limit)
+        story_list = reddit_client.subreddit(subreddit).new(limit=limit)
     if listing == "top":
-        list = reddit_client.subreddit(subreddit).top(
+        story_list = reddit_client.subreddit(subreddit).top(
             listing_argument,
             limit=limit,
         )
 
-    for story in list:
+    for story in story_list:
         stories.add(story)
 
     return stories
@@ -438,10 +438,9 @@ def __process_post(p):
         return
 
     created_utc = p.created_utc
-    if type(created_utc) == str:
+    if isinstance(created_utc, str):
         created_utc = int(created_utc)
-    created_at = datetime.datetime.fromtimestamp(created_utc)
-    created_at = make_aware(created_at)
+    created_at = datetime.datetime.fromtimestamp(created_utc, tz=datetime.UTC)
 
     subreddit = p.subreddit.display_name.lower()
 
@@ -470,7 +469,11 @@ def __process_post(p):
         ).save()
 
 
-def search_url(url: str, c=None, sub=None):
+def search_url(
+    url: str,
+    c: praw.Reddit | None = None,
+    sub: praw.models.Subreddit | None = None,
+) -> None:
     if not url:
         return
     if not c:
@@ -480,13 +483,12 @@ def search_url(url: str, c=None, sub=None):
 
     submissions = sub.search(f'url:"{url}"')
     for s in submissions:
-        c += 1
         __process_post(s)
 
 
-def search_urls(url_pattern: str):
+def search_urls(url_pattern: str) -> None:
     reddit = client()
-    all = reddit.subreddit("all")
+    subreddit_all = reddit.subreddit("all")
     urls = (
         models.Discussion.objects.filter(
             schemeless_story_url__icontains=url_pattern,
@@ -495,16 +497,16 @@ def search_urls(url_pattern: str):
         .distinct()
     )
 
-    print(f"reddit search urls: count {urls.count()}")
+    logger.debug(f"reddit search urls: count {urls.count()}")
 
     c = 0
     for url in urls:
         u = url.get("schemeless_story_url")
         if not u:
             continue
-        search_url(u, reddit, all)
+        search_url(u, reddit, subreddit_all)
 
-    print(f"reddit search submissions: count {c}")
+    logger.debug(f"reddit search submissions: count {c}")
 
 
 def fetch_discussions(index):
@@ -525,8 +527,8 @@ def fetch_discussions(index):
 
         try:
             stories = get_subreddit(name, reddit)
-        except Exception as e:
-            logger.warning(f"reddit: subreddit {name}: {e}")
+        except praw.exceptions.PRAWException:
+            logger.warning("reddit: subreddit %s", name, exc_info=True)
             cache.set(skip_sub_key_prefix + name, 1, timeout=60 * 60 * 8)
             continue
 
@@ -573,7 +575,7 @@ def fetch_recent_discussions():
     redis_prefix = "discussions:fetch_recent_reddit_discussions:"
     current_index = int(r.get(redis_prefix + "current_index") or 0)
     max_index = int(r.get(redis_prefix + "max_index") or 0)
-    if current_index is None or not max_index or (current_index > max_index):
+    if not max_index or (current_index > max_index):
         max_index = len(subreddit_whitelist)
         r.set(redis_prefix + "max_index", max_index)
         current_index = 0
@@ -618,12 +620,12 @@ def worker_update_all_discussions(self):
 
         for d in q[current_index: current_index + step]:
             if d.subreddit.lower() in subreddit_blacklist:
-                d.delete()
+                _ = d.delete()
                 continue
             if _url_blacklisted(
                 d.canonical_story_url or d.schemeless_story_url,
             ):
-                d.delete()
+                _ = d.delete()
                 continue
 
             query_has_results = True
@@ -641,10 +643,10 @@ def worker_update_all_discussions(self):
         try:
             submissions = reddit.info(ps)
             for s in submissions:
-                s.title  # preload
-        except Exception as e:
-            logger.error(f"reddit update all: reddit.info: {e}")
-            sentry_sdk.capture_exception(e)
+                _ = s.title  # preload
+        except praw.exceptions.PRAWException as e:
+            logger.exception("reddit update all: reddit.info")
+            _ = sentry_sdk.capture_exception(e)
             submissions = []
 
         for i, p in enumerate(submissions):

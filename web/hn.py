@@ -154,28 +154,28 @@ def __process_item(platform, item, redis=None, skip_timeout=0):
         )
 
 
-def __fetch_item(platform, id, client=None):
+def __fetch_item(platform, item_id, client=None):
     if not client:
         client = http.client(with_cache=False)
 
-    if cache.get(__cache_skip_prefix(platform) + str(id)):
+    if cache.get(__cache_skip_prefix(platform) + str(item_id)):
         return None
 
     bu = __base_url(platform)
 
     try:
-        return client.get(f"{bu}/v0/item/{id}.json", timeout=11.05).json()
+        return client.get(f"{bu}/v0/item/{item_id}.json", timeout=11.05).json()
     except requests.exceptions.RequestException:
         time.sleep(3)
         logger.warning("fetch_item", exc_info=True)
         return None
 
 
-def __fetch_process_item(platform, id, client, redis, skip_timeout=0):
-    if redis.sismember(__redis_comment_set_key(platform), id):
+def __fetch_process_item(platform, item_id, client, redis, skip_timeout=0):
+    if redis.sismember(__redis_comment_set_key(platform), item_id):
         return
 
-    item = __fetch_item(platform, id, client=client)
+    item = __fetch_item(platform, item_id, client=client)
     if item:
         __process_item(platform, item, redis=redis, skip_timeout=skip_timeout)
         t = 1
@@ -215,14 +215,14 @@ def __worker_fetch(task, platform):
                 f"{bu}/v0/topstories.json",
                 timeout=7.05,
             ).json()
-            for i, id in enumerate(top_stories[:200]):
-                queue.append((id, i))
+            for i, item_id in enumerate(top_stories[:200]):
+                queue.append((item_id, i))
             new_stories = client.get(
                 f"{bu}/v0/newstories.json",
                 timeout=7.05,
             ).json()
-            for i, id in enumerate(new_stories[:200]):
-                queue.append((id, i))
+            for i, item_id in enumerate(new_stories[:200]):
+                queue.append((item_id, i))
 
             if queue_loops_c > queue_max_loops:
                 skip_timeout_weight += 1
@@ -243,14 +243,20 @@ def __worker_fetch(task, platform):
 
         end = time.monotonic() + 60
         while time.monotonic() < end and queue:
-            (id, nth) = queue.pop(0)
-            logger.debug(f"hn {platform} fetch: {id}, {nth}")
+            (item_id, nth) = queue.pop(0)
+            logger.debug(f"hn {platform} fetch: {item_id}, {nth}")
 
             skip_timeout = 0
             if queue_loops_c > queue_max_loops:
                 skip_timeout = 60 * (nth / 10 + skip_timeout_weight)
 
-            __fetch_process_item(platform, id, client, redis, skip_timeout)
+            __fetch_process_item(
+                platform,
+                item_id,
+                client,
+                redis,
+                skip_timeout,
+            )
 
         if worker.graceful_exit(task):
             logger.info(f"hn {platform} fetch: graceful exit")
@@ -284,7 +290,7 @@ def worker_fetch_laarc(self):
     __worker_fetch(self, "a")
 
 
-def submit_story(title, url, submit_from_dev=False):
+def submit_story(title, url, *, submit_from_dev=False):
     user = os.getenv("HN_USERNAME")
     password = os.getenv("HN_PASSWORD")
 
@@ -295,7 +301,7 @@ def submit_story(title, url, submit_from_dev=False):
             return True
 
     c = http.client()
-    c.post(
+    _ = c.post(
         "https://news.ycombinator.com/login",
         data={
             "acct": user,
@@ -312,7 +318,7 @@ def submit_story(title, url, submit_from_dev=False):
     csrf_token = h.select_one("input[name=fnid]")["value"]
 
     time.sleep(2)
-    print(url)
+    logger.debug(url)
     post_response = c.post(
         "https://news.ycombinator.com/r",
         data={
@@ -332,7 +338,7 @@ def submit_story(title, url, submit_from_dev=False):
     return True
 
 
-def submit_comment(post_id, comment, submit_from_dev=False):
+def submit_comment(post_id, comment, *, submit_from_dev=False):
     user = os.getenv("HN_USERNAME")
     password = os.getenv("HN_PASSWORD")
 
@@ -343,7 +349,7 @@ def submit_comment(post_id, comment, submit_from_dev=False):
             return True
 
     c = http.client()
-    c.post(
+    _ = c.post(
         "https://news.ycombinator.com/login",
         data={
             "acct": user,
@@ -570,7 +576,10 @@ def _submit_previous_discussions():
             platform_id=story.platform_id,
         )
 
-        related_discussions.order_by("-created_at", "-comment_count")
+        related_discussions = related_discussions.order_by(
+            "-created_at",
+            "-comment_count",
+        )
 
         total_comment_count = 0
         total_score = 0
@@ -609,7 +618,7 @@ def _submit_previous_discussions():
 
         logger.info(f"hn prev submit: submit {story}")
 
-        archiveis.capture.delay(story.story_url)
+        _ = archiveis.capture.delay(story.story_url)
 
         ok = submit_comment(story.id, comment)
         if ok:

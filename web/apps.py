@@ -110,10 +110,12 @@ class WebConfig(AppConfig):
     @classmethod
     def __set_up_signals(cls):
         from . import (
-            indexnow,  # noqa: F401
-            mention,  # noqa: F401
-            stripe_util,  # noqa: F401
+            mention,
+            stripe_util,
         )
+
+        _ = mention
+        _ = stripe_util
 
     @override
     def ready(self):

@@ -29,6 +29,7 @@ class Author:
 #   Video (Viemo, youtube, streamja, etc.)
 
 
+# TODO: use dataclass
 class Structure:
     page_type = None
     title = None
@@ -40,7 +41,7 @@ class Structure:
     publication_date = None
     edit_date = None
     author: Author | None = None
-    outbound_links = []
+    outbound_links = []  # noqa: RUF012
 
 
 def __extract_author(h):
@@ -158,10 +159,7 @@ def structure(
     if s.article:
         s.outbound_links = s.article.select("a") or []
 
-    try:
-        s.author = __extract_author(h)
-    except Exception:
-        logger.warning("exract: author", exc_info=True)
+    s.author = __extract_author(h)
 
     __extract_title(h, s, url)
 

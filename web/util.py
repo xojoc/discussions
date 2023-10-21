@@ -2,6 +2,7 @@
 import datetime
 import os
 import unicodedata
+from collections.abc import Callable
 from difflib import SequenceMatcher
 from urllib.parse import quote, quote_plus
 
@@ -47,7 +48,11 @@ def __noop(a):
     return a
 
 
-def most_similar(bs, a, key=__noop):
+def most_similar(
+    bs: list[str],
+    a: str,
+    key: Callable[[str], str] = __noop,
+) -> str | None:
     if not bs:
         return None
     return max({(similarity(a, key(b)), b) for b in bs}, key=lambda x: x[0])[1]

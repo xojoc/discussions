@@ -10,7 +10,7 @@ from web import (
     celery_util,
     crawler,
     email_util,
-    mastodon,
+    mastodon_api,
     models,
     rank,
     topics,
@@ -32,7 +32,7 @@ def worker_update_discussions(self):
         entry_updated_at__lte=seven_days_ago,
     ).order_by()
 
-    logger.info(f"db update discussions: count {stories.count()}")
+    logger.info(f"db update discussions START: count {stories.count()}")
 
     dirty_stories = []
 
@@ -93,7 +93,7 @@ def worker_update_discussions(self):
 
     logger.info(f"db update: total dirty: {count_dirty}")
     logger.info(f"db update: total resource dirty: {count_dirty_resource}")
-    logger.info(f"db update: {time.monotonic() - start_time}")
+    logger.info(f"db update END: {time.monotonic() - start_time}")
 
 
 @shared_task(ignore_result=True, bind=True)
@@ -180,7 +180,7 @@ def admin_send_recap_email():
         twitter_api.get_followers_count(twitter_usernames) or {}
     )
     mastodon_followers_count = (
-        mastodon.get_followers_count(mastodon_usernames) or {}
+        mastodon_api.get_followers_count(mastodon_usernames) or {}
     )
     users_count = models.CustomUser.objects.count()
 

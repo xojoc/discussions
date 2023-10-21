@@ -1,56 +1,72 @@
-{% load humanize %}{% load util %}<p>Hey 👋<br />
+{% load humanize %}
+{% load util %}
+<p>
+    Hey 👋
+    <br />
     here's the recap
-    {% if ctx.topic.topic_key == 'hackernews' or ctx.topic.topic_key == 'laarc' %}for{% else %}about{% endif %}
-    {{ctx.topic.name}} for last week:
+    {% if ctx.topic.topic_key == 'hackernews' or ctx.topic.topic_key == 'laarc' %}
+        for
+    {% else %}
+        about
+    {% endif %}
+    {{ ctx.topic.name }} for last week:
 </p>
-
 {% for category, category_name, stories in ctx.digest %}
-<h3>{{category_name}}</h3>
-<ul style="padding-left: 0;">
-    {% for story in stories %}
-    <li>
-        {% if story.story_url %}
-        <p>
-            <a href="{{story.click_story_url}}" title="{{story.title}}"
-                style="text-decoration: none !important;">{{story.title}}</a>
-        </p>
-        {% if story.total_comments %}
-        <p>
-            <span>
-                <a href="{{story.click_discussions_url}}" title="Discussions for «{{story.title}}»"
-                    style="text-decoration: none !important;">{{story.total_comments}}
-                    comment{{story.total_comments|pluralize}}</a> <small>in
-                    {{story.total_discussions}} discussion{{story.total_discussions|pluralize}}</small>
-            </span>
-        </p>
-        {% endif %}
-        {% else %}
-        <p>
-            <a href="{{story.click_discussions_url}}" title="{{story.title}}"
-                style="text-decoration: none !important;">{{story.title}}</a>
-        </p>
-        <p><span>{{story.comment_count}} comment{{story.comment_count|pluralize}}</span></p>
-
-        {% endif %}
-    </li>
-    {% endfor %}
-</ul>
+    <h3>{{ category_name }}</h3>
+    <ul style="padding-left: 0;">
+        {% for story in stories %}
+            <li>
+                {% if story.story_url %}
+                    <p>
+                        <a href="{{ story.click_story_url }}"
+                           title="{{ story.title }}"
+                           style="text-decoration: none !important">{{ story.title }}</a>
+                    </p>
+                    {% if story.total_comments %}
+                        <p>
+                            <span>
+                                <a href="{{ story.click_discussions_url }}"
+                                   title="Discussions for «{{ story.title }}»"
+                                   style="text-decoration: none !important">{{ story.total_comments }}
+                                    comment{{ story.total_comments|pluralize }}</a> <small>in
+                                {{ story.total_discussions }} discussion{{ story.total_discussions|pluralize }}</small>
+                            </span>
+                        </p>
+                    {% endif %}
+                {% else %}
+                    <p>
+                        <a href="{{ story.click_discussions_url }}"
+                           title="{{ story.title }}"
+                           style="text-decoration: none !important">{{ story.title }}</a>
+                    </p>
+                    <p>
+                        <span>{{ story.comment_count }} comment{{ story.comment_count|pluralize }}</span>
+                    </p>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
 {% endfor %}
-
 <br />
 <p>
-    Thanks for reading,<br />
-    see you next week!<br />
+    Thanks for reading,
+    <br />
+    see you next week!
+    <br />
     —
 </p>
 <p>
     If you prefer RSS feeds sign up for <a href="https://discu.eu/premium"
-        style="color: green !important; font-weight: bold; text-decoration: none !important;">the premium
-        plan</a>.
+    style="color: green !important;
+           font-weight: bold;
+           text-decoration: none !important">the premium
+    plan</a>.
 </p>
 <p>
-    <a href="{{ctx.web_link}}" style="text-decoration: none !important;">View issue online</a>
+    <a href="{{ ctx.web_link }}" style="text-decoration: none !important;">View issue online</a>
 </p>
 <p>
-    <a href="{{ctx.subscriber.unsubscribe_url}}" style="text-decoration: none !important;">Unsubscribe</a>
+    <a href="{{ ctx.subscriber.unsubscribe_url }}"
+       style="text-decoration: none !important">Unsubscribe</a>
 </p>
+

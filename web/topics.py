@@ -2,8 +2,6 @@
 import typing
 from typing import TypedDict
 
-from celery import shared_task
-
 
 class _SocialProfileRequired(TypedDict):
     """Required fields for Social profile/account."""
@@ -481,8 +479,9 @@ def get_topic_by_email(email: str) -> tuple[str, TopicData] | None:
     return None
 
 
-@shared_task
-def task_update_followers_count():
-    counts = {}
-    for topic in topics:
-        pass
+# TODO: implement
+# @shared_task
+# def task_update_followers_count():
+#     counts = {}
+#     for topic in topics:
+#         pass

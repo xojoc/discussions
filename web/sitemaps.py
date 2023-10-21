@@ -64,6 +64,7 @@ class DiscussionsSitemap(Sitemap):
             .exclude(canonical_story_url__isnull=True)
             .filter(comment_count__gte=5)
             .order_by("pk")
+            .iterator(chunk_size=10_000)
         )
 
         # xojoc: fixme: Group By is too slow. Disabled for now.

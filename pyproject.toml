@@ -27,10 +27,9 @@ django-stubs-ext = "*"
 django-redis = "^5"
 feedparser = "^6"
 flower = "^2"
-gevent = "^23"
+gevent = "^22"
 igraph = "^0"
 # importlib-metadata = "*"
-Jinja2 = "^3"
 lxml = "^4"
 Markdown = "^3"
 matplotlib = "^3"
@@ -60,7 +59,6 @@ ipython = "*"
 
 [tool.poetry.group.types.dependencies]
 types-markdown = "^3"
-types-jinja2 = "^2"
 types-requests = "^2"
 types-stripe = "*"
 types-lxml = "*"
@@ -104,8 +102,14 @@ ignore = [
 	'SIM102', # use single if
 
 	# re-enable later 
-	'G004', # logger use f-string
-	'E501', # line too long
+	'G004',    # logger use f-string
+	'E501',    # line too long
+	'C901',    # too complex
+	'PLR0912', # too many branches
+	'PLR0915', # too many statements
+	'PLR0913', # too many arguments to function
+	'PLR0911', # too many return statements
+	'ANN401',  # Any not allowed in arguments
 ]
 unfixable = [
 	'F841', # unused variable

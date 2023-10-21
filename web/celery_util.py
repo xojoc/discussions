@@ -10,12 +10,14 @@ from redis.exceptions import LockError
 logger = logging.getLogger(__name__)
 
 
+# TODO: remove this function?
 def split_task(
     redis_prefix,
     get_start_index,
     get_max,
     step,
     callback,
+    *,
     infinite_repeat=True,
 ):
     r = get_redis_connection("default")

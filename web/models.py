@@ -29,14 +29,13 @@ from django.utils import timezone
 from django_stubs_ext.db.models import TypedModelMeta
 from typing_extensions import override
 
-from web import api_statistics
+from web import api_statistics, mastodon_api
 from web.category import Category
 from web.platform import Platform
 
 from . import (
     email_util,
     extract,
-    mastodon,
     tags,
     title,
     topics,
@@ -127,6 +126,7 @@ class Discussion(models.Model):
     archived = models.BooleanField(default=False)
 
     tweet_set: models.Manager["Tweet"]
+    mastodonpost_set: models.Manager["MastodonPost"]
 
     entry_created_at = models.DateTimeField(auto_now_add=True)
     entry_updated_at = models.DateTimeField(auto_now=True)
@@ -1239,7 +1239,7 @@ If you have preferences for when to tweet or toot or anything else let us know h
                     "@",
                 )[1]
                 if username:
-                    mastodon_followers += mastodon.get_followers_count(
+                    mastodon_followers += mastodon_api.get_followers_count(
                         [username],
                     )[username]
 

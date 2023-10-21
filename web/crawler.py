@@ -194,10 +194,7 @@ def process_next():
 
     __set_semaphore(url, timeout=timeout)
 
-    try:
-        _ = fetch(url)
-    except Exception as e:
-        logger.warning(f"process_next: fetch fail: {e}")
+    _ = fetch(url)
 
     return False
 

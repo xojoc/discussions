@@ -97,9 +97,6 @@ def _rate_limit(r, host):
 def fetch(
     url: str,
     *,
-    force_cache: int = 0,
-    refresh_on_get: bool = False,
-    rate_limiting: bool = True,
     timeout: int = 30,
     with_retries: bool = True,
     with_cache: bool = False,

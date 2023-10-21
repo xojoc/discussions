@@ -1,6 +1,7 @@
 # Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import logging
 from collections.abc import Mapping, Sequence
+from typing import ClassVar
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Button, Div, Field, Layout, Submit
@@ -33,7 +34,7 @@ class QueryForm(forms.Form):
 
 
 class SubscriberForm(forms.ModelForm):
-    class Meta(  # pyright: ignore [reportIncompatibleVariableOverride]
+    class Meta(
         forms.models.ModelFormOptions,
     ):
         model = models.Subscriber
@@ -48,9 +49,7 @@ class SubscriberForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["topic"].choices = [
-            (k, v)
-            for (k, v) in self.fields["topic"].choices
-            if k != "laarc"
+            (k, v) for (k, v) in self.fields["topic"].choices if k != "laarc"
         ]
 
         self.helper = FormHelper()
@@ -80,7 +79,7 @@ class SubscriberForm(forms.ModelForm):
 
 
 class UnsubscribeForm(forms.ModelForm):
-    class Meta(  # pyright: ignore [reportIncompatibleVariableOverride]
+    class Meta(
         forms.models.ModelFormOptions,
     ):
         model = models.Subscriber
@@ -97,7 +96,7 @@ class UnsubscribeForm(forms.ModelForm):
 
 
 class ProfileForm(forms.ModelForm):
-    class Meta(  # pyright: ignore [reportIncompatibleVariableOverride]
+    class Meta(
         forms.models.ModelFormOptions,
     ):
         model = models.CustomUser
@@ -164,18 +163,19 @@ class ADForm(forms.ModelForm):
 
 
 class MentionForm(forms.ModelForm):
+    # TODO: fix like adform topics
     exclude_platforms = forms.MultipleChoiceField(
-        help_text=models.Mention._meta.get_field(
+        help_text=models.Mention._meta.get_field(  # noqa: SLF001
             "exclude_platforms",
         ).help_text,
         widget=forms.CheckboxSelectMultiple(),
     )
 
-    class Meta(  # pyright: ignore [reportIncompatibleVariableOverride]
+    class Meta(
         forms.models.ModelFormOptions,
     ):
         model = models.Mention
-        fields = [
+        fields = (
             "base_url",
             "keywords",
             "exclude_platforms",
@@ -183,9 +183,9 @@ class MentionForm(forms.ModelForm):
             "min_comments",
             "min_score",
             "rule_name",
-        ]
+        )
 
-        widgets = {
+        widgets: ClassVar[dict[str, forms.widgets.Input]] = {
             "base_url": forms.TextInput(),
             "keyword": forms.TextInput(),
         }
@@ -198,7 +198,7 @@ class MentionForm(forms.ModelForm):
         self.fields["min_score"].required = False
 
         self.helper = FormHelper(self)
-        self.helper["exclude_platforms"].wrap(
+        _ = self.helper["exclude_platforms"].wrap(
             Field,
             css_class="overflow-y-scroll h-max-10em ms-2",
         )
@@ -276,14 +276,15 @@ class MentionForm(forms.ModelForm):
     def clean_subreddits_exclude(self):
         data = self.cleaned_data.get("subreddits_exclude") or []
         new_list = []
-        for sub in data:
-            sub = sub.removeprefix("/r/")
+        for subreddit in data:
+            sub = subreddit.removeprefix("/r/")
             sub = sub.removeprefix("r/")
             sub = sub.strip().lower()
             new_list.append(sub)
 
         return new_list
 
+    @override
     def clean(self):
         cleaned_data = super().clean()
         base_url = cleaned_data.get("base_url")
@@ -297,7 +298,7 @@ class MentionForm(forms.ModelForm):
 
 class EditMentionForm(MentionForm):
     class Meta(MentionForm.Meta):
-        fields = [*MentionForm.Meta.fields, "disabled"]
+        fields = (*MentionForm.Meta.fields, "disabled")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

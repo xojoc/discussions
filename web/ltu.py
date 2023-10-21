@@ -4,6 +4,7 @@ import logging
 import re
 import time
 
+import bs4
 import cleanurl
 from celery import shared_task
 from django.utils.timezone import make_aware
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 # http://lambda-the-ultimate.org/node?from=0
 
 
-class EndOfPages(Exception):
+class EndOfPagesError(Exception):
     pass
 
 
@@ -39,16 +40,18 @@ def __filter_story_url(a):
     )
 
 
-@shared_task(ignore_result=True)
-def process_item(item, platform_prefix):
+def process_item(item: bs4.BeautifulSoup, platform_prefix: str) -> None:
     try:
         slug = item.select_one(".title a").get("href").strip()
-    except Exception:
+    except AttributeError:
         slug = None
 
     platform_id = f"{platform_prefix}{slug}"
 
-    title = item.select_one(".title").get_text().strip()
+    try:
+        title = item.select_one(".title").get_text().strip()
+    except AttributeError:
+        return
 
     comment_count = 0
     score = 0
@@ -61,7 +64,7 @@ def process_item(item, platform_prefix):
                     link.get_text().strip().lower(),
                 ).group(1)
                 comment_count = int(comment_count)
-            except Exception:
+            except (AttributeError, IndexError):
                 comment_count = 0
 
     try:
@@ -70,17 +73,13 @@ def process_item(item, platform_prefix):
             item.select_one(".links").get_text().strip().lower(),
         ).group(1)
         score = int(score)
-    except Exception:
+    except (AttributeError, IndexError):
         score = 0
 
-    try:
-        tags = (
-            x.get_text().strip()
-            for x in item.select('.links a[href^="taxonomy/"]')
-        )
-        tags = list(tags)
-    except Exception:
-        tags = []
+    tags = [
+        x.get_text().strip()
+        for x in item.select('.links a[href^="taxonomy/"]')
+    ]
 
     body_links = item.select(".content a")
 
@@ -93,6 +92,8 @@ def process_item(item, platform_prefix):
         if not any(t.lower() == "admin" for t in tags):
             logger.warning(f"LTU: no links after filter {platform_id}")
         return
+
+    story_url = None
 
     if len(body_links) == 1:
         story_url = body_links[0].get("href")
@@ -116,7 +117,7 @@ def process_item(item, platform_prefix):
 
         created_at = datetime.datetime.fromisoformat(created_at)
         created_at = make_aware(created_at)
-    except Exception:
+    except (AttributeError, IndexError):
         created_at = None
 
     scheme, url = None, None
@@ -160,7 +161,7 @@ def fetch_discussions(current_page, platform_prefix, base_url):
     start_time = time.monotonic()
 
     while time.monotonic() - start_time <= APP_CELERY_TASK_MAX_TIME:
-        page_url = f"{base_url}/node?from={current_page*10}"
+        page_url = f"{base_url}/node?from={current_page * 10}"
 
         r = c.get(page_url, timeout=11.05)
 
@@ -173,7 +174,7 @@ def fetch_discussions(current_page, platform_prefix, base_url):
             r.status_code == 404
             or body.find("welcome to your new drupal-powered") >= 0
         ):
-            raise EndOfPages
+            raise EndOfPagesError
 
         for item in h.find_all("div", "node"):
             process_item(item, platform_prefix)
@@ -209,7 +210,7 @@ def fetch_all_ltu_discussions():
             "u",
             "http://lambda-the-ultimate.org",
         )
-    except EndOfPages:
+    except EndOfPagesError:
         current_index = max_index + 1
 
     r.set(redis_prefix + "current_index", current_index)
@@ -221,7 +222,7 @@ def process_ltu_archived_item(item_href, base_url, platform_prefix, c):
 
     try:
         story = item.select_one("td[bgcolor] b a[href]")
-    except Exception:
+    except AttributeError:
         return
 
     if not story:
@@ -245,14 +246,14 @@ def process_ltu_archived_item(item_href, base_url, platform_prefix, c):
                     re.DOTALL,
                 ).group(1)
                 comment_count = int(comment_count)
-            except Exception:
+            except (AttributeError, IndexError):
                 comment_count = 0
 
         if not score:
             try:
                 score = re.match(r".*reads: (\d+).*", txt, re.DOTALL).group(1)
                 score = int(score)
-            except Exception:
+            except (AttributeError, IndexError):
                 score = 0
 
         if not created_at:
@@ -268,9 +269,8 @@ def process_ltu_archived_item(item_href, base_url, platform_prefix, c):
                 created_at = datetime.datetime.strptime(
                     f"{date_match} {time_match}",
                     "%m/%d/%Y %I:%M:%S %p",
-                )
-                created_at = make_aware(created_at)
-            except Exception:
+                ).replace(tzinfo=datetime.UTC)
+            except (ValueError, AttributeError, IndexError):
                 created_at = None
 
     if comment_count:
@@ -280,14 +280,14 @@ def process_ltu_archived_item(item_href, base_url, platform_prefix, c):
     if not story_url:
         return
 
-    try:
-        tags = (
+    tags = (
+        [
             x.get_text().strip()
             for x in item.select('b a:not([href*="/"])[href$=".html"]')
-        )
-        tags = list(tags)
-    except Exception:
-        tags = []
+        ]
+        if item
+        else []
+    )
 
     scheme, url = None, None
     u = cleanurl.cleanurl(
@@ -335,7 +335,7 @@ def fetch_ltu_archived_discussions(current_page, platform_prefix, base_url):
         r = c.get(page_url, timeout=11.05)
 
         if r.status_code == 404:
-            raise EndOfPages
+            raise EndOfPagesError
 
         h = http.parse_html(r)
 
@@ -378,7 +378,7 @@ def fetch_all_ltu_archived_discussions():
             "u",
             "http://lambda-the-ultimate.org/classic",
         )
-    except EndOfPages:
+    except EndOfPagesError:
         current_index = max_index + 1
 
     r.set(redis_prefix + "current_index", current_index)

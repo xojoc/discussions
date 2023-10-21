@@ -25,7 +25,8 @@
         <a href="{{d.story_url}}" title="{{d.title}}" class="d-flex flex-column text-body" rel="nofollow">
             {{d.title}}
             <span class="d-inline-block smaller-font url-max-width text-truncate">{{d.story_url}}</span></a>
-        <a href="{{d.discussion_url}}" title="View discussion with {{d.score}} {{d.platform.score_label}} on {{d.platform.label}}"
+        <a href="{{d.discussion_url}}"
+            title="View discussion with {{d.score}} {{d.platform.score_label}} on {{d.platform.label}}"
             rel="nofollow"><strong>{{d.comment_count}} comment{{d.comment_count|pluralize:",s"}}</strong></a>
         <span class="smaller-font">with <strong>{{d.score}}</strong> point{{d.score|pluralize:",s"}}</span>
         <span class="smaller-font">at

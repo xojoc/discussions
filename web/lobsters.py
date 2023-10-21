@@ -2,7 +2,9 @@
 import datetime
 import logging
 import time
+from typing import Any
 
+import celery
 import cleanurl
 import django
 import django.db
@@ -21,7 +23,7 @@ logger = logging.getLogger(__name__)
 #       https://lobste.rs/s/7bbyke.json
 
 
-def process_item(item, platform: Platform):
+def process_item(item: dict[str, Any], platform: Platform) -> None:
     platform_id = f"{platform.value}{item.get('short_id')}"
 
     created_at = datetime.datetime.fromisoformat(item.get("created_at"))
@@ -61,7 +63,7 @@ def process_item(item, platform: Platform):
         ).save()
 
 
-def __worker_fetch(task, platform: Platform):
+def __worker_fetch(task: celery.Task, platform: Platform) -> None:
     client = http.client(with_cache=False)
     base_url = platform.url
     cache_current_page_key = f"discussions:lobsters:{platform}:current_page"

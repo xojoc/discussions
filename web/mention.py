@@ -5,6 +5,7 @@ import re
 from email.utils import formataddr
 from functools import reduce
 from operator import or_
+from typing import Any
 
 import cleanurl
 import django.template.loader as template_loader
@@ -19,7 +20,10 @@ from web import email_util, models, title
 logger = logging.getLogger(__name__)
 
 
-def discussions(rule: models.Mention, pk=None):
+def discussions(
+    rule: models.Mention,
+    pk: models.Discussion.pk = None,
+) -> list[models.Discussion]:
     keywords = rule.keywords or []
     if rule.keyword and not rule.keywords:
         keywords = [rule.keyword]
@@ -108,38 +112,7 @@ def discussions(rule: models.Mention, pk=None):
     return dsa
 
 
-def __rule_matches(rule: models.Mention, instance: models.Discussion):
-    return discussions(rule, instance.pk)
-
-    # if rule.base_url:
-    #     if not instance.story_url:
-
-    #     if cu:
-
-    #     if cu:
-
-    #     if not (
-    #             base_url_remapped
-    #             and (
-    #                 or instance.canonical_story_url
-    #                 and instance.canonical_story_url.startswith(
-    #                     base_url_remapped + "/"
-    #         or (
-    #             base_url
-    #             and (
-    #                 or instance.schemeless_story_url
-    #                 and instance.schemeless_story_url.startswith(
-    #                     base_url + "/"
-    #     ):
-
-    # if rule.keyword:
-    #     if not keyword_set.issubset(set(story_title.split())):
-
-    # if instance.platform == "r":
-    #     if rule.subreddits_exclude and tags[0] in rule.subreddits_exclude:
-
-
-def __matching_rules(instance: models.Discussion):
+def __matching_rules(instance: models.Discussion) -> list[models.Mention]:
     rules = (
         models.Mention.objects.filter(disabled=False)
         .filter(min_comments__lte=instance.comment_count)
@@ -148,16 +121,18 @@ def __matching_rules(instance: models.Discussion):
         .exclude(mentionnotification__discussion=instance)
     )
 
-    matched_rules = []
-
-    for r in rules:
-        if discussions(r, instance.pk):
-            matched_rules.append(r)
-
-    return matched_rules
+    return [r for r in rules if discussions(r, instance.pk)]
 
 
-def __process_mentions(sender, instance: models.Discussion, created, **kwargs):
+def __process_mentions(
+    sender: models.Discussion,
+    instance: models.Discussion,
+    *,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    _ = sender
+    _ = created
     three_days_ago = timezone.now() - datetime.timedelta(days=3)
     if not instance.created_at:
         return
@@ -175,11 +150,14 @@ def __process_mentions(sender, instance: models.Discussion, created, **kwargs):
 
 
 @receiver(post_save, sender=models.Discussion)
-def process_mentions(sender, instance: models.Discussion, created, **kwargs):
-    try:
-        __process_mentions(sender, instance, created, **kwargs)
-    except Exception as e:
-        logger.error(f"Process mentions: {e}")
+def process_mentions(
+    sender: models.Discussion,
+    instance: models.Discussion,
+    *,
+    created: bool,
+    **kwargs: Any,
+) -> None:
+    __process_mentions(sender, instance, created=created, **kwargs)
 
 
 def __render_mention_notification(m):
@@ -195,8 +173,8 @@ def __render_mention_notification(m):
     )
 
 
-@shared_task(bind=True, ignore_result=True)
-def email_notification(self):
+@shared_task(ignore_result=True)
+def email_notification():
     mentions = (
         models.MentionNotification.objects.filter(email_sent=False)
         .exclude(discussion__isnull=True)
