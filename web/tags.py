@@ -102,7 +102,7 @@ def __topic_nim(tags, title, url, platform):
         url
         and "nim" in title
         and (
-            "nim-lang.org" in url.hostname
+            "nim-lang.org" in (url.hostname or "")
             or (
                 url.hostname == "github.com"
                 and (url.path or "").startswith("/nim-lang")
@@ -260,8 +260,8 @@ def __topic_java(tags, title, url, platform, original_title):
         url
         and "java" in title
         and (
-            "java.net" in url.hostname
-            or "openjdk.org" in url.hostname
+            "java.net" in (url.hostname or "")
+            or "openjdk.org" in (url.hostname or "")
             or (
                 url.hostname == "github.com"
                 and (url.path or "").startswith("/openjdk")
