@@ -1,0 +1,18 @@
+{% load util %}Hey 👋
+here's a new discussion you may be interested in:
+
+  {{ctx.discussion.title|safe}}
+{% if ctx.discussion.story_url %}
+  {{ctx.discussion.story_url|safe}}
+{% endif %}
+  {{ctx.discussion.discussion_url|safe}}
+   {{ctx.discussion.comment_count}} comment{{ctx.discussion.comment_count|pluralize}} {{ctx.discussion.score}} point{{ctx.discussion.score|pluralize}}
+
+{% if ctx.discussion.story_url %}
+  All discussions for this url:
+    {{ctx.discussion.story_url|discussions_url_domain}}
+{% endif %}
+
+Receiving too many notifications? Edit this rule: {{''|path_with_domain}}{% url 'web:dashboard_mentions_edit' ctx.mention_rule.pk %} 
+—
+Dashboard: https://discu.eu/dashboard
