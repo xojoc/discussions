@@ -136,11 +136,13 @@ def fetch(url):
     else:
         resource.status_code = response.status_code
 
-    if response and resource.status_code == HTTPStatus.OK:
+    if (
+        response
+        and resource.status_code == HTTPStatus.OK
+        and ("html" in response.headers.get("content-type", ""))
+    ):
         html = http.parse_html(response, safe_html=True, clean=True)
         resource.clean_html = str(html)
-        html_structure = extract.structure(html, url)
-        resource.title = html_structure.title
 
     resource.last_fetch = timezone.now()
 
@@ -152,7 +154,7 @@ def fetch(url):
     return resource
 
 
-def process_next():
+def process_next() -> bool:
     r = get_redis_connection()
     priority = Priority.normal
     url = None
@@ -191,6 +193,15 @@ def process_next():
 
     if url.startswith(("https://twitter.com", "https://www.twitter.com")):
         timeout = 3
+
+    try:
+        u = urllib3.util.parse_url(url)
+        if u.scheme not in ("http", "https"):
+            logger.warning("crawler: scheme not processed: %s", url)
+            return False
+    except ValueError:
+        logger.warning("crawler:  failed to parse url: %s", url, exc_info=True)
+        return False
 
     __set_semaphore(url, timeout=timeout)
 

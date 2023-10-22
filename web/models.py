@@ -585,6 +585,8 @@ class MastodonPost(models.Model):
 
 
 class Resource(models.Model):
+    TITLE_MAX_LEN = 2048
+
     id = models.BigAutoField(primary_key=True)  # noqa: A003
 
     scheme = models.CharField(max_length=25)
@@ -598,7 +600,10 @@ class Resource(models.Model):
     canonical_url = models.CharField(max_length=100_000, blank=True)
 
     title = models.CharField(max_length=2048)
-    normalized_title = models.CharField(max_length=2048, blank=True)
+    normalized_title = models.CharField(
+        max_length=TITLE_MAX_LEN,
+        blank=True,
+    )
 
     tags = postgres_fields.ArrayField(
         models.CharField(max_length=255, blank=True),
@@ -653,6 +658,43 @@ class Resource(models.Model):
     def save(self: Self, *args: Any, **kwargs: Any) -> None:
         self._pre_save()
         super().save(*args, **kwargs)
+
+    def _pre_save(self):
+        self.tags = self.tags or []
+        self.title = self.title or ""
+
+        self.title = self.title.replace("\x00", "")
+        self.title = self.title[: self.TITLE_MAX_LEN]
+
+        if self.url:
+            u = cleanurl.cleanurl("//" + self.url)
+            if u:
+                self.canonical_url = u.schemeless_url
+            else:
+                self.canonical_url = None
+
+        if not self.canonical_url:
+            self.canonical_url = self.url
+
+        self.normalized_title = title.normalize(
+            self.title,
+            None,
+            (self.story_url or ""),
+            self.tags,
+            stem=False,
+        )
+
+        self.normalized_tags = (
+            tags.normalize(
+                self.tags,
+                None,
+                self.title,
+                (self.story_url or ""),
+            )
+            or []
+        )
+
+        self.clean_html = self.clean_html or ""
 
     @property
     def complete_url(self):
@@ -762,42 +804,6 @@ class Resource(models.Model):
                 )
 
         return author
-
-    def _pre_save(self):
-        self.tags = self.tags or []
-        self.title = self.title or ""
-
-        self.title = self.title.replace("\x00", "")
-
-        if self.url:
-            u = cleanurl.cleanurl("//" + self.url)
-            if u:
-                self.canonical_url = u.schemeless_url
-            else:
-                self.canonical_url = None
-
-        if not self.canonical_url:
-            self.canonical_url = self.url
-
-        self.normalized_title = title.normalize(
-            self.title,
-            None,
-            (self.story_url or ""),
-            self.tags,
-            stem=False,
-        )
-
-        self.normalized_tags = (
-            tags.normalize(
-                self.tags,
-                None,
-                self.title,
-                (self.story_url or ""),
-            )
-            or []
-        )
-
-        self.clean_html = self.clean_html or ""
 
 
 class Link(models.Model):

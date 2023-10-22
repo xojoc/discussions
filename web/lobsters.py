@@ -8,6 +8,7 @@ import celery
 import cleanurl
 import django
 import django.db
+import requests
 from celery import shared_task
 from django.core.cache import cache
 
@@ -84,8 +85,19 @@ def __worker_fetch(task: celery.Task, platform: Platform) -> None:
         for page in pages:
             logger.debug(f"lobsters {platform}: {page}")
             page_url = f"{base_url}/newest/page/{page}.json"
-            r = client.get(page_url, timeout=11.05)
-            if r.status_code == 404:
+            try:
+                r = client.get(page_url, timeout=31.05)
+            except requests.exceptions.RequestException:
+                logger.warning(
+                    "lobsters worker fetch: %s: error get",
+                    platform.label,
+                    exc_info=True,
+                )
+                time.sleep(30)
+                # re-fetch this page
+                current_page -= 1
+                break
+            if not r or r.status_code == 404:
                 current_page = 0
                 break
 
@@ -93,7 +105,7 @@ def __worker_fetch(task: celery.Task, platform: Platform) -> None:
                 process_item(item, platform)
 
             django.db.connections.close_all()
-            time.sleep(60)
+            time.sleep(2 * 60)
 
         current_page += 1
 

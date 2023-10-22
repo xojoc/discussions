@@ -76,7 +76,7 @@ def __extract_author(h):
     if author.twitter_site:
         parts = author.twitter_site.split("/")
         parts = [p for p in parts if p]
-        author.twitter_site = parts[-1]
+        author.twitter_site = parts[-1] if parts else ""
         author.twitter_site = author.twitter_site.strip()
 
         author.twitter_site = author.twitter_site.removeprefix("@")

@@ -59,7 +59,7 @@ def base_query(topic):
 
 
 def week_start(year, week=None):
-    if not week:
+    if week is None:
         year, week = year
 
     d = datetime.date.fromisocalendar(year, week, 1)

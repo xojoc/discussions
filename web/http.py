@@ -101,7 +101,11 @@ def fetch(
     with_retries: bool = True,
     with_cache: bool = False,
 ) -> requests.Response | None:
-    url = cachecontrol.CacheController.cache_url(url)
+    try:
+        url = cachecontrol.CacheController.cache_url(url)
+    except Exception:  # noqa: BLE001
+        # cache_url raises Exception if url is not absolute
+        return None
     request = requests.Request(
         method="GET",
         url=url,
@@ -125,9 +129,10 @@ def parse_html(
     safe_html: bool = False,
     clean: bool = False,
 ) -> BeautifulSoup | None:
-    html = None
-
-    html = res if isinstance(res, bytes | str) else (res.text or "")
+    try:
+        html = res if isinstance(res, bytes | str) else (res.text or "")
+    except requests.exceptions.RequestException:
+        html = None
 
     if not html:
         return None
