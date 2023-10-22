@@ -42,7 +42,7 @@ def worker_update_discussions(self):
             dirty_stories,
             ["canonical_story_url", "normalized_tags", "normalized_title"],
         )
-        logger.info(f"db update: updated: {updated_count}")
+        logger.info(f"db update discussions: updated: {updated_count}")
         dirty_stories[:] = []
 
     last_checkpoint = time.monotonic()
@@ -92,9 +92,11 @@ def worker_update_discussions(self):
     if len(dirty_stories) > 0:
         __update(dirty_stories)
 
-    logger.info(f"db update: total dirty: {count_dirty}")
-    logger.info(f"db update: total resource dirty: {count_dirty_resource}")
-    logger.info(f"db update END: {time.monotonic() - start_time}")
+    logger.info(f"db update discussions: total dirty: {count_dirty}")
+    logger.info(
+        f"db update discussions: total resource dirty: {count_dirty_resource}",
+    )
+    logger.info(f"db update discussions END: {time.monotonic() - start_time}")
 
 
 @shared_task(bind=True, ignore_result=True)
@@ -109,7 +111,7 @@ def worker_update_resources(self):
         last_processed__lte=seven_days_ago,
     ).order_by()
 
-    logger.info(f"db update resources: count {resources.count()}")
+    logger.info(f"db update resources START: count {resources.count()}")
 
     for resource in resources[:10_000].iterator(chunk_size=1000):
         crawler.extract_html(resource)
@@ -121,7 +123,7 @@ def worker_update_resources(self):
 
             last_checkpoint = time.monotonic()
 
-    logger.info(f"db update resources: {time.monotonic() - start_time}")
+    logger.info(f"db update resources END: {time.monotonic() - start_time}")
 
 
 @shared_task(ignore_result=True)

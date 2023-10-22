@@ -352,17 +352,18 @@ def __topic_golang(tags, title, url, platform, original_title):
         tags.add("golang")
 
 
-def __topic_python(tags, title, url, platform):
-    if platform in (Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE):
-        __augment_tags(title, tags, "python")
+def __topic_python(tags, title, url, platform, original_title):
+    if not re.search(r"\bMonty\b", original_title):
+        if platform in (Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE):
+            __augment_tags(title, tags, "python")
 
-    __augment_tags(
-        title,
-        tags,
-        "python",
-        {"programming", "webdev", "gamedev", "compsci"},
-    )
-    __programming_keyword(tags, title, url, "python")
+        __augment_tags(
+            title,
+            tags,
+            "python",
+            {"programming", "webdev", "gamedev", "compsci"},
+        )
+        __programming_keyword(tags, title, url, "python")
     __augment_tags(title, tags, "django", {"python", "webdev", "programming"})
     __augment_tags(title, tags, "flask", {"python", "webdev", "programming"})
     __augment_tags(title, tags, None, {"django", "flask"}, "python")
@@ -876,7 +877,7 @@ def normalize(
         __topic_webdev(tags, title_tokens, curl, platform, original_title)
         __topic_zig(tags, title_tokens, curl, platform)
         __topic_golang(tags, title_tokens, curl, platform, original_title)
-        __topic_python(tags, title_tokens, curl, platform)
+        __topic_python(tags, title_tokens, curl, platform, original_title)
         __topic_haskell(tags, title_tokens, curl, platform, original_title)
         __topic_lisp_scheme(tags, title_tokens, curl, platform, original_title)
         __topic_ruby(tags, title_tokens, curl, platform, original_title)

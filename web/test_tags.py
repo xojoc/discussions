@@ -208,6 +208,13 @@ class UnitTags(unittest.TestCase):
                 "Lobsters meta post",
             ),
             {"meta"},
+            n(
+                [],
+                "h",
+                "Monty Python and the Holy Grail 48 1/2 year anniversary in theaters December",
+                "https://www.youtube.com/watch?v=4b52A3sKz-I",
+            ),
+            {"python"},
         ]
 
         for nts, mts in zip(missing[0::2], missing[1::2], strict=True):

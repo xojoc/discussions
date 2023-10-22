@@ -2,9 +2,14 @@
 
 *Discussions* finds discussions around the web for a given URL or story.
 
-# Use
+# How to use
 
-You can find it at [https://discu.eu](https://discu.eu). The page contains instructions to create a bookmarklet to find discussions from any page you visit.
+ * [Search discussions](https://discu.eu/search/) for an URL or keyword
+ * [Use the bookmarklet](https://discu.eu/bookmarklet/) to lookup discussions 
+ * Install [the browser extension](https://discu.eu/extension/) to display a count of the discussions of the pages you visit
+ * Call the [API](https://discu.eu/api/) in your own projects
+ * [Display discussions on your website or blog](https://discu.eu/website/)
+
 
 # Who?
 
