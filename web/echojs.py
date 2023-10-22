@@ -104,6 +104,7 @@ def __worker_fetch(task: celery.Task, platform: Platform) -> None:
 
 
 @shared_task(bind=True, ignore_result=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_echojs(self: celery.Task) -> None:
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     __worker_fetch(self, Platform.ECHO_JS)

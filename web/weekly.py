@@ -536,8 +536,9 @@ def send_mass_email(topic, year, week, *, testing=True, only_subscribers=None):
 
 
 @shared_task(bind=True, ignore_result=False)
-@celery_util.singleton(timeout=60 * 60 * 24, blocking_timeout=0.1)
 def worker_send_weekly_email(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     _ = self
     six_days_ago = timezone.now() - datetime.timedelta(days=6)
     year = six_days_ago.isocalendar().year

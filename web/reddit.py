@@ -256,8 +256,9 @@ def __get_reddit_archive_links(client, starting_from=None):
 
 
 @shared_task(bind=True, ignore_result=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_reddit_archive(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     client = http.client(with_cache=False)
     cache_prefix = "fetch_reddit_archive"
     cache_timeout = 60 * 60 * 24 * 90
@@ -527,7 +528,12 @@ def fetch_discussions(index):
 
         try:
             stories = get_subreddit(name, reddit)
-        except praw.exceptions.PRAWException:
+        except (
+            praw.exceptions.PRAWException,
+            prawcore.exceptions.Forbidden,
+            prawcore.exceptions.NotFound,
+            prawcore.exceptions.PrawcoreException,
+        ):
             logger.warning("reddit: subreddit %s", name, exc_info=True)
             cache.set(skip_sub_key_prefix + name, 1, timeout=60 * 60 * 8)
             continue
@@ -568,9 +574,10 @@ def fetch_discussions(index):
     return index
 
 
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
-def fetch_recent_discussions():
+@shared_task(bind=True, ignore_result=True)
+def fetch_recent_discussions(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     r = get_redis_connection("default")
     redis_prefix = "discussions:fetch_recent_reddit_discussions:"
     current_index = int(r.get(redis_prefix + "current_index") or 0)
@@ -589,8 +596,9 @@ def fetch_recent_discussions():
 
 
 @shared_task(bind=True, ignore_result=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_update_all_discussions(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     reddit = client()
     cache_current_index_key = "discussions:reddit_update:current_index"
     current_index = cache.get(cache_current_index_key) or 0
@@ -696,8 +704,9 @@ def worker_update_all_discussions(self):
 
 
 @shared_task(bind=True, ignore_result=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_stream(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     reddit = client()
 
     subs = "+".join(subreddit_whitelist)

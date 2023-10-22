@@ -15,13 +15,6 @@ logger = logging.getLogger(__name__)
 cache_graceful_exit_key = "discussions:worker:graceful_exit"
 
 
-@celery.signals.worker_ready.connect
-def celery_worker_ready(signal, sender, **kwargs):
-    _ = kwargs
-    del signal
-    del sender
-
-
 def __patch_greenlet(f):
     def inner(*args, **kwargs):
         return gevent.spawn(f, *args, **kwargs)

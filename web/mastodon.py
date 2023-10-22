@@ -163,9 +163,10 @@ def post_story_topic(story, tags, topic, existing_toot):
     return post_id
 
 
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=0.1)
-def post_discussions_scheduled(filter_topic=None):
+@shared_task(bind=True, ignore_result=True)
+def post_discussions_scheduled(self, filter_topic=None):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     __sleep(10, 20)
 
     five_days_ago = timezone.now() - datetime.timedelta(days=5)

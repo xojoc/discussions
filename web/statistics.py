@@ -78,9 +78,10 @@ def discussions_top_domains():
     return stats[:23]
 
 
-@shared_task(ignore_result=True)
-@celery_util.singleton(timeout=240, blocking_timeout=120)
-def discussions_statistics():
+@shared_task(bind=True, ignore_result=True)
+def discussions_statistics(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     models.Statistics.update_platform_statistics(
         list(discussions_platform_statistics()),
     )

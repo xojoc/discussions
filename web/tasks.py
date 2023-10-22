@@ -1,6 +1,7 @@
 # Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import logging
 import pprint
+import time
 from typing import Any
 
 import celery
@@ -53,10 +54,10 @@ _ = weekly
 _ = worker
 
 
-@shared_task(ignore_result=True, bind=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+@shared_task(bind=True, ignore_result=True)
 def test_task(self):
-    _ = self
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     logger.info("started test_task")
     logger.error("this is an error!")
 
@@ -124,3 +125,13 @@ def celery_explicit_error():
     _ = local_error
     msg = "testing the `task_failure` signal"
     raise ValueError(msg)
+
+
+@shared_task(bind=True, ignore_result=True)
+def fake_worker_sleep(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        logger.info("task is already running")
+        return
+    logger.info("Starting fake worker")
+    time.sleep(60)
+    logger.info("Stopping fake worker")

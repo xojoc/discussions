@@ -279,14 +279,16 @@ def __worker_fetch(task, platform):
 
 
 @shared_task(bind=True, ignore_result=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_hn(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     __worker_fetch(self, "h")
 
 
 @shared_task(bind=True, ignore_result=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_laarc(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     __worker_fetch(self, "a")
 
 
@@ -386,9 +388,10 @@ def submit_comment(post_id, comment, *, submit_from_dev=False):
     return True
 
 
-@shared_task(ignore_result=True)
-@celery_util.singleton()
-def submit_discussions():
+@shared_task(bind=True, ignore_result=True)
+def submit_discussions(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     _submit_discussions()
 
 
@@ -541,9 +544,10 @@ Archive: {archiveis.archive_url(story.story_url)}"""
     return comment
 
 
-@shared_task(ignore_result=True)
-@celery_util.singleton()
-def submit_previous_discussions():
+@shared_task(bind=True, ignore_result=True)
+def submit_previous_discussions(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     _submit_previous_discussions()
 
 

@@ -225,9 +225,10 @@ def process_discussion(sender, instance, created, **kwargs):
         add_to_queue(instance.story_url, priority=priority)
 
 
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
-def populate_queue(comment_count=10, score=10, days=3):
+@shared_task(bind=True, ignore_result=True)
+def populate_queue(self, comment_count=10, score=10, days=3):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     days_ago = timezone.now() - datetime.timedelta(days=days)
 
     discussions = (

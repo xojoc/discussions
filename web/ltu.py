@@ -186,9 +186,10 @@ def fetch_discussions(current_page, platform_prefix, base_url):
     return current_page
 
 
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
-def fetch_all_ltu_discussions():
+@shared_task(bind=True, ignore_result=True)
+def fetch_all_ltu_discussions(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     r = get_redis_connection("default")
     redis_prefix = "discussions:ltu:fetch_all_discussions:"
     current_index = r.get(redis_prefix + "current_index")
@@ -354,9 +355,10 @@ def fetch_ltu_archived_discussions(current_page, platform_prefix, base_url):
     return current_page
 
 
-@shared_task(ignore_result=True)
-@celery_util.singleton(blocking_timeout=3)
-def fetch_all_ltu_archived_discussions():
+@shared_task(bind=True, ignore_result=True)
+def fetch_all_ltu_archived_discussions(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     r = get_redis_connection("default")
     redis_prefix = "discussions:ltu:archived:fetch_all_discussions:"
     current_index = r.get(redis_prefix + "current_index")

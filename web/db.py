@@ -21,9 +21,10 @@ from web import (
 logger = logging.getLogger(__name__)
 
 
-@shared_task(ignore_result=True, bind=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+@shared_task(bind=True, ignore_result=True)
 def worker_update_discussions(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     start_time = time.monotonic()
     count_dirty = 0
     count_dirty_resource = 0
@@ -96,9 +97,10 @@ def worker_update_discussions(self):
     logger.info(f"db update END: {time.monotonic() - start_time}")
 
 
-@shared_task(ignore_result=True, bind=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
+@shared_task(bind=True, ignore_result=True)
 def worker_update_resources(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     start_time = time.monotonic()
     last_checkpoint = time.monotonic()
 

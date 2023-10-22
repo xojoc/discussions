@@ -101,24 +101,28 @@ def __worker_fetch(task: celery.Task, platform: Platform) -> None:
 
 
 @shared_task(bind=True, ignore_result=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_lobsters(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     __worker_fetch(self, Platform.LOBSTERS)
 
 
 @shared_task(bind=True, ignore_result=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_barnacles(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     __worker_fetch(self, Platform.BARNACLES)
 
 
 @shared_task(bind=True, ignore_result=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_tilde_news(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     __worker_fetch(self, Platform.TILDE_NEWS)
 
 
 @shared_task(bind=True, ignore_result=True)
-@celery_util.singleton(timeout=None, blocking_timeout=0.1)
 def worker_fetch_standard(self):
+    if celery_util.task_is_running(self.request.task, [self.request.id]):
+        return
     __worker_fetch(self, Platform.STANDARD)
