@@ -1,6 +1,7 @@
 # Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import datetime
 import logging
+import random
 import time
 
 from celery import shared_task
@@ -23,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 @shared_task(bind=True, ignore_result=True)
 def worker_update_discussions(self):
+    time.sleep(random.randint(10, 30))  # noqa: S311
     if celery_util.task_is_running(self.request.task, [self.request.id]):
         return
     start_time = time.monotonic()

@@ -1410,7 +1410,7 @@ class MentionNotification(models.Model):
 class DataBag(models.Model):
     """Store results of expensive computations."""
 
-    key = models.CharField(blank=False)
+    key = models.CharField(primary_key=True, blank=False)
     value_json = models.JSONField()
 
     entry_created_at = models.DateTimeField(auto_now_add=True)
