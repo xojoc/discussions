@@ -10,6 +10,8 @@ echo "The script pid is $$"
 celery=false
 debug=false
 port="80"
+celery_processes=16
+celery_threads=16
 
 while getopts 'cdp:' option; do
 	case "${option}" in
@@ -32,6 +34,11 @@ done
 #echo "Check production settings"
 #python manage.py check --deploy
 
+if [ "$DJANGO_DEVELOPMENT" == "true" ]; then 
+	celery_processes=2 
+	celery_threads=2
+fi
+
 if [ "$DJANGO_DEVELOPMENT" != "true" ] || $celery; then
 	echo "Apply database migrations"
 	python manage.py migrate --noinput
@@ -41,11 +48,13 @@ if [ "$DJANGO_DEVELOPMENT" != "true" ] || $celery; then
 
 	echo "Run Celery"
 	#  --without-mingle --without-heartbeat --without-gossip
-	#celery -A discussions multi start 4 --without-mingle --without-heartbeat --without-gossip -E -l info -P gevent -c 50 &
-	celery -A discussions worker -n celery_cpu_1@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip &
-	celery -A discussions worker -n celery_cpu_2@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip &
-	celery -A discussions worker -n celery_cpu_3@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip &
-	celery -A discussions worker -n celery_cpu_4@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip &
+	celery -A discussions multi start "${celery_processes}" -c "${celery_threads}"  -E -l info -P threads \
+               --pidfile="$HOME/run/celery/%n.pid" \
+               --logfile="$HOME/log/celery/%n%I.log" &
+	# celery -A discussions worker -n celery_cpu_1@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip &
+	# celery -A discussions worker -n celery_cpu_2@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip &
+	# celery -A discussions worker -n celery_cpu_3@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip &
+	# celery -A discussions worker -n celery_cpu_4@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip &
 	#celery -A discussions worker --without-mingle --without-heartbeat --without-gossip -E -l info -P prefork &
 
 	echo "Run Celery Beat"

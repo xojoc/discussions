@@ -3,11 +3,12 @@ import logging
 
 import celery
 import celery.signals
-import gevent
+
+# import gevent
 from django.core.cache import cache
 from django_redis import get_redis_connection
-from gevent.hub import get_hub
 
+# from gevent.hub import get_hub
 from web import celery_util
 
 logger = logging.getLogger(__name__)
@@ -16,10 +17,12 @@ cache_graceful_exit_key = "discussions:worker:graceful_exit"
 
 
 def __patch_greenlet(f):
-    def inner(*args, **kwargs):
-        return gevent.spawn(f, *args, **kwargs)
+    _ = f
 
-    return inner
+    # def inner(*args, **kwargs):
+    #     return gevent.spawn(f, *args, **kwargs)
+    #
+    # return inner
 
 
 @__patch_greenlet
@@ -28,9 +31,12 @@ def __cache_set():
 
 
 def __timer(after, repeat, f):
-    t = get_hub().loop.timer(after, repeat)
-    t.start(f)
-    return t
+    _ = after
+    _ = repeat
+    _ = f
+    # t = get_hub().loop.timer(after, repeat)
+    # t.start(f)
+    # return t
 
 
 @celery.signals.worker_shutting_down.connect
