@@ -61,7 +61,7 @@ if [ "$DJANGO_DEVELOPMENT" != "true" ] || $celery; then
 	celery -A discussions beat -l WARNING &
 
 	echo "Starting Flower"
-	celery -A discussions flower &
+	celery -A discussions flower --basic-auth="${FLOWER_USER}:${FLOWER_PASSWORD}" &
 fi
 
 echo "Starting server on port $port"
