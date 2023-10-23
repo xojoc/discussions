@@ -23,7 +23,7 @@ while getopts 'cdp:' option; do
 		port="${OPTARG}"
 		;;
 	*)
-		echo 'Unknown option "${option}"'
+		echo "Unknown option '${option}'"
 		exit 1
 		;;
 	esac

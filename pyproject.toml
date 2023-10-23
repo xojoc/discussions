@@ -9,7 +9,7 @@ authors = ["Alexandru Cojocaru <hi@xojoc.pw>"]
 archiveis = "^0"
 bs4 = "^0"
 CacheControl = "^0"
-celery = "=5.2.7"
+celery = "^5"
 cleanurl = "*"
 crawlerdetect = "*"
 crispy-bootstrap5 = "^0"

@@ -34,8 +34,7 @@
         <span class="smaller-font">on {{d.platform.label}}</span>
         <span class="smaller-font">
             {% if d.tags %} {% if d.platform != 'r' %} tagged: {% else %} subreddit:
-            {% endif %} {% for tag in d.tags %} {{tag}}{% if not forloop.last %}, {%
-            endif %} {% endfor %} {% endif %}
+            {% endif %} {% for tag in d.tags %} {{tag}}{% if not forloop.last %}, {% endif %} {% endfor %} {% endif %}
         </span>
     </li>
     {% endfor %}
