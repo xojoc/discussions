@@ -33,7 +33,7 @@ def discussions_canonical_url(q, *, with_domain=True):
 
     cu = cleanurl.cleanurl(q)
 
-    if cu and cu.scheme in ("http", "https"):
+    if cu and cu.scheme in {"http", "https"}:
         q = cu.url or ""
         q = q.replace("http://", "https://")
 
@@ -94,32 +94,32 @@ def url_root(url: str | cleanurl.Result | None) -> str | None:
         return None
 
     atleast_for_project = 2
-    if url.hostname in (
+    if url.hostname in {
         "www.github.com",
         "github.com",
         "gitlab.com",
         "www.gitlab.com",
-    ):
+    }:
         parts = (url.path or "").split("/")
         parts = [p for p in parts if p]
         if len(parts) >= atleast_for_project:
             return url.hostname + "/" + parts[0]
 
     atleast_for_post = 3
-    if url.hostname in (
+    if url.hostname in {
         "www.twitter.com",
         "twitter.com",
         "mobile.twitter.com",
-    ):
+    }:
         parts = (url.path or "").split("/")
         parts = [p for p in parts if p]
         if len(parts) >= atleast_for_post and parts[1] == "status":
             return url.hostname + "/" + parts[0]
 
-    if url.hostname in (
+    if url.hostname in {
         "mastodon.social",
         "mastodon.technology",
-    ):
+    }:
         parts = (url.path or "").split("/")
         parts = [p for p in parts if p]
         if (

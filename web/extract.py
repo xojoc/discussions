@@ -125,7 +125,7 @@ def __extract_title(h, s, url):
         if u.hostname == "streamgg.com":
             s.title = None
 
-        if u.hostname in ("clips.twitch.tv", "twitch.tv"):
+        if u.hostname in {"clips.twitch.tv", "twitch.tv"}:
             s.title = None
 
         # TODO: blocked in EU. Skip for now
@@ -187,7 +187,7 @@ def get_github_user_twitter(url):
     if not u:
         return None
 
-    if u.netloc not in ("github.com", "www.github.com"):
+    if u.netloc not in {"github.com", "www.github.com"}:
         return None
 
     if not u.path:

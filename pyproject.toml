@@ -97,6 +97,7 @@ ignore = [
 	'TD003',   # missing issue
 	'PT009',   # pytest
 	'PLR2004', # magic value in comparison
+	'PLR0916', # too many boolean expressions
 	# 'RUF012', # mutable class attribute
 	# 'PTH123', # Path.open instead of open
 	'SIM102', # use single if

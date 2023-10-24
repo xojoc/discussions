@@ -57,7 +57,7 @@ def _url_from_selftext(selftext, title=None):
             )
             if not u:
                 continue
-            if u.scheme not in ("http", "https", "ftp"):
+            if u.scheme not in {"http", "https", "ftp"}:
                 continue
             if not u.parsed_url.netloc or not u.parsed_url.hostname:
                 continue

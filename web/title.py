@@ -69,7 +69,7 @@ def __contraction(title):
             new_title += "is not"
         elif w == "won't":
             new_title += "will not"
-        elif w in ("can't", "cannot"):
+        elif w in {"can't", "cannot"}:
             new_title += "can not"
         elif w.endswith("'re"):
             new_title += w.removesuffix("'re") + " are"

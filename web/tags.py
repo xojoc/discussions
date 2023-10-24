@@ -80,10 +80,10 @@ def __is_nim_game(title, url=None):
 
 
 def __topic_nim(tags, title, url, platform):
-    if platform in (
+    if platform in {
         Platform.HACKER_NEWS,
         Platform.LAMBDA_THE_ULTIMATE,
-    ) and not __is_nim_game(title, url):
+    } and not __is_nim_game(title, url):
         __augment_tags(title, tags, "nim", None, "nimlang")
         __augment_tags(title, tags, "nim", None, "nimlang")
 
@@ -207,7 +207,7 @@ def __topic_webdev(tags, title, url, platform, original_title):
 
 
 def __topic_zig(tags, title, url, platform):
-    if platform in (Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE):
+    if platform in {Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE}:
         __augment_tags(title, tags, "zig", None, "ziglang")
 
     __augment_tags(title, tags, "ziglang")
@@ -272,12 +272,12 @@ def __topic_java(tags, title, url, platform, original_title):
 
     if (
         platform
-        in (
+        in {
             Platform.HACKER_NEWS,
             Platform.LAMBDA_THE_ULTIMATE,
             Platform.TILDE_NEWS,
             Platform.LOBSTERS,
-        )
+        }
         or __is_programming_related(
             title,
             url,
@@ -354,7 +354,7 @@ def __topic_golang(tags, title, url, platform, original_title):
 
 def __topic_python(tags, title, url, platform, original_title):
     if not re.search(r"\bMonty\b", original_title):
-        if platform in (Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE):
+        if platform in {Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE}:
             __augment_tags(title, tags, "python")
 
         __augment_tags(
@@ -382,7 +382,7 @@ def __topic_haskell(tags, title, url, platform, original_title):
 
 def __topic_lisp_scheme(tags, title, url, platform, original_title):
     _ = original_title
-    if platform in (Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE):
+    if platform in {Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE}:
         __augment_tags(title, tags, "lisp")
 
     __programming_keyword(tags, title, url, "lisp")
@@ -446,12 +446,12 @@ def __topic_apl(tags, title, url, platform, original_title):
     __programming_keyword(tags, title, url, "apl2", "apl")
     __programming_keyword(tags, title, url, "dyalog", "apl")
 
-    if platform in (
+    if platform in {
         Platform.HACKER_NEWS,
         Platform.LAMBDA_THE_ULTIMATE,
         Platform.TILDE_NEWS,
         Platform.LOBSTERS,
-    ):
+    }:
         if re.search(r"\bAPL\b", original_title):
             tags.add("apl")
         # if url and url.hostname and "github" in url.hostname:
@@ -489,11 +489,11 @@ def __topic_devops(tags, title, url, platform, original_title):
 
     if (
         platform
-        in (
+        in {
             Platform.HACKER_NEWS,
             Platform.LOBSTERS,
             Platform.LAMBDA_THE_ULTIMATE,
-        )
+        }
         or "programming" in tags
         or __is_programming_related(title, url)
     ) and re.search(r"\bHeroku\b", original_title):
@@ -519,7 +519,7 @@ def __topic_compsci(tags, title, url, platform, original_title):
         tags.add("compsci")
 
     if (
-        platform in (Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE)
+        platform in {Platform.HACKER_NEWS, Platform.LAMBDA_THE_ULTIMATE}
         or "programming" in tags
         or __is_programming_related(title, url)
     ) and (

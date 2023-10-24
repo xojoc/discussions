@@ -52,7 +52,7 @@ class Category(IntegerChoices):
 
     def name_platform(self, platform: Platform) -> str:
         if platform == Platform.HACKER_NEWS:
-            if self in (Category.TELL_PLATFORM, Category.ASK_PLATFORM):
+            if self in {Category.TELL_PLATFORM, Category.ASK_PLATFORM}:
                 return f"{self.label} HN"
 
         return self.plural
@@ -78,6 +78,7 @@ class Category(IntegerChoices):
 
         path_components = [p for p in path.split("/") if p]
 
+        title = title or ""
         tags = set(normalize_tags(story_tags, platform, title, url))
         title_tokens = normalize_title(title, platform, url, tags).split()
 
@@ -127,12 +128,12 @@ def __derive_project(
     _ = tags
     if (
         host
-        in (
+        in {
             "github.com",
             "gitlab.com",
             "bitbucket.org",
             "gitea.com",
-        )
+        }
         and len(path_components) == 2
     ):
         return Category.PROJECT
@@ -144,7 +145,7 @@ def __derive_project(
     ):
         return Category.PROJECT
 
-    if host in ("savannah.gnu.org", "savannah.nongnu.org") and (
+    if host in {"savannah.gnu.org", "savannah.nongnu.org"} and (
         len(path_components) > 1 and path_components[0] == "projects"
     ):
         return Category.PROJECT
@@ -172,7 +173,7 @@ def __derive_video(
     _ = path_components
     _ = tags
     # TODO: look for parameters too
-    if host in ("youtu.be", "youtube.com", "vimeo.com"):
+    if host in {"youtu.be", "youtube.com", "vimeo.com"}:
         return Category.VIDEO
 
     return None

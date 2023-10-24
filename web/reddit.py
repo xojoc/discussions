@@ -53,12 +53,12 @@ def _url_blacklisted(url):
             "www.reddit.com/gallery/",
             "preview.redd.it",
         ),
-    ) or url in (
+    ) or url in {
         "reddit.com",
         "reddit.com/",
         "www.reddit.com",
         "www.reddit.com/",
-    ):
+    }:
         return True
 
     return False
@@ -70,7 +70,7 @@ def __url_blacklisted_selftext(url):
 
     if (
         url
-        in (
+        in {
             "www.google.com",
             "google.com",
             "google.com/trends/explore",
@@ -81,7 +81,7 @@ def __url_blacklisted_selftext(url):
             "github.com",
             "self.data",
             "self.name",
-        )
+        }
         or url == "crates.io"
         or url == "crates.io/"
         or url == "inventwithpython.com/bigbookpython/"
@@ -130,7 +130,7 @@ def _url_from_selftext(selftext, title=None):
             )
             if not u:
                 continue
-            if u.scheme not in ("http", "https", "ftp"):
+            if u.scheme not in {"http", "https", "ftp"}:
                 continue
             if not u.parsed_url.netloc or not u.parsed_url.hostname:
                 continue
@@ -296,7 +296,7 @@ def worker_fetch_reddit_archive(self):
             max_window_size=2**31,
         ).stream_reader(f, read_across_frames=True)
 
-        text = io.TextIOWrapper(stream)
+        text = io.TextIOWrapper(stream, encoding="utf-8")
 
         graceful_exit = False
 

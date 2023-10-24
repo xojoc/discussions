@@ -257,7 +257,7 @@ def index(request: HttpRequest, path_q: str | None = None) -> HttpResponse:
     host = request.get_host().partition(":")[0]
     if not request.path.startswith("/.well-known/") and (
         host
-        not in ("localhost", "127.0.0.1", "testserver", settings.APP_DOMAIN)
+        not in {"localhost", "127.0.0.1", "testserver", settings.APP_DOMAIN}
     ):
         r = "https://" + settings.APP_DOMAIN + request.get_full_path()
         return HttpResponsePermanentRedirect(r)
@@ -884,7 +884,7 @@ def aws_bounce_handler(request):
         notification_type = message.get("notificationType")
         if notification_type == "Bounce":
             bounce = message.get("bounce")
-            if bounce.get("bounceType") in ["Undetermined", "Permanent"]:
+            if bounce.get("bounceType") in {"Undetermined", "Permanent"}:
                 unsubscribe = True
             destinations = [
                 recipient.get("emailAddress")

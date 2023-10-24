@@ -196,7 +196,7 @@ def process_next() -> bool:
 
     try:
         u = urllib3.util.parse_url(url)
-        if u.scheme not in ("http", "https"):
+        if u.scheme not in {"http", "https"}:
             logger.warning("crawler: scheme not processed: %s", url)
             return False
     except ValueError:

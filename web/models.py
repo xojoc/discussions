@@ -164,6 +164,7 @@ class Discussion(models.Model):
         super().save(*args, **kwargs)
 
     def pre_save(self):
+        self.title = self.title or ""
         if self.title:
             self.title = self.title.replace("\x00", "")
 
@@ -363,7 +364,7 @@ class Discussion(models.Model):
 
         ts = None
 
-        if scheme not in ("http", "https", "ftp"):
+        if scheme not in {"http", "https", "ftp"}:
             # xojoc: test search with:
             #   https://discu.eu/q/APL%20in%20JavaScript
             #   https://discu.eu/q/Go%201.4.1%20has%20been%20released
