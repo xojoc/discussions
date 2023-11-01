@@ -111,6 +111,7 @@ ignore = [
 	'PLR0913', # too many arguments to function
 	'PLR0911', # too many return statements
 	'ANN401',  # Any not allowed in arguments
+	'E203',    # whitespace before :
 ]
 unfixable = [
 	'F841', # unused variable
@@ -154,7 +155,7 @@ reportUnnecessaryIsInstance = 'warning'
 reportUnnecessaryCast = 'warning'
 reportUnnecessaryComparison = 'warning'
 reportUnnecessaryContains = 'warning'
-reportImplicitStringConcatenation = 'warning'
+reportImplicitStringConcatenation = false
 reportUnusedCallResult = 'warning'
 reportUnusedExpression = 'warning'
 reportUnnecessaryTypeIgnoreComment = 'warning'

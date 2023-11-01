@@ -263,7 +263,7 @@ def index(request: HttpRequest, path_q: str | None = None) -> HttpResponse:
         return HttpResponsePermanentRedirect(r)
 
     if path_q:
-        q = url_unquote(request.get_full_path()[len("/q/"):])
+        q = url_unquote(request.get_full_path()[len("/q/") :])
     else:
         q = request.GET.get("url") or request.GET.get("q")
 

@@ -273,7 +273,12 @@ def extract_html(resource):
         resource.save()
         return
 
-    html = http.parse_html(resource.clean_html, safe_html=True, clean=True)
+    html = http.parse_html(
+        resource.clean_html,
+        safe_html=True,
+        clean=True,
+        url=resource.url,
+    )
     if html:
         resource.clean_html = str(html)
     html_structure = extract.structure(html, resource.story_url)

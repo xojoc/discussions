@@ -128,6 +128,7 @@ def parse_html(
     *,
     safe_html: bool = False,
     clean: bool = False,
+    url: str = "",
 ) -> BeautifulSoup | None:
     try:
         html = res if isinstance(res, bytes | str) else (res.text or "")
@@ -136,6 +137,13 @@ def parse_html(
 
     if not html:
         return None
+
+    u = None
+    if url:
+        try:
+            u = urllib3.util.parse_url(url)
+        except ValueError:
+            u = None
 
     if clean:
         safe_html = True
@@ -172,10 +180,74 @@ def parse_html(
             h.style.decompose()
         while h.svg:
             h.svg.decompose()
+        while h.canvas:
+            h.canvas.decompose()
+        while h.template:
+            h.template.decompose()
         while h.link:
             h.link.decompose()
-        comments = h.findAll(text=lambda text: isinstance(text, bs4.Comment))
-        for comment in comments:
+
+        for t in h.find_all("include-fragment"):
+            t.decompose()
+
+        for comment in h.findAll(
+            text=lambda text: isinstance(text, bs4.Comment),
+        ):
             comment.extract()
+
+        attribute_prefixes_to_remove = (
+            "data-",
+            "darker-",
+            "typography",
+            "system-icons",
+        )
+        for tag in h.find_all(
+            lambda t: any(
+                i.startswith(attribute_prefixes_to_remove) for i in t.attrs
+            ),
+        ):
+            for attr in list(tag.attrs):
+                if attr.startswith(attribute_prefixes_to_remove):
+                    del tag.attrs[attr]
+
+        for t in h.select(
+            'meta[name="optimizely-datafile"], '
+            'meta[name="viewport"], '
+            'meta[name="theme-color"], '
+            'meta[name="color-scheme"], '
+            'meta[http-equiv="origin-trial"], '
+            'meta[http-equiv="X-UA-Compatible"], '
+            'meta[property="og:video:tag"], '
+            'meta[property="al:ios:url"], '
+            'meta[property="al:android:url"], '
+            'meta[property="al:web:url"], '
+            'meta[property="og:url"], '
+            # 'meta[property^="al:android:"], '
+            # 'meta[property^="al:ios:"], '
+            # 'meta[property^="al:web:"], '
+            'meta[name$="-verification"], '
+            "#adblock-test",
+        ):
+            t.decompose()
+
+        if u and u.host in {"twitter.com", "www.twitter.com", "m.twitter.com"}:
+            # the body doesn't contain much, everything is inside the meta tags
+            if h.body:
+                h.body.decompose()
+
+        if u and u.host in {"www.youtube.com", "youtube.com", "youtu.be"}:
+            # the body doesn't contain much, everything is inside the meta tags
+            if h.body:
+                h.body.decompose()
+
+        if u and u.host in {"www.reddit.com", "reddit.com", "old.reddit.com"}:
+            # the body doesn't contain much, everything is inside the meta tags
+            if h.body:
+                h.body.decompose()
+
+        if u and u.host in {"streamable.com", "www.streamable.com"}:
+            # the body doesn't contain much, everything is inside the meta tags
+            if h.body:
+                h.body.decompose()
 
     return h
