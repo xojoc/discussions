@@ -32,7 +32,7 @@ class WebConfig(AppConfig):
 
     @classmethod
     def __topics(cls):
-        from web import topics
+        from web import topics  # noqa: PLC0415
 
         for topic_key, topic in topics.topics.items():
             topic[
@@ -44,21 +44,23 @@ class WebConfig(AppConfig):
                     topic["email"],
                 ),
             )
-            topic[
-                "mailto_subscribe"
-            ] = f"mailto:{topic['email']}?" + urllib.parse.urlencode(
-                [
-                    ("subject", f"Subscribe to {topic['name']}"),
-                    ("body", "subscribe (must be first word)"),
-                ],
+            topic["mailto_subscribe"] = (
+                f"mailto:{topic['email']}?"
+                + urllib.parse.urlencode(
+                    [
+                        ("subject", f"Subscribe to {topic['name']}"),
+                        ("body", "subscribe (must be first word)"),
+                    ],
+                )
             )
-            topic[
-                "mailto_unsubscribe"
-            ] = f"mailto:{topic['email']}?" + urllib.parse.urlencode(
-                [
-                    ("subject", f"Unsubscribe from {topic['name']}"),
-                    ("body", "unsubscribe (must be first word)"),
-                ],
+            topic["mailto_unsubscribe"] = (
+                f"mailto:{topic['email']}?"
+                + urllib.parse.urlencode(
+                    [
+                        ("subject", f"Unsubscribe from {topic['name']}"),
+                        ("body", "unsubscribe (must be first word)"),
+                    ],
+                )
             )
 
         for topic in topics.topics.values():
@@ -85,7 +87,7 @@ class WebConfig(AppConfig):
 
     @classmethod
     def __reddit_configuration(cls):
-        from web import reddit
+        from web import reddit  # noqa: PLC0415
 
         with Path("web/reddit_subreddit_blacklist").open() as f:
             reddit.subreddit_blacklist = {
@@ -109,7 +111,7 @@ class WebConfig(AppConfig):
 
     @classmethod
     def __set_up_signals(cls):
-        from . import (
+        from . import (  # noqa: PLC0415
             mention,
             stripe_util,
         )

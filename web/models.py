@@ -382,7 +382,7 @@ class Discussion(models.Model):
             ):
                 query = " ".join(tokens[1:])
 
-                url_prefix = tokens[0][len(site_prefix):].lower()
+                url_prefix = tokens[0][len(site_prefix) :].lower()
                 curl_prefix = cleanurl.cleanurl(url_prefix, generic=True)
 
                 ts = (
@@ -631,9 +631,7 @@ class Resource(models.Model):
         through="Link",
         related_name="inbound_link",
     )
-    inbound_link: models.Manager[  # pyright: ignore [reportUninitializedInstanceVariable]
-        "Link"
-    ]
+    inbound_link: models.Manager["Link"]  # pyright: ignore [reportUninitializedInstanceVariable]
 
     pagerank = models.FloatField(default=0, null=False)
 
@@ -940,8 +938,6 @@ class Subscriber(models.Model):
 
     @classmethod
     def generate_verification_code(cls):
-        import secrets
-
         return secrets.token_urlsafe(5)
 
     def send_confirmation_email(self):
@@ -1059,9 +1055,7 @@ class CustomUser(AbstractUser):
     stripe_customer_id = models.TextField(blank=True)
 
     rss_id = models.TextField()
-    emailaddress_set: models.Manager[  # pyright: ignore [reportUninitializedInstanceVariable]
-        "allauth_models.EmailAddress"
-    ]
+    emailaddress_set: models.Manager["allauth_models.EmailAddress"]  # pyright: ignore [reportUninitializedInstanceVariable]
 
     @override
     def __str__(self):
@@ -1338,9 +1332,7 @@ Coma separated list of subreddits to ignore.
     entry_created_at = models.DateTimeField(auto_now_add=True)
     entry_updated_at = models.DateTimeField(auto_now=True)
 
-    mentionnotification_set: models.Manager[  # pyright: ignore [reportUninitializedInstanceVariable]
-        "MentionNotification"
-    ]
+    mentionnotification_set: models.Manager["MentionNotification"]  # pyright: ignore [reportUninitializedInstanceVariable]
 
     @override
     def __str__(self):
