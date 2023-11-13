@@ -89,6 +89,12 @@
 		 Canonical url: {{d.canonical_story_url}}
 -->
                             </li>
+                            {% if forloop.parentloop.counter == 1 and forloop.counter == 1 %}
+                                <script async
+                                        type="text/javascript"
+                                        src="//cdn.carbonads.com/carbon.js?serve=CWYI62QL&placement=discueu"
+                                        id="_carbonads_js"></script>
+                            {% endif %}
                         {% endfor %}
                     </ul>
                 {% endfor %}

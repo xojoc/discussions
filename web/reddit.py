@@ -626,7 +626,7 @@ def worker_update_all_discussions(self):
 
         logger.debug(f"reddit update all: current index {current_index}")
 
-        for d in q[current_index: current_index + step]:
+        for d in q[current_index : current_index + step]:
             if d.subreddit.lower() in subreddit_blacklist:
                 _ = d.delete()
                 continue
@@ -652,10 +652,14 @@ def worker_update_all_discussions(self):
             submissions = reddit.info(ps)
             for s in submissions:
                 _ = s.title  # preload
-        except praw.exceptions.PRAWException as e:
+        except (
+            praw.exceptions.PRAWException,
+            prawcore.exceptions.PrawcoreException,
+        ) as e:
             logger.exception("reddit update all: reddit.info")
             _ = sentry_sdk.capture_exception(e)
             submissions = []
+            time.sleep(60)
 
         for i, p in enumerate(submissions):
             d = ds[i]

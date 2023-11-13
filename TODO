@@ -1,6 +1,10 @@
 * Search by title (improve)
 * Search tweets
 
+* test ads missing for premium
+** add remove ads link
+** adblocker detector
+
 
 # Dev
 * Find out CapRover/docker's stop timeout and test it (Celery tasks may take minutes to stop)
