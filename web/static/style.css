@@ -10834,6 +10834,10 @@ p {
   gap: var(--carbon-padding);
   background-color: var(--carbon-bg-primary);
   box-shadow: 0 0 1px black, 0 0 2px black, 0 0 4px black, 0 0 8px black;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
 }
 
 #carbonads a {
