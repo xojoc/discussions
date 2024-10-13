@@ -183,14 +183,17 @@ def get_discussion_counts(request: HttpRequest, url: str) -> DiscussionCounts:
         dcs.total_score += d.score
         dcs.total_discussions += 1
         if not dcs.first_discussion:
-            dcs.first_discussion = d.created_at
+            dcs.first_discussion = d.created_at.date()
         else:
-            dcs.first_discussion = min(dcs.first_discussion, d.created_at)
+            dcs.first_discussion = min(
+                dcs.first_discussion,
+                d.created_at.date(),
+            )
 
         if not dcs.last_discussion:
-            dcs.last_discussion = d.created_at
+            dcs.last_discussion = d.created_at.date()
         else:
-            dcs.last_discussion = max(dcs.last_discussion, d.created_at)
+            dcs.last_discussion = max(dcs.last_discussion, d.created_at.date())
 
         dcs.comments_by_platform[d.platform.value] = (
             dcs.comments_by_platform.get(d.platform.value, 0) + d.comment_count

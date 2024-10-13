@@ -31,7 +31,7 @@ def create_customer(user_pk):
             },
             idempotency_key=f"{user_pk}",
         )
-    except stripe.error.StripeError:
+    except stripe.StripeError:
         logger.exception("stripe create_customer")
         return
 
