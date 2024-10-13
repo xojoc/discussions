@@ -535,10 +535,10 @@ def __social_context(request):
         if not bot_name:
             continue
         bot = {
-            "link": f"https://twitter.com/{ bot_name }",
-            "link_title": f"{ topic['name'] } Twitter bot",
-            "nick": f"@{ bot_name }",
-            "description": f"{ topic['short_description'] }",
+            "link": f"https://twitter.com/{bot_name}",
+            "link_title": f"{topic['name']} Twitter bot",
+            "nick": f"@{bot_name}",
+            "description": f"{topic['short_description']}",
         }
         twitter_bots.append(bot)
 
@@ -553,9 +553,9 @@ def __social_context(request):
             continue
         bot = {
             "link": mastodon.profile_url(bot_name),
-            "link_title": f"{ topic['name'] } Mastodon bot",
+            "link_title": f"{topic['name']} Mastodon bot",
             "nick": "@" + bot_name.split("@")[1],
-            "description": f"{ topic['short_description'] }",
+            "description": f"{topic['short_description']}",
         }
         mastodon_bots.append(bot)
 

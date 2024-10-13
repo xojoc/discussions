@@ -1,5 +1,6 @@
 # Copyright 2023 Alexandru Cojocaru AGPLv3 or later - no warranty!
 """Wrappers around Twitter API."""
+
 import logging
 import os
 import typing
@@ -20,7 +21,8 @@ def get_followers_count(usernames: list[str]) -> dict[str, int]:
     Args:
         usernames: twitter profiles for which to get the follower count
 
-    Returns: follower count for each user
+    Returns:
+        follower count for each user
     """
     # TODO: reduce to 24 when upgrading twitter plan,
     #       and use a single user to get counts

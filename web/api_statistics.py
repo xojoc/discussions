@@ -22,7 +22,7 @@ def track(request):
 
 
 def get(api_version, token, endpoint=None, redis=None):
-    r = redis if redis else get_redis_connection("default")
+    r = redis or get_redis_connection("default")
 
     hash_key = __get_statistics_key(api_version, token)
 

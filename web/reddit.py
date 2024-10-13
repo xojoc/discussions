@@ -39,7 +39,7 @@ def _url_blacklisted(url):
     if not url:
         return False
 
-    if url.startswith(
+    return url.startswith(
         (
             "i.imgur.com",
             "imgur.com",
@@ -58,49 +58,39 @@ def _url_blacklisted(url):
         "reddit.com/",
         "www.reddit.com",
         "www.reddit.com/",
-    }:
-        return True
-
-    return False
+    }
 
 
 def __url_blacklisted_selftext(url):
     if not url:
         return False
 
-    if (
-        url
-        in {
-            "www.google.com",
-            "google.com",
-            "google.com/trends/explore",
-            "www.privacytools.io/#photos",
-            "example.com",
-            "itch.io",
-            "amazon.com",
-            "github.com",
-            "self.data",
-            "self.name",
-        }
-        or url == "crates.io"
-        or url == "crates.io/"
-        or url == "inventwithpython.com/bigbookpython/"
-        or url == "inventwithpython.com/bigbookpython"
-        or url == "learnopengl.com"
-        or url == "learnopengl.com/"
-        or url.startswith(
-            (
-                "discord.gg/python",
-                "reddit.com",
-                "www.reddit.com",
-                "old.reddit.com",
-                "preview.redd.it",
-            ),
-        )
-    ):
-        return True
-
-    return False
+    return url in {
+        "www.google.com",
+        "google.com",
+        "google.com/trends/explore",
+        "www.privacytools.io/#photos",
+        "example.com",
+        "itch.io",
+        "amazon.com",
+        "github.com",
+        "self.data",
+        "self.name",
+        "crates.io",
+        "crates.io/",
+        "inventwithpython.com/bigbookpython/",
+        "inventwithpython.com/bigbookpython",
+        "learnopengl.com",
+        "learnopengl.com/",
+    } or url.startswith(
+        (
+            "discord.gg/python",
+            "reddit.com",
+            "www.reddit.com",
+            "old.reddit.com",
+            "preview.redd.it",
+        ),
+    )
 
 
 def _url_from_selftext(selftext, title=None):
@@ -300,8 +290,7 @@ def worker_fetch_reddit_archive(self):
 
         graceful_exit = False
 
-        c = 0
-        for line in text:
+        for line, c in enumerate(text):
             if c % 1_000_000 == 0:
                 logger.info(f"reddit archive: File {file}, line {c}")
                 if worker.graceful_exit(self):
@@ -309,7 +298,6 @@ def worker_fetch_reddit_archive(self):
                     graceful_exit = True
                     break
 
-            c += 1
             try:
                 __process_archive_line(line)
             except Exception:  # noqa: BLE001
@@ -397,8 +385,7 @@ def get_subreddit(
             limit=limit,
         )
 
-    for story in story_list:
-        stories.add(story)
+    stories.update(story_list)
 
     return stories
 

@@ -1,5 +1,6 @@
 # Copyright 2021 Alexandru Cojocaru AGPLv3 or later - no warranty!
 import datetime
+import operator
 import os
 import unicodedata
 from collections.abc import Callable
@@ -55,7 +56,10 @@ def most_similar(
 ) -> str | None:
     if not bs:
         return None
-    return max({(similarity(a, key(b)), b) for b in bs}, key=lambda x: x[0])[1]
+    return max(
+        {(similarity(a, key(b)), b) for b in bs},
+        key=operator.itemgetter(0),
+    )[1]
 
 
 def is_dev():

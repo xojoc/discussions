@@ -57,9 +57,9 @@ auth_bearer = AuthBearer()
 
 @dataclass
 class Discussion(ModelSchema):
-    class Config:
+    class Meta:
         model = models.Discussion
-        model_fields = (
+        fields = (
             "created_at",
             "title",
             "comment_count",
@@ -69,7 +69,7 @@ class Discussion(ModelSchema):
         )
 
     platform: str
-    id: str  # noqa: A003
+    id: str
     story_url: str | None
     discussion_url: str | None
     subreddit: str | None

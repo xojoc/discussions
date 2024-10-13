@@ -90,7 +90,7 @@ class Mention(TestCase):
 
         assert r3.mentionnotification_set.filter(discussion=d3).exists()
 
-        f4, r4 = self.__new_form(
+        _, r4 = self.__new_form(
             {
                 "keywords": [" two ", "   keywords"],
             },

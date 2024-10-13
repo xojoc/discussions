@@ -254,7 +254,7 @@ class Discussion(models.Model):
         return url.split("/")[0]
 
     @property
-    def id(self):  # noqa: A003
+    def id(self):
         return self.platform_id[1:]
 
     @property
@@ -588,7 +588,7 @@ class MastodonPost(models.Model):
 class Resource(models.Model):
     TITLE_MAX_LEN = 2048
 
-    id = models.BigAutoField(primary_key=True)  # noqa: A003
+    id = models.BigAutoField(primary_key=True)
 
     scheme = models.CharField(max_length=25)
 

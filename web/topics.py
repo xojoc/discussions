@@ -443,7 +443,8 @@ def get_account_configuration(
         platform_key: social media platform (Twitter, Mastodon, etc.)
         username: bot's username for the corresponding topic
 
-    Returns: account configuration of the bot for the given social platform.
+    Returns:
+        account configuration of the bot for the given social platform.
     """
     for topic in topics.values():
         platform = topic.get(platform_key)
@@ -470,7 +471,8 @@ def get_topic_by_email(email: str) -> tuple[str, TopicData] | None:
     Args:
         email (): email to match to the topic
 
-    Returns: the corresponding topic
+    Returns:
+        the corresponding topic
     """
     for topic_key, topic in topics.items():
         if topic.get("email") == email:

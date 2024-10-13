@@ -69,7 +69,7 @@ class SubscriberForm(forms.ModelForm):
         )
 
     @override
-    def save(self, commit=True):  # noqa: FBT002
+    def save(self, commit=True):
         instance = super().save(commit=False)
         if self.cleaned_data.get("contact_email_only"):
             instance.suspected_spam = True

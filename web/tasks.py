@@ -84,7 +84,7 @@ def celery_task_failure_email(
 
         {pprint.pformat(kwargs, indent=4, underscore_numbers=True)}
 
-        {kwargs['einfo']}
+        {kwargs["einfo"]}
 
 
         {pprint.pformat(tb_locals, indent=4, underscore_numbers=True)}
@@ -110,7 +110,7 @@ def celery_internal_error_email(
 
         {pprint.pformat(kwargs, indent=4, underscore_numbers=True)}
 
-        {kwargs['einfo']}
+        {kwargs["einfo"]}
 
         {pprint.pformat(tb_locals, indent=4, underscore_numbers=True)}
 
@@ -120,7 +120,10 @@ def celery_internal_error_email(
 
 @shared_task(ignore_result=True)
 def celery_explicit_error():
-    """Cause an error to test the `task_failure` signal"""
+    """Cause an error to test the `task_failure` signal.
+
+    Raises:
+        ValueError: always raised"""
     local_error = "I'am local"
     _ = local_error
     msg = "testing the `task_failure` signal"

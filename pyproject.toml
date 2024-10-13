@@ -14,23 +14,23 @@ cleanurl = "*"
 crawlerdetect = "*"
 crispy-bootstrap5 = "*"
 daphne = "^4"
-Django = "^4"
-django-allauth = "^0"
+Django = "^5"
+django-allauth = "^65"
 django-celery-beat = "^2"
-django-celerybeat-status = "^0"
+django-celerybeat-status = "^1"
 django-crispy-forms = "*"
 django-debug-toolbar = "*"
 django-extensions = "^3"
 django-htmx = "^1"
-django-ninja = "^0"
+django-ninja = "^1"
 django-stubs-ext = "*"
 django-redis = "^5"
 feedparser = "^6"
 flower = "^2"
-gevent = "^23"
+gevent = "^24"
 igraph = "^0"
 # importlib-metadata = "*"
-lxml = "^4"
+lxml = "^5"
 Markdown = "^3"
 matplotlib = "^3"
 minify-html = "^0"
@@ -42,7 +42,7 @@ python = "^3.11"
 python-dateutil = "^2"
 requests = "^2"
 scipy = "*"
-sentry-sdk = "^1"
+sentry-sdk = "^2"
 stripe = "*"
 tweepy = "^4"
 urllib3 = "^2"
@@ -64,6 +64,8 @@ types-stripe = "*"
 types-lxml = "*"
 types-urllib3 = "^1"
 types-python-dateutil = "^2"
+types-gevent = "^24.10.0.20241012"
+types-networkx = "^3.3.0.20241009"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -98,6 +100,7 @@ ignore = [
 	'PT009',   # pytest
 	'PLR2004', # magic value in comparison
 	'PLR0916', # too many boolean expressions
+	'PLR0917', # too many positional arguments
 	# 'RUF012', # mutable class attribute
 	# 'PTH123', # Path.open instead of open
 	'SIM102', # use single if

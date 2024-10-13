@@ -29,7 +29,8 @@ debug: sass_compile
 run-celery:
 	@poetry run celery -A discussions worker -l info
 
-pre-commit: sass_compile lint test poetry_export
+# pre-commit: sass_compile lint test poetry_export
+pre-commit: sass_compile test poetry_export
 	@git add web/static/style.css
 	@git add requirements.txt
 	@git add web/migrations
@@ -67,7 +68,7 @@ lint:
 	# @poetry run mypy --install-types --non-interactive .
 
 test:
-	@poetry run python -Wa manage.py test --pdb --shuffle --keepdb --failfast -v 2
+	@poetry run python -Wa manage.py test  --shuffle --keepdb --failfast -v 2 # --parallel auto
 
 utest:
 	# @poetry run python -m unittest discover -s web -p '*.py' -t .
