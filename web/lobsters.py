@@ -52,16 +52,20 @@ def process_item(item: dict[str, Any], platform: Platform) -> None:
         discussion.tags = item.get("tags")
         discussion.save()
     except models.Discussion.DoesNotExist:
-        models.Discussion(
-            platform_id=platform_id,
-            comment_count=item.get("comment_count") or 0,
-            score=item.get("score") or 0,
-            created_at=created_at,
-            scheme_of_story_url=scheme,
-            schemeless_story_url=url,
-            title=item.get("title"),
-            tags=item.get("tags"),
-        ).save()
+        try:  # noqa: SIM105
+            models.Discussion(
+                platform_id=platform_id,
+                comment_count=item.get("comment_count") or 0,
+                score=item.get("score") or 0,
+                created_at=created_at,
+                scheme_of_story_url=scheme,
+                schemeless_story_url=url,
+                title=item.get("title"),
+                tags=item.get("tags"),
+            ).save()
+        except Exception:  # noqa: S110, BLE001
+            # TODO: remove
+            pass
 
 
 def __worker_fetch(task: celery.Task, platform: Platform) -> None:
