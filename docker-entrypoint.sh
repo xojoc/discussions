@@ -48,7 +48,7 @@ if [ "$DJANGO_DEVELOPMENT" != "true" ] || $celery; then
 
 	echo "Run Celery"
 	#  --without-mingle --without-heartbeat --without-gossip
-	DJANGO_POOL_MIN_SIZE=3 DJANGO_POOL_MAX_SIZE=3 celery -A discussions multi start "${celery_processes}" -c "${celery_threads}"  -E -l info -P threads \
+	DJANGO_POOL_MIN_SIZE=3 DJANGO_POOL_MAX_SIZE=3 DJANGO_DB_APPLICATION_NAME="discu celery" celery -A discussions multi start "${celery_processes}" -c "${celery_threads}"  -E -l info -P threads \
                --pidfile="$HOME/run/celery/%n.pid" \
                --logfile="$HOME/log/celery/%n%I.log" &
 	# celery -A discussions worker -n celery_cpu_1@%h -E -l info -P gevent -c 50 --without-mingle --without-heartbeat --without-gossip &
@@ -58,10 +58,10 @@ if [ "$DJANGO_DEVELOPMENT" != "true" ] || $celery; then
 	#celery -A discussions worker --without-mingle --without-heartbeat --without-gossip -E -l info -P prefork &
 
 	echo "Run Celery Beat"
-	DJANGO_POOL_MIN_SIZE=2 DJANGO_POOL_MAX_SIZE=2 celery -A discussions beat -l WARNING &
+	DJANGO_POOL_MIN_SIZE=2 DJANGO_POOL_MAX_SIZE=2 DJANGO_DB_APPLICATION_NAME="discu celery beat" celery -A discussions beat -l WARNING &
 
 	echo "Starting Flower"
-	celery -A discussions flower --basic-auth="${FLOWER_USER}:${FLOWER_PASSWORD}" &
+	DJANGO_POOL_MIN_SIZE=2 DJANGO_POOL_MAX_SIZE=2 DJANGO_DB_APPLICATION_NAME="discu celery flower" celery -A discussions flower --basic-auth="${FLOWER_USER}:${FLOWER_PASSWORD}" &
 fi
 
 echo "Starting server on port $port"
