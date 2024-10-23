@@ -140,7 +140,7 @@ DATABASES = {
         "NAME": os.environ.get("DATABASE_NAME"),
         "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
         "USER": os.environ.get("DATABASE_USER"),
-        "OPTIONS": {"application_name": "discu.eu"},
+        "OPTIONS": {"application_name": "discu.eu", "pool": True},
     },
 }
 
