@@ -142,7 +142,7 @@ DATABASES = {
         "USER": os.environ.get("DATABASE_USER"),
         "OPTIONS": {
             "application_name": "discu.eu",
-            "pool": {"min_size": 32, "max_size": 40},
+            "pool": {"min_size": 4, "max_size": 8},
         },
     },
 }
