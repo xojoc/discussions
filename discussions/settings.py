@@ -147,6 +147,16 @@ DATABASES = {
     },
 }
 
+if os.environ.get("DJANGO_POOL_MIN_SIZE", "").lower().strip():
+    DATABASES["default"]["OPTIONS"]["pool"]["min_size"] = int(
+        os.environ.get("DJANGO_POOL_MIN_SIZE", "")
+    )
+
+if os.environ.get("DJANGO_POOL_MAX_SIZE", "").lower().strip():
+    DATABASES["default"]["OPTIONS"]["pool"]["max_size"] = int(
+        os.environ.get("DJANGO_POOL_MAX_SIZE", "")
+    )
+
 # if "test" in sys.argv:
 #     DATABASES["default"] = {"ENGINE": "django.db.backends.sqlite3"}
 
