@@ -140,7 +140,10 @@ DATABASES = {
         "NAME": os.environ.get("DATABASE_NAME"),
         "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
         "USER": os.environ.get("DATABASE_USER"),
-        "OPTIONS": {"application_name": "discu.eu", "pool": True},
+        "OPTIONS": {
+            "application_name": "discu.eu",
+            "pool": {"min_size": 32, "max_size": 40},
+        },
     },
 }
 
