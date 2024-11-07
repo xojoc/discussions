@@ -142,20 +142,20 @@ DATABASES = {
         "USER": os.environ.get("DATABASE_USER"),
         "OPTIONS": {
             "application_name": "discu.eu",
-            "pool": {"min_size": 4, "max_size": 8},
+            # "pool": {"min_size": 4, "max_size": 8},
         },
     },
 }
 
-if os.environ.get("DJANGO_POOL_MIN_SIZE", "").lower().strip():
-    DATABASES["default"]["OPTIONS"]["pool"]["min_size"] = int(
-        os.environ.get("DJANGO_POOL_MIN_SIZE", ""),
-    )
-
-if os.environ.get("DJANGO_POOL_MAX_SIZE", "").lower().strip():
-    DATABASES["default"]["OPTIONS"]["pool"]["max_size"] = int(
-        os.environ.get("DJANGO_POOL_MAX_SIZE", ""),
-    )
+# if os.environ.get("DJANGO_POOL_MIN_SIZE", "").lower().strip():
+#     DATABASES["default"]["OPTIONS"]["pool"]["min_size"] = int(
+#         os.environ.get("DJANGO_POOL_MIN_SIZE", ""),
+#     )
+#
+# if os.environ.get("DJANGO_POOL_MAX_SIZE", "").lower().strip():
+#     DATABASES["default"]["OPTIONS"]["pool"]["max_size"] = int(
+#         os.environ.get("DJANGO_POOL_MAX_SIZE", ""),
+#     )
 
 if os.environ.get("DJANGO_DB_APPLICATION_NAME", "").lower().strip():
     DATABASES["default"]["OPTIONS"]["application_name"] = os.environ.get(
