@@ -940,10 +940,12 @@ def mention_live_preview(request):
 
 
 def click(request):
-    url = request.GET.get("url")
+    url = request.GET.getlist("url")
+    url.remove("'")
     if not url:
         msg = "404"
         raise Http404(msg)
+    url = url[0]
     sub = request.GET.get("subscriber")
     year = request.GET.get("year")
     week = request.GET.get("week")

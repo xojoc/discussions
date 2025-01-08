@@ -167,7 +167,11 @@ def parse_html(
                 exc_info=True,
             )
 
-    h = BeautifulSoup(html, "lxml")
+    try:
+        h = BeautifulSoup(html, "lxml")
+    except UnicodeEncodeError:
+        return None
+
     if safe_html:
         while h.script:
             h.script.decompose()
