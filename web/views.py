@@ -43,6 +43,7 @@ from . import (
     util,
     weekly,
 )
+import contextlib
 
 logger = logging.getLogger(__name__)
 
@@ -941,7 +942,8 @@ def mention_live_preview(request):
 
 def click(request):
     url = request.GET.getlist("url")
-    url.remove("'")
+    with contextlib.suppress(ValueError):
+        url.remove("'")
     if not url:
         msg = "404"
         raise Http404(msg)
