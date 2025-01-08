@@ -117,7 +117,10 @@ def fetch(
     resp = None
     try:
         resp = c.send(request.prepare(), stream=True, timeout=timeout)
-    except requests.exceptions.RequestException:
+    except (
+        requests.exceptions.RequestException,
+        urllib3.exceptions.LocationParseError,
+    ):
         logger.warning("http.fetch: send fail: %s", url)
 
     return resp
