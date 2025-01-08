@@ -78,7 +78,7 @@ superuser:
 	poetry run python manage.py createsuperuser
 
 update:
-	@poetry update
+	@poetry update --with=dev
 	@poetry types update
 	@poetry show -o
 
