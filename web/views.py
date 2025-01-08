@@ -366,7 +366,7 @@ def weekly_confirm_email(request):
 
 
 def weekly_confirm_unsubscription(request):
-    if request.method == "GET":
+    if request.method in {"GET", "HEAD"}:
         topic = request.GET.get("topic")
         subscriber_email = request.GET.get("email")
         try:
